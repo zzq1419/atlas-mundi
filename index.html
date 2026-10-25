@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="build" content="2026-10-25-A">
+<title>寰宇图志 · Atlas Mundi</title>
+<meta name="description" content="寰宇图志：3D 地球上的多模态国家文化图谱">
+<style>
+  :root{
+    --bg:#070a12;
+    --bg-2:#0b1020;
+    --ink:#e8ecf6;
+    --ink-dim:#8e9ab5;
+    --ink-faint:#5c6784;
+    --line:rgba(140,165,220,.16);
+    --line-strong:rgba(140,165,220,.32);
+    --gold:#d8b26a;
+    --cyan:#6fd6e8;
+    --ok:#5fd6a4;
+    --bad:#e8798a;
+    --card:rgba(255,255,255,.028);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:"Inter","Segoe UI","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+    line-height:1.7;
+    min-height:100vh;
+    overflow-x:hidden;
+    position:relative;
+  }
+  /* 星空：纯 CSS，无外部图片依赖 */
+  body::before{
+    content:"";
+    position:fixed;inset:0;z-index:0;pointer-events:none;
+    background:
+      radial-gradient(1.4px 1.4px at 12% 18%, rgba(255,255,255,.85), transparent 60%),
+      radial-gradient(1.1px 1.1px at 78% 12%, rgba(255,255,255,.6), transparent 60%),
+      radial-gradient(1.6px 1.6px at 33% 62%, rgba(255,255,255,.55), transparent 60%),
+      radial-gradient(1.1px 1.1px at 88% 71%, rgba(255,255,255,.7), transparent 60%),
+      radial-gradient(1.3px 1.3px at 62% 38%, rgba(255,255,255,.5), transparent 60%),
+      radial-gradient(1px 1px at 8% 82%, rgba(255,255,255,.55), transparent 60%),
+      radial-gradient(1px 1px at 46% 8%, rgba(255,255,255,.45), transparent 60%),
+      radial-gradient(1.2px 1.2px at 94% 42%, rgba(255,255,255,.4), transparent 60%),
+      radial-gradient(circle at 50% -10%, rgba(80,130,220,.16), transparent 55%),
+      radial-gradient(circle at 85% 110%, rgba(120,80,200,.12), transparent 55%);
+  }
+  .wrap{
+    position:relative;z-index:1;
+    max-width:1120px;
+    margin:0 auto;
+    padding:clamp(40px,7vw,92px) clamp(20px,4vw,40px) 72px;
+  }
+
+  /* ---------- 抬头 ---------- */
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:10px;
+    font-size:12px;letter-spacing:.22em;text-transform:uppercase;
+    color:var(--ink-faint);
+    margin-bottom:28px;
+  }
+  .eyebrow i{
+    width:26px;height:1px;background:var(--line-strong);display:inline-block;
+  }
+  h1{
+    font-family:"Source Han Serif SC","Noto Serif CJK SC","Songti SC",Georgia,serif;
+    font-size:clamp(38px,7.4vw,76px);
+    font-weight:600;
+    letter-spacing:.12em;
+    line-height:1.18;
+    margin-bottom:6px;
+  }
+  .latin{
+    font-family:Georgia,"Times New Roman",serif;
+    font-style:italic;
+    font-size:clamp(15px,2.4vw,21px);
+    color:var(--gold);
+    letter-spacing:.14em;
+    margin-bottom:22px;
+    opacity:.92;
+  }
+  .lede{
+    font-size:clamp(15px,2.3vw,18px);
+    color:var(--ink-dim);
+    max-width:46em;
+  }
+  .lede b{color:var(--ink);font-weight:500}
+
+  /* ---------- 典故 ---------- */
+  .quote{
+    margin:38px 0 0;
+    padding:20px 0 20px 22px;
+    border-left:2px solid rgba(216,178,106,.42);
+    font-family:"Source Han Serif SC","Noto Serif CJK SC","Songti SC",Georgia,serif;
+    color:#c9d2e6;
+    font-size:clamp(14px,2.1vw,16.5px);
+    line-height:2;
+  }
+  .quote cite{
+    display:block;
+    margin-top:10px;
+    font-style:normal;
+    font-size:12.5px;
+    letter-spacing:.1em;
+    color:var(--ink-faint);
+  }
+
+  /* ---------- 区块标题 ---------- */
+  .sec{margin-top:clamp(52px,8vw,84px)}
+  .sec-head{
+    display:flex;align-items:baseline;gap:14px;
+    padding-bottom:12px;
+    border-bottom:1px solid var(--line);
+    margin-bottom:26px;
+  }
+  .sec-head h2{
+    font-size:13px;letter-spacing:.2em;text-transform:uppercase;
+    font-weight:600;color:var(--ink);
+  }
+  .sec-head span{
+    font-size:12.5px;color:var(--ink-faint);letter-spacing:.02em;
+  }
+
+  /* ---------- 三国卡 ---------- */
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+    gap:16px;
+  }
+  .card{
+    position:relative;
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:22px 20px 20px;
+    transition:border-color .25s ease, background .25s ease, transform .25s ease;
+    overflow:hidden;
+  }
+  .card:hover{
+    border-color:var(--line-strong);
+    background:rgba(255,255,255,.05);
+    transform:translateY(-2px);
+  }
+  .card .flag{
+    font-size:11px;letter-spacing:.18em;color:var(--ink-faint);
+    text-transform:uppercase;
+  }
+  .card h3{
+    font-size:21px;font-weight:600;margin:6px 0 2px;
+    font-family:"Source Han Serif SC","Songti SC",Georgia,serif;
+    letter-spacing:.06em;
+  }
+  .card .en{font-size:12.5px;color:var(--ink-faint);letter-spacing:.04em}
+  .mods{
+    display:flex;gap:6px;margin-top:18px;flex-wrap:wrap;
+  }
+  .mods em{
+    font-style:normal;font-size:11.5px;
+    padding:3px 9px;border-radius:999px;
+    border:1px solid var(--line);
+    color:var(--ink-faint);
+    letter-spacing:.04em;
+  }
+  .card .state{
+    margin-top:16px;padding-top:13px;
+    border-top:1px dashed var(--line);
+    font-size:12px;color:var(--ink-faint);
+    display:flex;align-items:center;gap:7px;
+  }
+  .dot{width:5px;height:5px;border-radius:50%;background:var(--ink-faint);flex:none}
+
+  /* ---------- 自检面板 ---------- */
+  .check{
+    border:1px solid var(--line);
+    border-radius:14px;
+    overflow:hidden;
+    background:rgba(255,255,255,.02);
+  }
+  .row{
+    display:grid;
+    grid-template-columns:120px 1fr 96px;
+    gap:14px;
+    align-items:center;
+    padding:15px 18px;
+    border-bottom:1px solid var(--line);
+    font-size:13px;
+  }
+  .row:last-child{border-bottom:0}
+  .row .k{color:var(--ink-dim);letter-spacing:.04em}
+  .row .u{
+    color:var(--ink-faint);
+    font-family:ui-monospace,"Cascadia Code",Consolas,monospace;
+    font-size:11.5px;
+    word-break:break-all;
+    line-height:1.55;
+  }
+  .row .s{
+    text-align:right;
+    font-size:12px;
+    letter-spacing:.04em;
+    color:var(--ink-faint);
+    font-variant-numeric:tabular-nums;
+  }
+  .s.ok{color:var(--ok)}
+  .s.bad{color:var(--bad)}
+
+  .hint{
+    margin-top:14px;
+    font-size:12.5px;
+    color:var(--ink-faint);
+    line-height:1.85;
+  }
+  .hint code{
+    font-family:ui-monospace,"Cascadia Code",Consolas,monospace;
+    font-size:11.5px;
+    color:var(--cyan);
+    background:rgba(111,214,232,.08);
+    padding:1px 6px;
+    border-radius:4px;
+  }
+
+  /* ---------- 阶段条 ---------- */
+  .stages{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+    gap:1px;
+    background:var(--line);
+    border:1px solid var(--line);
+    border-radius:12px;
+    overflow:hidden;
+  }
+  .stage{
+    background:var(--bg-2);
+    padding:16px 18px;
+    font-size:12.5px;
+  }
+  .stage b{
+    display:block;font-size:11px;letter-spacing:.16em;
+    color:var(--ink-faint);margin-bottom:6px;font-weight:600;
+  }
+  .stage.done b{color:var(--ok)}
+  .stage.doing b{color:var(--gold)}
+  .stage.todo{opacity:.5}
+
+  footer{
+    margin-top:clamp(56px,9vw,96px);
+    padding-top:22px;
+    border-top:1px solid var(--line);
+    display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;
+    font-size:12px;color:var(--ink-faint);letter-spacing:.06em;
+  }
+  footer .r{font-family:Georgia,serif;font-style:italic;color:var(--gold);opacity:.75}
+
+  @media (max-width:560px){
+    .row{grid-template-columns:1fr;gap:6px}
+    .row .s{text-align:left}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{transition:none!important}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="eyebrow"><i></i>Atlas Mundi · 数据采集与融合技术</div>
+
+  <h1>寰宇图志</h1>
+  <div class="latin">3D 地球上的多模态国家文化图谱</div>
+
+  <p class="lede">
+    点击地球上的任一国家或地区，展开它的<b>地标影像、语言方言、地理坐标与历史民俗</b>。
+    五类异构数据在构建期完成采集、实体对齐与融合，运行时只是一次静态读取。
+  </p>
+
+  <blockquote class="quote">
+    清人魏源《海国图志》、徐继畬《瀛寰志略》，皆以图文志寰宇、述万国。<br>
+    本项目以 3D 地球与多模态数据，续此一脉。
+    <cite>—— 项目立意</cite>
+  </blockquote>
+
+  <!-- ============ 三国入口 ============ -->
+  <section class="sec">
+    <div class="sec-head">
+      <h2>首批范围</h2>
+      <span>三国 · 分属亚、欧、北美三大洲 · 语言天然三种</span>
+    </div>
+    <div class="grid">
+      <article class="card">
+        <div class="flag">CN · Asia</div>
+        <h3>中国</h3>
+        <div class="en">China</div>
+        <div class="mods"><em>地标</em><em>官话 / 粤语</em><em>文本</em><em>坐标</em></div>
+        <div class="state"><span class="dot"></span>待接入数据</div>
+      </article>
+      <article class="card">
+        <div class="flag">FR · Europe</div>
+        <h3>法国</h3>
+        <div class="en">France</div>
+        <div class="mods"><em>地标</em><em>法语 / 布列塔尼语</em><em>文本</em><em>坐标</em></div>
+        <div class="state"><span class="dot"></span>待接入数据</div>
+      </article>
+      <article class="card">
+        <div class="flag">US · North America</div>
+        <h3>美国</h3>
+        <div class="en">United States</div>
+        <div class="mods"><em>地标</em><em>英语</em><em>文本</em><em>坐标</em></div>
+        <div class="state"><span class="dot"></span>待接入数据</div>
+      </article>
+    </div>
+  </section>
+
+  <!-- ============ 跨域自检 ============ -->
+  <section class="sec">
+    <div class="sec-head">
+      <h2>跨域资源自检</h2>
+      <span>本站只托管 HTML；图片与音频由浏览器自行向第三方域名请求</span>
+    </div>
+
+    <div class="check" id="check">
+      <div class="row" data-kind="img" data-src="https://commons.wikimedia.org/wiki/Special:FilePath/The_Great_Wall_of_China_at_Jinshanling-edit.jpg?width=900">
+        <div class="k">图片 · 长城</div>
+        <div class="u">commons.wikimedia.org / Special:FilePath / The_Great_Wall…jpg</div>
+        <div class="s" data-role="state">检测中…</div>
+      </div>
+      <div class="row" data-kind="img" data-src="https://commons.wikimedia.org/wiki/Special:FilePath/Tour_Eiffel_Wikimedia_Commons.jpg?width=900">
+        <div class="k">图片 · 埃菲尔塔</div>
+        <div class="u">commons.wikimedia.org / Special:FilePath / Tour_Eiffel…jpg</div>
+        <div class="s" data-role="state">检测中…</div>
+      </div>
+      <div class="row" data-kind="audio" data-src="https://commons.wikimedia.org/wiki/Special:FilePath/En-us-France.ogg">
+        <div class="k">音频 · 法语发音</div>
+        <div class="u">commons.wikimedia.org / Special:FilePath / En-us-France.ogg</div>
+        <div class="s" data-role="state">检测中…</div>
+      </div>
+    </div>
+
+    <p class="hint">
+      三行全部显示 <code>✓ 加载成功</code>，即说明「前端托管不读取图片，浏览器自己拿着 URL 去下载」这条机制在本机网络下成立。
+      任意一行 <code>✗</code>，说明该资源地址或该域名的可达性有问题，需要换源 —— 这不影响网站本身。
+    </p>
+
+    <div id="preview"></div>
+  </section>
+
+  <!-- ============ 进度 ============ -->
+  <section class="sec">
+    <div class="sec-head">
+      <h2>当前进度</h2>
+      <span>严格按阶段推进，每阶段可独立验收</span>
+    </div>
+    <div class="stages">
+      <div class="stage done"><b>阶段 A</b>静态托管跑通，公网可访问</div>
+      <div class="stage doing"><b>阶段 B</b>跨域图片 / 音频取用验证</div>
+      <div class="stage todo"><b>阶段 C</b>三国数据采集与卡片页</div>
+      <div class="stage todo"><b>阶段 D</b>3D 地球 + 搜索框</div>
+      <div class="stage todo"><b>阶段 E</b>扩至 100+ 国家/地区</div>
+    </div>
+  </section>
+
+  <footer>
+    <div>寰宇图志 · Atlas Mundi　|　福州大学 · 数据采集与融合技术 课程实践</div>
+    <div class="r">Atlas Mundi</div>
+  </footer>
+</div>
+
+<script>
+(function () {
+  var rows = document.querySelectorAll('#check .row');
+  var preview = document.getElementById('preview');
+  var done = 0, ok = 0;
+
+  function mark(row, good, note) {
+    var el = row.querySelector('[data-role="state"]');
+    el.className = 's ' + (good ? 'ok' : 'bad');
+    el.textContent = note;
+    done++;
+    if (good) ok++;
+    if (done === rows.length) {
+      document.dispatchEvent(new CustomEvent('selfcheck', { detail: { ok: ok, total: rows.length } }));
+    }
+  }
+
+  Array.prototype.forEach.call(rows, function (row) {
+    var kind = row.dataset.kind;
+    var src = row.dataset.src;
+    var t0 = performance.now();
+
+    if (kind === 'img') {
+      var img = new Image();
+      img.onload = function () {
+        mark(row, true, '✓ ' + Math.round(performance.now() - t0) + ' ms');
+        img.className = 'probe';
+        img.alt = '跨域测试图片';
+        preview.appendChild(img);
+      };
+      img.onerror = function () { mark(row, false, '✗ 加载失败'); };
+      img.crossOrigin = 'anonymous';
+      img.src = src;
+    } else {
+      var a = new Audio();
+      a.preload = 'metadata';
+      a.addEventListener('loadedmetadata', function () {
+        mark(row, true, '✓ ' + a.duration.toFixed(1) + ' s');
+        a.controls = true;
+        a.className = 'probe audio';
+        preview.appendChild(a);
+      });
+      a.addEventListener('error', function () { mark(row, false, '✗ 加载失败'); });
+      a.src = src;
+    }
+  });
+
+  // 超时兜底：12 秒仍未回来就判失败，避免页面永远停在"检测中"
+  setTimeout(function () {
+    Array.prototype.forEach.call(rows, function (row) {
+      var el = row.querySelector('[data-role="state"]');
+      if (el.textContent === '检测中…') {
+        el.className = 's bad';
+        el.textContent = '✗ 超时';
+        done++;
+      }
+    });
+  }, 12000);
+})();
+</script>
+<style>
+  .probe{
+    display:block;
+    max-width:100%;
+    height:auto;
+    margin-top:18px;
+    border-radius:12px;
+    border:1px solid var(--line);
+    max-height:260px;
+    object-fit:cover;
+  }
+  .probe.audio{margin-top:10px;max-height:none}
+</style>
+</body>
+</html>
