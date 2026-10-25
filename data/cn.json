@@ -88,11 +88,13 @@
   ],
   "needs_review": true,
   "review_notes": [
-    "image_license 未取到：必须从 Commons extmetadata 读取，未取到前不得进入正式数据集（交接文档第 5 节）",
-    "audio_url 全为空：需构建期 TTS 生成 mp3 后回填，届时 audio_source 改为 tts",
-    "geometry 未采集：阶段 D 从 Natural Earth 50m 取 MultiPolygon",
-    "centroid 为人工估算，待替换为 Wikidata P625",
-    "summary_text 现 216 字，低于交接文档要求的 300~500 字，待接 Wikipedia REST 后由 LLM 扩写或压缩到区间内"
+    "待 v0.2 脚本重跑：摘要将由 Wikipedia extracts 覆盖为简体 300~500 字",
+    "图片与授权待 v0.2 脚本重抓（v0.1 因 Wikidata 实体查询失效全部为空）"
   ],
-  "collected_at": "2026-10-25T22:10:00+08:00"
+  "collected_at": "2026-10-25T22:22:17+08:00",
+  "summary_source": {
+    "source": "manual",
+    "note": "v0.2 重跑前的占位文本"
+  },
+  "collector": "scripts/collect.py v0.1"
 }
