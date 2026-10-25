@@ -1,0 +1,54 @@
+name: 数据与脚本校验
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 准备 Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: 安装依赖
+        run: pip install --quiet pillow
+
+      - name: 脚本离线测试（41 项断言）
+        run: python scripts/test_offline.py
+
+      - name: 数据集完整性
+        run: python scripts/check_data.py
+
+      - name: 数据集统计
+        run: |
+          python scripts/stats.py | tee stats.txt
+          {
+            echo "### 数据集统计"
+            echo '```'
+            cat stats.txt
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: 国界合并规则自检
+        run: |
+          # 中国版图必须含中国台湾/中国香港/中国澳门，缺一即错绘
+          python - <<'PY'
+          import json, sys
+          gj = json.load(open("geo/cn.geojson", encoding="utf-8"))
+          merged = gj["features"][0]["properties"].get("_merged_iso") or []
+          need = ["TW", "HK", "MO"]
+          lost = [c for c in need if c not in merged]
+          print("cn.geojson 已并入:", merged)
+          if lost:
+              sys.exit("版图缺少: %s" % lost)
+          print("OK")
+          PY
