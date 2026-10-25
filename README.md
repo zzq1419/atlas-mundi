@@ -61,7 +61,34 @@ atlas-mundi/
 
 主键：对外 `iso_a2`，内部 `QID`。字段映射与实体对齐规则见交接文档第 5、6 节。
 
+## 数据契约（每国一条 `/data/{iso}.json`）
+
+对外主键 `iso_a2`；`/data/index.json` 只放渲染入口卡需要的字段，详情按主键再拉一次。
+
+| 字段 | 状态 | 说明 |
+| --- | --- | --- |
+| `iso_a2` / `iso_a3` / `qid` | ✅ | 主键与回溯标识 |
+| `name_zh` / `name_en` / `name_local` | ✅ | 三语并列 |
+| `capital` / `continent` | ✅ | 面板副标题与分组 |
+| `centroid` | ⚠️ 人工估算 | 待换 Wikidata P625 |
+| `languages[]` | ✅ | 含 `role` 与各自 `audio_status` |
+| `landmark_images[]` | ✅ | 含 `caption` / `license` / `load_verified` |
+| `image_license` | ❌ 未取到 | 必须从 Commons `extmetadata` 读，取不到即丢弃该图 |
+| `summary_text` | ✅ 人工撰写 | 待换 Wikipedia REST + LLM 改写 |
+| `custom_text` | ✅ 人工撰写 | 历史民俗摘编 |
+| `audio_url` | ❌ 待 TTS | 构建期生成 mp3 后回填，`audio_source` 改 `tts` |
+| `geometry` | ❌ 待采集 | 阶段 D 从 Natural Earth 50m 取 MultiPolygon |
+| `sources[]` / `review_notes[]` | ✅ | 过程留痕，供报告"情感态度"与"建模算法调研"引用 |
+
+`review_notes` 里逐条列出未达标项，**不隐藏缺口**：缺授权字段的图不进正式数据集，缺音频的走 TTS 兜底，缺边界的微国家用 `centroid` 渲染圆点。
+
 ## 本地预览
 
-直接双击 `index.html` 即可，无需任何服务器。
-`file://` 协议下跨域自检可能全部失败，这是浏览器安全策略，属正常现象 —— 用公网链接验证。
+直接双击 `index.html` 即可，但 `file://` 协议下浏览器禁止 `fetch`，数据区会提示失败 —— 这是浏览器安全策略，属正常。
+要看完整效果请用公网地址，或在本目录起一个本地服务器：
+
+```bash
+python -m http.server 8000
+# 然后访问 http://localhost:8000/
+```
+
