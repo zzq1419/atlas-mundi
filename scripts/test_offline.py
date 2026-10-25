@@ -119,6 +119,25 @@ chk("下划线/空格归一命中", meta is not None, True)
 chk("授权解析", (meta or {}).get("license"), "CC BY-SA 4.0")
 chk("作者去 HTML", (meta or {}).get("artist"), "Severin.stalder")
 
+# 图片过滤：踩过两次（Locator map / Location Map svg），必须回归保护
+BAD_CASES = [
+    ("United States - Location Map (2013) - USA - UNOCHA.svg", True),
+    ("Locator map of United States.png", True),
+    ("Flag of the United States.svg", True),
+    ("Flag_of_France.svg", True),
+    ("Great Seal of the United States (obverse).svg", True),
+    ("National emblem of France.svg", True),
+    ("Coat of arms of France.svg", True),
+    ("Map of USA states.png", True),
+    ("The Great Wall of China at Jinshanling-edit.jpg", False),
+    ("Paris from the Arc de Triomphe, 25 April 2014.jpg", False),
+    ("Grand Canyon Hopi Point.jpg", False),
+    ("US Capitol west side.JPG", False),
+    ("Statue of Liberty 7.jpg", False),
+]
+for name, want in BAD_CASES:
+    chk(("拦截 " if want else "放行 ") + name[:34], c.is_bad_image(name), want)
+
 print("\n%d / %d 通过" % (sum(results), len(results)))
 if notes:
     print("notes:")

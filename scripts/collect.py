@@ -79,14 +79,21 @@ LANG_DROP = {"中文", "汉语", "中国语言", "Chinese", "Chinese language",
              "普通话", "Standard Chinese"}
 
 
-# P18 常挂地图、国旗、徽章而不是地标（美国 Q30 实测给的是 "Locator map of United States"）
-BAD_IMAGE_KEYS = ("locator", "_map", "map_of", "map-", "flag_of", "flag-", "seal",
-                  "coat_of_arms", "emblem", "logo", "diagram", "blank", "silhouette")
+# P18 常挂地图、国旗、徽章而不是地标。
+# 踩过两次：Q30 的 P18 是 "Locator map of United States"（v1 关键词表漏了），
+# 换了词表后又是 "United States - Location Map (2013) - USA - UNOCHA.svg"。
+# 所以用词边界正则 + 直接拒 .svg —— 地标照片不会是 SVG，而地图/旗帜/徽章几乎都是。
+BAD_IMAGE_RE = re.compile(
+    r"\b(map|maps|mapping|locator|location|flag|flags|seal|emblem|logo|logos|"
+    r"coat.of.arms|diagram|silhouette|blank|outline|banner)\b",
+    re.IGNORECASE)
 
 
 def is_bad_image(name):
-    low = (name or "").lower()
-    return any(k in low for k in BAD_IMAGE_KEYS)
+    low = (name or "").replace("_", " ").lower()
+    if low.endswith(".svg") or ".svg." in low:
+        return True
+    return bool(BAD_IMAGE_RE.search(low))
 
 
 def is_zh_audio(name):
@@ -479,6 +486,10 @@ def fetch_assets(iso2, wd, notes):
             notes.append("图片 %s 未取到直链，已跳过" % name)
             log("      ✗ %s 无直链" % name)
             continue
+        if (meta.get("mime") or "").startswith("image/svg"):
+            notes.append("图片 %s 原始格式是 SVG（地图/旗帜/徽章常见），已跳过" % name)
+            log("      ✗ %s 是 SVG，跳过" % name)
+            continue
         ext = ext_of(meta["remote_url"])
         rel = "assets/%s/%02d%s" % (slug, idx, ext)
         try:
@@ -501,6 +512,7 @@ def fetch_assets(iso2, wd, notes):
             "load_verified": True, "bytes": size,
         })
         log("      ✓ %s  %.0f KB  授权=%s" % (rel, size / 1024, lic or "待确认"))
+        log("        来源文件：%s" % name)
 
     cand = [n for n in (wd.get("_audio_files") or []) if is_zh_audio(n)]
     dropped = [n for n in (wd.get("_audio_files") or []) if not is_zh_audio(n)]
