@@ -82,6 +82,32 @@ atlas-mundi/
 
 `review_notes` 里逐条列出未达标项，**不隐藏缺口**：缺授权字段的图不进正式数据集，缺音频的走 TTS 兜底，缺边界的微国家用 `centroid` 渲染圆点。
 
+## 采集（构建期，跑在本机）
+
+```bash
+python scripts/collect.py CN          # 采集一国
+python scripts/collect.py CN --geo    # 额外抓 Natural Earth 50m 边界（首次约 24MB）
+```
+
+Windows 上直接双击 `采集中国.bat` 即可，脚本只用标准库，不需要 pip 装任何东西。
+
+**必须在开代理的情况下跑** —— Wikimedia 系（`commons` / `upload` / `query.wikidata` / `zh.wikipedia`）在国内直连与代理两种模式下都不通。
+
+采集流程与字段归属：
+
+| 步骤 | 接口 | 产出 |
+| --- | --- | --- |
+| 1 | Wikidata SPARQL（P297/P298/P625/P36/P30/P37/P18/P443） | ISO 码、坐标、首都、大洲、官方语言、代表图、发音文件 |
+| 2 | Wikipedia REST | 中文摘要，自动压到 300~500 字 |
+| 3 | Commons `imageinfo` + `extmetadata` | 图片直链 + **真实授权**，素材下载进 `assets/{iso}/` |
+| 4 | Natural Earth 50m（`--geo`） | 国界 MultiPolygon，提取后存 `geo/{iso}.geojson` |
+
+三条不变量：
+
+1. **授权取不到就丢弃该图**，不猜、不填默认值
+2. **素材落本地**，JSON 里存相对路径 —— 断网、无代理也能演示
+3. **失败不中断**，缺口逐条写入 `review_notes`，同步更新 `data/index.json` 的模态就绪位
+
 ## 本地预览
 
 直接双击 `index.html` 即可，但 `file://` 协议下浏览器禁止 `fetch`，数据区会提示失败 —— 这是浏览器安全策略，属正常。
