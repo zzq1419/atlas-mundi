@@ -24,11 +24,52 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--cols", type=int, default=4)
     ap.add_argument("--out", default=os.path.join("review", "contact_sheet.jpg"))
+    ap.add_argument("--candidates", action="store_true",
+                    help="改为核对 review/candidates/ 下的候选图")
+    ap.add_argument("--cols-c", type=int, default=4)
     args = ap.parse_args()
 
     from PIL import Image, ImageDraw, ImageFont
 
     rows = []
+    if args.candidates:
+        with open(os.path.join(ROOT, "review", "candidates.json"), encoding="utf-8") as f:
+            man = json.load(f)
+        for iso in ("CN", "FR", "US"):
+            for item in man.get(iso, []):
+                for c in item.get("candidates") or []:
+                    p = os.path.join(ROOT, "review", "candidates", c["file"])
+                    if os.path.exists(p):
+                        rows.append((iso, item["n"],
+                                     "%d.%s %s" % (c["k"], item["zh"], c["origin"][:22]), p))
+        cols = args.cols_c
+        grid_rows = (len(rows) + cols - 1) // cols
+        W = cols * (CELL_W + PAD) + PAD
+        H = grid_rows * (CELL_H + LABEL_H + PAD) + PAD
+        from PIL import Image as _I, ImageDraw as _D, ImageFont as _F
+        try:
+            font = _F.truetype("C:/Windows/Fonts/msyh.ttc", 13)
+        except Exception:
+            font = _F.load_default()
+        sheet = _I.new("RGB", (W, H), (12, 16, 26))
+        dr = _D.Draw(sheet)
+        for idx, (iso, n, cap, path) in enumerate(rows):
+            r, c = divmod(idx, cols)
+            x = PAD + c * (CELL_W + PAD)
+            y = PAD + r * (CELL_H + LABEL_H + PAD)
+            im = _I.open(path).convert("RGB")
+            im.thumbnail((CELL_W, CELL_H), _I.LANCZOS)
+            sheet.paste(im, (x + (CELL_W - im.width) // 2, y + (CELL_H - im.height) // 2))
+            dr.text((x + 2, y + CELL_H + 3), cap[:30], fill=(200, 214, 235), font=font)
+        out = os.path.join(ROOT, args.out.replace("contact_sheet", "candidates_sheet"))
+        os.makedirs(os.path.dirname(out), exist_ok=True)
+        sheet.save(out, "JPEG", quality=86)
+        print("已生成 %s（%d 张候选，%dx%d）" % (
+            os.path.relpath(out, ROOT), len(rows), W, H))
+        for iso, n, cap, _ in rows:
+            print("  %s" % cap)
+        return
+
     for fn in sorted(os.listdir(os.path.join(ROOT, "data"))):
         if not fn.endswith(".json") or fn in ("index.json", "landmarks.json"):
             continue

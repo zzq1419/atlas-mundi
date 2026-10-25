@@ -1,25 +1,44 @@
 {
-  "note": "人工选定的地标清单。fill_images.py 按 kw 搜 Commons，并用 must 校验文件名确实包含该主体（防止搜到'战神广场'却拿了一张没有铁塔的照片）；再按宽高比与分辨率择优。顺序即展示顺序，第一张是封面。",
+  "note": "人工选定的地标清单。queries 是检索词（只放地标本名，别加'玻璃''（南缘）'这类修饰，否则 Wikidata/中文维基都匹配不上）；en 用于校验取回的图确实是这个东西；must/avoid 只在退到 Commons 关键词搜索时生效。",
   "schema": 1,
   "countries": {
     "CN": [
       {
         "zh": "金山岭长城",
+        "en": "great wall",
+        "queries": [
+          "金山岭长城",
+          "长城"
+        ],
         "kw": "Great Wall of China Jinshanling",
         "must": "great wall"
       },
       {
         "zh": "故宫太和殿",
+        "en": "supreme harmony",
+        "queries": [
+          "太和殿",
+          "故宫太和殿"
+        ],
         "kw": "Hall of Supreme Harmony Forbidden City",
         "must": "supreme harmony"
       },
       {
         "zh": "秦始皇陵兵马俑",
-        "kw": "Terracotta Army Pit 1 Xian",
+        "en": "terracotta",
+        "queries": [
+          "秦始皇兵马俑",
+          "兵马俑"
+        ],
+        "kw": "Terracotta Army Pit 1",
         "must": "terracotta"
       },
       {
         "zh": "布达拉宫",
+        "en": "potala",
+        "queries": [
+          "布达拉宫"
+        ],
         "kw": "Potala Palace Lhasa",
         "must": "potala"
       }
@@ -27,43 +46,97 @@
     "FR": [
       {
         "zh": "埃菲尔铁塔",
+        "en": "eiffel",
+        "queries": [
+          "埃菲尔铁塔"
+        ],
         "kw": "Eiffel Tower Champ de Mars",
-        "must": "eiffel"
+        "must": "eiffel",
+        "avoid": [
+          "sous"
+        ]
       },
       {
         "zh": "卢浮宫玻璃金字塔",
+        "en": "louvre",
+        "queries": [
+          "卢浮宫金字塔",
+          "卢浮宫"
+        ],
         "kw": "Louvre Pyramid courtyard",
-        "must": "louvre"
+        "must": "louvre",
+        "avoid": [
+          "construction",
+          "1987",
+          "plan"
+        ]
       },
       {
         "zh": "圣米歇尔山",
-        "kw": "Mont Saint-Michel abbey",
-        "must": "mont saint"
+        "en": "mont saint|mont-saint",
+        "queries": [
+          "圣米歇尔山"
+        ],
+        "kw": "Mont Saint-Michel island abbey",
+        "must": "mont saint",
+        "avoid": [
+          "cistern",
+          "chaplaincy",
+          "interior"
+        ]
       },
       {
         "zh": "凡尔赛宫镜厅",
+        "en": "mirror",
+        "queries": [
+          "镜厅",
+          "凡尔赛宫镜厅"
+        ],
         "kw": "Hall of Mirrors Versailles",
-        "must": "mirror"
+        "must": "mirror",
+        "avoid": [
+          "foudre"
+        ]
       }
     ],
     "US": [
       {
         "zh": "自由女神像",
+        "en": "statue of liberty",
+        "queries": [
+          "自由女神像"
+        ],
         "kw": "Statue of Liberty",
         "must": "statue of liberty"
       },
       {
-        "zh": "大峡谷（南缘）",
+        "zh": "大峡谷",
+        "en": "grand canyon",
+        "queries": [
+          "科罗拉多大峡谷",
+          "大峡谷"
+        ],
         "kw": "Grand Canyon South Rim",
-        "must": "grand canyon"
+        "must": "grand canyon",
+        "avoid": [
+          "hazy"
+        ]
       },
       {
         "zh": "金门大桥",
+        "en": "golden gate",
+        "queries": [
+          "金门大桥"
+        ],
         "kw": "Golden Gate Bridge",
         "must": "golden gate"
       },
       {
         "zh": "白宫",
+        "en": "white house",
+        "queries": [
+          "白宫"
+        ],
         "kw": "White House north facade",
         "must": "white house"
       }
