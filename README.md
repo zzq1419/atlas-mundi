@@ -82,6 +82,28 @@ atlas-mundi/
 
 `review_notes` 里逐条列出未达标项，**不隐藏缺口**：缺授权字段的图不进正式数据集，缺音频的走 TTS 兜底，缺边界的微国家用 `centroid` 渲染圆点。
 
+## 云平台使用清单（对应评分表「项目准备 · 云平台」）
+
+只写真实使用过的，不用凑数。
+
+| # | 平台 / 服务 | 用途 | 是否使用 |
+| --- | --- | --- | --- |
+| 1 | **GitHub Pages** | 托管站点与数据（`zzq1419.github.io/atlas-mundi`） | ✅ |
+| 2 | **GitHub Actions** | CI：每次推送跑离线测试（41 项断言）+ 数据完整性门禁 + 国界合规自检 | ✅ |
+| 3 | **GitHub Releases** | 数据集快照发布 `v0.1.0`（含 `MANIFEST.json`） | ✅ |
+| 4 | GitHub REST API | 建仓、提交、开启 Pages、创建 Release（不单列为「平台」） | ✅ |
+| 5 | Edge TTS | 构建期语音合成（免 key、无控制台，按「在线 TTS 服务」记） | ✅ |
+| — | 华为云 OBS | 素材对象存储 | ❌ 未使用 |
+| — | 华为云 TTS | 语音合成 | ❌ 未使用（改用 Edge TTS） |
+
+**关于华为云**：素材总量仅 1.3MB，全部随仓库托管，`assets/` 走相对路径即可，
+引入对象存储反而要额外配 CORS、加一域名、多一份维护成本，收益为零。
+若后续扩到 250 国导致仓库膨胀（预估 60~80MB），再迁移到 OBS 才有意义 ——
+届时按交接文档的做法只领免费体验包、不绑卡。
+
+**不写没做过的事**：报告里不出现「使用华为云 OBS / 华为云语音合成」，
+因为实际没有调用过。这属于数据来源与工具使用的真实性，不是措辞问题。
+
 ## 采集（构建期，跑在本机）
 
 ```bash
@@ -174,6 +196,12 @@ Wikidata 的 P18 每国只给 **1 张**「代表图」，而且不保证是地�
 python scripts/optimize_images.py --all   # 大图转 WebP 双尺寸，改写 JSON 路径
 python scripts/tts.py CN                  # 逐国生成语音（有音色的语种才生成）
 python scripts/sync_index.py              # 由 data/*.json 反推 index.json 的模态位与状态
+```
+
+保存完后跑一次门禁，CI 里也是同一条命令：
+
+```bash
+python scripts/check_data.py     # 字段齐全 / 素材存在 / 几何合法 / 中国版图含台港澳 / index 与档案一致
 ```
 
 `sync_index.py` 是必需的：`collect.py` 只按采集当时的字段写一次 `index.json`，
