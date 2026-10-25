@@ -6,15 +6,18 @@
     {
       "iso_a2": "CN",
       "name_zh": "中国",
-      "name_en": "China",
+      "name_en": "People's Republic of China",
       "name_local": "中国",
-      "continent": "Asia",
-      "capital": "北京",
-      "centroid": [103.0, 35.0],
-      "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/The_Great_Wall_of_China_at_Jinshanling-edit.jpg?width=640",
+      "continent": "亚洲",
+      "capital": "北京市",
+      "centroid": [
+        103.4519,
+        35.8447
+      ],
+      "thumb": "assets/cn/01.jpg",
       "modalities": {
         "image": true,
-        "audio": false,
+        "audio": true,
         "text": true,
         "coords": true,
         "geometry": false
@@ -28,7 +31,10 @@
       "name_local": "France",
       "continent": "Europe",
       "capital": "巴黎",
-      "centroid": [2.3, 46.6],
+      "centroid": [
+        2.3,
+        46.6
+      ],
       "thumb": null,
       "modalities": {
         "image": false,
@@ -46,7 +52,10 @@
       "name_local": "United States",
       "continent": "North America",
       "capital": "华盛顿哥伦比亚特区",
-      "centroid": [-98.5, 39.8],
+      "centroid": [
+        -98.5,
+        39.8
+      ],
       "thumb": null,
       "modalities": {
         "image": false,
