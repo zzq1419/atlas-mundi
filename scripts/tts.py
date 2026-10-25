@@ -42,7 +42,6 @@ VOICE = {
     "cmn": "zh-CN-XiaoxiaoNeural",
     "yue": "zh-HK-HiuMaanNeural",
     "fr": "fr-FR-DeniseNeural",
-    "br": "fr-FR-DeniseNeural",      # 布列塔尼语无独立音色，先用法语顶上并标注
     "en": "en-US-AriaNeural",
     "es": "es-ES-ElviraNeural",
     "ar": "ar-SA-ZariyahNeural",
@@ -51,6 +50,24 @@ VOICE = {
     "ko": "ko-KR-SunHiNeural",
     "de": "de-DE-KatjaNeural",
     "pt": "pt-BR-FranciscaNeural",
+}
+
+# 没有可用合成音色的语种：明确跳过并在 review_notes 留痕，不要用邻近语种硬读
+NO_VOICE = {"br": "布列塔尼语无可用合成音色（Edge TTS 不含凯尔特语支）", "oc": "奥克语无可用合成音色"}
+
+# 手写句库：每国每条语言一句 5~6 秒的话。比模板拼装自然得多，也方便你改。
+PHRASES = {
+    ("CN", "zh"): "你好，欢迎来到中国。首都是北京，万里长城横贯北方。",
+    ("CN", "yue"): "你好，歡迎嚟到中國。首都係北京，萬里長城橫貫北方。",
+    ("FR", "fr"): "Bonjour, bienvenue en France. Sa capitale est Paris, et la tour Eiffel se dresse au bord de la Seine.",
+    ("US", "en"): "Hello, welcome to the United States. Its capital is Washington, D.C., and the Grand Canyon lies in the southwest.",
+}
+
+# 句库里没有时的兜底模板
+TEMPLATE = {
+    "zh": "你好，欢迎来到{name}。首都是{cap}。",
+    "en": "Hello, welcome to {name}. Its capital is {cap}.",
+    "fr": "Bonjour, bienvenue en {name}. Sa capitale est {cap}.",
 }
 
 VOICE_NAMES = {
@@ -123,14 +140,23 @@ def main():
     out_dir = os.path.join(ROOT, "assets", slug, "audio")
     os.makedirs(out_dir, exist_ok=True)
     engine = args.engine
-    done, failed = [], []
+    done, failed, skipped = [], [], []
 
     for l in langs:
         code = l.get("code") or "zh"
-        text = l.get("tts_text")
-        if not text:
-            print("  - %-6s 无 tts_text，跳过" % code)
+        if code in NO_VOICE:
+            print("  - %-6s 跳过：%s" % (code, NO_VOICE[code]))
+            skipped.append(code)
             continue
+        text = (l.get("tts_text")
+                or PHRASES.get((iso, code))
+                or TEMPLATE.get(code, "").format(name=rec.get("name_local") or rec.get("name_zh") or "",
+                                                 cap=rec.get("capital") or ""))
+        if not text or text.strip() in ("你好，欢迎来到。首都是。", "Hello, welcome to . Its capital is ."):
+            print("  - %-6s 没有可用文案，跳过" % code)
+            skipped.append(code)
+            continue
+        l["tts_text"] = text
         voice = VOICE.get(code, "en-US-AriaNeural")
         ext, use_engine = ".mp3", engine
 
@@ -184,6 +210,10 @@ def main():
     }
     if failed:
         rec.setdefault("review_notes", []).append("以下语言 TTS 失败：%s" % "、".join(failed))
+    if skipped:
+        rec["review_notes"] = [n for n in rec.get("review_notes", []) if "无音色" not in n]
+        rec.setdefault("review_notes", []).append(
+            "以下语言未生成语音（无合适音色，不用邻近语种硬读）：%s" % "、".join(skipped))
 
     with open(path, "w", encoding="utf-8") as f:
         json.dump(rec, f, ensure_ascii=False, indent=2)

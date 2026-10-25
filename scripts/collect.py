@@ -64,6 +64,16 @@ ISO_QID = {"CN": "Q148", "FR": "Q142", "US": "Q30"}
 # Wikidata 的 zh 标签常给全称，卡片要短名。补在这里，按需扩展。
 SHORT_NAME = {"Q148": ["中国"], "Q142": ["法国"], "Q30": ["美国"]}
 
+# P37 返回的是语言条目的 QID（如 Q150=法语），转成 BCP47 才好用。
+# 只覆盖首批三国及常见语种，扩量时补这张表；查不到就保留 QID。
+LANG_CODE = {
+    "Q150": "fr", "Q1860": "en", "Q727694": "zh", "Q7850": "zh",
+    "Q9186": "yue", "Q835866": "zh", "Q24841726": "zh",
+    "Q12107": "br", "Q14185": "oc", "Q652": "it", "Q1321": "es",
+    "Q188": "de", "Q7737": "ru", "Q5287": "ja", "Q9176": "ko",
+    "Q8748": "ar", "Q5146": "pt",
+}
+
 # P37 常见上下位概念，展示时丢弃（保留「现代标准汉语」这类最具体的）
 LANG_DROP = {"中文", "汉语", "中国语言", "Chinese", "Chinese language",
              "普通话", "Standard Chinese"}
@@ -281,7 +291,8 @@ def fetch_wikidata(iso2, forced_qid, notes):
     if con_ids:
         out["continent"] = lab.get(con_ids[0])
     if lang_ids:
-        raw = [{"code": q, "name_zh": lab.get(q) or q, "name_local": lab.get(q) or q,
+        raw = [{"code": LANG_CODE.get(q, q), "name_zh": lab.get(q) or q,
+                "name_local": lab.get(q) or q,
                 "role": "official", "audio_url": None, "audio_source": None,
                 "audio_status": "pending"} for q in lang_ids]
         # P37 会同时给出「中文 / 汉语 / 现代标准汉语 / 普通话」这类上下位概念，

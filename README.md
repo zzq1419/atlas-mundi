@@ -89,7 +89,14 @@ python scripts/collect.py CN          # 采集一国
 python scripts/collect.py CN --geo    # 额外抓 Natural Earth 50m 边界（首次约 24MB）
 ```
 
-Windows 上直接双击 `采集中国.bat` 即可，脚本只用标准库，不需要 pip 装任何东西。
+Windows 上直接双击启动器即可，脚本只用标准库，不需要 pip 装任何东西：
+
+| 启动器 | 作用 |
+| --- | --- |
+| `采集中国.bat` | 采 CN |
+| `采集法国美国.bat` | 采 FR + US，一国失败不影响另一国 |
+
+换其他国家：改启动器里的 ISO 码，或命令行 `python scripts/collect.py DE`。
 
 **必须在开代理的情况下跑** —— Wikimedia 系（`commons` / `upload` / `query.wikidata` / `zh.wikipedia`）在国内直连与代理两种模式下都不通。
 
@@ -135,7 +142,10 @@ B 级存在的理由：Wikimedia 上绝大多数文件都有授权，取不到�
 区域语言（粤语）一律走 TTS。
 
 语音内容约定：**每个语言一条 5~6 秒的句子，不是干念国名**。念两三个字播放条一闪就没，演示时看不出
-「这是语音模态」，等于白做一条模态。文案存在 `languages[].tts_text`，人工可控。
+「这是语音模态」，等于白做一条模态。文案优先取 `languages[].tts_text`，其次取 `scripts/tts.py` 里的
+`PHRASES` 句库，最后才用模板拼装 —— 手写句子比模板自然，也方便改。
+
+没有对应音色的语种（如布列塔尼语 `br`）**明确跳过并写入 `review_notes`**，不用邻近语种硬读冒充。
 
 图片：原图下载后统一转 WebP 双尺寸（详情 760px q72 / 缩略 400px q74），960×615 的 272KB JPEG →
 108KB + 27KB，减半。原图不入库，`remote_url` 保留可回溯。
