@@ -102,11 +102,24 @@ Windows 上直接双击 `采集中国.bat` 即可，脚本只用标准库，不�
 | 3 | Commons `imageinfo` + `extmetadata` | 图片直链 + **真实授权**，素材下载进 `assets/{iso}/` |
 | 4 | Natural Earth 50m（`--geo`） | 国界 MultiPolygon，提取后存 `geo/{iso}.geojson` |
 
-三条不变量：
+授权三级策略（不因缺授权就一张图都没有）：
 
-1. **授权取不到就丢弃该图**，不猜、不填默认值
+| 级 | 情况 | 处理 |
+| --- | --- | --- |
+| A | `extmetadata` 有授权 | 写入 `license`，`license_status=ok`，页面显示「CC BY-SA 4.0 · 作者」 |
+| B | 无授权但有文件直链 | **保留图片**，`license_status=unknown`，页面标「授权待确认」并保留来源文件名 |
+| C | 连文件直链都拿不到 | 丢弃，记入 `review_notes` |
+
+B 级存在的理由：Wikimedia 上绝大多数文件都有授权，取不到通常是 `extmetadata` 解析异常而非真的无授权。为此让一个国家一张图都没有，代价远大于「标注来源 + 授权待确认」。**来源必须留痕**，这是学术诚实的最低线。
+
+另外两条不变量：
+
 2. **素材落本地**，JSON 里存相对路径 —— 断网、无代理也能演示
 3. **失败不中断**，缺口逐条写入 `review_notes`，同步更新 `data/index.json` 的模态就绪位
+
+连通性体检：`python scripts/collect.py CN --check`。四个域名（Wikidata / 中文维基 / Commons / upload 图床）逐个探测；**全部不通时脚本直接中止，不会覆盖已有 JSON**。
+
+离线测试：`python scripts/test_offline.py` —— 用夹具驱动解析链路，不联网，覆盖标签解析、坐标解包、摘要截断、配图过滤、标题归一与授权解析。
 
 ## 本地预览
 
