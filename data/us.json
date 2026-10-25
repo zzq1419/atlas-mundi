@@ -43,82 +43,110 @@
   },
   "landmark_images": [
     {
-      "title": "File:1 times square night 2013.jpg",
-      "caption": "times square night 2013 new york city manhattan",
-      "url": "assets/us/01.webp",
-      "thumb_url": "assets/us/01.thumb.webp",
-      "remote_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c0/1_times_square_night_2013.jpg/960px-1_times_square_night_2013.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
-      "source": "commons",
-      "origin_kind": "维基正文配图",
-      "author": "chensiyuan",
-      "license": "CC BY-SA 4.0",
-      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "title": "File:Statue of Liberty, NY.jpg",
+      "caption_zh": "自由女神像",
+      "caption": "自由女神像",
+      "caption_commons": "Statue of Liberty (more formally, Liberty Enlightening the World, and more collo",
+      "kw": "Statue of Liberty front",
+      "url": "assets/us/L01.webp",
+      "thumb_url": "assets/us/L01.thumb.webp",
+      "remote_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d3/Statue_of_Liberty%2C_NY.jpg/960px-Statue_of_Liberty%2C_NY.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "source": "commons_search",
+      "author": "William Warby",
+      "license": "CC BY 2.0",
+      "license_url": "https://creativecommons.org/licenses/by/2.0",
       "license_status": "ok",
       "load_verified": true,
-      "bytes": 91812,
-      "thumb_bytes": 28924,
-      "size": {
-        "detail": "760x507",
-        "thumb": "400x267"
-      },
-      "encoding": "webp q72/q74 (源 960x641 248KB JPEG)"
-    },
-    {
-      "title": "File:20190329-FS-FlatheadNF-YFYF-105 (46609141605).jpg",
-      "caption": "In the heart of the Rocky Mountains, west of the continental",
-      "url": "assets/us/02.webp",
-      "thumb_url": "assets/us/02.thumb.webp",
-      "remote_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/ca/20190329-FS-FlatheadNF-YFYF-105_%2846609141605%29.jpg/960px-20190329-FS-FlatheadNF-YFYF-105_%2846609141605%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
-      "source": "commons",
-      "origin_kind": "维基正文配图",
-      "author": "Forest Service, USDA",
-      "license": "Public domain",
-      "license_url": null,
-      "license_status": "ok",
-      "load_verified": true,
-      "bytes": 102552,
-      "thumb_bytes": 27632,
-      "size": {
-        "detail": "760x507",
-        "thumb": "400x267"
-      },
-      "encoding": "webp q72/q74 (源 960x640 261KB JPEG)"
-    },
-    {
-      "title": "File:2020-10-17 13 43 18 Grove of Sugar Maples in autumn at about 1300 feet above sea level along Sky Line Drive on Equinox Mountain in Manchester, Bennington County, Vermont.jpg",
-      "caption": "Grove of Sugar Maples in autumn at about 1300 feet above sea",
-      "url": "assets/us/03.webp",
-      "thumb_url": "assets/us/03.thumb.webp",
-      "remote_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/52/2020-10-17_13_43_18_Grove_of_Sugar_Maples_in_autumn_at_about_1300_feet_above_sea_level_along_Sky_Line_Drive_on_Equinox_Mountain_in_Manchester%2C_Bennington_County%2C_Vermont.jpg/960px-thumbnail.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
-      "source": "commons",
-      "origin_kind": "维基正文配图",
-      "author": "Famartin",
-      "license": "CC BY-SA 4.0",
-      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
-      "license_status": "ok",
-      "load_verified": true,
-      "bytes": 194888,
-      "thumb_bytes": 48816,
+      "bytes": 33776,
+      "thumb_bytes": 10296,
       "size": {
         "detail": "760x570",
         "thumb": "400x300"
       },
-      "encoding": "webp q72/q74 (源 960x720 438KB JPEG)"
+      "encoding": "webp q72/q74 (源 960x720 118KB JPEG)"
+    },
+    {
+      "title": "File:Grand Canyon South Rim at Sunset.jpg",
+      "caption_zh": "大峡谷（南缘）",
+      "caption": "大峡谷（南缘）",
+      "caption_commons": "Grand Canyon South Rim at Sunset.",
+      "kw": "Grand Canyon South Rim",
+      "url": "assets/us/L02.webp",
+      "thumb_url": "assets/us/L02.thumb.webp",
+      "remote_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/12/Grand_Canyon_South_Rim_at_Sunset.jpg/960px-Grand_Canyon_South_Rim_at_Sunset.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "source": "commons_search",
+      "author": "Mgimelfarb",
+      "license": "CC0",
+      "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+      "license_status": "ok",
+      "load_verified": true,
+      "bytes": 29968,
+      "thumb_bytes": 8084,
+      "size": {
+        "detail": "760x242",
+        "thumb": "400x128"
+      },
+      "encoding": "webp q72/q74 (源 960x306 90KB JPEG)"
+    },
+    {
+      "title": "File:Golden Gate Bridge as seen from Marshall’s Beach, March 2018.jpg",
+      "caption_zh": "金门大桥",
+      "caption": "金门大桥",
+      "caption_commons": "Golden Gate Bridge as seen from Marshall’s Beach, Presidio of San Francisco, in ",
+      "kw": "Golden Gate Bridge",
+      "url": "assets/us/L03.webp",
+      "thumb_url": "assets/us/L03.thumb.webp",
+      "remote_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c7/Golden_Gate_Bridge_as_seen_from_Marshall%E2%80%99s_Beach%2C_March_2018.jpg/960px-Golden_Gate_Bridge_as_seen_from_Marshall%E2%80%99s_Beach%2C_March_2018.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "source": "commons_search",
+      "author": "Frank Schulenburg",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "license_status": "ok",
+      "load_verified": true,
+      "bytes": 49078,
+      "thumb_bytes": 14704,
+      "size": {
+        "detail": "760x428",
+        "thumb": "400x225"
+      },
+      "encoding": "webp q72/q74 (源 960x540 142KB JPEG)"
+    },
+    {
+      "title": "File:Madrid - Edificio Grassy (Gran Vía 1) - north facade - relief over entrance.jpg",
+      "caption_zh": "白宫",
+      "caption": "白宫",
+      "caption_commons": "Relief over the central entrance at the north façade of the Edificio Grassy, bui",
+      "kw": "White House north facade",
+      "url": "assets/us/L04.webp",
+      "thumb_url": "assets/us/L04.thumb.webp",
+      "remote_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a1/Madrid_-_Edificio_Grassy_%28Gran_V%C3%ADa_1%29_-_north_facade_-_relief_over_entrance.jpg/960px-Madrid_-_Edificio_Grassy_%28Gran_V%C3%ADa_1%29_-_north_facade_-_relief_over_entrance.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "source": "commons_search",
+      "author": "Tomascastelazo",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "license_status": "ok",
+      "load_verified": true,
+      "bytes": 62590,
+      "thumb_bytes": 19644,
+      "size": {
+        "detail": "760x374",
+        "thumb": "400x197"
+      },
+      "encoding": "webp q72/q74 (源 960x473 166KB JPEG)"
     }
   ],
-  "image_license": "CC BY-SA 4.0",
+  "image_license": "CC BY 2.0",
   "schema_version": "0.1",
   "collected_at": "2026-10-25T23:29:42+08:00",
   "collector": "scripts/collect.py v0.2",
   "needs_review": true,
   "review_notes": [
     "P37 返回 6 个语言，去重/去上位概念后保留 2 个：英语、夏威夷语",
-    "P18 里 1 个是地图/旗帜/徽章，已筛掉：United States - Location Map (2013) - USA - UNOCHA.svg",
-    "Wikidata 无 P18 代表图，回退到维基正文配图",
     "P443 发音语种不符已弃用：Lb-Amerika.ogg、LL-Q7913 (ron)-KlaudiuMihaila-Statele Unite ale Americii.wav、LL-Q33810 (ori)-Psubhashish-ଯୁକ୍ତରାଷ୍ଟ୍ର ଆମେରିକା.wav（P443 不保证语种，须按文件名筛）",
     "该实体无对应语种发音，语音改跑 python scripts/tts.py US",
     "Commons 无可用发音，语音走构建期 TTS 兜底（待接）",
-    "以下语言未生成语音（无合适音色，不用邻近语种硬读）：haw"
+    "以下语言未生成语音（无合适音色，不用邻近语种硬读）：haw",
+    "地标图改为人工指定清单（4 张，中文图注）"
   ],
   "name_official": "美國",
   "geometry": "geo/us.geojson",
@@ -200,5 +228,6 @@
       "source": "manual",
       "ref": "人工撰写，待接 LLM 摘编"
     }
-  ]
+  ],
+  "image_source_note": "人工按 data/landmarks.json 指定地标，Commons 关键词检索取图；原先自动获得的 3 张已被替换"
 }

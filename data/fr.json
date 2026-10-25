@@ -34,28 +34,99 @@
   },
   "landmark_images": [
     {
-      "title": "File:Paris from the Arc de Triomphe, 17 October 2019.jpg",
-      "caption": "Paris from the Arc de Triomphe",
-      "url": "assets/fr/01.webp",
-      "thumb_url": "assets/fr/01.thumb.webp",
-      "remote_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/15/Paris_from_the_Arc_de_Triomphe%2C_17_October_2019.jpg/960px-Paris_from_the_Arc_de_Triomphe%2C_17_October_2019.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
-      "source": "commons",
-      "origin_kind": "P18",
-      "author": "Pierre Blaché from Paris, France",
-      "license": "CC0",
-      "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+      "title": "File:Champ de Mars from the Eiffel Tower - July 2006 edit.jpg",
+      "caption_zh": "埃菲尔铁塔（战神广场视角）",
+      "caption": "埃菲尔铁塔（战神广场视角）",
+      "caption_commons": "A two segment panorama of Champ de Mars from the Eiffel Tower. In the distance i",
+      "kw": "Eiffel Tower from Champ de Mars",
+      "url": "assets/fr/L01.webp",
+      "thumb_url": "assets/fr/L01.thumb.webp",
+      "remote_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0e/Champ_de_Mars_from_the_Eiffel_Tower_-_July_2006_edit.jpg/960px-Champ_de_Mars_from_the_Eiffel_Tower_-_July_2006_edit.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "source": "commons_search",
+      "author": "Diliff, edited by Fir0002",
+      "license": "CC BY 2.5",
+      "license_url": "https://creativecommons.org/licenses/by/2.5",
       "license_status": "ok",
       "load_verified": true,
-      "bytes": 53128,
-      "thumb_bytes": 15162,
+      "bytes": 202300,
+      "thumb_bytes": 52870,
       "size": {
-        "detail": "760x428",
-        "thumb": "400x225"
+        "detail": "760x748",
+        "thumb": "400x394"
       },
-      "encoding": "webp q72/q74 (源 960x540 160KB JPEG)"
+      "encoding": "webp q72/q74 (源 960x945 476KB JPEG)"
+    },
+    {
+      "title": "File:Louvre Courtyard, Looking West.jpg",
+      "caption_zh": "卢浮宫玻璃金字塔",
+      "caption": "卢浮宫玻璃金字塔",
+      "caption_commons": "Looking west at the Louvre Museum's Napoleon Courtyard, at dusk.",
+      "kw": "Louvre Pyramid courtyard",
+      "url": "assets/fr/L02.webp",
+      "thumb_url": "assets/fr/L02.thumb.webp",
+      "remote_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a2/Louvre_Courtyard%2C_Looking_West.jpg/960px-Louvre_Courtyard%2C_Looking_West.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "source": "commons_search",
+      "author": "Benh LIEU SONG (Flickr)",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "license_status": "ok",
+      "load_verified": true,
+      "bytes": 27376,
+      "thumb_bytes": 8602,
+      "size": {
+        "detail": "760x283",
+        "thumb": "400x149"
+      },
+      "encoding": "webp q72/q74 (源 960x358 84KB JPEG)"
+    },
+    {
+      "title": "File:Cloître Abbaye du Mont Saint-Michel 2015-05-28.jpg",
+      "caption_zh": "圣米歇尔山",
+      "caption": "圣米歇尔山",
+      "caption_commons": "Cloisters of the abbey of Mont Saint-Michel, in Manche department, Normandy, Fra",
+      "kw": "Mont Saint-Michel abbey",
+      "url": "assets/fr/L03.webp",
+      "thumb_url": "assets/fr/L03.thumb.webp",
+      "remote_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/86/Clo%C3%AEtre_Abbaye_du_Mont_Saint-Michel_2015-05-28.jpg/960px-Clo%C3%AEtre_Abbaye_du_Mont_Saint-Michel_2015-05-28.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "source": "commons_search",
+      "author": "Benh LIEU SONG (Flickr)",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "license_status": "ok",
+      "load_verified": true,
+      "bytes": 51676,
+      "thumb_bytes": 13386,
+      "size": {
+        "detail": "760x400",
+        "thumb": "400x210"
+      },
+      "encoding": "webp q72/q74 (源 960x505 157KB JPEG)"
+    },
+    {
+      "title": "File:Chateau Versailles Galerie des Glaces.jpg",
+      "caption_zh": "凡尔赛宫镜厅",
+      "caption": "凡尔赛宫镜厅",
+      "caption_commons": "Galerie des Glaces (Hall of Mirrors) in the Palace of Versailles, Versailles, Fr",
+      "kw": "Hall of Mirrors Versailles",
+      "url": "assets/fr/L04.webp",
+      "thumb_url": "assets/fr/L04.thumb.webp",
+      "remote_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f1/Chateau_Versailles_Galerie_des_Glaces.jpg/960px-Chateau_Versailles_Galerie_des_Glaces.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "source": "commons_search",
+      "author": "Myrabella",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "license_status": "ok",
+      "load_verified": true,
+      "bytes": 97488,
+      "thumb_bytes": 28440,
+      "size": {
+        "detail": "760x504",
+        "thumb": "400x265"
+      },
+      "encoding": "webp q72/q74 (源 960x637 249KB JPEG)"
     }
   ],
-  "image_license": "CC0",
+  "image_license": "CC BY 2.5",
   "schema_version": "0.1",
   "collected_at": "2026-10-25T23:16:59+08:00",
   "collector": "scripts/collect.py v0.2",
@@ -63,7 +134,8 @@
   "review_notes": [
     "P443 发音语种不符已弃用：Hu-francia.ogg、Th-france.ogg、Jer-France.ogg（P443 不保证语种，须按文件名筛）",
     "Commons 无可用发音，语音走构建期 TTS 兜底（待接）",
-    "边界已采集（Natural Earth 50m，817 顶点）"
+    "边界已采集（Natural Earth 50m，817 顶点）",
+    "地标图改为人工指定清单（4 张，中文图注）"
   ],
   "name_official": "法國",
   "geometry": "geo/fr.geojson",
@@ -145,5 +217,6 @@
       "source": "manual",
       "ref": "人工撰写，待接 LLM 摘编"
     }
-  ]
+  ],
+  "image_source_note": "人工按 data/landmarks.json 指定地标，Commons 关键词检索取图；原先自动获得的 1 张已被替换"
 }

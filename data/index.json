@@ -14,7 +14,7 @@
         103.4519,
         35.8447
       ],
-      "thumb": "assets/cn/01.thumb.webp",
+      "thumb": "assets/cn/L01.thumb.webp",
       "modalities": {
         "image": true,
         "audio": true,
@@ -40,7 +40,7 @@
         2,
         47
       ],
-      "thumb": "assets/fr/01.thumb.webp",
+      "thumb": "assets/fr/L01.thumb.webp",
       "modalities": {
         "image": true,
         "audio": true,
@@ -65,7 +65,7 @@
         -98.5795,
         39.8282
       ],
-      "thumb": "assets/us/01.thumb.webp",
+      "thumb": "assets/us/L01.thumb.webp",
       "modalities": {
         "image": true,
         "audio": true,

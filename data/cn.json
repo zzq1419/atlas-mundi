@@ -44,25 +44,96 @@
   "audio_source": "edge",
   "landmark_images": [
     {
-      "title": "File:Badaling China Great-Wall-of-China-01.jpg",
-      "caption": "Badaling, China: Great Wall of China at Badaling",
-      "url": "assets/cn/01.webp",
-      "thumb_url": "assets/cn/01.thumb.webp",
-      "remote_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/50/Badaling_China_Great-Wall-of-China-01.jpg/960px-Badaling_China_Great-Wall-of-China-01.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
-      "source": "commons",
-      "origin_kind": "P18",
-      "author": "CEphoto, Uwe Aranas",
+      "title": "File:20090529 Great Wall 8185.jpg",
+      "caption_zh": "金山岭长城",
+      "caption": "金山岭长城",
+      "caption_commons": "Great Wall of China near Jinshanling",
+      "kw": "Great Wall of China Jinshanling",
+      "url": "assets/cn/L01.webp",
+      "thumb_url": "assets/cn/L01.thumb.webp",
+      "remote_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/10/20090529_Great_Wall_8185.jpg/960px-20090529_Great_Wall_8185.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "source": "commons_search",
+      "author": "Jakub Hałun",
       "license": "CC BY-SA 3.0",
       "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
       "license_status": "ok",
       "load_verified": true,
-      "bytes": 110184,
-      "thumb_bytes": 27926,
+      "bytes": 88480,
+      "thumb_bytes": 21554,
       "size": {
-        "detail": "760x487",
-        "thumb": "400x256"
+        "detail": "760x505",
+        "thumb": "400x266"
       },
-      "encoding": "webp q72/q74 (由 960x615 JPEG 278KB 压缩)"
+      "encoding": "webp q72/q74 (源 960x638 242KB JPEG)"
+    },
+    {
+      "title": "File:Hall of Supreme Harmony 2010.jpg",
+      "caption_zh": "故宫太和殿",
+      "caption": "故宫太和殿",
+      "caption_commons": "Hall of Supreme Harmony, Forbidden City, Beijing, China.",
+      "kw": "Hall of Supreme Harmony Forbidden City",
+      "url": "assets/cn/L02.webp",
+      "thumb_url": "assets/cn/L02.thumb.webp",
+      "remote_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d2/Hall_of_Supreme_Harmony_2010.jpg/960px-Hall_of_Supreme_Harmony_2010.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "source": "commons_search",
+      "author": "Marcin Białek",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "license_status": "ok",
+      "load_verified": true,
+      "bytes": 12402,
+      "thumb_bytes": 3588,
+      "size": {
+        "detail": "760x150",
+        "thumb": "400x79"
+      },
+      "encoding": "webp q72/q74 (源 960x189 39KB JPEG)"
+    },
+    {
+      "title": "File:Xian guerreros terracota detalle.JPG",
+      "caption_zh": "秦始皇陵兵马俑",
+      "caption": "秦始皇陵兵马俑",
+      "caption_commons": "A part of the Terracotta Army in Xi'an.",
+      "kw": "Terracotta Army Pit 1 Xian",
+      "url": "assets/cn/L03.webp",
+      "thumb_url": "assets/cn/L03.thumb.webp",
+      "remote_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a0/Xian_guerreros_terracota_detalle.JPG/960px-Xian_guerreros_terracota_detalle.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "source": "commons_search",
+      "author": "User:airunp",
+      "license": "Public domain",
+      "license_url": null,
+      "license_status": "ok",
+      "load_verified": true,
+      "bytes": 70510,
+      "thumb_bytes": 24310,
+      "size": {
+        "detail": "760x507",
+        "thumb": "400x267"
+      },
+      "encoding": "webp q72/q74 (源 960x640 196KB JPEG)"
+    },
+    {
+      "title": "File:Chinese stone lion at the entrance to the Potala Pallace.jpg",
+      "caption_zh": "布达拉宫",
+      "caption": "布达拉宫",
+      "caption_commons": "Large Chinese stone lion protects the entrance to the Potala Palace in Tibet.",
+      "kw": "Potala Palace Lhasa",
+      "url": "assets/cn/L04.webp",
+      "thumb_url": "assets/cn/L04.thumb.webp",
+      "remote_url": "https://upload.wikimedia.org/wikipedia/commons/1/19/Chinese_stone_lion_at_the_entrance_to_the_Potala_Pallace.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+      "source": "commons_search",
+      "author": "nathan",
+      "license": "CC BY-SA 2.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/2.0",
+      "license_status": "ok",
+      "load_verified": true,
+      "bytes": 50402,
+      "thumb_bytes": 13794,
+      "size": {
+        "detail": "442x643",
+        "thumb": "206x300"
+      },
+      "encoding": "webp q72/q74 (源 442x643 76KB JPEG)"
     }
   ],
   "image_license": "CC BY-SA 3.0",
@@ -137,7 +208,8 @@
     "P443 发音语种不符（Lb-China.ogg 为卢森堡语），已改用本地 TTS；P443 需按文件名做语种过滤",
     "粤语缺少可用音源：Commons 未取到，本机仅有普通话音色（Huihui），待补 zh-HK 音源或人工录制",
     "name_official 与 name_zh 并存，卡片显示常用名，全称保留在 JSON",
-    "边界已采集（Natural Earth 50m，2662 顶点），阶段 D 的 globe.gl 直接可用"
+    "边界已采集（Natural Earth 50m，2662 顶点），阶段 D 的 globe.gl 直接可用",
+    "地标图改为人工指定清单（4 张，中文图注）"
   ],
   "collected_at": "2026-10-25T22:36:16+08:00",
   "summary_source": {
@@ -171,5 +243,6 @@
     "rings": 13,
     "vertices": 2662,
     "bytes": 68608
-  }
+  },
+  "image_source_note": "人工按 data/landmarks.json 指定地标，Commons 关键词检索取图；原先自动获得的 1 张已被替换"
 }
