@@ -21,3 +21,6 @@ _raw/
 
 # Natural Earth 原始包（约 24MB，仅作缓存，不进仓库）
 geo/_ne_50m_countries.geojson
+
+# 选图核对用的联络表，不进仓库
+review/

@@ -94,6 +94,69 @@ def score(cand, meta, must):
     return s, "score=%.1f ar=%.2f w=%d" % (s, ar, w)
 
 
+def wikidata_lead_images(zh_name, limit=4):
+    """用中文名在 Wikidata 搜条目，取 P18（代表图）文件名。
+
+    为什么换这条路：Commons 关键词搜索靠运气 —— 搜 Mont Saint-Michel 会返回
+    "Cistern of the Chaplaincy of the Mont Saint-Michel Abbey"（修道院蓄水池），
+    搜 Eiffel Tower 会返回 "Sous la Tour Eiffel"（塔底仰拍）。地标名只是文件名里
+    的上下文，不代表它是主体。
+
+    P18 是维基百科词条首图用的那一张，由编辑挑过，是"最能代表该条目"的照片，
+    比关键词命中要可靠得多。
+    """
+    out = []
+    try:
+        q = C.api_json("https://www.wikidata.org/w/api.php", {
+            "action": "wbsearchentities", "search": zh_name, "language": "zh",
+            "uselang": "zh", "type": "item", "limit": str(limit), "format": "json",
+        })
+    except Exception as e:
+        return out, "Wikidata 搜索失败：%s" % str(e)[:60]
+
+    for hit in (q.get("search") or []):
+        qid = hit.get("id")
+        if not qid:
+            continue
+        try:
+            ent = json.loads(C.http_get(C.ENTITY_DATA % qid,
+                                        accept="application/json").decode("utf-8"))
+        except Exception:
+            continue
+        e = (ent.get("entities") or {}).get(qid)
+        if not e:
+            continue
+        label = ((e.get("labels") or {}).get("zh", {}) or {}).get("value") or hit.get("label")
+        for v in C.claim_values(e, "P18"):
+            if isinstance(v, str) and not C.is_bad_image(v):
+                out.append({"file": v, "qid": qid, "label": label})
+        if out:
+            break
+    return out, None
+
+
+def wikipedia_lead_image(zh_name):
+    """中文维基词条首图。比 P18 更贴近中文命名（"凡尔赛宫镜厅"能直接命中镜厅词条）。"""
+    try:
+        d = C.api_json("https://zh.wikipedia.org/w/api.php", {
+            "action": "query", "prop": "pageimages", "piprop": "name|original",
+            "redirects": "1", "titles": zh_name, "format": "json", "formatversion": "2",
+        })
+    except Exception:
+        return None, None
+    pages = (d.get("query") or {}).get("pages") or []
+    if not pages:
+        return None, None
+    pg = pages[0]
+    if pg.get("missing"):
+        return None, None
+    name = pg.get("pageimage")
+    title = pg.get("title")
+    if not name or C.is_bad_image(name):
+        return None, None
+    return name, title
+
+
 def pick_and_download(iso, entries, rec):
     slug = iso.lower()
     adir = os.path.join(ROOT, "assets", slug)
@@ -102,14 +165,31 @@ def pick_and_download(iso, entries, rec):
 
     for i, e in enumerate(entries[:MAX_PER_COUNTRY], 1):
         kw, zh = e.get("kw"), e.get("zh")
-        cand = search_files(kw)
+        must = e.get("must")
+
+        # 先问 Wikidata 要代表图，拿不到再用关键词搜
+        lead, err = wikidata_lead_images(zh)
+        source_kind = "wikidata_p18"
+        cand = [x["file"] for x in lead]
+        if lead:
+            log("      · %s Wikidata P18 → %s（%s）" % (zh, lead[0]["file"][:44], lead[0]["label"]))
+        else:
+            wname, wtitle = wikipedia_lead_image(zh)
+            if wname:
+                cand = [wname]
+                source_kind = "wikipedia_lead"
+                log("      · %s 中文维基首图 → %s（%s）" % (zh, wname[:44], wtitle))
+            else:
+                cand = search_files(kw)
+                source_kind = "commons_search"
+                log("      · %s 前两级都无图（%s），退到关键词搜索" % (zh, err or "无 P18"))
+
         if not cand:
-            notes.append("%s：Commons 搜不到「%s」，已跳过" % (zh, kw))
+            notes.append("%s：Wikidata 与 Commons 都没找到可用图，已跳过" % zh)
             log("      ✗ %s 搜不到" % zh)
             continue
 
         info = C.commons_imageinfo(cand, width=1400)
-        must = e.get("must")
         scored, rejects = [], []
         for name in cand:
             meta = C.lookup_meta(info, name)
@@ -120,7 +200,9 @@ def pick_and_download(iso, entries, rec):
             ext = C.ext_of(meta["remote_url"])
             if ext not in (".jpg", ".jpeg", ".png", ".webp"):
                 continue
-            sc, why = score(name, meta, must)
+            # P18 是编辑挑过的首图，不再用 must 卡它；must 只约束关键词搜索的结果
+            curated = source_kind in ("wikidata_p18", "wikipedia_lead")
+            sc, why = score(name, meta, None if curated else must)
             if sc is None:
                 rejects.append("%s（%s）" % (name[:40], why))
                 continue
@@ -157,7 +239,7 @@ def pick_and_download(iso, entries, rec):
             "url": rel,
             "thumb_url": rel,
             "remote_url": meta["remote_url"],
-            "source": "commons_search",
+            "source": source_kind,
             "author": meta.get("artist"),
             "license": lic,
             "license_url": meta.get("license_url"),
