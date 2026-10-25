@@ -44,99 +44,99 @@
   "audio_source": "edge",
   "landmark_images": [
     {
-      "title": "File:20090529 Great Wall 8185.jpg",
+      "title": "File:Great_Wall_of_China_at_Jinshanling_5.jpg",
       "caption_zh": "金山岭长城",
       "caption": "金山岭长城",
-      "caption_commons": "Great Wall of China near Jinshanling",
-      "kw": "Great Wall of China Jinshanling",
       "url": "assets/cn/L01.webp",
       "thumb_url": "assets/cn/L01.thumb.webp",
-      "remote_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/10/20090529_Great_Wall_8185.jpg/960px-20090529_Great_Wall_8185.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
-      "source": "commons_search",
-      "author": "Jakub Hałun",
-      "license": "CC BY-SA 3.0",
-      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
-      "license_status": "ok",
-      "load_verified": true,
-      "bytes": 88480,
-      "thumb_bytes": 21554,
-      "size": {
-        "detail": "760x505",
-        "thumb": "400x266"
-      },
-      "encoding": "webp q72/q74 (源 960x638 242KB JPEG)"
-    },
-    {
-      "title": "File:Hall of Supreme Harmony 2010.jpg",
-      "caption_zh": "故宫太和殿",
-      "caption": "故宫太和殿",
-      "caption_commons": "Hall of Supreme Harmony, Forbidden City, Beijing, China.",
-      "kw": "Hall of Supreme Harmony Forbidden City",
-      "url": "assets/cn/L02.webp",
-      "thumb_url": "assets/cn/L02.thumb.webp",
-      "remote_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d2/Hall_of_Supreme_Harmony_2010.jpg/960px-Hall_of_Supreme_Harmony_2010.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
-      "source": "commons_search",
-      "author": "Marcin Białek",
-      "license": "CC BY-SA 4.0",
-      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
-      "license_status": "ok",
-      "load_verified": true,
-      "bytes": 12402,
-      "thumb_bytes": 3588,
-      "size": {
-        "detail": "760x150",
-        "thumb": "400x79"
-      },
-      "encoding": "webp q72/q74 (源 960x189 39KB JPEG)"
-    },
-    {
-      "title": "File:Xian guerreros terracota detalle.JPG",
-      "caption_zh": "秦始皇陵兵马俑",
-      "caption": "秦始皇陵兵马俑",
-      "caption_commons": "A part of the Terracotta Army in Xi'an.",
-      "kw": "Terracotta Army Pit 1 Xian",
-      "url": "assets/cn/L03.webp",
-      "thumb_url": "assets/cn/L03.thumb.webp",
-      "remote_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a0/Xian_guerreros_terracota_detalle.JPG/960px-Xian_guerreros_terracota_detalle.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
-      "source": "commons_search",
-      "author": "User:airunp",
-      "license": "Public domain",
+      "remote_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/9c/Great_Wall_of_China_at_Jinshanling_5.jpg/1920px-Great_Wall_of_China_at_Jinshanling_5.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "source": "wikipedia_lead",
+      "author": "H2v5o68z",
+      "license": "CC0",
       "license_url": null,
       "license_status": "ok",
-      "load_verified": true,
-      "bytes": 70510,
-      "thumb_bytes": 24310,
+      "load_verified": false,
+      "bytes": 75712,
+      "picked_from": "wikipedia_lead",
+      "origin_size": "1400x1050",
+      "thumb_bytes": 18130,
+      "size": {
+        "detail": "760x570",
+        "thumb": "400x300"
+      },
+      "encoding": "webp q72/q74 (源 1920x1440 839KB JPEG)"
+    },
+    {
+      "title": "File:Hall of Supreme Harmony (20241127120000).jpg",
+      "caption_zh": "故宫太和殿",
+      "caption": "故宫太和殿",
+      "url": "assets/cn/L02.webp",
+      "thumb_url": "assets/cn/L02.thumb.webp",
+      "remote_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/23/Hall_of_Supreme_Harmony_%2820241127120000%29.jpg/1920px-Hall_of_Supreme_Harmony_%2820241127120000%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "source": "wikidata_p18:太和殿",
+      "author": "N509FZ",
+      "license": "CC BY-SA 4.0",
+      "license_url": null,
+      "license_status": "ok",
+      "load_verified": false,
+      "bytes": 62470,
+      "picked_from": "wikidata_p18:太和殿",
+      "origin_size": "1400x933",
+      "thumb_bytes": 17162,
       "size": {
         "detail": "760x507",
         "thumb": "400x267"
       },
-      "encoding": "webp q72/q74 (源 960x640 196KB JPEG)"
+      "encoding": "webp q72/q74 (源 1920x1280 737KB JPEG)"
     },
     {
-      "title": "File:Chinese stone lion at the entrance to the Potala Pallace.jpg",
+      "title": "File:Terracotta Army, View of Pit 1.jpg",
+      "caption_zh": "秦始皇陵兵马俑",
+      "caption": "秦始皇陵兵马俑",
+      "url": "assets/cn/L03.webp",
+      "thumb_url": "assets/cn/L03.thumb.webp",
+      "remote_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/49/Terracotta_Army%2C_View_of_Pit_1.jpg/1920px-Terracotta_Army%2C_View_of_Pit_1.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "source": "wikidata_p18:秦始皇兵马俑",
+      "author": "Jmhullot",
+      "license": "CC BY 3.0",
+      "license_url": null,
+      "license_status": "ok",
+      "load_verified": false,
+      "bytes": 66354,
+      "picked_from": "wikidata_p18:秦始皇兵马俑",
+      "origin_size": "1400x933",
+      "thumb_bytes": 19850,
+      "size": {
+        "detail": "760x507",
+        "thumb": "400x267"
+      },
+      "encoding": "webp q72/q74 (源 1920x1280 765KB JPEG)"
+    },
+    {
+      "title": "File:Potala_palace23.jpg",
       "caption_zh": "布达拉宫",
       "caption": "布达拉宫",
-      "caption_commons": "Large Chinese stone lion protects the entrance to the Potala Palace in Tibet.",
-      "kw": "Potala Palace Lhasa",
       "url": "assets/cn/L04.webp",
       "thumb_url": "assets/cn/L04.thumb.webp",
-      "remote_url": "https://upload.wikimedia.org/wikipedia/commons/1/19/Chinese_stone_lion_at_the_entrance_to_the_Potala_Pallace.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
-      "source": "commons_search",
-      "author": "nathan",
-      "license": "CC BY-SA 2.0",
-      "license_url": "https://creativecommons.org/licenses/by-sa/2.0",
+      "remote_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/be/Potala_palace23.jpg/1920px-Potala_palace23.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "source": "wikipedia_lead",
+      "author": "Antoine Taveneaux",
+      "license": "CC BY-SA 3.0",
+      "license_url": null,
       "license_status": "ok",
-      "load_verified": true,
-      "bytes": 50402,
-      "thumb_bytes": 13794,
+      "load_verified": false,
+      "bytes": 63748,
+      "picked_from": "wikipedia_lead",
+      "origin_size": "1400x937",
+      "thumb_bytes": 20964,
       "size": {
-        "detail": "442x643",
-        "thumb": "206x300"
+        "detail": "760x509",
+        "thumb": "400x268"
       },
-      "encoding": "webp q72/q74 (源 442x643 76KB JPEG)"
+      "encoding": "webp q72/q74 (源 1920x1285 687KB JPEG)"
     }
   ],
-  "image_license": "CC BY-SA 3.0",
+  "image_license": "CC0",
   "summary_text": "中华人民共和国是位于东亚的国家，国土面积约960万平方千米，位居世界各国第三位。其国土地处亚洲大陆东部，濒临太平洋，并与14个国家以陆地边界接壤。全国行政区域划分为23个省、5个自治区、4个直辖市、以及2个特别行政区，共计34个省级行政区。首都为北京市，城区常住人口最多城市为上海市。政治上依宪法实行人民代表大会制度，以社会主义为基础实行人民民主专政。中国共产党在国家体制及武装力量中处于绝对领导地位，国家实行中国共产党领导的多党合作和政治协商制度。\n中国在1945年抗日战争胜利后，中国共产党与中国国民党的政治及军事摩擦逐渐扩大，最终演变成双方的第二次内战。之后，毛泽东领导的中国共产党和其下属的中国人民解放军，逐步击败蒋中正领导的国民党政府及其军队。1949年10月1日，中国共产党在控制中国大部分领土后，在北京宣告成立中华人民共和国中央人民政府；中华民国政府则于1949年底迁往台湾，海峡两岸陷入长期政治对立，是现今台湾问题形成的历史背景。建国初期，中华人民共和国向社会主义转型过渡，并施行一五计划等经济计划恢复和发展社会主义经济。",
   "custom_text": "春节为农历正月初一，是岁首最重要的节日：贴春联、守岁、燃爆竹，年夜饭必有鱼，取「年年有余」。清明祭祖、端午赛龙舟食粽、中秋赏月食月饼，与春节合称农历四大节序。长城始建于春秋战国，秦连接各段，明代大规模砖石重修，今日所见多为明长城，1987 年列入世界文化遗产。",
   "geometry": "geo/cn.geojson",
@@ -209,7 +209,7 @@
     "粤语缺少可用音源：Commons 未取到，本机仅有普通话音色（Huihui），待补 zh-HK 音源或人工录制",
     "name_official 与 name_zh 并存，卡片显示常用名，全称保留在 JSON",
     "边界已采集（Natural Earth 50m，2662 顶点），阶段 D 的 globe.gl 直接可用",
-    "地标图改为人工指定清单（4 张，中文图注）"
+    "地标图由人工从候选中挑选（4 张，中文图注）"
   ],
   "collected_at": "2026-10-25T22:36:16+08:00",
   "summary_source": {
@@ -244,5 +244,5 @@
     "vertices": 2662,
     "bytes": 68608
   },
-  "image_source_note": "人工按 data/landmarks.json 指定地标，Commons 关键词检索取图；原先自动获得的 1 张已被替换"
+  "image_source_note": "人工按 data/landmarks.json 指定地标，Commons 关键词检索取图；原先自动获得的 4 张已被替换"
 }
