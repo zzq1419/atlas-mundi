@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-10-25-F">
+<meta name="build" content="2026-10-25-G">
 <title>寰宇图志 · Atlas Mundi</title>
 <meta name="description" content="寰宇图志：3D 地球上的多模态国家文化图谱">
 <style>
@@ -357,19 +357,27 @@
       card.setAttribute('role', 'button');
 
       if (c.thumb) {
-        var img = el('img', 'thumb loading');
+        // 必须用 div 包一层：<img> 是替换元素，CSS 伪元素 ::after 在它身上不渲染，
+        // 骨架微光挂不上（这就是之前"看不到动效"的原因）。
+        var wrap = el('div', 'thumb-wrap loading');
+        var img = el('img', 'thumb');
         img.alt = c.name_zh;
         img.loading = 'lazy';
-        img.onload = function () { img.classList.remove('loading'); };
+        img.onload = function () {
+          wrap.classList.remove('loading');
+          wrap.classList.add('loaded');
+        };
         // 不加 crossOrigin：普通展示无需 CORS，加了反而会被 302 链拦下
         img.onerror = function () {
-          var ph = el('div', 'thumb blank', '图片未加载');
-          img.replaceWith(ph);
+          wrap.className = 'thumb-wrap blank';
+          wrap.textContent = '图片未加载';
         };
         img.src = c.thumb;
-        card.appendChild(img);
+        wrap.appendChild(img);
+        card.appendChild(wrap);
       } else {
-        card.appendChild(el('div', 'thumb blank', c.status === 'placeholder' ? '数据待采集' : '暂无图片'));
+        card.appendChild(el('div', 'thumb-wrap blank',
+          c.status === 'placeholder' ? '数据待采集' : '暂无图片'));
       }
 
       var body = el('div', 'cbody');
@@ -436,7 +444,9 @@
     var left = el('div');
     var imgs = d.landmark_images || [];
     if (imgs.length) {
-      var pic = el('img', 'dimg loading');
+      var picWrap = el('div', 'dimg-wrap loading');
+      var pic = el('img', 'dimg');
+      picWrap.appendChild(pic);
       var capEl = el('div', 'cap', '');
       var licEl = el('div', 'cap dim', '');
       var strip = imgs.length > 1 ? el('div', 'thumbstrip') : null;
@@ -444,26 +454,31 @@
 
       function showPic(idx) {
         var it = imgs[idx];
-        pic.classList.add('loading');
-        pic.alt = it.caption || d.name_zh;
-        pic.onload = function () { pic.classList.remove('loading'); };
+        picWrap.classList.remove('loaded');
+        picWrap.classList.add('loading');
+        pic.alt = it.caption_zh || it.caption || d.name_zh;
+        pic.onload = function () {
+          picWrap.classList.remove('loading');
+          picWrap.classList.add('loaded');
+        };
         pic.onerror = function () {
-          pic.classList.remove('loading');
-          pic.style.opacity = '.25';
+          picWrap.classList.remove('loading');
+          picWrap.classList.add('blank');
         };
         pic.src = it.url;
-        capEl.textContent = it.caption || '';
+        capEl.textContent = it.caption_zh || it.caption || '';
         licEl.textContent = it.license
           ? '授权：' + it.license + (it.author ? ' · ' + it.author : '')
           : '授权待确认（来源已记录：' + (it.title || 'Commons') + '）';
         items.forEach(function (n, i) { n.classList.toggle('active', i === idx); });
       }
 
-      left.appendChild(pic);
+      left.appendChild(picWrap);
       if (strip) {
         imgs.forEach(function (it, i) {
           var t = el('img', 'ts-item');
-          t.alt = it.caption || (d.name_zh + ' 图片 ' + (i + 1));
+          t.alt = it.caption_zh || it.caption || (d.name_zh + ' 图片 ' + (i + 1));
+          t.title = t.alt;
           t.loading = 'lazy';
           t.src = it.thumb_url || it.url;
           t.addEventListener('click', function () { showPic(i); });
@@ -487,12 +502,25 @@
      ['大洲', d.continent || '—'],
      ['坐标', d.centroid ? d.centroid[1].toFixed(2) + '°N, ' + d.centroid[0].toFixed(2) + '°E' : '—'],
      ['语言', (d.languages || []).map(function (l) { return l.name_zh; }).join(' / ') || '—'],
-     ['边界', d.geometry ? '已采集' : '待采集（Natural Earth 50m）']
+     ['边界', d.geometry
+        ? 'Natural Earth 50m · ' + ((d.geometry_stats || {}).vertices || '?') + ' 顶点'
+        : '待采集']
     ].forEach(function (p) {
       meta.appendChild(el('dt', null, p[0]));
       meta.appendChild(el('dd', null, p[1]));
     });
     right.appendChild(meta);
+
+    // 边界不能只写"已采集"——用户看不见等于没采。这里用等距圆柱投影画成 SVG 轮廓，
+    // 无第三方库、离线可用，也顺带验证了阶段 D 要用的 GeoJSON 是好的。
+    if (d.geometry) {
+      var geoBox = el('div', 'geo-box');
+      geoBox.appendChild(el('div', 'sub-label', '国界轮廓'));
+      var svgHost = el('div', 'geo-svg', '读取边界数据…');
+      geoBox.appendChild(svgHost);
+      right.appendChild(geoBox);
+      renderOutline(d.geometry, svgHost);
+    }
 
     var txt = el('div', 'dtext');
     if (d.summary_text) txt.appendChild(el('p', null, d.summary_text));
@@ -541,6 +569,60 @@
     if (!quiet) detail.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
+  /* ---------- 国界轮廓（等距圆柱投影，纯 SVG） ---------- */
+  function renderOutline(url, host) {
+    fetch(url)
+      .then(function (r) {
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.json();
+      })
+      .then(function (gj) {
+        var rings = [];
+        (gj.features || []).forEach(function (f) {
+          var g = f.geometry || {};
+          var polys = g.type === 'Polygon' ? [g.coordinates]
+            : (g.type === 'MultiPolygon' ? g.coordinates : []);
+          polys.forEach(function (poly) {
+            poly.forEach(function (ring) { if (ring && ring.length > 2) rings.push(ring); });
+          });
+        });
+        if (!rings.length) { host.textContent = '边界数据为空'; return; }
+
+        var minX = 1e9, maxX = -1e9, minY = 1e9, maxY = -1e9;
+        rings.forEach(function (ring) {
+          ring.forEach(function (pt) {
+            if (pt[0] < minX) minX = pt[0];
+            if (pt[0] > maxX) maxX = pt[0];
+            if (pt[1] < minY) minY = pt[1];
+            if (pt[1] > maxY) maxY = pt[1];
+          });
+        });
+        var W = 300, pad = 10;
+        var spanX = Math.max(maxX - minX, 0.01);
+        var spanY = Math.max(maxY - minY, 0.01);
+        var scale = Math.min((W - pad * 2) / spanX, 150 / spanY);
+        var H = Math.round(spanY * scale + pad * 2);
+        var ox = (W - spanX * scale) / 2;
+        var oy = (H - spanY * scale) / 2;
+
+        var d = rings.map(function (ring) {
+          return ring.map(function (pt, i) {
+            var x = (ox + (pt[0] - minX) * scale).toFixed(1);
+            var y = (oy + (maxY - pt[1]) * scale).toFixed(1);
+            return (i ? 'L' : 'M') + x + ' ' + y;
+          }).join('') + 'Z';
+        }).join('');
+
+        host.innerHTML = '<svg viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="xMidYMid meet">' +
+          '<path d="' + d + '" fill="rgba(111,214,232,.10)" stroke="rgba(111,214,232,.75)" ' +
+          'stroke-width=".8" stroke-linejoin="round"/></svg>';
+        host.setAttribute('data-rings', rings.length);
+      })
+      .catch(function (e) {
+        host.textContent = '边界读取失败（' + e.message + '）';
+      });
+  }
+
   /* ---------- 启动 ---------- */
   fetch('data/index.json')
     .then(function (r) {
@@ -566,12 +648,19 @@
   /* --- 卡片：图文头 + 正文 --- */
   .card{padding:0}
   .card .cbody{padding:18px 20px 20px}
-  .card .thumb{
-    display:block;width:100%;height:132px;object-fit:cover;
-    border-bottom:1px solid var(--line);
-    background:#0e1424;
+
+  /* 图片一律套在 .*-wrap 里：<img> 是替换元素，伪元素在它身上不渲染，
+     骨架必须由父容器画。loaded 之前图片 opacity:0，不出现半张图抖一下。 */
+  .thumb-wrap{
+    position:relative;height:132px;overflow:hidden;
+    border-bottom:1px solid var(--line);background:#0b1020;
   }
-  .card .thumb.blank{
+  .thumb-wrap .thumb{
+    display:block;width:100%;height:100%;object-fit:cover;
+    opacity:0;transition:opacity .45s ease;
+  }
+  .thumb-wrap.loaded .thumb{opacity:1}
+  .thumb-wrap.blank{
     display:flex;align-items:center;justify-content:center;
     font-size:12px;letter-spacing:.1em;color:var(--ink-faint);
     background:
@@ -585,15 +674,21 @@
 
   /* --- 详情 --- */
   .dwrap{display:grid;grid-template-columns:minmax(220px,360px) 1fr;gap:26px;align-items:start}
-  .dimg{
-    display:block;width:100%;aspect-ratio:4/3;object-fit:cover;
-    border:1px solid var(--line);border-radius:12px;background:#0e1424;
+  .dimg-wrap{
+    position:relative;width:100%;aspect-ratio:4/3;overflow:hidden;
+    border:1px solid var(--line);border-radius:12px;background:#0b1020;
   }
-  .dimg.blank{
+  .dimg-wrap .dimg{
+    display:block;width:100%;height:100%;object-fit:cover;
+    opacity:0;transition:opacity .45s ease;
+  }
+  .dimg-wrap.loaded .dimg{opacity:1}
+  .dimg-wrap.blank{
     display:flex;align-items:center;justify-content:center;
     font-size:12.5px;color:var(--ink-faint);text-align:center;padding:12px;
     background:linear-gradient(160deg,#0d1322,#0a0f1c);
   }
+  .dimg-wrap.blank .dimg{display:none}
   .cap{font-size:12px;color:var(--ink-dim);margin-top:9px;line-height:1.6}
   .cap.dim{color:var(--ink-faint)}
 
@@ -625,20 +720,30 @@
   }
 
   /* 加载中骨架：避免录屏时出现纯白或灰块跳动 */
-  .thumb.loading,.dimg.loading{
-    position:relative;overflow:hidden;
+  .thumb-wrap.loading,.dimg-wrap.loading{
     background:linear-gradient(160deg,#0d1322,#0a0f1c);
   }
-  .thumb.loading::after,.dimg.loading::after{
-    content:"";position:absolute;inset:0;
-    background:linear-gradient(100deg,transparent 20%,rgba(140,165,220,.10) 50%,transparent 80%);
+  .thumb-wrap.loading::after,.dimg-wrap.loading::after{
+    content:"";position:absolute;inset:0;z-index:2;
+    background:linear-gradient(100deg,transparent 20%,rgba(140,165,220,.13) 50%,transparent 80%);
     background-size:220% 100%;
     animation:shimmer 1.35s linear infinite;
   }
+  /* 占位文字（无图时的灰底卡）不参与骨架动画 */
+  .thumb-wrap.blank::after,.dimg-wrap.blank::after{content:none}
   @keyframes shimmer{
     from{background-position:180% 0}
     to{background-position:-80% 0}
   }
+
+  /* 国界轮廓 */
+  .geo-box{margin-top:4px}
+  .geo-svg{
+    border:1px solid var(--line);border-radius:10px;
+    background:linear-gradient(160deg,#0c1220,#090e1a);
+    padding:4px;font-size:12px;color:var(--ink-faint);
+  }
+  .geo-svg svg{display:block;width:100%;height:auto}
 
   /* 多图切换 */
   .thumbstrip{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}

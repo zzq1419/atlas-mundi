@@ -1,0 +1,24 @@
+{
+  "note": "人工选定的地标清单。fill_images.py 按 kw 去 Commons 搜图，取回后写入给定中文图注。顺序即展示顺序，第一张是封面。改这里就能换图，不用改代码。",
+  "schema": 1,
+  "countries": {
+    "CN": [
+      { "zh": "金山岭长城", "kw": "Great Wall of China Jinshanling", "want": "panorama" },
+      { "zh": "故宫太和殿", "kw": "Hall of Supreme Harmony Forbidden City", "want": "exterior" },
+      { "zh": "秦始皇陵兵马俑", "kw": "Terracotta Army Pit 1 Xian", "want": "pit" },
+      { "zh": "布达拉宫", "kw": "Potala Palace Lhasa", "want": "exterior" }
+    ],
+    "FR": [
+      { "zh": "埃菲尔铁塔（战神广场视角）", "kw": "Eiffel Tower from Champ de Mars", "want": "front" },
+      { "zh": "卢浮宫玻璃金字塔", "kw": "Louvre Pyramid courtyard", "want": "exterior" },
+      { "zh": "圣米歇尔山", "kw": "Mont Saint-Michel abbey", "want": "aerial" },
+      { "zh": "凡尔赛宫镜厅", "kw": "Hall of Mirrors Versailles", "want": "interior" }
+    ],
+    "US": [
+      { "zh": "自由女神像", "kw": "Statue of Liberty front", "want": "front" },
+      { "zh": "大峡谷（南缘）", "kw": "Grand Canyon South Rim", "want": "panorama" },
+      { "zh": "金门大桥", "kw": "Golden Gate Bridge", "want": "panorama" },
+      { "zh": "白宫", "kw": "White House north facade", "want": "exterior" }
+    ]
+  }
+}

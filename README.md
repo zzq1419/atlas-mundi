@@ -96,6 +96,7 @@ Windows 上直接双击启动器即可，脚本只用标准库，不需要 pip �
 | `采集中国.bat` | 采 CN |
 | `采集法国美国.bat` | 采 FR + US，一国失败不影响另一国 |
 | `重新采集.bat` | 输入任意 ISO 码重采单国（P18 挂地图/国旗时用） |
+| `补齐地标图.bat` | 按 `data/landmarks.json` 的人工清单补齐各国地标图（中文图注） |
 
 换其他国家：改启动器里的 ISO 码，或命令行 `python scripts/collect.py DE`。
 
@@ -152,6 +153,18 @@ B 级存在的理由：Wikimedia 上绝大多数文件都有授权，取不到�
 108KB + 27KB，减半。原图不入库，`remote_url` 保留可回溯。
 
 离线测试：`python scripts/test_offline.py` —— 用夹具驱动解析链路，不联网，覆盖标签解析、坐标解包、摘要截断、配图过滤、标题归一与授权解析。
+
+## 地标图为什么不再靠自动挑选
+
+Wikidata 的 P18 每国只给 **1 张**「代表图」，而且不保证是地标 —— 美国 Q30 给的是
+`United States - Location Map (2013) - USA - UNOCHA.svg`（定位地图）。自动挑选也无法保证
+挑中「最著名的那一张」，更给不出中文图注。
+
+所以地标改成**人工指定清单**：`data/landmarks.json` 里每个国家列 4 条
+`{zh: 中文图注, kw: Commons 检索关键词}`，`fill_images.py` 按关键词去 Commons 搜图，
+过滤掉地图/旗帜/徽章、要求有授权且宽度 ≥ 800px，取回后把 `caption_zh` 写死。
+
+顺序即展示顺序，**第一张是封面**。想换图只改这个 JSON，不用动代码。
 
 ## 采集之后的三个收尾步骤
 
