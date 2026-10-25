@@ -2,8 +2,22 @@
 """离线集成测试：用夹具驱动 collect.py 的网络层，验证解析链路。"""
 import json
 import importlib.util
+import os
 
-spec = importlib.util.spec_from_file_location("c", r"scripts\collect.py")
+# 路径一律用 os.path 拼，不要写死反斜杠 —— CI 跑在 Linux 上，
+# "scripts\collect.py" 在那里会被当成一个含反斜杠的文件名，直接找不到。
+HERE = os.path.dirname(os.path.abspath(__file__))
+
+
+def _load(name, filename):
+    spec = importlib.util.spec_from_file_location(name, os.path.join(HERE, filename))
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
+
+
+spec = importlib.util.spec_from_file_location(
+    "c", os.path.join(HERE, "collect.py"))
 c = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(c)
 
@@ -139,9 +153,7 @@ for name, want in BAD_CASES:
     chk(("拦截 " if want else "放行 ") + name[:34], c.is_bad_image(name), want)
 
 # 地标选图打分：踩过两次（主体不在画面 / 5:1 全景长条 / 分辨率过低），必须回归保护
-_fs = importlib.util.spec_from_file_location("atlas_fill", r"scripts\fill_images.py")
-F = importlib.util.module_from_spec(_fs)
-_fs.loader.exec_module(F)
+F = _load("atlas_fill", "fill_images.py")
 
 SCORE_CASES = [
     ("Tour Eiffel from Champ de Mars.jpg",
