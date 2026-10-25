@@ -20,7 +20,9 @@ ENTITY = {"entities": {"Q148": {
         "P625": snak({"latitude": 35.0, "longitude": 103.0}),
         "P36": snak({"id": "Q956"}),
         "P30": snak({"id": "Q48"}),
-        "P37": snak({"id": "Q7850"}) + snak({"id": "Q9186"}),
+        "P37": (snak({"id": "Q727694"}) + snak({"id": "Q7850"})
+                + snak({"id": "Q835866"}) + snak({"id": "Q24841726"})
+                + snak({"id": "Q9186"})),
         "P18": snak("The_Great_Wall_of_China_at_Jinshanling-edit.jpg"),
         "P443": [{"mainsnak": {"snaktype": "somevalue"}}],
     },
@@ -32,6 +34,9 @@ LABELS = {"entities": {
     "Q48": {"labels": {"zh": {"value": "亚洲"}}},
     "Q7850": {"labels": {"zh": {"value": "汉语"}}},
     "Q9186": {"labels": {"zh": {"value": "粤语"}}},
+    "Q727694": {"labels": {"zh": {"value": "现代标准汉语"}}},
+    "Q835866": {"labels": {"zh": {"value": "中国语言"}}},
+    "Q24841726": {"labels": {"zh": {"value": "普通话"}}},
 }}
 
 EXTRACT = ("中华人民共和国是位于亚洲东部、太平洋西岸的国家，陆地面积约960万平方公里。"
@@ -90,8 +95,15 @@ chk("iso_a3", wd.get("iso_a3"), "CHN")
 chk("首都（标签解析）", wd.get("capital"), "北京")
 chk("大洲（标签解析）", wd.get("continent"), "亚洲")
 chk("坐标", wd.get("centroid"), [103.0, 35.0])
-chk("官方语言数", len(wd.get("languages") or []), 2)
+chk("语言去重后数量", len(wd.get("languages") or []), 2)
+chk("语言去重保留项", [l["name_zh"] for l in wd.get("languages") or []],
+    ["现代标准汉语", "粤语"])
+chk("短名优先", wd.get("name_zh"), "中国")
+chk("全称另存", wd.get("name_official"), "中华人民共和国")
 chk("P443 somevalue 跳过", wd.get("_audio_files"), [])
+chk("卢森堡语发音被拒", c.is_zh_audio("Lb-China.ogg"), False)
+chk("中文发音被采纳", c.is_zh_audio("Zh-中国.ogg"), True)
+chk("英文发音被拒", c.is_zh_audio("En-us-China.ogg"), False)
 chk("维基标题", wd.get("_wiki_title"), "中国")
 
 s = c.fetch_summary("中国", notes)
