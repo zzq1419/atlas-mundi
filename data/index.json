@@ -14,15 +14,15 @@
         103.4519,
         35.8447
       ],
-      "thumb": "assets/cn/01.jpg",
+      "thumb": "assets/cn/01.thumb.webp",
       "modalities": {
         "image": true,
         "audio": true,
         "text": true,
         "coords": true,
-        "geometry": false
+        "geometry": true
       },
-      "status": "partial"
+      "status": "complete"
     },
     {
       "iso_a2": "FR",

@@ -100,7 +100,7 @@ Windows 上直接双击 `采集中国.bat` 即可，脚本只用标准库，不�
 | 1 | Wikidata SPARQL（P297/P298/P625/P36/P30/P37/P18/P443） | ISO 码、坐标、首都、大洲、官方语言、代表图、发音文件 |
 | 2 | Wikipedia REST | 中文摘要，自动压到 300~500 字 |
 | 3 | Commons `imageinfo` + `extmetadata` | 图片直链 + **真实授权**，素材下载进 `assets/{iso}/` |
-| 4 | Natural Earth 50m（`--geo`） | 国界 MultiPolygon，提取后存 `geo/{iso}.geojson` |
+| 4 | Natural Earth 50m（`--geo`） | 国界 MultiPolygon，提取后存 `geo/{iso}.geojson`（中国 2662 顶点 / 67KB） |
 
 授权三级策略（不因缺授权就一张图都没有）：
 
@@ -119,11 +119,26 @@ B 级存在的理由：Wikimedia 上绝大多数文件都有授权，取不到�
 
 连通性体检：`python scripts/collect.py CN --check`。四个域名（Wikidata / 中文维基 / Commons / upload 图床）逐个探测；**全部不通时脚本直接中止，不会覆盖已有 JSON**。
 
-本地 TTS 兜底：`python scripts/tts_local.py CN "中国"`
+构建期 TTS：`python scripts/tts.py CN`
 
-Wikidata P443 只保证「有发音文件」，不保证语种 —— 实测 Q148 的首个发音是 `Lb-China.ogg`（卢森堡语读的 China）。
-所以采集只采信文件名带 `zh-` / `chinese` / `中文` 的发音，其余走构建期 TTS（Windows SAPI，本机中文音色为 Microsoft Huihui），
-产物是 22.05kHz 单声道 WAV，浏览器直接可播。脚本同时写清用了哪个音色、弃用了哪个文件及原因。
+两种引擎，一条命令搞定：
+
+| 引擎 | 说明 |
+| --- | --- |
+| `edge`（默认） | 微软 Edge 朗读接口，免费无 key，支持粤语 `zh-HK-HiuMaanNeural`、法语、英语等，输出 24kHz MP3（约 30~40KB / 句） |
+| `sapi` | Windows 本地 SAPI，完全离线，但本机只有普通话音色（Huihui），输出 22.05kHz WAV |
+
+`--engine auto` 会先试 edge，失败自动回落 sapi。
+
+为什么不用 Wikidata 的 P443：**P443 只保证「有发音文件」，不保证语种**。中国 Q148 的首个发音是
+`Lb-China.ogg` —— 卢森堡语读的 China。所以采集只采信文件名带 `zh-` / `chinese` / `中文` 的发音，
+区域语言（粤语）一律走 TTS。
+
+语音内容约定：**每个语言一条 5~6 秒的句子，不是干念国名**。念两三个字播放条一闪就没，演示时看不出
+「这是语音模态」，等于白做一条模态。文案存在 `languages[].tts_text`，人工可控。
+
+图片：原图下载后统一转 WebP 双尺寸（详情 760px q72 / 缩略 400px q74），960×615 的 272KB JPEG →
+108KB + 27KB，减半。原图不入库，`remote_url` 保留可回溯。
 
 离线测试：`python scripts/test_offline.py` —— 用夹具驱动解析链路，不联网，覆盖标签解析、坐标解包、摘要截断、配图过滤、标题归一与授权解析。
 

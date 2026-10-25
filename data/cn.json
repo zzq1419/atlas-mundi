@@ -19,30 +19,35 @@
       "name_zh": "现代标准汉语",
       "name_local": "现代标准汉语",
       "role": "official",
-      "audio_url": "assets/cn/pronunciation.wav",
-      "audio_source": "tts",
+      "audio_url": "assets/cn/audio/zh.mp3",
+      "audio_source": "tts_edge",
       "audio_status": "ok",
-      "audio_voice": "Microsoft Huihui (zh-CN, SAPI)"
+      "audio_voice": "zh-CN-XiaoxiaoNeural",
+      "tts_text": "你好，欢迎来到中国。首都是北京，万里长城横贯北方。",
+      "audio_bytes": 36864
     },
     {
       "code": "yue",
       "name_zh": "粤语",
       "name_local": "粵語",
       "role": "regional",
-      "audio_url": null,
-      "audio_source": null,
-      "audio_status": "pending_tts",
-      "note": "本机仅有普通话音色，粤语需另找音源"
+      "audio_url": "assets/cn/audio/yue.mp3",
+      "audio_source": "tts_edge",
+      "audio_status": "ok",
+      "note": "本机仅有普通话音色，粤语需另找音源",
+      "tts_text": "你好，歡迎嚟到中國。首都係北京，萬里長城橫貫北方。",
+      "audio_voice": "zh-HK-HiuMaanNeural",
+      "audio_bytes": 43056
     }
   ],
-  "audio_url": "assets/cn/pronunciation.wav",
-  "audio_source": "tts",
+  "audio_url": "assets/cn/audio/zh.mp3",
+  "audio_source": "edge",
   "landmark_images": [
     {
       "title": "File:Badaling China Great-Wall-of-China-01.jpg",
       "caption": "Badaling, China: Great Wall of China at Badaling",
-      "url": "assets/cn/01.jpg",
-      "thumb_url": "assets/cn/01.jpg",
+      "url": "assets/cn/01.webp",
+      "thumb_url": "assets/cn/01.thumb.webp",
       "remote_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/50/Badaling_China_Great-Wall-of-China-01.jpg/960px-Badaling_China_Great-Wall-of-China-01.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "source": "commons",
       "origin_kind": "P18",
@@ -51,14 +56,20 @@
       "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
       "license_status": "ok",
       "load_verified": true,
-      "bytes": 278594
+      "bytes": 110184,
+      "thumb_bytes": 27926,
+      "size": {
+        "detail": "760x487",
+        "thumb": "400x256"
+      },
+      "encoding": "webp q72/q74 (由 960x615 JPEG 278KB 压缩)"
     }
   ],
   "image_license": "CC BY-SA 3.0",
   "summary_text": "中华人民共和国是位于东亚的国家，国土面积约960万平方千米，位居世界各国第三位。其国土地处亚洲大陆东部，濒临太平洋，并与14个国家以陆地边界接壤。全国行政区域划分为23个省、5个自治区、4个直辖市、以及2个特别行政区，共计34个省级行政区。首都为北京市，城区常住人口最多城市为上海市。政治上依宪法实行人民代表大会制度，以社会主义为基础实行人民民主专政。中国共产党在国家体制及武装力量中处于绝对领导地位，国家实行中国共产党领导的多党合作和政治协商制度。\n中国在1945年抗日战争胜利后，中国共产党与中国国民党的政治及军事摩擦逐渐扩大，最终演变成双方的第二次内战。之后，毛泽东领导的中国共产党和其下属的中国人民解放军，逐步击败蒋中正领导的国民党政府及其军队。1949年10月1日，中国共产党在控制中国大部分领土后，在北京宣告成立中华人民共和国中央人民政府；中华民国政府则于1949年底迁往台湾，海峡两岸陷入长期政治对立，是现今台湾问题形成的历史背景。建国初期，中华人民共和国向社会主义转型过渡，并施行一五计划等经济计划恢复和发展社会主义经济。",
   "custom_text": "春节为农历正月初一，是岁首最重要的节日：贴春联、守岁、燃爆竹，年夜饭必有鱼，取「年年有余」。清明祭祖、端午赛龙舟食粽、中秋赏月食月饼，与春节合称农历四大节序。长城始建于春秋战国，秦连接各段，明代大规模砖石重修，今日所见多为明长城，1987 年列入世界文化遗产。",
-  "geometry": null,
-  "geometry_status": "pending_naturalearth_50m",
+  "geometry": "geo/cn.geojson",
+  "geometry_status": "naturalearth_50m",
   "sources": [
     {
       "field": [
@@ -96,8 +107,8 @@
   "review_notes": [
     "P443 发音语种不符（Lb-China.ogg 为卢森堡语），已改用本地 TTS；P443 需按文件名做语种过滤",
     "粤语缺少可用音源：Commons 未取到，本机仅有普通话音色（Huihui），待补 zh-HK 音源或人工录制",
-    "geometry 未采集：阶段 D 运行 python scripts/collect.py CN --geo",
-    "name_official 与 name_zh 并存，卡片显示常用名，全称保留在 JSON"
+    "name_official 与 name_zh 并存，卡片显示常用名，全称保留在 JSON",
+    "边界已采集（Natural Earth 50m，2662 顶点），阶段 D 的 globe.gl 直接可用"
   ],
   "collected_at": "2026-10-25T22:36:16+08:00",
   "summary_source": {
@@ -108,17 +119,28 @@
   },
   "collector": "scripts/collect.py v0.2",
   "audio_meta": {
-    "url": "assets/cn/pronunciation.wav",
-    "source": "tts",
-    "text": "中国",
-    "engine": "Windows SAPI",
-    "voice": "Microsoft Huihui Desktop - Chinese (Simplified)",
-    "format": "wav 22.05kHz 16bit mono",
-    "bytes": 68478,
-    "rejected": {
-      "file": "Lb-China.ogg",
-      "reason": "Wikidata P443 首个发音为卢森堡语，语种不符；P443 不保证语种，仅当文件名含 zh/chinese/中文 时才采信"
-    }
+    "engine": "edge",
+    "voice": "zh-CN-XiaoxiaoNeural",
+    "text": "你好，欢迎来到中国。首都是北京，万里长城横贯北方。",
+    "per_language": [
+      {
+        "code": "zh",
+        "url": "assets/cn/audio/zh.mp3",
+        "bytes": 36864
+      },
+      {
+        "code": "yue",
+        "url": "assets/cn/audio/yue.mp3",
+        "bytes": 43056
+      }
+    ],
+    "note": "顶层音频为官方语言；区域语言见 languages[].audio_url"
   },
-  "name_official": "中华人民共和国"
+  "name_official": "中华人民共和国",
+  "geometry_name": "中华人民共和国",
+  "geometry_stats": {
+    "rings": 13,
+    "vertices": 2662,
+    "bytes": 68608
+  }
 }
