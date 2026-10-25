@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-10-25-A">
+<meta name="build" content="2026-10-25-B">
 <title>寰宇图志 · Atlas Mundi</title>
 <meta name="description" content="寰宇图志：3D 地球上的多模态国家文化图谱">
 <style>
@@ -321,12 +321,16 @@
     </div>
 
     <div class="check" id="check">
-      <div class="row" data-kind="img" data-src="https://commons.wikimedia.org/wiki/Special:FilePath/The_Great_Wall_of_China_at_Jinshanling-edit.jpg?width=900">
+      <div class="row" data-kind="img"
+           data-src="https://commons.wikimedia.org/wiki/Special:FilePath/The_Great_Wall_of_China_at_Jinshanling-edit.jpg?width=900"
+           data-alt="https://commons.wikimedia.org/wiki/Special:FilePath/Great_Wall_of_China_July_2006.JPG?width=900">
         <div class="k">图片 · 长城</div>
         <div class="u">commons.wikimedia.org / Special:FilePath / The_Great_Wall…jpg</div>
         <div class="s" data-role="state">检测中…</div>
       </div>
-      <div class="row" data-kind="img" data-src="https://commons.wikimedia.org/wiki/Special:FilePath/Tour_Eiffel_Wikimedia_Commons.jpg?width=900">
+      <div class="row" data-kind="img"
+           data-src="https://commons.wikimedia.org/wiki/Special:FilePath/Tour_Eiffel_Wikimedia_Commons.jpg?width=900"
+           data-alt="https://commons.wikimedia.org/wiki/Special:FilePath/Tour_Eiffel_Paris.jpg?width=900">
         <div class="k">图片 · 埃菲尔塔</div>
         <div class="u">commons.wikimedia.org / Special:FilePath / Tour_Eiffel…jpg</div>
         <div class="s" data-role="state">检测中…</div>
@@ -339,8 +343,9 @@
     </div>
 
     <p class="hint">
-      三行全部显示 <code>✓ 加载成功</code>，即说明「前端托管不读取图片，浏览器自己拿着 URL 去下载」这条机制在本机网络下成立。
-      任意一行 <code>✗</code>，说明该资源地址或该域名的可达性有问题，需要换源 —— 这不影响网站本身。
+      三行全部显示 <code>✓</code>，即说明「前端托管不读取图片，浏览器自己拿着 URL 去下载」这条机制成立。<br>
+      <b>音频成功、图片失败</b> → 域名与网络都没问题，问题在图片文件名（404）或重定向链，以浏览器 Network 面板的状态码为准。<br>
+      <b>三行全失败</b> → 该域名在当前网络下不可达（纯国内网络访问 Wikimedia 常见），与本站代码无关，换源即可。
     </p>
 
     <div id="preview"></div>
@@ -390,15 +395,26 @@
     var t0 = performance.now();
 
     if (kind === 'img') {
+      var triedAlt = false;
       var img = new Image();
       img.onload = function () {
-        mark(row, true, '✓ ' + Math.round(performance.now() - t0) + ' ms');
+        var note = '✓ ' + Math.round(performance.now() - t0) + ' ms' + (triedAlt ? '（备用源）' : '');
+        mark(row, true, note);
         img.className = 'probe';
         img.alt = '跨域测试图片';
         preview.appendChild(img);
       };
-      img.onerror = function () { mark(row, false, '✗ 加载失败'); };
-      img.crossOrigin = 'anonymous';
+      img.onerror = function () {
+        // 主源失败先试备用文件名，仍失败才判失败
+        if (!triedAlt && row.dataset.alt) {
+          triedAlt = true;
+          img.src = row.dataset.alt;
+          return;
+        }
+        mark(row, false, '✗ 加载失败');
+      };
+      // 注意：这里刻意不加 crossOrigin —— 普通 <img> 展示无需 CORS；
+      // 一旦加上，302 重定向链须全程带 CORS 头，反而会被浏览器拦下。
       img.src = src;
     } else {
       var a = new Audio();
