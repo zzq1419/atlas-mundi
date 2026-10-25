@@ -95,6 +95,7 @@ Windows 上直接双击启动器即可，脚本只用标准库，不需要 pip �
 | --- | --- |
 | `采集中国.bat` | 采 CN |
 | `采集法国美国.bat` | 采 FR + US，一国失败不影响另一国 |
+| `重新采集.bat` | 输入任意 ISO 码重采单国（P18 挂地图/国旗时用） |
 
 换其他国家：改启动器里的 ISO 码，或命令行 `python scripts/collect.py DE`。
 
@@ -151,6 +152,19 @@ B 级存在的理由：Wikimedia 上绝大多数文件都有授权，取不到�
 108KB + 27KB，减半。原图不入库，`remote_url` 保留可回溯。
 
 离线测试：`python scripts/test_offline.py` —— 用夹具驱动解析链路，不联网，覆盖标签解析、坐标解包、摘要截断、配图过滤、标题归一与授权解析。
+
+## 采集之后的三个收尾步骤
+
+采完还要压图、配语音、重算索引，三条命令：
+
+```bash
+python scripts/optimize_images.py --all   # 大图转 WebP 双尺寸，改写 JSON 路径
+python scripts/tts.py CN                  # 逐国生成语音（有音色的语种才生成）
+python scripts/sync_index.py              # 由 data/*.json 反推 index.json 的模态位与状态
+```
+
+`sync_index.py` 是必需的：`collect.py` 只按采集当时的字段写一次 `index.json`，
+之后补的边界、补的语音它并不知道。让 `index.json` 永远由档案反推，避免手工对不上。
 
 ## 本地预览
 

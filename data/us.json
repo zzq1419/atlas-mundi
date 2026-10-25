@@ -1,0 +1,98 @@
+{
+  "qid": "Q30",
+  "iso_a2": "US",
+  "iso_a3": "USA",
+  "name_zh": "美国",
+  "name_en": "United States",
+  "capital": "华盛顿哥伦比亚特区",
+  "continent": "北美洲",
+  "centroid": [
+    -98.5795,
+    39.8282
+  ],
+  "centroid_source": "wikidata P625",
+  "languages": [
+    {
+      "code": "en",
+      "name_zh": "英语",
+      "name_local": "英语",
+      "role": "official",
+      "audio_url": "assets/us/audio/en.mp3",
+      "audio_source": "tts_edge",
+      "audio_status": "ok",
+      "tts_text": "Hello, welcome to the United States. Its capital is Washington, D.C., and the Grand Canyon lies in the southwest.",
+      "audio_voice": "en-US-AriaNeural",
+      "audio_bytes": 52272
+    },
+    {
+      "code": "haw",
+      "name_zh": "夏威夷语",
+      "name_local": "夏威夷语",
+      "role": "official",
+      "audio_url": null,
+      "audio_source": null,
+      "audio_status": "pending"
+    }
+  ],
+  "summary_text": "美利坚合众国（英语：United States of America，缩写：USA），简称美国、美利坚（英语：America）或合众国（英语：United States，缩写：US），是位于北美洲的联邦制共和国。其由50个州、首都华盛顿哥伦比亚特区和326个印第安人保留地组成；在联邦外，其主张对5个离岸自治领土及若干外岛拥有主权。美国领土面积为9,372,610平方公里，为北美第二（次于加拿大），世界第三或第四。截至2020年初，美国总人口约为3.3亿人，是世界第三人口大国、也是人口最多的发达国家、以及美洲人口最多的国家。美国有着来自世界各地的大量移民，是世界上民族和文化最多元的国家之一。美国国土的地形与气候复杂，生物多样性齐全。\n12,000多年前，古印第安人通过白令陆桥迁徙，定居在现在的美国领土上。欧洲人从16世纪开始殖民北美，1607年起开始成为英国殖民地。1775年美国独立战争爆发，1776年7月4日《独立宣言》发表，1783年英国战败并承认其独立。1787年《美利坚合众国宪法》完稿，标志联邦政府和联邦制正式确立。自19世纪起。",
+  "summary_source": {
+    "source": "wikipedia_extracts",
+    "url": "https://zh.wikipedia.org/wiki/%E7%BE%8E%E5%9B%BD",
+    "title": "美国",
+    "chars": 475
+  },
+  "landmark_images": [
+    {
+      "title": "File:United States - Location Map (2013) - USA - UNOCHA.svg",
+      "caption": "Locator map of United States.",
+      "url": "assets/us/01.png",
+      "thumb_url": "assets/us/01.png",
+      "remote_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/71/United_States_-_Location_Map_%282013%29_-_USA_-_UNOCHA.svg/960px-United_States_-_Location_Map_%282013%29_-_USA_-_UNOCHA.svg.png?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "source": "commons",
+      "origin_kind": "P18",
+      "author": "UN Office for the Coordination of Humanitarian Affairs (OCHA)",
+      "license": "CC BY 3.0",
+      "license_url": "https://creativecommons.org/licenses/by/3.0",
+      "license_status": "ok",
+      "load_verified": true,
+      "bytes": 314019
+    }
+  ],
+  "image_license": "CC BY 3.0",
+  "schema_version": "0.1",
+  "collected_at": "2026-10-25T23:17:11+08:00",
+  "collector": "scripts/collect.py v0.2",
+  "needs_review": true,
+  "review_notes": [
+    "P37 返回 6 个语言，去重/去上位概念后保留 2 个：英语、夏威夷语",
+    "P443 发音语种不符已弃用：Lb-Amerika.ogg、LL-Q7913 (ron)-KlaudiuMihaila-Statele Unite ale Americii.wav、LL-Q33810 (ori)-Psubhashish-ଯୁକ୍ତରାଷ୍ଟ୍ର ଆମେରିକା.wav（P443 不保证语种，须按文件名筛）",
+    "Commons 无可用发音，语音走构建期 TTS 兜底（待接）",
+    "边界已采集（Natural Earth 50m，5753 顶点）",
+    "⚠ P18 代表图是 \"Locator map of United States\"（地图），不是地标，需重新采集",
+    "以下语言未生成语音（无合适音色，不用邻近语种硬读）：haw"
+  ],
+  "name_official": "美國",
+  "geometry": "geo/us.geojson",
+  "geometry_status": "naturalearth_50m",
+  "geometry_name": "美国",
+  "geometry_stats": {
+    "rings": 127,
+    "vertices": 5753,
+    "bytes": 151074
+  },
+  "audio_url": "assets/us/audio/en.mp3",
+  "audio_source": "edge",
+  "audio_meta": {
+    "engine": "edge",
+    "voice": "en-US-AriaNeural",
+    "text": "Hello, welcome to the United States. Its capital is Washington, D.C., and the Grand Canyon lies in the southwest.",
+    "per_language": [
+      {
+        "code": "en",
+        "url": "assets/us/audio/en.mp3",
+        "bytes": 52272
+      }
+    ],
+    "note": "顶层音频为官方语言；区域语言见 languages[].audio_url"
+  }
+}

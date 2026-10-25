@@ -1,0 +1,92 @@
+{
+  "qid": "Q142",
+  "iso_a2": "FR",
+  "iso_a3": "FRA",
+  "name_zh": "法国",
+  "name_en": "France",
+  "capital": "巴黎",
+  "continent": "欧洲",
+  "centroid": [
+    2,
+    47
+  ],
+  "centroid_source": "wikidata P625",
+  "languages": [
+    {
+      "code": "fr",
+      "name_zh": "法语",
+      "name_local": "法语",
+      "role": "official",
+      "audio_url": "assets/fr/audio/fr.mp3",
+      "audio_source": "tts_edge",
+      "audio_status": "ok",
+      "tts_text": "Bonjour, bienvenue en France. Sa capitale est Paris, et la tour Eiffel se dresse au bord de la Seine.",
+      "audio_voice": "fr-FR-DeniseNeural",
+      "audio_bytes": 44496
+    }
+  ],
+  "summary_text": "法兰西共和国（法语：République française，发音：[ʁepyblik fʁɑ̃sɛːz] ），通称法国（France [fʁɑ̃s] ），西欧双首长制共和国，东邻德国、比利时与意大利，西面比斯开湾，西南接西班牙，北隔英吉利海峡与英国相望。法国共分为18个大区，其中5个位于海外，领土总面积达64.3万平方公里，是欧盟国土最辽阔的国家。人口为6789万人，首都巴黎。法国本土皆为海洋性气候，海外领土则气候多样，在全球各洋均拥有大量岛屿。\n法国人的先祖高卢人自铁器时代迁至今日法国定居，后来罗马共和国于前51年并吞了该地区，形成独特的高卢－罗马文化。法兰克人于5世纪在此建立了法兰克王国，并逐步扩张至全西欧。987年，于格·卡佩即位为王，被后世视为法兰西王国的开端。该王国成立之初是个强大但分权的封建王国，直到12世纪末期法王腓力二世开始集中王权，并在布汶之战战胜神圣罗马帝国与安茹帝国联军，逐渐成为全欧最强大的国家。14至15世纪，法国与英格兰王国爆发百年战争，法国赢得胜利后封建制度开始瓦解，其文化与艺术因法国文艺复兴迅速发展，并在大航海时代建立殖民帝国。",
+  "summary_source": {
+    "source": "wikipedia_extracts",
+    "url": "https://zh.wikipedia.org/wiki/%E6%B3%95%E5%9B%BD",
+    "title": "法国",
+    "chars": 487
+  },
+  "landmark_images": [
+    {
+      "title": "File:Paris from the Arc de Triomphe, 17 October 2019.jpg",
+      "caption": "Paris from the Arc de Triomphe",
+      "url": "assets/fr/01.webp",
+      "thumb_url": "assets/fr/01.thumb.webp",
+      "remote_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/15/Paris_from_the_Arc_de_Triomphe%2C_17_October_2019.jpg/960px-Paris_from_the_Arc_de_Triomphe%2C_17_October_2019.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "source": "commons",
+      "origin_kind": "P18",
+      "author": "Pierre Blaché from Paris, France",
+      "license": "CC0",
+      "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+      "license_status": "ok",
+      "load_verified": true,
+      "bytes": 53128,
+      "thumb_bytes": 15162,
+      "size": {
+        "detail": "760x428",
+        "thumb": "400x225"
+      },
+      "encoding": "webp q72/q74 (源 960x540 160KB JPEG)"
+    }
+  ],
+  "image_license": "CC0",
+  "schema_version": "0.1",
+  "collected_at": "2026-10-25T23:16:59+08:00",
+  "collector": "scripts/collect.py v0.2",
+  "needs_review": true,
+  "review_notes": [
+    "P443 发音语种不符已弃用：Hu-francia.ogg、Th-france.ogg、Jer-France.ogg（P443 不保证语种，须按文件名筛）",
+    "Commons 无可用发音，语音走构建期 TTS 兜底（待接）",
+    "边界已采集（Natural Earth 50m，817 顶点）"
+  ],
+  "name_official": "法國",
+  "geometry": "geo/fr.geojson",
+  "geometry_status": "naturalearth_50m",
+  "geometry_name": "法国",
+  "geometry_stats": {
+    "rings": 10,
+    "vertices": 817,
+    "bytes": 22846
+  },
+  "audio_url": "assets/fr/audio/fr.mp3",
+  "audio_source": "edge",
+  "audio_meta": {
+    "engine": "edge",
+    "voice": "fr-FR-DeniseNeural",
+    "text": "Bonjour, bienvenue en France. Sa capitale est Paris, et la tour Eiffel se dresse au bord de la Seine.",
+    "per_language": [
+      {
+        "code": "fr",
+        "url": "assets/fr/audio/fr.mp3",
+        "bytes": 44496
+      }
+    ],
+    "note": "顶层音频为官方语言；区域语言见 languages[].audio_url"
+  }
+}

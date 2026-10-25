@@ -71,12 +71,22 @@ LANG_CODE = {
     "Q9186": "yue", "Q835866": "zh", "Q24841726": "zh",
     "Q12107": "br", "Q14185": "oc", "Q652": "it", "Q1321": "es",
     "Q188": "de", "Q7737": "ru", "Q5287": "ja", "Q9176": "ko",
-    "Q8748": "ar", "Q5146": "pt",
+    "Q8748": "ar", "Q5146": "pt", "Q33569": "haw", "Q5111": "haw",
 }
 
 # P37 常见上下位概念，展示时丢弃（保留「现代标准汉语」这类最具体的）
 LANG_DROP = {"中文", "汉语", "中国语言", "Chinese", "Chinese language",
              "普通话", "Standard Chinese"}
+
+
+# P18 常挂地图、国旗、徽章而不是地标（美国 Q30 实测给的是 "Locator map of United States"）
+BAD_IMAGE_KEYS = ("locator", "_map", "map_of", "map-", "flag_of", "flag-", "seal",
+                  "coat_of_arms", "emblem", "logo", "diagram", "blank", "silhouette")
+
+
+def is_bad_image(name):
+    low = (name or "").lower()
+    return any(k in low for k in BAD_IMAGE_KEYS)
 
 
 def is_zh_audio(name):
@@ -254,10 +264,11 @@ def fetch_wikidata(iso2, forced_qid, notes):
 
     out = {"qid": qid}
     labels = ent.get("labels") or {}
-    if labels.get("zh", {}).get("value"):
-        out["name_zh"] = labels["zh"]["value"]
-    elif labels.get("zh-cn", {}).get("value"):
-        out["name_zh"] = labels["zh-cn"]["value"]
+    # zh 标签经常是繁体（法國 / 美國），必须按 zh-cn > zh-hans > zh 的顺序取
+    for key in ("zh-cn", "zh-hans", "zh", "zh-hant"):
+        if labels.get(key, {}).get("value"):
+            out["name_zh"] = labels[key]["value"]
+            break
     if labels.get("en", {}).get("value"):
         out["name_en"] = labels["en"]["value"]
 
@@ -311,16 +322,20 @@ def fetch_wikidata(iso2, forced_qid, notes):
                          % (len(raw), len(out["languages"]),
                             "、".join(l["name_zh"] for l in out["languages"])))
 
-    # 名称：短的是常用名，长的是全称。卡片显示常用名（中国 而非 中华人民共和国）
-    nzh, nen = out.get("name_zh"), out.get("name_en")
-    if nzh and len(nzh) > 6:
+    # 名称：卡片要常用名（中国 / 法国 / 美国），全称另存
+    nzh = out.get("name_zh")
+    short = (SHORT_NAME.get(qid) or [None])[0]
+    if short and nzh and short != nzh:
         out["name_official"] = nzh
-        for short in SHORT_NAME.get(qid, []):
-            if short != nzh:
-                out["name_zh"] = short
-                break
+        out["name_zh"] = short
 
-    out["_image_files"] = [v for v in claim_values(ent, "P18") if isinstance(v, str)][:5]
+    p18_all = [v for v in claim_values(ent, "P18") if isinstance(v, str)]
+    p18_ok = [v for v in p18_all if not is_bad_image(v)]
+    dropped_img = [v for v in p18_all if is_bad_image(v)]
+    if dropped_img:
+        notes.append("P18 里 %d 个是地图/旗帜/徽章，已筛掉：%s"
+                     % (len(dropped_img), "、".join(dropped_img[:3])))
+    out["_image_files"] = p18_ok[:5]
     out["_audio_files"] = [v for v in claim_values(ent, "P443") if isinstance(v, str)][:3]
     sl = ent.get("sitelinks") or {}
     if sl.get("zhwiki", {}).get("title"):
@@ -493,7 +508,7 @@ def fetch_assets(iso2, wd, notes):
         notes.append("P443 发音语种不符已弃用：%s（P443 不保证语种，须按文件名筛）"
                      % "、".join(dropped))
     if not cand and (wd.get("_audio_files") or []):
-        notes.append("无中文发音可用，改跑 python scripts/tts_local.py %s \"中文名\"" % iso2)
+        notes.append("该实体无对应语种发音，语音改跑 python scripts/tts.py %s" % iso2)
 
     for name in cand[:1]:
         meta = lookup_meta(commons_imageinfo([name], width=0), name)

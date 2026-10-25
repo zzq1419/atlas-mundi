@@ -53,7 +53,11 @@ VOICE = {
 }
 
 # 没有可用合成音色的语种：明确跳过并在 review_notes 留痕，不要用邻近语种硬读
-NO_VOICE = {"br": "布列塔尼语无可用合成音色（Edge TTS 不含凯尔特语支）", "oc": "奥克语无可用合成音色"}
+NO_VOICE = {
+    "br": "布列塔尼语无可用合成音色（Edge TTS 不含凯尔特语支）",
+    "oc": "奥克语无可用合成音色",
+    "haw": "夏威夷语无可用合成音色",
+}
 
 # 手写句库：每国每条语言一句 5~6 秒的话。比模板拼装自然得多，也方便你改。
 PHRASES = {
@@ -157,7 +161,13 @@ def main():
             skipped.append(code)
             continue
         l["tts_text"] = text
-        voice = VOICE.get(code, "en-US-AriaNeural")
+        voice = VOICE.get(code)
+        if not voice:
+            # 关键：查不到音色就跳过。以前默认回落到英语音色，
+            # 等于用英语读夏威夷语，是错的。
+            print("  - %-6s 跳过：无 %s 的合成音色" % (code, code))
+            skipped.append(code)
+            continue
         ext, use_engine = ".mp3", engine
 
         if use_engine in ("auto", "edge"):

@@ -22,49 +22,62 @@
         "coords": true,
         "geometry": true
       },
-      "status": "complete"
+      "status": "complete",
+      "lang_count": 2,
+      "audio_langs": [
+        "zh",
+        "yue"
+      ]
     },
     {
       "iso_a2": "FR",
       "name_zh": "法国",
       "name_en": "France",
-      "name_local": "France",
-      "continent": "Europe",
+      "name_local": "法国",
+      "continent": "欧洲",
       "capital": "巴黎",
       "centroid": [
-        2.3,
-        46.6
+        2,
+        47
       ],
-      "thumb": null,
+      "thumb": "assets/fr/01.thumb.webp",
       "modalities": {
-        "image": false,
-        "audio": false,
-        "text": false,
+        "image": true,
+        "audio": true,
+        "text": true,
         "coords": true,
-        "geometry": false
+        "geometry": true
       },
-      "status": "placeholder"
+      "status": "complete",
+      "lang_count": 1,
+      "audio_langs": [
+        "fr"
+      ]
     },
     {
       "iso_a2": "US",
       "name_zh": "美国",
       "name_en": "United States",
-      "name_local": "United States",
-      "continent": "North America",
+      "name_local": "美国",
+      "continent": "北美洲",
       "capital": "华盛顿哥伦比亚特区",
       "centroid": [
-        -98.5,
-        39.8
+        -98.5795,
+        39.8282
       ],
-      "thumb": null,
+      "thumb": "assets/us/01.png",
       "modalities": {
-        "image": false,
-        "audio": false,
-        "text": false,
+        "image": true,
+        "audio": true,
+        "text": true,
         "coords": true,
-        "geometry": false
+        "geometry": true
       },
-      "status": "placeholder"
+      "status": "complete",
+      "lang_count": 2,
+      "audio_langs": [
+        "en"
+      ]
     }
   ]
 }
