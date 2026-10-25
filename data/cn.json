@@ -77,30 +77,59 @@
         "iso_a3",
         "qid"
       ],
-      "source": "manual",
-      "ref": "ISO 3166-1 / Wikidata Q148"
+      "source": "wikidata",
+      "ref": "Special:EntityData/Q148"
+    },
+    {
+      "field": [
+        "capital",
+        "continent",
+        "languages"
+      ],
+      "source": "wikidata",
+      "ref": "P36 / P30 / P37"
     },
     {
       "field": [
         "centroid"
       ],
-      "source": "manual",
-      "ref": "国土几何中心，待换 Wikidata P625"
+      "source": "wikidata",
+      "ref": "P625"
     },
     {
       "field": [
-        "summary_text",
-        "custom_text"
+        "summary_text"
       ],
-      "source": "manual",
-      "ref": "人工撰写，待换 Wikipedia REST + LLM 改写"
+      "source": "wikipedia_rest",
+      "ref": "zh.wikipedia extracts, variant=zh-cn"
     },
     {
       "field": [
         "landmark_images"
       ],
       "source": "commons",
-      "ref": "Special:FilePath，浏览器实测可加载"
+      "ref": "P18 -> imageinfo + extmetadata"
+    },
+    {
+      "field": [
+        "audio_url"
+      ],
+      "source": "tts",
+      "ref": "edge-tts zh-CN-XiaoxiaoNeural + zh-HK-HiuMaanNeural"
+    },
+    {
+      "field": [
+        "geometry"
+      ],
+      "source": "naturalearth",
+      "ref": "ne_50m_admin_0_countries, 2662 顶点"
+    },
+    {
+      "field": [
+        "custom_text"
+      ],
+      "source": "manual",
+      "ref": "人工撰写，待接 LLM 摘编"
     }
   ],
   "needs_review": false,

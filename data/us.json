@@ -143,5 +143,62 @@
       }
     ],
     "note": "顶层音频为官方语言；区域语言见 languages[].audio_url"
-  }
+  },
+  "custom_text": "美国建国于 1776 年《独立宣言》，1787 年宪法确立联邦制与三权分立。感恩节在 11 月第四个周四，源自 1621 年清教徒与万帕诺亚格人的共食传统，1863 年由林肯定为全国节日。爵士乐、蓝调、摇滚与嘻哈均发源于此，新奥尔良、孟菲斯、底特律构成一条音乐地理线索。联邦制下各州法律差异显著，50 州各有州旗、州歌与州博览会传统。",
+  "sources": [
+    {
+      "field": [
+        "qid",
+        "iso_a2",
+        "iso_a3",
+        "capital",
+        "continent",
+        "languages"
+      ],
+      "source": "wikidata",
+      "ref": "Special:EntityData/Q30"
+    },
+    {
+      "field": [
+        "centroid"
+      ],
+      "source": "wikidata",
+      "ref": "P625"
+    },
+    {
+      "field": [
+        "summary_text"
+      ],
+      "source": "wikipedia_rest",
+      "ref": "zh.wikipedia extracts, variant=zh-cn"
+    },
+    {
+      "field": [
+        "landmark_images"
+      ],
+      "source": "commons",
+      "ref": "P18 筛掉地图后回退维基正文配图，3 张"
+    },
+    {
+      "field": [
+        "audio_url"
+      ],
+      "source": "tts",
+      "ref": "edge-tts en-US-AriaNeural"
+    },
+    {
+      "field": [
+        "geometry"
+      ],
+      "source": "naturalearth",
+      "ref": "ne_50m_admin_0_countries, 5753 顶点"
+    },
+    {
+      "field": [
+        "custom_text"
+      ],
+      "source": "manual",
+      "ref": "人工撰写，待接 LLM 摘编"
+    }
+  ]
 }

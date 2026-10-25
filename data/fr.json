@@ -88,5 +88,62 @@
       }
     ],
     "note": "顶层音频为官方语言；区域语言见 languages[].audio_url"
-  }
+  },
+  "custom_text": "法国大革命（1789）确立共和传统，7 月 14 日国庆即攻占巴士底狱的纪念日。天主教传统深厚，但 1905 年政教分离后，「世俗性」（laïcité）成为国家原则。饮食以面包、奶酪、葡萄酒为骨架，AOP 原产地制度保护了数百种奶酪与葡萄酒产区，「风土」（terroir）被视为文化核心概念。布列塔尼、阿尔萨斯、科西嘉等地保留独立语言与节庆，如布列塔尼的 Fest-Noz 夜间舞会。",
+  "sources": [
+    {
+      "field": [
+        "qid",
+        "iso_a2",
+        "iso_a3",
+        "capital",
+        "continent",
+        "languages"
+      ],
+      "source": "wikidata",
+      "ref": "Special:EntityData/Q142"
+    },
+    {
+      "field": [
+        "centroid"
+      ],
+      "source": "wikidata",
+      "ref": "P625"
+    },
+    {
+      "field": [
+        "summary_text"
+      ],
+      "source": "wikipedia_rest",
+      "ref": "zh.wikipedia extracts, variant=zh-cn"
+    },
+    {
+      "field": [
+        "landmark_images"
+      ],
+      "source": "commons",
+      "ref": "P18 -> imageinfo + extmetadata"
+    },
+    {
+      "field": [
+        "audio_url"
+      ],
+      "source": "tts",
+      "ref": "edge-tts fr-FR-DeniseNeural"
+    },
+    {
+      "field": [
+        "geometry"
+      ],
+      "source": "naturalearth",
+      "ref": "ne_50m_admin_0_countries, 817 顶点"
+    },
+    {
+      "field": [
+        "custom_text"
+      ],
+      "source": "manual",
+      "ref": "人工撰写，待接 LLM 摘编"
+    }
+  ]
 }
