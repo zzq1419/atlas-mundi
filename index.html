@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-10-25-B">
+<meta name="build" content="2026-10-25-C">
 <title>寰宇图志 · Atlas Mundi</title>
 <meta name="description" content="寰宇图志：3D 地球上的多模态国家文化图谱">
 <style>
@@ -282,73 +282,23 @@
     <cite>—— 项目立意</cite>
   </blockquote>
 
-  <!-- ============ 三国入口 ============ -->
+  <!-- ============ 国家入口（数据驱动） ============ -->
   <section class="sec">
     <div class="sec-head">
       <h2>首批范围</h2>
-      <span>三国 · 分属亚、欧、北美三大洲 · 语言天然三种</span>
+      <span id="cards-sub">读取 data/index.json…</span>
     </div>
-    <div class="grid">
-      <article class="card">
-        <div class="flag">CN · Asia</div>
-        <h3>中国</h3>
-        <div class="en">China</div>
-        <div class="mods"><em>地标</em><em>官话 / 粤语</em><em>文本</em><em>坐标</em></div>
-        <div class="state"><span class="dot"></span>待接入数据</div>
-      </article>
-      <article class="card">
-        <div class="flag">FR · Europe</div>
-        <h3>法国</h3>
-        <div class="en">France</div>
-        <div class="mods"><em>地标</em><em>法语 / 布列塔尼语</em><em>文本</em><em>坐标</em></div>
-        <div class="state"><span class="dot"></span>待接入数据</div>
-      </article>
-      <article class="card">
-        <div class="flag">US · North America</div>
-        <h3>美国</h3>
-        <div class="en">United States</div>
-        <div class="mods"><em>地标</em><em>英语</em><em>文本</em><em>坐标</em></div>
-        <div class="state"><span class="dot"></span>待接入数据</div>
-      </article>
-    </div>
+    <div class="grid" id="cards"></div>
+    <p class="hint" id="cards-hint"></p>
   </section>
 
-  <!-- ============ 跨域自检 ============ -->
-  <section class="sec">
+  <!-- ============ 详情面板 ============ -->
+  <section class="sec" id="detail" hidden>
     <div class="sec-head">
-      <h2>跨域资源自检</h2>
-      <span>本站只托管 HTML；图片与音频由浏览器自行向第三方域名请求</span>
+      <h2 id="d-title">国家档案</h2>
+      <span id="d-sub"></span>
     </div>
-
-    <div class="check" id="check">
-      <div class="row" data-kind="img"
-           data-src="https://commons.wikimedia.org/wiki/Special:FilePath/The_Great_Wall_of_China_at_Jinshanling-edit.jpg?width=900"
-           data-alt="https://commons.wikimedia.org/wiki/Special:FilePath/Great_Wall_of_China_July_2006.JPG?width=900">
-        <div class="k">图片 · 长城</div>
-        <div class="u">commons.wikimedia.org / Special:FilePath / The_Great_Wall…jpg</div>
-        <div class="s" data-role="state">检测中…</div>
-      </div>
-      <div class="row" data-kind="img"
-           data-src="https://commons.wikimedia.org/wiki/Special:FilePath/Tour_Eiffel_Wikimedia_Commons.jpg?width=900"
-           data-alt="https://commons.wikimedia.org/wiki/Special:FilePath/Tour_Eiffel_Paris.jpg?width=900">
-        <div class="k">图片 · 埃菲尔塔</div>
-        <div class="u">commons.wikimedia.org / Special:FilePath / Tour_Eiffel…jpg</div>
-        <div class="s" data-role="state">检测中…</div>
-      </div>
-      <div class="row" data-kind="audio" data-src="https://commons.wikimedia.org/wiki/Special:FilePath/En-us-France.ogg">
-        <div class="k">音频 · 法语发音</div>
-        <div class="u">commons.wikimedia.org / Special:FilePath / En-us-France.ogg</div>
-        <div class="s" data-role="state">检测中…</div>
-      </div>
-    </div>
-
-    <p class="hint">
-      三行全部显示 <code>✓</code>，即说明「前端托管不读取图片，浏览器自己拿着 URL 去下载」这条机制成立。<br>
-      <b>音频成功、图片失败</b> → 域名与网络都没问题，问题在图片文件名（404）或重定向链，以浏览器 Network 面板的状态码为准。<br>
-      <b>三行全失败</b> → 该域名在当前网络下不可达（纯国内网络访问 Wikimedia 常见），与本站代码无关，换源即可。
-    </p>
-
-    <div id="preview"></div>
+    <div id="d-body"></div>
   </section>
 
   <!-- ============ 进度 ============ -->
@@ -359,8 +309,8 @@
     </div>
     <div class="stages">
       <div class="stage done"><b>阶段 A</b>静态托管跑通，公网可访问</div>
-      <div class="stage doing"><b>阶段 B</b>跨域图片 / 音频取用验证</div>
-      <div class="stage todo"><b>阶段 C</b>三国数据采集与卡片页</div>
+      <div class="stage done"><b>阶段 B</b>跨域图片 / 音频取用验证</div>
+      <div class="stage doing"><b>阶段 C</b>三国数据采集与卡片页</div>
       <div class="stage todo"><b>阶段 D</b>3D 地球 + 搜索框</div>
       <div class="stage todo"><b>阶段 E</b>扩至 100+ 国家/地区</div>
     </div>
@@ -374,87 +324,269 @@
 
 <script>
 (function () {
-  var rows = document.querySelectorAll('#check .row');
-  var preview = document.getElementById('preview');
-  var done = 0, ok = 0;
+  var cardsEl = document.getElementById('cards');
+  var hintEl = document.getElementById('cards-hint');
+  var subEl = document.getElementById('cards-sub');
+  var detail = document.getElementById('detail');
+  var dTitle = document.getElementById('d-title');
+  var dSub = document.getElementById('d-sub');
+  var dBody = document.getElementById('d-body');
 
-  function mark(row, good, note) {
-    var el = row.querySelector('[data-role="state"]');
-    el.className = 's ' + (good ? 'ok' : 'bad');
-    el.textContent = note;
-    done++;
-    if (good) ok++;
-    if (done === rows.length) {
-      document.dispatchEvent(new CustomEvent('selfcheck', { detail: { ok: ok, total: rows.length } }));
-    }
+  var MOD_LABEL = { image: '地标', audio: '语音', text: '文本', coords: '坐标', geometry: '边界' };
+  var CUR = null;
+
+  function el(tag, cls, text) {
+    var n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (text != null) n.textContent = text;
+    return n;
   }
 
-  Array.prototype.forEach.call(rows, function (row) {
-    var kind = row.dataset.kind;
-    var src = row.dataset.src;
-    var t0 = performance.now();
+  function fail(msg) {
+    hintEl.innerHTML = '';
+    hintEl.appendChild(el('span', '', msg));
+    cardsEl.innerHTML = '';
+  }
 
-    if (kind === 'img') {
-      var triedAlt = false;
-      var img = new Image();
-      img.onload = function () {
-        var note = '✓ ' + Math.round(performance.now() - t0) + ' ms' + (triedAlt ? '（备用源）' : '');
-        mark(row, true, note);
-        img.className = 'probe';
-        img.alt = '跨域测试图片';
-        preview.appendChild(img);
-      };
-      img.onerror = function () {
-        // 主源失败先试备用文件名，仍失败才判失败
-        if (!triedAlt && row.dataset.alt) {
-          triedAlt = true;
-          img.src = row.dataset.alt;
-          return;
-        }
-        mark(row, false, '✗ 加载失败');
-      };
-      // 注意：这里刻意不加 crossOrigin —— 普通 <img> 展示无需 CORS；
-      // 一旦加上，302 重定向链须全程带 CORS 头，反而会被浏览器拦下。
-      img.src = src;
-    } else {
-      var a = new Audio();
-      a.preload = 'metadata';
-      a.addEventListener('loadedmetadata', function () {
-        mark(row, true, '✓ ' + a.duration.toFixed(1) + ' s');
-        a.controls = true;
-        a.className = 'probe audio';
-        preview.appendChild(a);
-      });
-      a.addEventListener('error', function () { mark(row, false, '✗ 加载失败'); });
-      a.src = src;
-    }
-  });
+  /* ---------- 入口卡 ---------- */
+  function renderCards(list) {
+    cardsEl.innerHTML = '';
+    list.forEach(function (c) {
+      var card = el('article', 'card' + (c.status === 'placeholder' ? ' is-placeholder' : ''));
+      card.tabIndex = 0;
+      card.setAttribute('role', 'button');
 
-  // 超时兜底：12 秒仍未回来就判失败，避免页面永远停在"检测中"
-  setTimeout(function () {
-    Array.prototype.forEach.call(rows, function (row) {
-      var el = row.querySelector('[data-role="state"]');
-      if (el.textContent === '检测中…') {
-        el.className = 's bad';
-        el.textContent = '✗ 超时';
-        done++;
+      if (c.thumb) {
+        var img = el('img', 'thumb');
+        img.alt = c.name_zh;
+        img.loading = 'lazy';
+        // 不加 crossOrigin：普通展示无需 CORS，加了反而会被 302 链拦下
+        img.onerror = function () {
+          var ph = el('div', 'thumb blank', '图片未加载');
+          img.replaceWith(ph);
+        };
+        img.src = c.thumb;
+        card.appendChild(img);
+      } else {
+        card.appendChild(el('div', 'thumb blank', c.status === 'placeholder' ? '数据待采集' : '暂无图片'));
       }
+
+      var body = el('div', 'cbody');
+      body.appendChild(el('div', 'flag', c.iso_a2 + ' · ' + c.continent));
+      body.appendChild(el('h3', null, c.name_zh));
+      body.appendChild(el('div', 'en', c.name_en));
+
+      var mods = el('div', 'mods');
+      Object.keys(MOD_LABEL).forEach(function (k) {
+        var on = c.modalities && c.modalities[k];
+        mods.appendChild(el('em', on ? 'on' : 'off', MOD_LABEL[k]));
+      });
+      body.appendChild(mods);
+
+      var state = el('div', 'state');
+      state.appendChild(el('span', 'dot'));
+      var n = 0;
+      Object.keys(MOD_LABEL).forEach(function (k) { if (c.modalities && c.modalities[k]) n++; });
+      state.appendChild(el('span', null, n + ' / 5 模态就绪 · ' + (c.status === 'partial' ? '部分' : '占位')));
+      body.appendChild(state);
+
+      card.appendChild(body);
+      card.addEventListener('click', function () { openDetail(c.iso_a2, card); });
+      card.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openDetail(c.iso_a2, card); }
+      });
+      cardsEl.appendChild(card);
     });
-  }, 12000);
+  }
+
+  /* ---------- 详情 ---------- */
+  function openDetail(iso, card, quiet) {
+    Array.prototype.forEach.call(cardsEl.children, function (n) { n.classList.remove('active'); });
+    if (card) card.classList.add('active');
+
+    dTitle.textContent = '读取中…';
+    dSub.textContent = iso;
+    dBody.innerHTML = '';
+    detail.hidden = false;
+
+    fetch('data/' + iso.toLowerCase() + '.json')
+      .then(function (r) {
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.json();
+      })
+      .then(function (d) { renderDetail(d, quiet); })
+      .catch(function (e) {
+        dTitle.textContent = '档案未就绪';
+        dSub.textContent = iso;
+        dBody.appendChild(el('p', 'hint',
+          '读取 data/' + iso.toLowerCase() + '.json 失败（' + e.message + '）。' +
+          '该国家/地区的数据尚未采集，属预期状态。'));
+        if (!quiet) detail.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+  }
+
+  function renderDetail(d, quiet) {
+    dTitle.textContent = d.name_zh;
+    dSub.textContent = d.name_en + ' · ' + d.iso_a2 + ' / ' + d.iso_a3 + ' · ' + d.qid;
+
+    var wrap = el('div', 'dwrap');
+
+    /* 左：影像 */
+    var left = el('div');
+    var imgs = d.landmark_images || [];
+    if (imgs.length) {
+      var pic = el('img', 'dimg');
+      pic.alt = imgs[0].caption || d.name_zh;
+      pic.onerror = function () {
+        pic.replaceWith(el('div', 'dimg blank', '图片未能加载（源地址不可达）'));
+      };
+      pic.src = imgs[0].url;
+      left.appendChild(pic);
+      left.appendChild(el('div', 'cap', imgs[0].caption || ''));
+      var lic = el('div', 'cap dim',
+        '授权：' + (imgs[0].license || '未取到（待 Commons extmetadata）'));
+      left.appendChild(lic);
+    } else {
+      left.appendChild(el('div', 'dimg blank', '暂无地标影像'));
+    }
+
+    /* 右：结构化 + 文本 */
+    var right = el('div');
+
+    var meta = el('dl', 'dmeta');
+    [['首都', d.capital || '—'],
+     ['大洲', d.continent || '—'],
+     ['坐标', d.centroid ? d.centroid[1].toFixed(2) + '°N, ' + d.centroid[0].toFixed(2) + '°E' : '—'],
+     ['语言', (d.languages || []).map(function (l) { return l.name_zh; }).join(' / ') || '—'],
+     ['边界', d.geometry ? '已采集' : '待采集（Natural Earth 50m）']
+    ].forEach(function (p) {
+      meta.appendChild(el('dt', null, p[0]));
+      meta.appendChild(el('dd', null, p[1]));
+    });
+    right.appendChild(meta);
+
+    var txt = el('div', 'dtext');
+    if (d.summary_text) txt.appendChild(el('p', null, d.summary_text));
+    if (d.custom_text) {
+      txt.appendChild(el('p', 'sub-label', '历史与民俗'));
+      txt.appendChild(el('p', null, d.custom_text));
+    }
+    right.appendChild(txt);
+
+    /* 音频 */
+    if (d.audio_url) {
+      var au = el('audio');
+      au.controls = true;
+      au.className = 'dplayer';
+      au.src = d.audio_url;
+      right.appendChild(au);
+    } else {
+      var langs = (d.languages || []).map(function (l) { return l.name_zh; }).join('、');
+      right.appendChild(el('div', 'pending',
+        '语音：' + (langs || '—') + ' —— Commons 无可用发音，待构建期 TTS 生成 mp3 后回填'));
+    }
+
+    /* 待补 */
+    if (d.review_notes && d.review_notes.length) {
+      right.appendChild(el('div', 'sub-label', '待补与复核（needs_review）'));
+      var ul = el('ul', 'todo-list');
+      d.review_notes.forEach(function (t) { ul.appendChild(el('li', null, t)); });
+      right.appendChild(ul);
+    }
+
+    wrap.appendChild(left);
+    wrap.appendChild(right);
+    dBody.innerHTML = '';
+    dBody.appendChild(wrap);
+    if (!quiet) detail.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  /* ---------- 启动 ---------- */
+  fetch('data/index.json')
+    .then(function (r) {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.json();
+    })
+    .then(function (idx) {
+      renderCards(idx.countries || []);
+      var total = (idx.countries || []).length;
+      var ready = (idx.countries || []).filter(function (c) { return c.status !== 'placeholder'; }).length;
+      subEl.textContent = total + ' 个国家/地区 · ' + ready + ' 条已接入 · schema v' + idx.schema_version;
+      hintEl.textContent = '卡片来自 data/index.json，点击读取对应 data/{iso}.json。占位项点开会提示数据未就绪。';
+      openDetail('CN', cardsEl.firstChild, true);
+    })
+    .catch(function (e) {
+      subEl.textContent = '数据未加载';
+      fail('读取 data/index.json 失败：' + e.message +
+           '。若你是直接双击打开本地文件（file:// 协议），浏览器会禁止 fetch —— 请用公网地址或起一个本地服务器。');
+    });
 })();
 </script>
 <style>
-  .probe{
-    display:block;
-    max-width:100%;
-    height:auto;
-    margin-top:18px;
-    border-radius:12px;
-    border:1px solid var(--line);
-    max-height:260px;
-    object-fit:cover;
+  /* --- 卡片：图文头 + 正文 --- */
+  .card{padding:0}
+  .card .cbody{padding:18px 20px 20px}
+  .card .thumb{
+    display:block;width:100%;height:132px;object-fit:cover;
+    border-bottom:1px solid var(--line);
+    background:#0e1424;
   }
-  .probe.audio{margin-top:10px;max-height:none}
+  .card .thumb.blank{
+    display:flex;align-items:center;justify-content:center;
+    font-size:12px;letter-spacing:.1em;color:var(--ink-faint);
+    background:
+      repeating-linear-gradient(135deg,rgba(255,255,255,.022) 0 2px,transparent 2px 9px),
+      linear-gradient(160deg,#0d1322,#0a0f1c);
+  }
+  .card.is-placeholder{opacity:.62}
+  .card.is-placeholder:hover{opacity:.85}
+  .card.active{border-color:rgba(216,178,106,.5);background:rgba(216,178,106,.05)}
+  .mods em.off{opacity:.36}
+
+  /* --- 详情 --- */
+  .dwrap{display:grid;grid-template-columns:minmax(220px,360px) 1fr;gap:26px;align-items:start}
+  .dimg{
+    display:block;width:100%;aspect-ratio:4/3;object-fit:cover;
+    border:1px solid var(--line);border-radius:12px;background:#0e1424;
+  }
+  .dimg.blank{
+    display:flex;align-items:center;justify-content:center;
+    font-size:12.5px;color:var(--ink-faint);text-align:center;padding:12px;
+    background:linear-gradient(160deg,#0d1322,#0a0f1c);
+  }
+  .cap{font-size:12px;color:var(--ink-dim);margin-top:9px;line-height:1.6}
+  .cap.dim{color:var(--ink-faint)}
+
+  .dmeta{display:grid;grid-template-columns:auto 1fr;gap:9px 18px;font-size:13.5px;margin-bottom:20px}
+  .dmeta dt{color:var(--ink-faint);letter-spacing:.06em;white-space:nowrap}
+  .dmeta dd{color:var(--ink);font-variant-numeric:tabular-nums}
+
+  .dtext p{font-size:14.5px;line-height:2;color:#cfd7e8;margin-bottom:12px}
+  .dtext p.sub-label,.sub-label{
+    font-size:11.5px;letter-spacing:.16em;color:var(--gold);
+    text-transform:uppercase;margin:18px 0 8px;opacity:.85;
+  }
+
+  .dplayer{width:100%;margin-top:16px;border-radius:10px}
+  .pending{
+    margin-top:16px;padding:11px 14px;border-radius:10px;
+    border:1px dashed rgba(216,178,106,.3);
+    background:rgba(216,178,106,.05);
+    font-size:12.5px;color:#c9b58c;line-height:1.75;
+  }
+  .todo-list{list-style:none;margin-top:4px}
+  .todo-list li{
+    position:relative;padding:5px 0 5px 15px;
+    font-size:12.5px;color:var(--ink-faint);line-height:1.7;
+  }
+  .todo-list li::before{
+    content:"";position:absolute;left:3px;top:13px;
+    width:4px;height:4px;border-radius:50%;background:var(--gold);opacity:.6;
+  }
+
+  @media (max-width:760px){
+    .dwrap{grid-template-columns:1fr}
+  }
 </style>
 </body>
 </html>
