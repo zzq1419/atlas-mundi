@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-10-25-C">
+<meta name="build" content="2026-10-25-D">
 <title>寰宇图志 · Atlas Mundi</title>
 <meta name="description" content="寰宇图志：3D 地球上的多模态国家文化图谱">
 <style>
@@ -443,9 +443,10 @@
       pic.src = imgs[0].url;
       left.appendChild(pic);
       left.appendChild(el('div', 'cap', imgs[0].caption || ''));
-      var lic = el('div', 'cap dim',
-        '授权：' + (imgs[0].license || '未取到（待 Commons extmetadata）'));
-      left.appendChild(lic);
+      var licTxt = imgs[0].license
+        ? '授权：' + imgs[0].license + (imgs[0].author ? ' · ' + imgs[0].author : '')
+        : '授权待确认（来源已记录：' + (imgs[0].title || 'Commons') + '）';
+      left.appendChild(el('div', 'cap dim', licTxt));
     } else {
       left.appendChild(el('div', 'dimg blank', '暂无地标影像'));
     }
