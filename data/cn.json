@@ -1,0 +1,76 @@
+{
+  "schema_version": "0.1",
+  "iso_a2": "CN",
+  "iso_a3": "CHN",
+  "qid": "Q148",
+
+  "name_zh": "中国",
+  "name_en": "China",
+  "name_local": "中国",
+
+  "capital": "北京",
+  "continent": "Asia",
+  "centroid": [103.0, 35.0],
+  "centroid_source": "manual",
+
+  "languages": [
+    {
+      "code": "zh",
+      "name_zh": "普通话",
+      "name_local": "普通话",
+      "role": "official",
+      "audio_url": null,
+      "audio_source": null,
+      "audio_status": "pending_tts"
+    },
+    {
+      "code": "yue",
+      "name_zh": "粤语",
+      "name_local": "粵語",
+      "role": "regional",
+      "audio_url": null,
+      "audio_source": null,
+      "audio_status": "pending_tts"
+    }
+  ],
+  "audio_url": null,
+  "audio_source": null,
+
+  "landmark_images": [
+    {
+      "title": "File:The Great Wall of China at Jinshanling-edit.jpg",
+      "caption": "金山岭长城",
+      "url": "https://commons.wikimedia.org/wiki/Special:FilePath/The_Great_Wall_of_China_at_Jinshanling-edit.jpg?width=900",
+      "thumb_url": "https://commons.wikimedia.org/wiki/Special:FilePath/The_Great_Wall_of_China_at_Jinshanling-edit.jpg?width=640",
+      "source": "commons",
+      "author": null,
+      "license": null,
+      "license_status": "pending_extmetadata",
+      "load_verified": true
+    }
+  ],
+  "image_license": null,
+
+  "summary_text": "中国位于亚洲东部、太平洋西岸，陆地面积约 960 万平方公里。地势西高东低，呈三级阶梯分布：西南青藏高原平均海拔 4000 米以上，中部为高原与盆地，东部为平原与丘陵；长江、黄河自西向东分别注入东海与渤海。全国划分为 34 个省级行政区，首都北京。汉语普通话为国家通用语言，粤语、闽南语、吴语等方言在各自区域广泛使用。中国是世界文明古国之一，有文字可考的历史近三千年，长城、故宫、秦始皇陵及兵马俑坑、莫高窟等已列入世界文化遗产名录。",
+
+  "custom_text": "春节为农历正月初一，是岁首最重要的节日：贴春联、守岁、燃爆竹，年夜饭必有鱼，取「年年有余」。清明祭祖、端午赛龙舟食粽、中秋赏月食月饼，与春节合称农历四大节序。长城始建于春秋战国，秦连接各段，明代大规模砖石重修，今日所见多为明长城，1987 年列入世界文化遗产。",
+
+  "geometry": null,
+  "geometry_status": "pending_naturalearth_50m",
+
+  "sources": [
+    { "field": ["iso_a2", "iso_a3", "qid"], "source": "manual", "ref": "ISO 3166-1 / Wikidata Q148" },
+    { "field": ["centroid"], "source": "manual", "ref": "国土几何中心，待换 Wikidata P625" },
+    { "field": ["summary_text", "custom_text"], "source": "manual", "ref": "人工撰写，待换 Wikipedia REST + LLM 改写" },
+    { "field": ["landmark_images"], "source": "commons", "ref": "Special:FilePath，浏览器实测可加载" }
+  ],
+
+  "needs_review": true,
+  "review_notes": [
+    "image_license 未取到：必须从 Commons extmetadata 读取，未取到前不得进入正式数据集（交接文档第 5 节）",
+    "audio_url 全为空：需构建期 TTS 生成 mp3 后回填，届时 audio_source 改为 tts",
+    "geometry 未采集：阶段 D 从 Natural Earth 50m 取 MultiPolygon",
+    "centroid 为人工估算，待替换为 Wikidata P625"
+  ],
+  "collected_at": "2026-10-25T22:10:00+08:00"
+}
