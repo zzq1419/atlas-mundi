@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-10-25-G">
+<meta name="build" content="2026-10-26-A">
 <title>寰宇图志 · Atlas Mundi</title>
 <meta name="description" content="寰宇图志：3D 地球上的多模态国家文化图谱">
 <style>
@@ -460,6 +460,10 @@
         pic.onload = function () {
           picWrap.classList.remove('loading');
           picWrap.classList.add('loaded');
+          // 竖构图（如埃菲尔铁塔 1400x2591）用 cover 会把塔顶塔基裁掉，
+          // 改 contain 装下整张，两侧用底色补。横构图仍用 cover 铺满。
+          var portrait = pic.naturalHeight > pic.naturalWidth * 1.15;
+          picWrap.classList.toggle('fit', portrait);
         };
         pic.onerror = function () {
           picWrap.classList.remove('loading');
@@ -683,6 +687,9 @@
     opacity:0;transition:opacity .45s ease;
   }
   .dimg-wrap.loaded .dimg{opacity:1}
+  /* 竖图：整张装进来，不裁掉主体 */
+  .dimg-wrap.fit{background:#080c16}
+  .dimg-wrap.fit .dimg{object-fit:contain}
   .dimg-wrap.blank{
     display:flex;align-items:center;justify-content:center;
     font-size:12.5px;color:var(--ink-faint);text-align:center;padding:12px;

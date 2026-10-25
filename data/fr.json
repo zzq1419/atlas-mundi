@@ -34,27 +34,27 @@
   },
   "landmark_images": [
     {
-      "title": "File:Paris - The Eiffel Tower in spring - 2307.jpg",
+      "title": "File:Tour Eiffel Wikimedia Commons.jpg",
       "caption_zh": "埃菲尔铁塔",
       "caption": "埃菲尔铁塔",
       "url": "assets/fr/L01.webp",
       "thumb_url": "assets/fr/L01.thumb.webp",
-      "remote_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b7/Paris_-_The_Eiffel_Tower_in_spring_-_2307.jpg/1920px-Paris_-_The_Eiffel_Tower_in_spring_-_2307.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
-      "source": "commons_search",
-      "author": "Jorge Royan",
-      "license": "CC BY-SA 3.0",
+      "remote_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a8/Tour_Eiffel_Wikimedia_Commons.jpg/1920px-Tour_Eiffel_Wikimedia_Commons.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "source": "wikidata_p18:埃菲尔铁塔",
+      "author": "Benh LIEU SONG",
+      "license": "Public domain",
       "license_url": null,
       "license_status": "ok",
       "load_verified": false,
-      "bytes": 155614,
+      "bytes": 91582,
       "picked_from": "commons_search",
-      "origin_size": "1400x933",
-      "thumb_bytes": 42104,
+      "origin_size": "1400x2591",
+      "thumb_bytes": 4614,
       "size": {
-        "detail": "760x507",
-        "thumb": "400x267"
+        "detail": "760x1406",
+        "thumb": "162x300"
       },
-      "encoding": "webp q72/q74 (源 1920x1280 1415KB JPEG)"
+      "encoding": "webp q72/q74 (源 1920x3553 1415KB JPEG)"
     },
     {
       "title": "File:Courtyard @ Louvre @ Paris (28897294980).jpg",
@@ -126,7 +126,7 @@
       "encoding": "webp q72/q74 (源 1920x2114 1406KB JPEG)"
     }
   ],
-  "image_license": "CC BY-SA 3.0",
+  "image_license": "Public domain",
   "schema_version": "0.1",
   "collected_at": "2026-10-25T23:16:59+08:00",
   "collector": "scripts/collect.py v0.2",

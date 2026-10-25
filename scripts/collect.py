@@ -553,7 +553,9 @@ def fetch_assets(iso2, wd, notes):
 
 # ---------------------------------------------------------------- 4. 边界
 def fetch_geo(iso2, notes):
-    log("[4/4] Natural Earth 50m 边界 …（首次约 24MB）")
+    """提取国界。合并规则（中国台湾/香港/澳门并入中国版图）统一由 build_geo 负责，
+    这里只是下载缓存 + 调它，避免两套实现漂移。"""
+    log("[4/4] Natural Earth 50m 边界 …（首次约 3MB）")
     cache = os.path.join(ROOT, "geo", "_ne_50m_countries.geojson")
     if not os.path.exists(cache):
         try:
@@ -562,23 +564,28 @@ def fetch_geo(iso2, notes):
         except Exception as e:
             notes.append("Natural Earth 下载失败：%s" % str(e)[:80])
             return None, None
-    with open(cache, encoding="utf-8") as f:
-        fc = json.load(f)
-    for feat in fc.get("features", []):
-        p = feat.get("properties", {})
-        codes = {(p.get("ISO_A2") or "").upper(), (p.get("ISO_A2_EH") or "").upper(),
-                 (p.get("WB_A2") or "").upper()}
-        if iso2.upper() in codes:
-            name = p.get("NAME_ZH") or p.get("NAME")
-            out = os.path.join(ROOT, "geo", "%s.geojson" % iso2.lower())
-            os.makedirs(os.path.dirname(out), exist_ok=True)
-            with open(out, "w", encoding="utf-8") as f:
-                json.dump({"type": "FeatureCollection", "features": [feat]},
-                          f, ensure_ascii=False)
-            log("      ✓ geo/%s.geojson <- %s（%s）" % (iso2.lower(), name, p.get("CONTINENT")))
-            return "geo/%s.geojson" % iso2.lower(), name
-    notes.append("Natural Earth 中未找到 ISO_A2=%s 的要素（微国家常见）" % iso2)
-    return None, None
+
+    sys.path.insert(0, os.path.join(ROOT, "scripts"))
+    try:
+        import build_geo
+        res, err = build_geo.build(build_geo.load_ne(), iso2)
+    except Exception as e:
+        notes.append("边界提取失败：%s" % str(e)[:80])
+        return None, None
+    if err:
+        notes.append(err + "（微国家在 50m 数据里可能没有多边形）")
+        return None, None
+
+    fc, st = res
+    out = os.path.join(ROOT, "geo", "%s.geojson" % iso2.lower())
+    os.makedirs(os.path.dirname(out), exist_ok=True)
+    with open(out, "w", encoding="utf-8") as f:
+        json.dump(fc, f, ensure_ascii=False)
+    geo_name = fc["features"][0]["properties"].get("NAME_ZH")
+    log("      ✓ geo/%s.geojson  %d 顶点%s" % (
+        iso2.lower(), st["vertices"],
+        ("  已并入 " + "、".join(st["merged"])) if st["merged"] else ""))
+    return "geo/%s.geojson" % iso2.lower(), geo_name
 
 
 # ---------------------------------------------------------------- 合并

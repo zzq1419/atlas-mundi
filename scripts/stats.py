@@ -42,7 +42,12 @@ def main():
         if not fn.endswith(".json") or fn == "index.json":
             continue
         with open(os.path.join(DATA, fn), encoding="utf-8") as f:
-            recs.append(json.load(f))
+            rec = json.load(f)
+        # 只认国家档案。landmarks.json 这类配置没有 iso_a2，混进来会
+        # 把"国家数"和"字段完整率"算错（已踩三次）。
+        if not rec.get("iso_a2"):
+            continue
+        recs.append(rec)
 
     idx = {}
     ip = os.path.join(DATA, "index.json")
