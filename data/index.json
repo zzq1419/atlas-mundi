@@ -1,0 +1,61 @@
+{
+  "schema_version": "0.1",
+  "updated_at": "2026-10-25",
+  "note": "国家/地区清单。前端只读这个文件来渲染入口卡，详情按 iso_a2 拉 /data/{iso}.json。iso_a2 是对外唯一主键。",
+  "countries": [
+    {
+      "iso_a2": "CN",
+      "name_zh": "中国",
+      "name_en": "China",
+      "name_local": "中国",
+      "continent": "Asia",
+      "capital": "北京",
+      "centroid": [103.0, 35.0],
+      "thumb": "https://commons.wikimedia.org/wiki/Special:FilePath/The_Great_Wall_of_China_at_Jinshanling-edit.jpg?width=640",
+      "modalities": {
+        "image": true,
+        "audio": false,
+        "text": true,
+        "coords": true,
+        "geometry": false
+      },
+      "status": "partial"
+    },
+    {
+      "iso_a2": "FR",
+      "name_zh": "法国",
+      "name_en": "France",
+      "name_local": "France",
+      "continent": "Europe",
+      "capital": "巴黎",
+      "centroid": [2.3, 46.6],
+      "thumb": null,
+      "modalities": {
+        "image": false,
+        "audio": false,
+        "text": false,
+        "coords": true,
+        "geometry": false
+      },
+      "status": "placeholder"
+    },
+    {
+      "iso_a2": "US",
+      "name_zh": "美国",
+      "name_en": "United States",
+      "name_local": "United States",
+      "continent": "North America",
+      "capital": "华盛顿哥伦比亚特区",
+      "centroid": [-98.5, 39.8],
+      "thumb": null,
+      "modalities": {
+        "image": false,
+        "audio": false,
+        "text": false,
+        "coords": true,
+        "geometry": false
+      },
+      "status": "placeholder"
+    }
+  ]
+}
