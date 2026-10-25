@@ -4,24 +4,25 @@
   "iso_a3": "CHN",
   "qid": "Q148",
   "name_zh": "中国",
-  "name_en": "China",
+  "name_en": "People's Republic of China",
   "name_local": "中国",
-  "capital": "北京",
-  "continent": "Asia",
+  "capital": "北京市",
+  "continent": "亚洲",
   "centroid": [
-    103.0,
-    35.0
+    103.4519,
+    35.8447
   ],
-  "centroid_source": "manual",
+  "centroid_source": "wikidata P625",
   "languages": [
     {
       "code": "zh",
-      "name_zh": "普通话",
-      "name_local": "普通话",
+      "name_zh": "现代标准汉语",
+      "name_local": "现代标准汉语",
       "role": "official",
-      "audio_url": null,
-      "audio_source": null,
-      "audio_status": "pending_tts"
+      "audio_url": "assets/cn/pronunciation.wav",
+      "audio_source": "tts",
+      "audio_status": "ok",
+      "audio_voice": "Microsoft Huihui (zh-CN, SAPI)"
     },
     {
       "code": "yue",
@@ -30,26 +31,31 @@
       "role": "regional",
       "audio_url": null,
       "audio_source": null,
-      "audio_status": "pending_tts"
+      "audio_status": "pending_tts",
+      "note": "本机仅有普通话音色，粤语需另找音源"
     }
   ],
-  "audio_url": null,
-  "audio_source": null,
+  "audio_url": "assets/cn/pronunciation.wav",
+  "audio_source": "tts",
   "landmark_images": [
     {
-      "title": "File:The Great Wall of China at Jinshanling-edit.jpg",
-      "caption": "金山岭长城",
-      "url": "https://commons.wikimedia.org/wiki/Special:FilePath/The_Great_Wall_of_China_at_Jinshanling-edit.jpg?width=900",
-      "thumb_url": "https://commons.wikimedia.org/wiki/Special:FilePath/The_Great_Wall_of_China_at_Jinshanling-edit.jpg?width=640",
+      "title": "File:Badaling China Great-Wall-of-China-01.jpg",
+      "caption": "Badaling, China: Great Wall of China at Badaling",
+      "url": "assets/cn/01.jpg",
+      "thumb_url": "assets/cn/01.jpg",
+      "remote_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/50/Badaling_China_Great-Wall-of-China-01.jpg/960px-Badaling_China_Great-Wall-of-China-01.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "source": "commons",
-      "author": null,
-      "license": null,
-      "license_status": "pending_extmetadata",
-      "load_verified": true
+      "origin_kind": "P18",
+      "author": "CEphoto, Uwe Aranas",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "license_status": "ok",
+      "load_verified": true,
+      "bytes": 278594
     }
   ],
-  "image_license": null,
-  "summary_text": "中国位于亚洲东部、太平洋西岸，陆地面积约 960 万平方公里。地势西高东低，呈三级阶梯分布：西南青藏高原平均海拔 4000 米以上，中部为高原与盆地，东部为平原与丘陵；长江、黄河自西向东分别注入东海与渤海。全国划分为 34 个省级行政区，首都北京。汉语普通话为国家通用语言，粤语、闽南语、吴语等方言在各自区域广泛使用。中国是世界文明古国之一，有文字可考的历史近三千年，长城、故宫、秦始皇陵及兵马俑坑、莫高窟等已列入世界文化遗产名录。",
+  "image_license": "CC BY-SA 3.0",
+  "summary_text": "中华人民共和国是位于东亚的国家，国土面积约960万平方千米，位居世界各国第三位。其国土地处亚洲大陆东部，濒临太平洋，并与14个国家以陆地边界接壤。全国行政区域划分为23个省、5个自治区、4个直辖市、以及2个特别行政区，共计34个省级行政区。首都为北京市，城区常住人口最多城市为上海市。政治上依宪法实行人民代表大会制度，以社会主义为基础实行人民民主专政。中国共产党在国家体制及武装力量中处于绝对领导地位，国家实行中国共产党领导的多党合作和政治协商制度。\n中国在1945年抗日战争胜利后，中国共产党与中国国民党的政治及军事摩擦逐渐扩大，最终演变成双方的第二次内战。之后，毛泽东领导的中国共产党和其下属的中国人民解放军，逐步击败蒋中正领导的国民党政府及其军队。1949年10月1日，中国共产党在控制中国大部分领土后，在北京宣告成立中华人民共和国中央人民政府；中华民国政府则于1949年底迁往台湾，海峡两岸陷入长期政治对立，是现今台湾问题形成的历史背景。建国初期，中华人民共和国向社会主义转型过渡，并施行一五计划等经济计划恢复和发展社会主义经济。",
   "custom_text": "春节为农历正月初一，是岁首最重要的节日：贴春联、守岁、燃爆竹，年夜饭必有鱼，取「年年有余」。清明祭祖、端午赛龙舟食粽、中秋赏月食月饼，与春节合称农历四大节序。长城始建于春秋战国，秦连接各段，明代大规模砖石重修，今日所见多为明长城，1987 年列入世界文化遗产。",
   "geometry": null,
   "geometry_status": "pending_naturalearth_50m",
@@ -86,15 +92,33 @@
       "ref": "Special:FilePath，浏览器实测可加载"
     }
   ],
-  "needs_review": true,
+  "needs_review": false,
   "review_notes": [
-    "待 v0.2 脚本重跑：摘要将由 Wikipedia extracts 覆盖为简体 300~500 字",
-    "图片与授权待 v0.2 脚本重抓（v0.1 因 Wikidata 实体查询失效全部为空）"
+    "P443 发音语种不符（Lb-China.ogg 为卢森堡语），已改用本地 TTS；P443 需按文件名做语种过滤",
+    "粤语缺少可用音源：Commons 未取到，本机仅有普通话音色（Huihui），待补 zh-HK 音源或人工录制",
+    "geometry 未采集：阶段 D 运行 python scripts/collect.py CN --geo",
+    "name_official 与 name_zh 并存，卡片显示常用名，全称保留在 JSON"
   ],
-  "collected_at": "2026-10-25T22:22:17+08:00",
+  "collected_at": "2026-10-25T22:36:16+08:00",
   "summary_source": {
-    "source": "manual",
-    "note": "v0.2 重跑前的占位文本"
+    "source": "wikipedia_extracts",
+    "url": "https://zh.wikipedia.org/wiki/%E4%B8%AD%E5%8D%8E%E4%BA%BA%E6%B0%91%E5%85%B1%E5%92%8C%E5%9B%BD",
+    "title": "中华人民共和国",
+    "chars": 469
   },
-  "collector": "scripts/collect.py v0.1"
+  "collector": "scripts/collect.py v0.2",
+  "audio_meta": {
+    "url": "assets/cn/pronunciation.wav",
+    "source": "tts",
+    "text": "中国",
+    "engine": "Windows SAPI",
+    "voice": "Microsoft Huihui Desktop - Chinese (Simplified)",
+    "format": "wav 22.05kHz 16bit mono",
+    "bytes": 68478,
+    "rejected": {
+      "file": "Lb-China.ogg",
+      "reason": "Wikidata P443 首个发音为卢森堡语，语种不符；P443 不保证语种，仅当文件名含 zh/chinese/中文 时才采信"
+    }
+  },
+  "name_official": "中华人民共和国"
 }
