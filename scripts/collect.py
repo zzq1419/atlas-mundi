@@ -61,6 +61,20 @@ NE_50M = ("https://raw.githubusercontent.com/nvkelso/natural-earth-vector/"
 # ISO -> QID。首批三国写死；扩量时补这张表，或用 --qid 指定。
 ISO_QID = {"CN": "Q148", "FR": "Q142", "US": "Q30"}
 
+# Wikidata 的 zh 标签常给全称，卡片要短名。补在这里，按需扩展。
+SHORT_NAME = {"Q148": ["中国"], "Q142": ["法国"], "Q30": ["美国"]}
+
+# P37 常见上下位概念，展示时丢弃（保留「现代标准汉语」这类最具体的）
+LANG_DROP = {"中文", "汉语", "中国语言", "Chinese", "Chinese language",
+             "普通话", "Standard Chinese"}
+
+
+def is_zh_audio(name):
+    """P443 只保证「有发音文件」，不保证语种。实测 Q148 首个是 Lb-China.ogg
+    （卢森堡语读的 China）。只采信文件名里明确带中文标记的。"""
+    low = (name or "").lower()
+    return any(k in low for k in ("zh-", "zh_", "chinese", "中文", "cmn-", "yue-"))
+
 
 # ---------------------------------------------------------------- 基础工具
 def log(msg=""):
@@ -267,11 +281,33 @@ def fetch_wikidata(iso2, forced_qid, notes):
     if con_ids:
         out["continent"] = lab.get(con_ids[0])
     if lang_ids:
-        out["languages"] = [{
-            "code": q, "name_zh": lab.get(q) or q, "name_local": lab.get(q) or q,
-            "role": "official", "audio_url": None, "audio_source": None,
-            "audio_status": "pending",
-        } for q in lang_ids]
+        raw = [{"code": q, "name_zh": lab.get(q) or q, "name_local": lab.get(q) or q,
+                "role": "official", "audio_url": None, "audio_source": None,
+                "audio_status": "pending"} for q in lang_ids]
+        # P37 会同时给出「中文 / 汉语 / 现代标准汉语 / 普通话」这类上下位概念，
+        # 直接展示等于在面板里堆同义词。这里只保留最具体的那个。
+        seen, keep = set(), []
+        for l in raw:
+            if l["name_zh"] in LANG_DROP:
+                continue
+            if l["name_zh"] in seen:
+                continue
+            seen.add(l["name_zh"])
+            keep.append(l)
+        out["languages"] = keep[:2] or raw[:1]
+        if len(raw) > len(out["languages"]):
+            notes.append("P37 返回 %d 个语言，去重/去上位概念后保留 %d 个：%s"
+                         % (len(raw), len(out["languages"]),
+                            "、".join(l["name_zh"] for l in out["languages"])))
+
+    # 名称：短的是常用名，长的是全称。卡片显示常用名（中国 而非 中华人民共和国）
+    nzh, nen = out.get("name_zh"), out.get("name_en")
+    if nzh and len(nzh) > 6:
+        out["name_official"] = nzh
+        for short in SHORT_NAME.get(qid, []):
+            if short != nzh:
+                out["name_zh"] = short
+                break
 
     out["_image_files"] = [v for v in claim_values(ent, "P18") if isinstance(v, str)][:5]
     out["_audio_files"] = [v for v in claim_values(ent, "P443") if isinstance(v, str)][:3]
@@ -440,7 +476,15 @@ def fetch_assets(iso2, wd, notes):
         })
         log("      ✓ %s  %.0f KB  授权=%s" % (rel, size / 1024, lic or "待确认"))
 
-    for name in (wd.get("_audio_files") or [])[:1]:
+    cand = [n for n in (wd.get("_audio_files") or []) if is_zh_audio(n)]
+    dropped = [n for n in (wd.get("_audio_files") or []) if not is_zh_audio(n)]
+    if dropped:
+        notes.append("P443 发音语种不符已弃用：%s（P443 不保证语种，须按文件名筛）"
+                     % "、".join(dropped))
+    if not cand and (wd.get("_audio_files") or []):
+        notes.append("无中文发音可用，改跑 python scripts/tts_local.py %s \"中文名\"" % iso2)
+
+    for name in cand[:1]:
         meta = lookup_meta(commons_imageinfo([name], width=0), name)
         if not meta or not meta.get("original_url"):
             notes.append("发音文件 %s 未取到直链" % name)
