@@ -28,6 +28,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 DETAIL_W, DETAIL_Q = 760, 72
 THUMB_W, THUMB_Q = 400, 74
+THUMB_H = 300          # 竖图（布达拉宫等）按宽度缩完还有 600px 高，得再兜一层
 
 
 def optimize(iso):
@@ -64,14 +65,18 @@ def optimize(iso):
         img = Image.open(src).convert("RGB")
         orig = os.path.getsize(src)
 
-        def save(w, dest, q):
+        def save(w, dest, q, max_h=None):
             w2 = min(w, img.width)          # 绝不放大
             h2 = round(img.height * w2 / img.width)
+            # 竖图按宽度缩放后仍然很高（布达拉宫这类），再按最大高度兜一次
+            if max_h and h2 > max_h:
+                h2 = max_h
+                w2 = max(1, round(img.width * h2 / img.height))
             img.resize((w2, h2), Image.LANCZOS).save(dest, "WEBP", quality=q, method=6)
             return os.path.getsize(dest), (w2, h2)
 
         s1, d1 = save(DETAIL_W, os.path.join(ROOT, detail_rel), DETAIL_Q)
-        s2, d2 = save(THUMB_W, os.path.join(ROOT, thumb_rel), THUMB_Q)
+        s2, d2 = save(THUMB_W, os.path.join(ROOT, thumb_rel), THUMB_Q, max_h=THUMB_H)
 
         im_meta["url"] = detail_rel
         im_meta["thumb_url"] = thumb_rel
@@ -115,8 +120,18 @@ def main():
     isos = [x.upper() for x in args.isos]
     if args.all:
         d = os.path.join(ROOT, "data")
-        isos = [os.path.splitext(f)[0].upper() for f in os.listdir(d)
-                if f.endswith(".json") and f != "index.json"]
+        isos = []
+        for f in os.listdir(d):
+            if not f.endswith(".json") or f in ("index.json", "landmarks.json"):
+                continue
+            try:
+                with open(os.path.join(d, f), encoding="utf-8") as fp:
+                    rec = json.load(fp)
+            except Exception:
+                continue
+            # 只认带 iso_a2 的档案，配置类 JSON（landmarks 等）一律跳过
+            if rec.get("iso_a2"):
+                isos.append(rec["iso_a2"].upper())
     if not isos:
         ap.error("给个 ISO 码，或用 --all")
 

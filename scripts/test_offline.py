@@ -138,6 +138,30 @@ BAD_CASES = [
 for name, want in BAD_CASES:
     chk(("拦截 " if want else "放行 ") + name[:34], c.is_bad_image(name), want)
 
+# 地标选图打分：踩过两次（主体不在画面 / 5:1 全景长条 / 分辨率过低），必须回归保护
+_fs = importlib.util.spec_from_file_location("atlas_fill", r"scripts\fill_images.py")
+F = importlib.util.module_from_spec(_fs)
+_fs.loader.exec_module(F)
+
+SCORE_CASES = [
+    ("Tour Eiffel from Champ de Mars.jpg",
+     {"width": 1600, "height": 1067, "aspect": 1.5}, "eiffel", True),
+    ("Aerial view of Champ de Mars, Paris.jpg",
+     {"width": 1600, "height": 1067, "aspect": 1.5}, "eiffel", False),
+    ("Forbidden City Beijing panorama.jpg",
+     {"width": 6000, "height": 1200, "aspect": 5.0}, "supreme harmony", False),
+    ("Hall of Supreme Harmony, Forbidden City.jpg",
+     {"width": 1800, "height": 1200, "aspect": 1.5}, "supreme harmony", True),
+    ("Potala Palace, Lhasa.jpg",
+     {"width": 442, "height": 643, "aspect": 0.688}, "potala", False),
+    ("Potala Palace Lhasa Tibet.jpg",
+     {"width": 2048, "height": 1365, "aspect": 1.5}, "potala", True),
+    ("Statue of Liberty front.jpg",
+     {"width": 1200, "height": 1600, "aspect": 0.75}, "statue of liberty", True),
+]
+for _name, _meta, _must, _want in SCORE_CASES:
+    chk(("收 " if _want else "拒 ") + _name[:32], F.score(_name, _meta, _must)[0] is not None, _want)
+
 print("\n%d / %d 通过" % (sum(results), len(results)))
 if notes:
     print("notes:")

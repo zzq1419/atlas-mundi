@@ -43,7 +43,10 @@ def main():
             continue
         with open(os.path.join(DATA, fn), encoding="utf-8") as f:
             rec = json.load(f)
-        have[(rec.get("iso_a2") or fn[:2]).upper()] = rec
+        # 配置类 JSON（landmarks.json 等）没有 iso_a2，不是国家档案，跳过
+        if not rec.get("iso_a2"):
+            continue
+        have[rec["iso_a2"].upper()] = rec
 
     for c in idx.get("countries", []):
         iso = (c.get("iso_a2") or "").upper()

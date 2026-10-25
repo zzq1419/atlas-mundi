@@ -425,10 +425,15 @@ def commons_imageinfo(files, width=900):
             if not ii.get("url"):
                 continue
             meta = ii.get("extmetadata") or {}
+            w = ii.get("thumbwidth") or ii.get("width") or 0
+            h = ii.get("thumbheight") or ii.get("height") or 0
             out[norm_title(page.get("title", ""))] = {
                 "remote_url": ii.get("thumburl") or ii.get("url"),
                 "original_url": ii.get("url"),
                 "mime": ii.get("mime"),
+                "width": w,
+                "height": h,
+                "aspect": round(float(w) / h, 3) if w and h else 0,
                 "license": strip_html(meta.get("LicenseShortName", {}).get("value")),
                 "license_url": meta.get("LicenseUrl", {}).get("value"),
                 "artist": strip_html(meta.get("Artist", {}).get("value")),

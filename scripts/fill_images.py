@@ -39,7 +39,9 @@ C = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(C)
 
 COMMONS_API = "https://commons.wikimedia.org/w/api.php"
-MIN_WIDTH = 800
+MIN_WIDTH = 900          # 低于这个宽度在详情面板里会糊
+MAX_ASPECT = 2.2         # 超过这个宽高比是全景长条（5:1 的故宫全景），主体被压成一条
+TARGET_ASPECT = 1.45     # 面板是 4:3，越接近越好
 MAX_PER_COUNTRY = 5
 
 
@@ -47,7 +49,7 @@ def log(msg=""):
     print(msg, flush=True)
 
 
-def search_files(kw, limit=12):
+def search_files(kw, limit=20):
     """在 Commons 的 File 命名空间里搜位图，返回候选文件名"""
     q = C.api_json(COMMONS_API, {
         "action": "query", "list": "search", "srsearch": kw + " filetype:bitmap",
@@ -59,6 +61,37 @@ def search_files(kw, limit=12):
         if name and not C.is_bad_image(name):
             out.append(name)
     return out
+
+
+def score(cand, meta, must):
+    """给候选打分。三条硬性要求全在 must/宽/长宽比上，不满足直接淘汰。
+    踩过的坑：搜 "Eiffel Tower from Champ de Mars" 拿到一张鸟瞰战神广场、
+    铁塔在画面外的照片；搜"故宫太和殿"拿到 5:1 的全景长条。光靠关键词不够。"""
+    name = (cand or "").replace("_", " ").lower()
+    if must and must.lower() not in name:
+        return None, "文件名不含「%s」" % must
+    w = meta.get("width") or 0
+    if w < MIN_WIDTH:
+        return None, "宽度仅 %d px" % w
+    try:
+        ar = float(meta.get("aspect") or 0)
+    except Exception:
+        ar = 0
+    if not ar:
+        hh = meta.get("height") or 0
+        if w and hh:
+            ar = float(w) / hh
+    if ar > MAX_ASPECT:
+        return None, "宽高比 %.1f 过宽（全景）" % ar
+    s = 0.0
+    if 1.15 <= ar <= 1.85:
+        s += 3
+    s += max(0.0, 2 - abs(ar - TARGET_ASPECT) * 2)
+    if w >= 1400:
+        s += 2
+    elif w >= 1100:
+        s += 1
+    return s, "score=%.1f ar=%.2f w=%d" % (s, ar, w)
 
 
 def pick_and_download(iso, entries, rec):
@@ -75,8 +108,9 @@ def pick_and_download(iso, entries, rec):
             log("      ✗ %s 搜不到" % zh)
             continue
 
-        info = C.commons_imageinfo(cand)
-        chosen = None
+        info = C.commons_imageinfo(cand, width=1400)
+        must = e.get("must")
+        scored, rejects = [], []
         for name in cand:
             meta = C.lookup_meta(info, name)
             if not meta or not meta.get("remote_url"):
@@ -86,14 +120,21 @@ def pick_and_download(iso, entries, rec):
             ext = C.ext_of(meta["remote_url"])
             if ext not in (".jpg", ".jpeg", ".png", ".webp"):
                 continue
-            chosen = (name, meta, ext)
-            break
+            sc, why = score(name, meta, must)
+            if sc is None:
+                rejects.append("%s（%s）" % (name[:40], why))
+                continue
+            scored.append((sc, name, meta, ext))
 
-        if not chosen:
-            notes.append("%s：候选都没有可用直链，已跳过" % zh)
+        if not scored:
+            notes.append("%s：%d 个候选全部未通过筛选：%s"
+                         % (zh, len(rejects), "；".join(rejects[:3]) if rejects else "无"))
+            log("      ✗ %s 候选全被筛掉" % zh)
             continue
 
-        name, meta, ext = chosen
+        scored.sort(key=lambda x: -x[0])
+        _, name, meta, ext = scored[0]
+        log("      · %s ← %d 个候选，选中 1 个（%s）" % (zh, len(scored), name[:44]))
         rel = "assets/%s/L%02d%s" % (slug, i, ext)
         try:
             size = C.download(meta["remote_url"],

@@ -1,24 +1,72 @@
 {
-  "note": "人工选定的地标清单。fill_images.py 按 kw 去 Commons 搜图，取回后写入给定中文图注。顺序即展示顺序，第一张是封面。改这里就能换图，不用改代码。",
+  "note": "人工选定的地标清单。fill_images.py 按 kw 搜 Commons，并用 must 校验文件名确实包含该主体（防止搜到'战神广场'却拿了一张没有铁塔的照片）；再按宽高比与分辨率择优。顺序即展示顺序，第一张是封面。",
   "schema": 1,
   "countries": {
     "CN": [
-      { "zh": "金山岭长城", "kw": "Great Wall of China Jinshanling", "want": "panorama" },
-      { "zh": "故宫太和殿", "kw": "Hall of Supreme Harmony Forbidden City", "want": "exterior" },
-      { "zh": "秦始皇陵兵马俑", "kw": "Terracotta Army Pit 1 Xian", "want": "pit" },
-      { "zh": "布达拉宫", "kw": "Potala Palace Lhasa", "want": "exterior" }
+      {
+        "zh": "金山岭长城",
+        "kw": "Great Wall of China Jinshanling",
+        "must": "great wall"
+      },
+      {
+        "zh": "故宫太和殿",
+        "kw": "Hall of Supreme Harmony Forbidden City",
+        "must": "supreme harmony"
+      },
+      {
+        "zh": "秦始皇陵兵马俑",
+        "kw": "Terracotta Army Pit 1 Xian",
+        "must": "terracotta"
+      },
+      {
+        "zh": "布达拉宫",
+        "kw": "Potala Palace Lhasa",
+        "must": "potala"
+      }
     ],
     "FR": [
-      { "zh": "埃菲尔铁塔（战神广场视角）", "kw": "Eiffel Tower from Champ de Mars", "want": "front" },
-      { "zh": "卢浮宫玻璃金字塔", "kw": "Louvre Pyramid courtyard", "want": "exterior" },
-      { "zh": "圣米歇尔山", "kw": "Mont Saint-Michel abbey", "want": "aerial" },
-      { "zh": "凡尔赛宫镜厅", "kw": "Hall of Mirrors Versailles", "want": "interior" }
+      {
+        "zh": "埃菲尔铁塔",
+        "kw": "Eiffel Tower Champ de Mars",
+        "must": "eiffel"
+      },
+      {
+        "zh": "卢浮宫玻璃金字塔",
+        "kw": "Louvre Pyramid courtyard",
+        "must": "louvre"
+      },
+      {
+        "zh": "圣米歇尔山",
+        "kw": "Mont Saint-Michel abbey",
+        "must": "mont saint"
+      },
+      {
+        "zh": "凡尔赛宫镜厅",
+        "kw": "Hall of Mirrors Versailles",
+        "must": "mirror"
+      }
     ],
     "US": [
-      { "zh": "自由女神像", "kw": "Statue of Liberty front", "want": "front" },
-      { "zh": "大峡谷（南缘）", "kw": "Grand Canyon South Rim", "want": "panorama" },
-      { "zh": "金门大桥", "kw": "Golden Gate Bridge", "want": "panorama" },
-      { "zh": "白宫", "kw": "White House north facade", "want": "exterior" }
+      {
+        "zh": "自由女神像",
+        "kw": "Statue of Liberty",
+        "must": "statue of liberty"
+      },
+      {
+        "zh": "大峡谷（南缘）",
+        "kw": "Grand Canyon South Rim",
+        "must": "grand canyon"
+      },
+      {
+        "zh": "金门大桥",
+        "kw": "Golden Gate Bridge",
+        "must": "golden gate"
+      },
+      {
+        "zh": "白宫",
+        "kw": "White House north facade",
+        "must": "white house"
+      }
     ]
   }
 }
