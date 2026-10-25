@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-10-25-E">
+<meta name="build" content="2026-10-25-F">
 <title>寰宇图志 · Atlas Mundi</title>
 <meta name="description" content="寰宇图志：3D 地球上的多模态国家文化图谱">
 <style>
@@ -437,18 +437,44 @@
     var imgs = d.landmark_images || [];
     if (imgs.length) {
       var pic = el('img', 'dimg loading');
-      pic.alt = imgs[0].caption || d.name_zh;
-      pic.onerror = function () {
-        pic.replaceWith(el('div', 'dimg blank', '图片未能加载（源地址不可达）'));
-      };
-      pic.onload = function () { pic.classList.remove('loading'); };
-      pic.src = imgs[0].url;
+      var capEl = el('div', 'cap', '');
+      var licEl = el('div', 'cap dim', '');
+      var strip = imgs.length > 1 ? el('div', 'thumbstrip') : null;
+      var items = [];
+
+      function showPic(idx) {
+        var it = imgs[idx];
+        pic.classList.add('loading');
+        pic.alt = it.caption || d.name_zh;
+        pic.onload = function () { pic.classList.remove('loading'); };
+        pic.onerror = function () {
+          pic.classList.remove('loading');
+          pic.style.opacity = '.25';
+        };
+        pic.src = it.url;
+        capEl.textContent = it.caption || '';
+        licEl.textContent = it.license
+          ? '授权：' + it.license + (it.author ? ' · ' + it.author : '')
+          : '授权待确认（来源已记录：' + (it.title || 'Commons') + '）';
+        items.forEach(function (n, i) { n.classList.toggle('active', i === idx); });
+      }
+
       left.appendChild(pic);
-      left.appendChild(el('div', 'cap', imgs[0].caption || ''));
-      var licTxt = imgs[0].license
-        ? '授权：' + imgs[0].license + (imgs[0].author ? ' · ' + imgs[0].author : '')
-        : '授权待确认（来源已记录：' + (imgs[0].title || 'Commons') + '）';
-      left.appendChild(el('div', 'cap dim', licTxt));
+      if (strip) {
+        imgs.forEach(function (it, i) {
+          var t = el('img', 'ts-item');
+          t.alt = it.caption || (d.name_zh + ' 图片 ' + (i + 1));
+          t.loading = 'lazy';
+          t.src = it.thumb_url || it.url;
+          t.addEventListener('click', function () { showPic(i); });
+          items.push(t);
+          strip.appendChild(t);
+        });
+      }
+      showPic(0);
+      if (strip) left.appendChild(strip);
+      left.appendChild(capEl);
+      left.appendChild(licEl);
     } else {
       left.appendChild(el('div', 'dimg blank', '暂无地标影像'));
     }
@@ -613,6 +639,16 @@
     from{background-position:180% 0}
     to{background-position:-80% 0}
   }
+
+  /* 多图切换 */
+  .thumbstrip{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+  .ts-item{
+    width:64px;height:46px;object-fit:cover;border-radius:6px;
+    border:1px solid var(--line);cursor:pointer;opacity:.55;
+    transition:opacity .2s ease,border-color .2s ease;
+  }
+  .ts-item:hover{opacity:.85}
+  .ts-item.active{opacity:1;border-color:rgba(216,178,106,.65)}
 
   /* 语言音频行 */
   .lang-audio{
