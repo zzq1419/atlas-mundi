@@ -67,10 +67,11 @@ CACHE = {
 }
 
 # 要上传的路径（相对仓库根），只挑站点运行必需的
-INCLUDE_DIRS = ["assets", "data", "geo", "docs", "scripts"]
+INCLUDE_DIRS = ["assets", "data", "geo", "docs", "scripts", "vendor"]
 INCLUDE_FILES = ["index.html", "README.md"]
 # 排除：缓存包与预览副本（既大又没用）
-EXCLUDE_SUFFIX = ("_ne_50m_countries.geojson",)
+# 排除：Natural Earth 原始缓存（本地生成 globe.json 用，站点不引用）
+EXCLUDE_SUFFIX = ("_ne_50m_countries.geojson", "_ne_110m_land.geojson")
 EXCLUDE_DIRS = {"__pycache__", "_llm"}
 
 

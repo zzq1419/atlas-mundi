@@ -33,3 +33,8 @@ secrets.*
 
 # 大模型产物的预览副本（确认后才合进 data/*.json）
 data/_llm/
+
+# 一次性运维脚本（用 GitHub Contents API 推送用，不是项目代码）
+_push.py
+_push_many.py_gitee_public.py
+geo/_ne_110m_land.geojson

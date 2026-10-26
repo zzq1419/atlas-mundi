@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-10-26-D">
+<meta name="build" content="2026-10-26-E">
 <title>寰宇图志 · Atlas Mundi</title>
 <meta name="description" content="寰宇图志：3D 地球上的多模态国家文化图谱">
 <style>
@@ -314,6 +314,27 @@
     </div>
     <div class="grid" id="cards"></div>
     <p class="hint" id="cards-hint"></p>
+  </section>
+
+  <!-- ============ 3D 地球 ============ -->
+  <section class="sec" id="globe-sec">
+    <div class="sec-head">
+      <h2>环球视角</h2>
+      <span id="globe-sub">滚到此处才加载 3D 模型</span>
+    </div>
+    <div class="globe-wrap">
+      <div class="globe-stage" id="globe-stage">
+        <div class="globe-msg" id="globe-msg">继续下滑，地球即将出现</div>
+      </div>
+      <div class="globe-side">
+        <div class="sub-label">已收录</div>
+        <div id="globe-list"></div>
+        <p class="hint globe-tip">
+          拖动旋转 · 滚轮缩放 · 点击国土打开档案<br>
+          球面为 Natural Earth 110m 轮廓，国界为 50m 提取
+        </p>
+      </div>
+    </div>
   </section>
 
   <!-- ============ 详情面板 ============ -->
@@ -886,6 +907,460 @@
       });
   }
 
+  /* ---------- 3D 地球 ----------
+     设计上的四个决定：
+
+     1) 懒加载。three.min.js 670KB，若在首屏加载会把 LCP 拖到 3 秒以上。
+        用 IntersectionObserver 等区块进入视口再加载，首屏完全不受影响。
+
+     2) 不用贴图，只用我们自己的 GeoJSON。真实地球纹理（4K 等距柱状图）动辄
+        2~8MB，且来源授权要单独确认；而我们的数据只有 110KB —— 大陆轮廓 + 三国
+        国界，全部来自 Natural Earth 与既有 geo/*.geojson。视觉上反而更统一：
+        暗球 + 淡色大陆 + 金色国界，和站点其余部分同一套配色。
+
+     3) 球面插值细分。国界相邻两点若相距较远，直接用直线连会在球体内部穿过去
+        （弦切进球），表现为"线条沉到球里"。所以每条边按 ≤2° 插值成折线。
+
+     4) 点击拾取要 worldToLocal。射线与球求交得到的是**世界坐标**，而我们要反算
+        经纬度，必须先把交点转回 spinGroup 的局部坐标 —— 否则球体转过之后
+        算出的经纬度全是错的。 */
+  var GLOBE_SRC = [
+    'https://atlas-mundi-1419.obs.cn-east-3.myhuaweicloud.com/vendor/three.min.js',
+    'vendor/three.min.js'
+  ];
+  var globe = {
+    state: 'idle', ready: false, data: null,
+    scene: null, camera: null, renderer: null,
+    tilt: null, spin: null, sphere: null,
+    groups: {},           // iso -> LineSegments
+    matOn: null, matOff: null,
+    active: null,
+    autoSpin: true,
+    inView: false,
+    dragging: false,
+    last: { x: 0, y: 0 },
+    vel: { x: 0, y: 0 },
+    idleUntil: 0,
+    raf: 0
+  };
+
+  var D2R = Math.PI / 180;
+  var R2D = 180 / Math.PI;
+
+  function globeStage() { return document.getElementById('globe-stage'); }
+  function globeMsg(text, isErr) {
+    var st = globeStage();
+    if (!st) return;
+    var m = document.getElementById('globe-msg');
+    if (!m) {
+      m = el('div', 'globe-msg');
+      m.id = 'globe-msg';
+      st.appendChild(m);
+    }
+    m.textContent = text;
+    m.className = 'globe-msg' + (isErr ? ' err' : '');
+  }
+
+  function loadScriptOnce(urls, done) {
+    var i = 0;
+    function next() {
+      if (i >= urls.length) { done(new Error('all sources failed')); return; }
+      var src = urls[i++];
+      var sc = document.createElement('script');
+      sc.src = src;
+      sc.async = true;
+      sc.onload = function () { done(null); };
+      sc.onerror = function () {
+        sc.remove();
+        next();
+      };
+      document.head.appendChild(sc);
+    }
+    next();
+  }
+
+  /* 经纬度 → 球面坐标。y 轴朝北，经度 0 落在 -Z 方向（正对初始相机）。 */
+  function llToVec3(lon, lat, r, out) {
+    var phi = (90 - lat) * D2R;
+    var theta = (lon + 180) * D2R;
+    var sp = Math.sin(phi);
+    out.set(-r * sp * Math.cos(theta), r * Math.cos(phi), r * sp * Math.sin(theta));
+    return out;
+  }
+
+  /* 把一条边按 ≤2° 插值成折线，避免弦切进球体 */
+  function pushEdge(a, b, r, arr) {
+    var dLon = b[0] - a[0];
+    if (dLon > 180) dLon -= 360;
+    if (dLon < -180) dLon += 360;
+    var dLat = b[1] - a[1];
+    var steps = Math.max(1, Math.ceil(Math.max(Math.abs(dLon), Math.abs(dLat)) / 2));
+    var va = new THREE.Vector3();
+    llToVec3(a[0], a[1], r, va);
+    for (var i = 1; i <= steps; i++) {
+      var t = i / steps;
+      var vb = new THREE.Vector3();
+      llToVec3(a[0] + dLon * t, a[1] + dLat * t, r, vb);
+      arr.push(va.x, va.y, va.z, vb.x, vb.y, vb.z);
+      va = vb;
+    }
+  }
+
+  /* rings（环数组，null 表示断点）→ LineSegments */
+  function ringsToLines(rings, radius, material) {
+    var pos = [];
+    rings.forEach(function (ring) {
+      var prev = null;
+      for (var i = 0; i < ring.length; i++) {
+        var pt = ring[i];
+        if (!pt) { prev = null; continue; }
+        if (prev) pushEdge(prev, pt, radius, pos);
+        prev = pt;
+      }
+    });
+    var g = new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+    return new THREE.LineSegments(g, material);
+  }
+
+  /* 经纬网：每 30° 一条 */
+  function graticule(radius) {
+    var pos = [];
+    var lon, lat, i;
+    for (lon = -180; lon < 180; lon += 30) {
+      for (i = -88; i < 88; i += 2) {
+        pushEdge([lon, i], [lon, i + 2], radius, pos);
+      }
+    }
+    for (lat = -60; lat <= 60; lat += 30) {
+      for (i = -178; i < 178; i += 2) {
+        pushEdge([i, lat], [i + 2, lat], radius, pos);
+      }
+    }
+    var g = new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+    return new THREE.LineSegments(g, new THREE.LineBasicMaterial({
+      color: 0x2c5478, transparent: true, opacity: 0.42
+    }));
+  }
+
+  /* 世界坐标（球面）→ 经纬度 */
+  function vec3ToLL(v) {
+    var n = v.clone().normalize();
+    var lat = Math.asin(Math.max(-1, Math.min(1, n.y))) * R2D;
+    var lon = Math.atan2(n.z, -n.x) * R2D - 180;
+    while (lon < -180) lon += 360;
+    while (lon > 180) lon -= 360;
+    return { lon: lon, lat: lat };
+  }
+
+  function countryAt(lon, lat) {
+    var list = globe.data.countries || [];
+    for (var i = 0; i < list.length; i++) {
+      var b = list[i].bbox;
+      if (!b) continue;
+      // bbox 放宽 2°，球面上点击有像素级误差
+      if (lon >= b[0] - 2 && lon <= b[2] + 2 && lat >= b[1] - 2 && lat <= b[3] + 2) {
+        return list[i];
+      }
+    }
+    return null;
+  }
+
+  function setActive(iso) {
+    globe.active = iso;
+    Object.keys(globe.groups).forEach(function (k) {
+      globe.groups[k].material = (k === iso) ? globe.matOn : globe.matOff;
+    });
+    Array.prototype.forEach.call(
+      document.querySelectorAll('.globe-item'),
+      function (n) { n.classList.toggle('active', n.dataset.iso === iso); }
+    );
+  }
+
+  /* 把某国转到正对相机。
+     spin 绕 Y：点 (lon,lat) 的方位角 θ=(lon+180)°，令 θ+ry=90° 即朝向 +Z，
+     得 ry = -lon - 90。
+     tilt 绕 X：正角度使北极转向相机，故北半球国家用正 lat。 */
+  function focusCountry(iso, ms) {
+    var c = null;
+    (globe.data.countries || []).forEach(function (x) { if (x.iso === iso) c = x; });
+    if (!c || !globe.spin) return;
+    var toY = -c.center[0] * D2R - Math.PI / 2;
+    var toX = c.center[1] * D2R;
+    var fromY = globe.spin.rotation.y;
+    var fromX = globe.tilt.rotation.x;
+    var dY = toY - fromY;
+    while (dY > Math.PI) dY -= Math.PI * 2;
+    while (dY < -Math.PI) dY += Math.PI * 2;
+    var dX = toX - fromX;
+    var t0 = performance.now();
+    var dur = ms || 760;
+    globe.idleUntil = performance.now() + dur + 2600;
+    globe.autoSpin = false;
+    (function step() {
+      var k = Math.min(1, (performance.now() - t0) / dur);
+      var e = 1 - Math.pow(1 - k, 3);
+      globe.spin.rotation.y = fromY + dY * e;
+      globe.tilt.rotation.x = fromX + dX * e;
+      if (k < 1) requestAnimationFrame(step);
+      else globe.autoSpin = true;
+    })();
+  }
+
+  function buildGlobe(data) {
+    var stage = globeStage();
+    var msg = document.getElementById('globe-msg');
+    if (msg) msg.remove();
+
+    var w = stage.clientWidth || 640;
+    var h = stage.clientHeight || 480;
+
+    var scene = new THREE.Scene();
+    var camera = new THREE.PerspectiveCamera(42, w / h, 0.1, 100);
+    camera.position.set(0, 0, 2.85);
+
+    var renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    renderer.setSize(w, h, false);
+    stage.appendChild(renderer.domElement);
+
+    var tilt = new THREE.Group();
+    var spin = new THREE.Group();
+    tilt.add(spin);
+    scene.add(tilt);
+
+    // 球体：暗蓝，带一点高光避免看起来像纯色圆片
+    var sphere = new THREE.Mesh(
+      new THREE.SphereGeometry(1, 64, 48),
+      new THREE.MeshPhongMaterial({
+        color: 0x0b1a2b, emissive: 0x050d18, specular: 0x1d4368,
+        shininess: 14, transparent: true, opacity: 0.97
+      })
+    );
+    spin.add(sphere);
+
+    // 大气层：略大的背面球，只留边缘一圈冷光
+    scene.add(new THREE.Mesh(
+      new THREE.SphereGeometry(1.055, 48, 32),
+      new THREE.MeshBasicMaterial({
+        color: 0x4a90c2, transparent: true, opacity: 0.075, side: THREE.BackSide
+      })
+    ));
+
+    scene.add(new THREE.AmbientLight(0x93b6d8, 0.95));
+    var key = new THREE.DirectionalLight(0xffffff, 0.8);
+    key.position.set(1.8, 1.2, 2.4);
+    scene.add(key);
+
+    // 经纬网 + 大陆轮廓（背景参照）
+    spin.add(graticule(1.001));
+    spin.add(ringsToLines(data.land || [], 1.0015, new THREE.LineBasicMaterial({
+      color: 0x3f6f96, transparent: true, opacity: 0.55
+    })));
+
+    // 三国国界
+    globe.matOn = new THREE.LineBasicMaterial({
+      color: 0xf0c878, transparent: true, opacity: 1
+    });
+    globe.matOff = new THREE.LineBasicMaterial({
+      color: 0xd8b26a, transparent: true, opacity: 0.62
+    });
+    (data.countries || []).forEach(function (c) {
+      var line = ringsToLines(c.rings, 1.003, globe.matOff);
+      spin.add(line);
+      globe.groups[c.iso] = line;
+    });
+
+    globe.scene = scene;
+    globe.camera = camera;
+    globe.renderer = renderer;
+    globe.tilt = tilt;
+    globe.spin = spin;
+    globe.sphere = sphere;
+    globe.data = data;
+    globe.ready = true;
+
+    // ---- 交互：拖拽 ----
+    var cv = renderer.domElement;
+    var downAt = { x: 0, y: 0 };
+    cv.addEventListener('pointerdown', function (e) {
+      globe.dragging = true;
+      globe.last.x = e.clientX;
+      globe.last.y = e.clientY;
+      downAt.x = e.clientX;
+      downAt.y = e.clientY;
+      globe.vel.x = globe.vel.y = 0;
+      cv.classList.add('dragging');
+      cv.setPointerCapture && cv.setPointerCapture(e.pointerId);
+      globe.autoSpin = false;
+      globe.idleUntil = Infinity;
+    });
+    cv.addEventListener('pointermove', function (e) {
+      if (!globe.dragging) return;
+      var dx = e.clientX - globe.last.x;
+      var dy = e.clientY - globe.last.y;
+      globe.last.x = e.clientX;
+      globe.last.y = e.clientY;
+      globe.vel.x = dx * 0.005;
+      globe.vel.y = dy * 0.005;
+      globe.spin.rotation.y += globe.vel.x;
+      globe.tilt.rotation.x += globe.vel.y;
+      var lim = 78 * D2R;
+      globe.tilt.rotation.x = Math.max(-lim, Math.min(lim, globe.tilt.rotation.x));
+    });
+    function endDrag() {
+      if (!globe.dragging) return;
+      globe.dragging = false;
+      cv.classList.remove('dragging');
+      globe.idleUntil = performance.now() + 2200;
+    }
+    cv.addEventListener('pointerup', endDrag);
+    cv.addEventListener('pointercancel', endDrag);
+    cv.addEventListener('pointerleave', endDrag);
+
+    // ---- 交互：缩放 ----
+    cv.addEventListener('wheel', function (e) {
+      e.preventDefault();
+      var z = camera.position.z + e.deltaY * 0.0016;
+      camera.position.z = Math.max(1.55, Math.min(4.6, z));
+    }, { passive: false });
+
+    // ---- 交互：点击拾取 ----
+    var ray = new THREE.Raycaster();
+    var ndc = new THREE.Vector2();
+    cv.addEventListener('click', function (e) {
+      // 拖拽结束时浏览器也会派发 click，位移超过 6px 视为拖动而非点击
+      if (Math.abs(e.clientX - downAt.x) + Math.abs(e.clientY - downAt.y) > 6) return;
+      var rect = cv.getBoundingClientRect();
+      ndc.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+      ndc.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+      ray.setFromCamera(ndc, camera);
+      var hits = ray.intersectObject(sphere);
+      if (!hits.length) return;
+      // 关键：交点在世界坐标，必须转回 spin 的局部坐标才能反算经纬度
+      var local = globe.spin.worldToLocal(hits[0].point.clone());
+      var ll = vec3ToLL(local);
+      var c = countryAt(ll.lon, ll.lat);
+      if (!c) return;
+      setActive(c.iso);
+      openDetail(c.iso, cardOf(c.iso), false);
+    });
+
+    // ---- 渲染循环 ----
+    function render() {
+      globe.raf = requestAnimationFrame(render);
+      if (!globe.inView) return;
+      if (globe.autoSpin && !globe.dragging && performance.now() > globe.idleUntil) {
+        globe.spin.rotation.y += 0.0016;
+      }
+      if (!globe.dragging && Math.abs(globe.vel.x) + Math.abs(globe.vel.y) > 0.0002) {
+        // 松手后的惯性衰减
+        globe.vel.x *= 0.93;
+        globe.vel.y *= 0.93;
+        globe.spin.rotation.y += globe.vel.x;
+        globe.tilt.rotation.x += globe.vel.y;
+        var lim2 = 78 * D2R;
+        globe.tilt.rotation.x = Math.max(-lim2, Math.min(lim2, globe.tilt.rotation.x));
+      }
+      renderer.render(scene, camera);
+    }
+    render();
+
+    // ---- 尺寸变化 ----
+    function resize() {
+      var w2 = stage.clientWidth, h2 = stage.clientHeight;
+      if (!w2 || !h2) return;
+      camera.aspect = w2 / h2;
+      camera.updateProjectionMatrix();
+      renderer.setSize(w2, h2, false);
+    }
+    if (window.ResizeObserver) new ResizeObserver(resize).observe(stage);
+    window.addEventListener('resize', resize);
+
+    // ---- 侧边列表 ----
+    var listHost = document.getElementById('globe-list');
+    if (listHost) {
+      listHost.innerHTML = '';
+      (data.countries || []).forEach(function (c) {
+        var item = el('div', 'globe-item');
+        item.dataset.iso = c.iso;
+        item.appendChild(el('span', 'gi-flag', c.iso));
+        item.appendChild(el('span', 'gi-name', c.name));
+        var lat = c.center[1], lon = c.center[0];
+        item.appendChild(el('span', 'gi-coord',
+          Math.abs(lat).toFixed(1) + '°' + (lat >= 0 ? 'N' : 'S') + ' ' +
+          Math.abs(lon).toFixed(1) + '°' + (lon >= 0 ? 'E' : 'W')));
+        item.addEventListener('click', function () {
+          setActive(c.iso);
+          focusCountry(c.iso);
+          openDetail(c.iso, cardOf(c.iso), false);
+        });
+        listHost.appendChild(item);
+      });
+    }
+
+    var sub = document.getElementById('globe-sub');
+    if (sub) sub.textContent = data.countries.length + ' 国已上图 · 拖拽旋转';
+    setActive((data.countries[0] || {}).iso);
+  }
+
+  function startGlobe() {
+    if (globe.state !== 'idle') return;
+    if (!window.WebGLRenderingContext) {
+      globeMsg('当前浏览器不支持 WebGL，3D 地球无法显示。国界轮廓在各国详情页内仍可查看。', true);
+      globe.state = 'failed';
+      return;
+    }
+    globe.state = 'loading';
+    globeMsg('正在加载地球模型…');
+    loadScriptOnce(GLOBE_SRC, function (err) {
+      if (err || !window.THREE) {
+        globe.state = 'failed';
+        globeMsg('3D 模型未能加载（three.js 不可达）。国界轮廓在各国详情页内仍可查看。', true);
+        return;
+      }
+      fetch('geo/globe.json')
+        .then(function (r) {
+          if (!r.ok) throw new Error('HTTP ' + r.status);
+          return r.json();
+        })
+        .then(function (data) {
+          try {
+            buildGlobe(data);
+            globe.state = 'ok';
+          } catch (e2) {
+            globe.state = 'failed';
+            globeMsg('3D 初始化失败：' + e2.message, true);
+          }
+        })
+        .catch(function (e3) {
+          globe.state = 'failed';
+          globeMsg('地球数据未能加载（' + e3.message + '）', true);
+        });
+    });
+  }
+
+  /* 滚到地球区块才加载，避免 670KB 的 three.js 拖慢首屏 */
+  (function watchGlobe() {
+    var sec = document.getElementById('globe-sec');
+    if (!sec) return;
+    if (!('IntersectionObserver' in window)) { startGlobe(); return; }
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) {
+        // 只负责触发加载，不碰 inView（渲染开关由下面那个 observer 独占）
+        if (en.isIntersecting && globe.state === 'idle') startGlobe();
+      });
+    }, { rootMargin: '220px 0px' });
+    io.observe(sec);
+    if (globeStage()) {
+      var io2 = new IntersectionObserver(function (es) {
+        globe.inView = es[0].isIntersecting;
+      }, { threshold: 0.05 });
+      io2.observe(globeStage());
+    }
+  })();
+
   /* ---------- 启动 ---------- */
   fetch('data/index.json')
     .then(function (r) {
@@ -1001,6 +1476,50 @@
   @keyframes shimmer{
     from{background-position:180% 0}
     to{background-position:-80% 0}
+  }
+
+  /* 3D 地球 */
+  .globe-wrap{
+    display:grid;grid-template-columns:1fr 232px;gap:22px;align-items:start;
+  }
+  .globe-stage{
+    position:relative;aspect-ratio:4/3;border-radius:14px;overflow:hidden;
+    border:1px solid var(--line);
+    background:radial-gradient(circle at 42% 36%,#0e1b2e 0%,#070d16 55%,#03060b 100%);
+    touch-action:none;               /* 拖拽时不触发页面滚动 */
+  }
+  .globe-stage canvas{display:block;width:100%;height:100%;cursor:grab}
+  .globe-stage canvas.dragging{cursor:grabbing}
+  .globe-msg{
+    position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    font-size:12.5px;letter-spacing:.06em;color:var(--ink-faint);
+    text-align:center;padding:20px;line-height:1.7;
+  }
+  .globe-msg.err{color:#c98a6a}
+
+  .globe-side .sub-label{margin-top:0}
+  .globe-item{
+    display:flex;align-items:center;gap:10px;
+    padding:9px 10px;margin-top:6px;border-radius:8px;
+    border:1px solid var(--line);cursor:pointer;
+    transition:border-color .2s ease,background .2s ease;
+  }
+  .globe-item:hover{border-color:rgba(216,178,106,.45);background:rgba(216,178,106,.05)}
+  .globe-item.active{border-color:rgba(216,178,106,.7);background:rgba(216,178,106,.08)}
+  .gi-flag{
+    font-size:9.5px;letter-spacing:.08em;color:var(--ink-faint);
+    border:1px solid var(--line);border-radius:4px;padding:1px 4px;flex:0 0 auto;
+  }
+  .gi-name{font-size:13px;color:var(--ink)}
+  .gi-coord{
+    margin-left:auto;font-size:10.5px;color:var(--ink-faint);
+    font-variant-numeric:tabular-nums;
+  }
+  .globe-tip{font-size:11.5px;line-height:1.75}
+
+  @media (max-width:900px){
+    .globe-wrap{grid-template-columns:1fr}
+    .globe-stage{aspect-ratio:1/1}
   }
 
   /* 知识库检索 */
