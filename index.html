@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-10-26-A">
+<meta name="build" content="2026-10-26-B">
 <title>寰宇图志 · Atlas Mundi</title>
 <meta name="description" content="寰宇图志：3D 地球上的多模态国家文化图谱">
 <style>
@@ -534,6 +534,48 @@
     }
     right.appendChild(txt);
 
+    /* 文化特征：由大模型在构建期从摘要与民俗文本抽取，页面只读结果。
+       每个标签的 title 属性挂着抽取时的原文片段，鼠标悬停可核对依据。 */
+    var facets = d.custom_facets || {};
+    var fgroups = [
+      ['节庆', facets.festivals],
+      ['饮食', facets.cuisine],
+      ['宗教', facets.religion],
+      ['建筑', facets.architecture],
+      ['遗产', facets.heritage]
+    ].filter(function (g) { return g[1] && g[1].length; });
+    var kws = facets.keywords || [];
+
+    if (fgroups.length || kws.length) {
+      var fbox = el('div', 'facets');
+      fbox.appendChild(el('div', 'sub-label', '文化特征'));
+      if (kws.length) {
+        var krow = el('div', 'frow');
+        krow.appendChild(el('span', 'fkey', '关键词'));
+        var kwrap = el('div', 'fval');
+        kws.forEach(function (k) {
+          var c = el('span', 'chip chip-kw', k.v || k);
+          if (k.evidence) c.title = '原文：' + k.evidence;
+          kwrap.appendChild(c);
+        });
+        krow.appendChild(kwrap);
+        fbox.appendChild(krow);
+      }
+      fgroups.forEach(function (g) {
+        var row = el('div', 'frow');
+        row.appendChild(el('span', 'fkey', g[0]));
+        var wrap = el('div', 'fval');
+        g[1].forEach(function (x) {
+          var c = el('span', 'chip', x.v || x);
+          if (x.evidence) c.title = '原文：' + x.evidence;
+          wrap.appendChild(c);
+        });
+        row.appendChild(wrap);
+        fbox.appendChild(row);
+      });
+      right.appendChild(fbox);
+    }
+
     /* 音频：每个语言一条，区域语言也在内 */
     var withAudio = (d.languages || []).filter(function (l) { return l.audio_url; });
     var without = (d.languages || []).filter(function (l) { return !l.audio_url; });
@@ -741,6 +783,27 @@
   @keyframes shimmer{
     from{background-position:180% 0}
     to{background-position:-80% 0}
+  }
+
+  /* 文化特征标签 */
+  .facets{margin-top:4px}
+  .frow{display:flex;gap:10px;align-items:flex-start;margin-top:7px}
+  .fkey{
+    flex:0 0 40px;font-size:11px;letter-spacing:.06em;
+    color:var(--ink-faint);padding-top:4px;
+  }
+  .fval{display:flex;flex-wrap:wrap;gap:6px}
+  .chip{
+    font-size:12px;padding:2px 9px;border-radius:999px;
+    border:1px solid var(--line);color:var(--ink-dim);
+    background:rgba(255,255,255,.02);cursor:default;
+    transition:border-color .2s ease,color .2s ease;
+  }
+  .chip:hover{border-color:rgba(216,178,106,.5);color:var(--ink)}
+  .chip-kw{
+    border-color:rgba(216,178,106,.35);
+    color:rgba(216,178,106,.92);
+    background:rgba(216,178,106,.05);
   }
 
   /* 国界轮廓 */

@@ -23,6 +23,9 @@ FIELDS = ["qid", "iso_a2", "iso_a3", "name_zh", "name_en", "capital", "continent
           "centroid", "languages", "landmark_images", "image_license",
           "summary_text", "custom_text", "audio_url", "geometry"]
 
+# 大模型产出的字段（只有跑过 llm_tasks.py --apply 才有）
+LLM_FIELDS = ["custom_facets", "llm_audit"]
+
 
 def human(n):
     for unit in ("B", "KB", "MB"):
@@ -110,7 +113,33 @@ def main():
         "字段清单": FIELDS,
     }
 
+    # ---- 大模型调用台账（logs/llm_calls.jsonl 是唯一事实来源）----
+    llm_file = os.path.join(ROOT, "logs", "llm_calls.jsonl")
+    scenes = {}
+    if os.path.exists(llm_file):
+        rows = [json.loads(l) for l in open(llm_file, encoding="utf-8") if l.strip()]
+        okr = [r for r in rows if r.get("ok")]
+        for r in okr:
+            s = r.get("scene", "?")
+            scenes[s] = scenes.get(s, 0) + 1
+        ptok = sum(r.get("prompt_tokens") or 0 for r in okr)
+        ctok = sum(r.get("completion_tokens") or 0 for r in okr)
+        rtok = sum(r.get("reasoning_tokens") or 0 for r in okr)
+        lat = [r.get("latency_ms") or 0 for r in okr]
+        days = sorted({(r.get("ts") or "")[:10] for r in rows if r.get("ts")})
+        stats.update({
+            "大模型调用次数": len(rows),
+            "大模型使用场景数": len(scenes),
+            "大模型 prompt token": ptok,
+            "大模型输出 token": ctok,
+            "大模型思考token占比": ("%.0f%%" % (rtok * 100 / ctok)) if ctok else "0%",
+            "大模型平均延迟": ("%d ms" % (sum(lat) // len(lat))) if lat else "—",
+            "大模型跨天数": len(days),
+            "大模型花费(估算USD)": round(ptok / 1e6 * 0.3 + ctok / 1e6 * 1.2, 3),
+        })
+
     if args.json:
+        stats["大模型场景明细"] = scenes
         print(json.dumps(stats, ensure_ascii=False, indent=2))
         return
 
@@ -125,8 +154,14 @@ def main():
     print("  %-6s %-6s %s" % ("ISO", "名称", "字段缺口"))
     for r in recs:
         miss = [k for k in FIELDS if not r.get(k)]
+        miss += [k for k in LLM_FIELDS if not r.get(k)]
         print("  %-6s %-6s %s" % (r.get("iso_a2"), r.get("name_zh"),
                                   "无" if not miss else "、".join(miss)))
+    if scenes:
+        print("-" * 52)
+        print("  大模型场景明细")
+        for s, n in sorted(scenes.items(), key=lambda x: -x[1]):
+            print("    %-18s %d 次" % (s, n))
 
 
 if __name__ == "__main__":

@@ -24,3 +24,12 @@ geo/_ne_50m_countries.geojson
 
 # 选图核对用的联络表，不进仓库
 review/
+
+# 密钥绝不入库 —— key 只走环境变量
+.env
+.env.*
+*.key
+secrets.*
+
+# 大模型产物的预览副本（确认后才合进 data/*.json）
+data/_llm/

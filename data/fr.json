@@ -25,12 +25,11 @@
       "audio_bytes": 44496
     }
   ],
-  "summary_text": "法兰西共和国（法语：République française，发音：[ʁepyblik fʁɑ̃sɛːz] ），通称法国（France [fʁɑ̃s] ），西欧双首长制共和国，东邻德国、比利时与意大利，西面比斯开湾，西南接西班牙，北隔英吉利海峡与英国相望。法国共分为18个大区，其中5个位于海外，领土总面积达64.3万平方公里，是欧盟国土最辽阔的国家。人口为6789万人，首都巴黎。法国本土皆为海洋性气候，海外领土则气候多样，在全球各洋均拥有大量岛屿。\n法国人的先祖高卢人自铁器时代迁至今日法国定居，后来罗马共和国于前51年并吞了该地区，形成独特的高卢－罗马文化。法兰克人于5世纪在此建立了法兰克王国，并逐步扩张至全西欧。987年，于格·卡佩即位为王，被后世视为法兰西王国的开端。该王国成立之初是个强大但分权的封建王国，直到12世纪末期法王腓力二世开始集中王权，并在布汶之战战胜神圣罗马帝国与安茹帝国联军，逐渐成为全欧最强大的国家。14至15世纪，法国与英格兰王国爆发百年战争，法国赢得胜利后封建制度开始瓦解，其文化与艺术因法国文艺复兴迅速发展，并在大航海时代建立殖民帝国。",
+  "summary_text": "法国位于西欧，西面比斯开湾，北隔英吉利海峡与英国相望，东邻德国、比利时与意大利，西南接西班牙，领土总面积达64.3万平方公里，是欧盟国土最辽阔的国家。法国本土皆为海洋性气候，海外领土则气候多样，在全球各洋均拥有大量岛屿。法国共分为18个大区，其中5个位于海外，首都为巴黎。法国大革命确立共和传统，7月14日国庆即攻占巴士底狱的纪念日。天主教传统深厚，但1905年政教分离后，世俗性成为国家原则。饮食以面包、奶酪、葡萄酒为骨架，AOP原产地制度保护了数百种奶酪与葡萄酒产区，风土被视为文化核心概念。布列塔尼、阿尔萨斯、科西嘉等地保留独立语言与节庆，如布列塔尼的Fest-Noz夜间舞会。",
   "summary_source": {
-    "source": "wikipedia_extracts",
-    "url": "https://zh.wikipedia.org/wiki/%E6%B3%95%E5%9B%BD",
-    "title": "法国",
-    "chars": 487
+    "source": "llm_refined",
+    "note": "DeepSeek 基于 Wikipedia 导语 + 人工民俗文本重写；口径限定地理与文化，剔除政权更迭与战争史",
+    "chars": 292
   },
   "landmark_images": [
     {
@@ -54,12 +53,14 @@
         "detail": "760x1406",
         "thumb": "162x300"
       },
-      "encoding": "webp q72/q74 (源 1920x3553 1415KB JPEG)"
+      "encoding": "webp q72/q74 (源 1920x3553 1415KB JPEG)",
+      "caption_zh_manual": "埃菲尔铁塔",
+      "caption_zh_source": "llm_from_commons_filename"
     },
     {
       "title": "File:Courtyard @ Louvre @ Paris (28897294980).jpg",
-      "caption_zh": "卢浮宫玻璃金字塔",
-      "caption": "卢浮宫玻璃金字塔",
+      "caption_zh": "卢浮宫玻璃金字塔庭院",
+      "caption": "卢浮宫玻璃金字塔庭院",
       "url": "assets/fr/L02.webp",
       "thumb_url": "assets/fr/L02.thumb.webp",
       "remote_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/47/Courtyard_%40_Louvre_%40_Paris_%2828897294980%29.jpg/1920px-Courtyard_%40_Louvre_%40_Paris_%2828897294980%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
@@ -77,12 +78,14 @@
         "detail": "760x507",
         "thumb": "400x267"
       },
-      "encoding": "webp q72/q74 (源 1920x1280 540KB JPEG)"
+      "encoding": "webp q72/q74 (源 1920x1280 540KB JPEG)",
+      "caption_zh_manual": "卢浮宫玻璃金字塔",
+      "caption_zh_source": "llm_from_commons_filename"
     },
     {
       "title": "File:Mont-Saint-Michel_vu_du_ciel.jpg",
-      "caption_zh": "圣米歇尔山",
-      "caption": "圣米歇尔山",
+      "caption_zh": "空中俯瞰圣米歇尔山",
+      "caption": "空中俯瞰圣米歇尔山",
       "url": "assets/fr/L03.webp",
       "thumb_url": "assets/fr/L03.thumb.webp",
       "remote_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/78/Mont-Saint-Michel_vu_du_ciel.jpg/1920px-Mont-Saint-Michel_vu_du_ciel.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
@@ -100,12 +103,14 @@
         "detail": "760x428",
         "thumb": "400x225"
       },
-      "encoding": "webp q72/q74 (源 1920x1080 373KB JPEG)"
+      "encoding": "webp q72/q74 (源 1920x1080 373KB JPEG)",
+      "caption_zh_manual": "圣米歇尔山",
+      "caption_zh_source": "llm_from_commons_filename"
     },
     {
       "title": "File:Ceiling of Hall of Mirrors (Palace of Versailles).jpg",
-      "caption_zh": "凡尔赛宫镜厅（穹顶）",
-      "caption": "凡尔赛宫镜厅（穹顶）",
+      "caption_zh": "凡尔赛宫镜厅穹顶",
+      "caption": "凡尔赛宫镜厅穹顶",
       "url": "assets/fr/L04.webp",
       "thumb_url": "assets/fr/L04.thumb.webp",
       "remote_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/dc/Ceiling_of_Hall_of_Mirrors_%28Palace_of_Versailles%29.jpg/1920px-Ceiling_of_Hall_of_Mirrors_%28Palace_of_Versailles%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
@@ -123,7 +128,9 @@
         "detail": "760x837",
         "thumb": "272x300"
       },
-      "encoding": "webp q72/q74 (源 1920x2114 1406KB JPEG)"
+      "encoding": "webp q72/q74 (源 1920x2114 1406KB JPEG)",
+      "caption_zh_manual": "凡尔赛宫镜厅（穹顶）",
+      "caption_zh_source": "llm_from_commons_filename"
     }
   ],
   "image_license": "Public domain",
@@ -136,7 +143,8 @@
     "Commons 无可用发音，语音走构建期 TTS 兜底（待接）",
     "边界已采集（Natural Earth 50m，817 顶点）",
     "地标图由人工从候选中挑选（4 张，中文图注）",
-    "凡尔赛宫镜厅用的是穹顶壁画照（候选池里只有油画与穹顶，缺镜面长廊主视角），后续可用 Galerie des Glaces 再取"
+    "凡尔赛宫镜厅用的是穹顶壁画照（候选池里只有油画与穹顶，缺镜面长廊主视角），后续可用 Galerie des Glaces 再取",
+    "摘要 292 字，低于 300 字要求：剔除政治史后素材不足。补齐办法是采集阶段增取 Wikipedia 的「地理」章节（prop=extracts&section）"
   ],
   "name_official": "法國",
   "geometry": "geo/fr.geojson",
@@ -219,5 +227,83 @@
       "ref": "人工撰写，待接 LLM 摘编"
     }
   ],
-  "image_source_note": "人工按 data/landmarks.json 指定地标，Commons 关键词检索取图；原先自动获得的 4 张已被替换"
+  "image_source_note": "人工按 data/landmarks.json 指定地标，Commons 关键词检索取图；原先自动获得的 4 张已被替换",
+  "custom_facets": {
+    "festivals": [
+      {
+        "v": "7月14日国庆",
+        "evidence": "7 月 14 日国庆即攻占巴士底狱的纪念日"
+      },
+      {
+        "v": "Fest-Noz夜间舞会",
+        "evidence": "布列塔尼的 Fest-Noz 夜间舞会"
+      }
+    ],
+    "cuisine": [
+      {
+        "v": "面包",
+        "evidence": "饮食以面包、奶酪、葡萄酒为骨架"
+      },
+      {
+        "v": "奶酪",
+        "evidence": "饮食以面包、奶酪、葡萄酒为骨架"
+      },
+      {
+        "v": "葡萄酒",
+        "evidence": "饮食以面包、奶酪、葡萄酒为骨架"
+      },
+      {
+        "v": "AOP原产地制度",
+        "evidence": "AOP 原产地制度保护了数百种奶酪与葡萄酒产区"
+      },
+      {
+        "v": "风土",
+        "evidence": "「风土」（terroir）被视为文化核心概念"
+      }
+    ],
+    "religion": [
+      {
+        "v": "天主教",
+        "evidence": "天主教传统深厚"
+      },
+      {
+        "v": "政教分离",
+        "evidence": "1905 年政教分离后"
+      },
+      {
+        "v": "世俗性",
+        "evidence": "「世俗性」（laïcité）成为国家原则"
+      }
+    ],
+    "architecture": [],
+    "heritage": [],
+    "keywords": [
+      {
+        "v": "面包与葡萄酒",
+        "evidence": "饮食以面包、奶酪、葡萄酒为骨架"
+      },
+      {
+        "v": "风土",
+        "evidence": "「风土」（terroir）被视为文化核心概念"
+      },
+      {
+        "v": "Fest-Noz夜间舞会",
+        "evidence": "布列塔尼的 Fest-Noz 夜间舞会"
+      },
+      {
+        "v": "布列塔尼独立语言",
+        "evidence": "布列塔尼、阿尔萨斯、科西嘉等地保留独立语言"
+      },
+      {
+        "v": "比斯开湾",
+        "evidence": "西面比斯开湾"
+      }
+    ],
+    "model": "deepseek-flash"
+  },
+  "summary_text_raw": "法兰西共和国（法语：République française，发音：[ʁepyblik fʁɑ̃sɛːz] ），通称法国（France [fʁɑ̃s] ），西欧双首长制共和国，东邻德国、比利时与意大利，西面比斯开湾，西南接西班牙，北隔英吉利海峡与英国相望。法国共分为18个大区，其中5个位于海外，领土总面积达64.3万平方公里，是欧盟国土最辽阔的国家。人口为6789万人，首都巴黎。法国本土皆为海洋性气候，海外领土则气候多样，在全球各洋均拥有大量岛屿。\n法国人的先祖高卢人自铁器时代迁至今日法国定居，后来罗马共和国于前51年并吞了该地区，形成独特的高卢－罗马文化。法兰克人于5世纪在此建立了法兰克王国，并逐步扩张至全西欧。987年，于格·卡佩即位为王，被后世视为法兰西王国的开端。该王国成立之初是个强大但分权的封建王国，直到12世纪末期法王腓力二世开始集中王权，并在布汶之战战胜神圣罗马帝国与安茹帝国联军，逐渐成为全欧最强大的国家。14至15世纪，法国与英格兰王国爆发百年战争，法国赢得胜利后封建制度开始瓦解，其文化与艺术因法国文艺复兴迅速发展，并在大航海时代建立殖民帝国。",
+  "llm_audit": {
+    "issues": [],
+    "overall": "pass"
+  }
 }

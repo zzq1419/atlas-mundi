@@ -34,18 +34,17 @@
       "audio_status": "pending"
     }
   ],
-  "summary_text": "美利坚合众国（英语：United States of America，缩写：USA），简称美国、美利坚（英语：America）或合众国（英语：United States，缩写：US），是位于北美洲的联邦制共和国。其由50个州、首都华盛顿哥伦比亚特区和326个印第安人保留地组成；在联邦外，其主张对5个离岸自治领土及若干外岛拥有主权。美国领土面积为9,372,610平方公里，为北美第二（次于加拿大），世界第三或第四。截至2020年初，美国总人口约为3.3亿人，是世界第三人口大国、也是人口最多的发达国家、以及美洲人口最多的国家。美国有着来自世界各地的大量移民，是世界上民族和文化最多元的国家之一。美国国土的地形与气候复杂，生物多样性齐全。\n12,000多年前，古印第安人通过白令陆桥迁徙，定居在现在的美国领土上。欧洲人从16世纪开始殖民北美，1607年起开始成为英国殖民地。1775年美国独立战争爆发，1776年7月4日《独立宣言》发表，1783年英国战败并承认其独立。1787年《美利坚合众国宪法》完稿，标志联邦政府和联邦制正式确立。自19世纪起。",
+  "summary_text": "美利坚合众国位于北美洲，是联邦制共和国，由50个州、首都华盛顿哥伦比亚特区和326个印第安人保留地组成，在联邦外主张对5个离岸自治领土及若干外岛拥有主权。美国领土面积为9,372,610平方公里，为北美第二、世界第三或第四。美国国土的地形与气候复杂，生物多样性齐全。行政区划上，全国划分为50个州，各州各有州旗、州歌与州博览会传统，首都为华盛顿哥伦比亚特区。截至2020年初，美国总人口约为3.3亿人，是世界第三人口大国、人口最多的发达国家以及美洲人口最多的国家，并有着来自世界各地的大量移民，是世界上民族和文化最多元的国家之一。美国建国于1776年《独立宣言》，1787年宪法确立联邦制与三权分立，联邦制下各州法律差异显著。感恩节在11月第四个周四，源自1621年清教徒与万帕诺亚格人的共食传统，1863年由林肯定为全国节日。爵士乐、蓝调、摇滚与嘻哈均发源于此，新奥尔良、孟菲斯、底特律构成一条音乐地理线索。",
   "summary_source": {
-    "source": "wikipedia_extracts",
-    "url": "https://zh.wikipedia.org/wiki/%E7%BE%8E%E5%9B%BD",
-    "title": "美国",
-    "chars": 475
+    "source": "llm_refined",
+    "note": "DeepSeek 基于 Wikipedia 导语 + 人工民俗文本重写；口径限定地理与文化，剔除政权更迭与战争史",
+    "chars": 405
   },
   "landmark_images": [
     {
       "title": "File:Statue of Liberty and a sightseeing boat, Liberty Island, New York.jpg",
-      "caption_zh": "自由女神像",
-      "caption": "自由女神像",
+      "caption_zh": "自由女神像与观光船",
+      "caption": "自由女神像与观光船",
       "url": "assets/us/L01.webp",
       "thumb_url": "assets/us/L01.thumb.webp",
       "remote_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/93/Statue_of_Liberty_and_a_sightseeing_boat%2C_Liberty_Island%2C_New_York.jpg/1920px-Statue_of_Liberty_and_a_sightseeing_boat%2C_Liberty_Island%2C_New_York.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
@@ -63,12 +62,14 @@
         "detail": "760x507",
         "thumb": "400x267"
       },
-      "encoding": "webp q72/q74 (源 1920x1280 520KB JPEG)"
+      "encoding": "webp q72/q74 (源 1920x1280 520KB JPEG)",
+      "caption_zh_manual": "自由女神像",
+      "caption_zh_source": "llm_from_commons_filename"
     },
     {
       "title": "File:Grand Canyon NP-Arizona-USA.jpg",
-      "caption_zh": "大峡谷",
-      "caption": "大峡谷",
+      "caption_zh": "美国亚利桑那州大峡谷国家公园",
+      "caption": "美国亚利桑那州大峡谷国家公园",
       "url": "assets/us/L02.webp",
       "thumb_url": "assets/us/L02.thumb.webp",
       "remote_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/03/Grand_Canyon_NP-Arizona-USA.jpg/1920px-Grand_Canyon_NP-Arizona-USA.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
@@ -86,7 +87,9 @@
         "detail": "760x542",
         "thumb": "400x285"
       },
-      "encoding": "webp q72/q74 (源 1920x1369 871KB JPEG)"
+      "encoding": "webp q72/q74 (源 1920x1369 871KB JPEG)",
+      "caption_zh_manual": "大峡谷",
+      "caption_zh_source": "llm_from_commons_filename"
     },
     {
       "title": "File:GoldenGateBridge-001.jpg",
@@ -109,12 +112,14 @@
         "detail": "760x570",
         "thumb": "400x300"
       },
-      "encoding": "webp q72/q74 (源 1920x1440 533KB JPEG)"
+      "encoding": "webp q72/q74 (源 1920x1440 533KB JPEG)",
+      "caption_zh_manual": "金门大桥",
+      "caption_zh_source": "llm_from_commons_filename"
     },
     {
       "title": "File:WhiteHouseSouthFacade.JPG",
-      "caption_zh": "白宫",
-      "caption": "白宫",
+      "caption_zh": "白宫南立面",
+      "caption": "白宫南立面",
       "url": "assets/us/L04.webp",
       "thumb_url": "assets/us/L04.thumb.webp",
       "remote_url": "https://upload.wikimedia.org/wikipedia/commons/a/af/WhiteHouseSouthFacade.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
@@ -132,7 +137,9 @@
         "detail": "760x563",
         "thumb": "400x296"
       },
-      "encoding": "webp q72/q74 (源 1614x1196 573KB JPEG)"
+      "encoding": "webp q72/q74 (源 1614x1196 573KB JPEG)",
+      "caption_zh_manual": "白宫",
+      "caption_zh_source": "llm_from_commons_filename"
     }
   ],
   "image_license": "CC BY-SA 4.0",
@@ -229,5 +236,41 @@
       "ref": "人工撰写，待接 LLM 摘编"
     }
   ],
-  "image_source_note": "人工按 data/landmarks.json 指定地标，Commons 关键词检索取图；原先自动获得的 4 张已被替换"
+  "image_source_note": "人工按 data/landmarks.json 指定地标，Commons 关键词检索取图；原先自动获得的 4 张已被替换",
+  "custom_facets": {
+    "festivals": [
+      {
+        "v": "感恩节",
+        "evidence": "感恩节在11月第四个周四"
+      }
+    ],
+    "cuisine": [],
+    "religion": [],
+    "architecture": [],
+    "heritage": [],
+    "keywords": [
+      {
+        "v": "爵士乐",
+        "evidence": "爵士乐、蓝调、摇滚与嘻哈均发源于此"
+      },
+      {
+        "v": "新奥尔良",
+        "evidence": "新奥尔良、孟菲斯、底特律"
+      },
+      {
+        "v": "州博览会",
+        "evidence": "州旗、州歌与州博览会传统"
+      },
+      {
+        "v": "印第安人保留地",
+        "evidence": "326个印第安人保留地"
+      }
+    ],
+    "model": "deepseek-flash"
+  },
+  "summary_text_raw": "美利坚合众国（英语：United States of America，缩写：USA），简称美国、美利坚（英语：America）或合众国（英语：United States，缩写：US），是位于北美洲的联邦制共和国。其由50个州、首都华盛顿哥伦比亚特区和326个印第安人保留地组成；在联邦外，其主张对5个离岸自治领土及若干外岛拥有主权。美国领土面积为9,372,610平方公里，为北美第二（次于加拿大），世界第三或第四。截至2020年初，美国总人口约为3.3亿人，是世界第三人口大国、也是人口最多的发达国家、以及美洲人口最多的国家。美国有着来自世界各地的大量移民，是世界上民族和文化最多元的国家之一。美国国土的地形与气候复杂，生物多样性齐全。\n12,000多年前，古印第安人通过白令陆桥迁徙，定居在现在的美国领土上。欧洲人从16世纪开始殖民北美，1607年起开始成为英国殖民地。1775年美国独立战争爆发，1776年7月4日《独立宣言》发表，1783年英国战败并承认其独立。1787年《美利坚合众国宪法》完稿，标志联邦政府和联邦制正式确立。自19世纪起。",
+  "llm_audit": {
+    "issues": [],
+    "overall": "pass"
+  }
 }

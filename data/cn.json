@@ -64,7 +64,9 @@
         "detail": "760x570",
         "thumb": "400x300"
       },
-      "encoding": "webp q72/q74 (源 1920x1440 839KB JPEG)"
+      "encoding": "webp q72/q74 (源 1920x1440 839KB JPEG)",
+      "caption_zh_manual": "金山岭长城",
+      "caption_zh_source": "llm_from_commons_filename"
     },
     {
       "title": "File:Hall of Supreme Harmony (20241127120000).jpg",
@@ -87,12 +89,14 @@
         "detail": "760x507",
         "thumb": "400x267"
       },
-      "encoding": "webp q72/q74 (源 1920x1280 737KB JPEG)"
+      "encoding": "webp q72/q74 (源 1920x1280 737KB JPEG)",
+      "caption_zh_manual": "故宫太和殿",
+      "caption_zh_source": "llm_from_commons_filename"
     },
     {
       "title": "File:Terracotta Army, View of Pit 1.jpg",
-      "caption_zh": "秦始皇陵兵马俑",
-      "caption": "秦始皇陵兵马俑",
+      "caption_zh": "秦始皇陵兵马俑一号坑全景",
+      "caption": "秦始皇陵兵马俑一号坑全景",
       "url": "assets/cn/L03.webp",
       "thumb_url": "assets/cn/L03.thumb.webp",
       "remote_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/49/Terracotta_Army%2C_View_of_Pit_1.jpg/1920px-Terracotta_Army%2C_View_of_Pit_1.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
@@ -110,7 +114,9 @@
         "detail": "760x507",
         "thumb": "400x267"
       },
-      "encoding": "webp q72/q74 (源 1920x1280 765KB JPEG)"
+      "encoding": "webp q72/q74 (源 1920x1280 765KB JPEG)",
+      "caption_zh_manual": "秦始皇陵兵马俑",
+      "caption_zh_source": "llm_from_commons_filename"
     },
     {
       "title": "File:Potala_palace23.jpg",
@@ -133,11 +139,13 @@
         "detail": "760x509",
         "thumb": "400x268"
       },
-      "encoding": "webp q72/q74 (源 1920x1285 687KB JPEG)"
+      "encoding": "webp q72/q74 (源 1920x1285 687KB JPEG)",
+      "caption_zh_manual": "布达拉宫",
+      "caption_zh_source": "llm_from_commons_filename"
     }
   ],
   "image_license": "CC0",
-  "summary_text": "中华人民共和国是位于东亚的国家，国土面积约960万平方千米，位居世界各国第三位。其国土地处亚洲大陆东部，濒临太平洋，并与14个国家以陆地边界接壤。全国行政区域划分为23个省、5个自治区、4个直辖市、以及2个特别行政区，共计34个省级行政区。首都为北京市，城区常住人口最多城市为上海市。政治上依宪法实行人民代表大会制度，以社会主义为基础实行人民民主专政。中国共产党在国家体制及武装力量中处于绝对领导地位，国家实行中国共产党领导的多党合作和政治协商制度。\n中国在1945年抗日战争胜利后，中国共产党与中国国民党的政治及军事摩擦逐渐扩大，最终演变成双方的第二次内战。之后，毛泽东领导的中国共产党和其下属的中国人民解放军，逐步击败蒋中正领导的国民党政府及其军队。1949年10月1日，中国共产党在控制中国大部分领土后，在北京宣告成立中华人民共和国中央人民政府；中华民国政府则于1949年底迁往台湾，海峡两岸陷入长期政治对立，是现今台湾问题形成的历史背景。建国初期，中华人民共和国向社会主义转型过渡，并施行一五计划等经济计划恢复和发展社会主义经济。",
+  "summary_text": "中华人民共和国位于东亚，地处亚洲大陆东部，濒临太平洋，并与14个国家以陆地边界接壤，国土面积约960万平方千米，位居世界各国第三位。全国行政区域划分为23个省、5个自治区、4个直辖市以及2个特别行政区，共计34个省级行政区，首都为北京市，城区常住人口最多的城市为上海市。春节为农历正月初一，是岁首最重要的节日，人们贴春联、守岁、燃爆竹，年夜饭必有鱼，取“年年有余”之意。清明祭祖、端午赛龙舟食粽、中秋赏月食月饼，与春节合称农历四大节序。长城始建于春秋战国，秦连接各段，明代大规模砖石重修，今日所见多为明长城，1987年列入世界文化遗产。",
   "custom_text": "春节为农历正月初一，是岁首最重要的节日：贴春联、守岁、燃爆竹，年夜饭必有鱼，取「年年有余」。清明祭祖、端午赛龙舟食粽、中秋赏月食月饼，与春节合称农历四大节序。长城始建于春秋战国，秦连接各段，明代大规模砖石重修，今日所见多为明长城，1987 年列入世界文化遗产。",
   "geometry": "geo/cn.geojson",
   "geometry_status": "naturalearth_50m_merged",
@@ -209,14 +217,14 @@
     "粤语缺少可用音源：Commons 未取到，本机仅有普通话音色（Huihui），待补 zh-HK 音源或人工录制",
     "name_official 与 name_zh 并存，卡片显示常用名，全称保留在 JSON",
     "地标图由人工从候选中挑选（4 张，中文图注）",
-    "边界已含中国台湾、中国香港、中国澳门（Natural Earth 原为独立要素）；示意轮廓非标准地图"
+    "边界已含中国台湾、中国香港、中国澳门（Natural Earth 原为独立要素）；示意轮廓非标准地图",
+    "摘要 268 字，低于 300 字要求：剔除政治史后素材不足。补齐办法是采集阶段增取 Wikipedia 的「地理」章节（prop=extracts&section）"
   ],
   "collected_at": "2026-10-25T22:36:16+08:00",
   "summary_source": {
-    "source": "wikipedia_extracts",
-    "url": "https://zh.wikipedia.org/wiki/%E4%B8%AD%E5%8D%8E%E4%BA%BA%E6%B0%91%E5%85%B1%E5%92%8C%E5%9B%BD",
-    "title": "中华人民共和国",
-    "chars": 469
+    "source": "llm_refined",
+    "note": "DeepSeek 基于 Wikipedia 导语 + 人工民俗文本重写；口径限定地理与文化，剔除政权更迭与战争史",
+    "chars": 268
   },
   "collector": "scripts/collect.py v0.2",
   "audio_meta": {
@@ -251,5 +259,84 @@
     "bytes": 72141
   },
   "image_source_note": "人工按 data/landmarks.json 指定地标，Commons 关键词检索取图；原先自动获得的 4 张已被替换",
-  "geometry_compliance": "已按中国版图将中国台湾、中国香港、中国澳门并入绘制；本图为教学示意轮廓，非标准地图"
+  "geometry_compliance": "已按中国版图将中国台湾、中国香港、中国澳门并入绘制；本图为教学示意轮廓，非标准地图",
+  "custom_facets": {
+    "festivals": [
+      {
+        "v": "春节",
+        "evidence": "春节为农历正月初一"
+      },
+      {
+        "v": "清明",
+        "evidence": "清明祭祖"
+      },
+      {
+        "v": "端午",
+        "evidence": "端午赛龙舟食粽"
+      },
+      {
+        "v": "中秋",
+        "evidence": "中秋赏月食月饼"
+      }
+    ],
+    "cuisine": [
+      {
+        "v": "年夜饭必有鱼",
+        "evidence": "年夜饭必有鱼，取“年年有余”"
+      },
+      {
+        "v": "粽子",
+        "evidence": "端午赛龙舟食粽"
+      },
+      {
+        "v": "月饼",
+        "evidence": "中秋赏月食月饼"
+      }
+    ],
+    "religion": [],
+    "architecture": [
+      {
+        "v": "长城",
+        "evidence": "长城始建于春秋战国"
+      }
+    ],
+    "heritage": [
+      {
+        "v": "长城",
+        "evidence": "1987年列入世界文化遗产"
+      }
+    ],
+    "keywords": [
+      {
+        "v": "长城",
+        "evidence": "长城始建于春秋战国"
+      },
+      {
+        "v": "春节",
+        "evidence": "春节为农历正月初一"
+      },
+      {
+        "v": "守岁",
+        "evidence": "贴春联、守岁、燃爆竹"
+      },
+      {
+        "v": "清明",
+        "evidence": "清明祭祖"
+      },
+      {
+        "v": "端午",
+        "evidence": "端午赛龙舟食粽"
+      },
+      {
+        "v": "中秋",
+        "evidence": "中秋赏月食月饼"
+      }
+    ],
+    "model": "deepseek-flash"
+  },
+  "summary_text_raw": "中华人民共和国是位于东亚的国家，国土面积约960万平方千米，位居世界各国第三位。其国土地处亚洲大陆东部，濒临太平洋，并与14个国家以陆地边界接壤。全国行政区域划分为23个省、5个自治区、4个直辖市、以及2个特别行政区，共计34个省级行政区。首都为北京市，城区常住人口最多城市为上海市。政治上依宪法实行人民代表大会制度，以社会主义为基础实行人民民主专政。中国共产党在国家体制及武装力量中处于绝对领导地位，国家实行中国共产党领导的多党合作和政治协商制度。\n中国在1945年抗日战争胜利后，中国共产党与中国国民党的政治及军事摩擦逐渐扩大，最终演变成双方的第二次内战。之后，毛泽东领导的中国共产党和其下属的中国人民解放军，逐步击败蒋中正领导的国民党政府及其军队。1949年10月1日，中国共产党在控制中国大部分领土后，在北京宣告成立中华人民共和国中央人民政府；中华民国政府则于1949年底迁往台湾，海峡两岸陷入长期政治对立，是现今台湾问题形成的历史背景。建国初期，中华人民共和国向社会主义转型过渡，并施行一五计划等经济计划恢复和发展社会主义经济。",
+  "llm_audit": {
+    "issues": [],
+    "overall": "pass"
+  }
 }
