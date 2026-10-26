@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-10-26-L">
+<meta name="build" content="2026-10-27-A">
 <title>寰宇图志 · Atlas Mundi</title>
 <meta name="description" content="寰宇图志：3D 地球上的多模态国家文化图谱">
 <style>
@@ -1093,6 +1093,9 @@
     mixBTarget: 0,        // 8K 交叉淡化的目标值
     tex8k: null,          // 8K 日面贴图（按需加载，无 mipmap）
     tex8kLoading: false,
+    tex8kReady: false,    // 已下载，等交互停止再绑 GPU
+    tex8kPrefetched: false,
+    lastInput: 0,
     can8k: false,
     atmo: null,
     camTarget: 3.02,      // 相机的目标 z，每帧阻尼逼近
@@ -1322,6 +1325,13 @@
      所以这张 8192×4096 完全不需要 mipmap —— 省掉的正是最贵的那一步
      （对 3300 万像素做 mipmap 生成，软件渲染上要一秒）。
      同理不在首屏拉：用户没拉近之前，这 3.5MB 和 134MB 显存都不该花。 */
+  function bind8k() {
+    if (!globe.tex8k || !globe.earthMat) return;
+    globe.tex8kReady = false;
+    globe.earthMat.uniforms.dayMapB.value = globe.tex8k;
+    globe.mixBTarget = 1;
+  }
+
   function ensure8k() {
     if (!globe.can8k || globe.tex8k || globe.tex8kLoading) return;
     globe.tex8kLoading = true;
@@ -1333,14 +1343,25 @@
       t.needsUpdate = true;
       globe.tex8k = t;
       globe.tex8kLoading = false;
-      if (globe.earthMat) {
-        globe.earthMat.uniforms.dayMapB.value = t;
-        globe.mixBTarget = 1;
-      }
+      /* 先不绑定。绑定的那一刻要把 134MB 传上 GPU，如果正好落在用户滚轮过程中，
+         就是"滑到某个位置卡一下，之后又好了"——因为只有第一次要传。
+         等滚轮停 0.4 秒再绑，卡顿落在停顿里，基本感知不到。 */
+      if (performance.now() - (globe.lastInput || 0) > 420) bind8k();
+      else globe.tex8kReady = true;
     }, function () {
       globe.tex8kLoading = false;
       globe.can8k = false;      // 取不到就别再试，4K 已经够用
     });
+  }
+
+  /* 提前把 8K 的字节抓下来（只抓字节、不解码），这样用户第一次拉近时
+     不需要等 3.5MB 的下载，只剩一次上传。失败就算了，不影响 4K。 */
+  function prefetch8k() {
+    if (!globe.can8k || globe.tex8kPrefetched || !window.fetch) return;
+    globe.tex8kPrefetched = true;
+    fetch(TEX_BASES[0] + 'earth-day-8k.webp')
+      .then(function (r) { return r.ok ? r.blob() : null; })
+      .catch(function () { globe.tex8kPrefetched = false; });
   }
 
   /* 星空：球面均匀分布的点云，带闪烁。
@@ -1536,6 +1557,10 @@
     });
     (pack.continents || []).forEach(function (c) { list.push({ c: c, cls: 'mc', pri: 1 }); });
     (pack.oceans || []).forEach(function (c) { list.push({ c: c, cls: 'mo', pri: 2 }); });
+    /* 岛 / 湖 / 海峡：都要放大到很后面才出现，优先级最低 —— 位置冲突时先让国家名 */
+    (pack.features || []).forEach(function (c) {
+      list.push({ c: c, cls: c.k === 'i' ? 'mi' : (c.k === 'l' ? 'ml' : 'ms'), pri: 4 });
+    });
 
     // 只排一次。同优先级内保持数据本身的顺序（国家已按 LABELRANK 排好）
     list.sort(function (a, b) { return a.pri - b.pri; });
@@ -1604,7 +1629,7 @@
       /* 国名要求正对镜头（球面 61° 以内），否则球边缘那一圈压缩得最厉害、
          文字挤成一排。大洲大洋例外：它们本来就稀疏、一个字管一大片，
          放宽到 75° 才能压住画面四周的空。 */
-      var dotMin = (L.kind === 'kp') ? 0.48 : 0.26;
+      var dotMin = (L.kind === 'mc' || L.kind === 'mo') ? 0.26 : 0.48;
       if (dot < dotMin) { hideLabel(L); continue; }
 
       _lp.copy(L.v).project(globe.camera);
@@ -1835,6 +1860,7 @@
          于是 8K 这张根本不需要 mipmap，上传成本少掉一大半。 */
       var maxTex = renderer.capabilities.maxTextureSize || 4096;
       globe.can8k = (maxTex >= 8192 && canUse8K());
+      if (globe.can8k) setTimeout(prefetch8k, 2600);   // 空闲时先把字节抓下来
       var subEl3 = document.getElementById('globe-sub');
       if (subEl3) subEl3.textContent = '拖动旋转 · 滚轮缩放 · 点击国土开档';
     });
@@ -1853,6 +1879,7 @@
     var downAt = { x: 0, y: 0 };
     cv.addEventListener('pointerdown', function (e) {
       globe.dragging = true;
+      globe.lastInput = performance.now();
       globe.last.x = e.clientX;
       globe.last.y = e.clientY;
       downAt.x = e.clientX;
@@ -1899,6 +1926,7 @@
       // 触控板捏合会带 ctrlKey，deltaY 很小，得放大步长才跟手
       var d = e.deltaY * (e.ctrlKey ? 0.006 : 0.0016);
       globe.camMode = 'manual';
+      globe.lastInput = performance.now();
       globe.camTarget = Math.max(CAM_MIN, Math.min(CAM_MAX, globe.camTarget + d));
       if (globe.camTarget < 2.95) ensure8k();   // 拉近了才去取 8K
       // 开始缩放就是想看地球了，搜索框该收回去（滚轮不会让 input 失焦）
@@ -1965,6 +1993,8 @@
 
       camera.position.z += (globe.camTarget - camera.position.z) * 0.075;
       if (STAR_MAT) STAR_MAT.uniforms.uTime.value = performance.now() / 1000;
+      // 滚轮停下来了，才把 8K 传上 GPU
+      if (globe.tex8kReady && nowMs - (globe.lastInput || 0) > 420) bind8k();
 
       if (globe.earthMat) {
         var U = globe.earthMat.uniforms;
@@ -2463,7 +2493,9 @@ body.panel-open #globe-stage{
   /* 底色压深：半透明蓝灰在深色页面上会变成一块"灰白塑料" */
   background:rgba(5,8,14,.92);
   border:1px solid rgba(126,158,198,.24);
-  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  /* 这里原来有 backdrop-filter:blur(10px)。它会在首次合成时新建一个
+     带模糊的图层，Chrome 上表现为刷新瞬间这块区域亮一下（就是"闪白"）。
+     框里本来就没有需要虚化的内容，去掉最省事。 */
   cursor:text;
   transition:border-color .22s ease,background .22s ease;
 }
@@ -2714,7 +2746,11 @@ body.panel-open #globe-stage{
   line-height:1.4;color:#eef4ff;
   margin:26px 0 12px;
 }
-.sub-label:first-child{margin-top:0}
+/* 只在"文本流的第一块"才清零上边距。
+   之前这条是通用的 :first-child，而「文化特征」正好是 .facets 的第一个子元素，
+   于是它的 26px 上边距被吃掉了，标题直接贴在「历史与民俗」正文下面。 */
+#d-body > .sub-label:first-child{margin-top:0}
+.facets > .sub-label:first-child{margin-top:22px}
 
 /* ============ 球面地名标注 ============
    像地图那样：纯文字、无胶囊底、带投影保证在浅色地表上也读得清。
@@ -2746,6 +2782,13 @@ body.panel-open #globe-stage{
 .mlabel.mo{
   font-size:13px;letter-spacing:.24em;font-style:italic;
   color:rgba(180,212,246,.78);
+}
+/* 岛 / 湖 / 海峡：只在放得很大时才出现，比国名轻一档，但各自有颜色语义 */
+.mlabel.mi{font-size:12.5px;color:rgba(214,232,252,.82)}
+.mlabel.ml{font-size:12px;font-style:italic;color:rgba(148,206,238,.82)}
+.mlabel.ms{
+  font-size:11.5px;letter-spacing:.14em;font-style:italic;
+  color:rgba(162,202,240,.76);
 }
 /* 已收录、可点开档案的国家：比普通国名亮一档，hover 变白 */
 .mlabel.mk{
