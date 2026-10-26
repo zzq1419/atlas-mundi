@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-10-26-J">
+<meta name="build" content="2026-10-26-K">
 <title>寰宇图志 · Atlas Mundi</title>
 <meta name="description" content="寰宇图志：3D 地球上的多模态国家文化图谱">
 <style>
@@ -276,17 +276,9 @@
   <div class="brand">
     <span class="brand-cn">寰宇图志</span>
   </div>
-  <!-- 搜索在左侧：一个圆钮，点开向右展开成输入框。
-       展开只是绝对定位面板改自己的宽度，不动 topbar 排版 ——
-       所以右侧计数不会跟着跳，动效才顺。
-       展开后右端还有一个下拉按钮：国家列表要用户自己点，不再一点搜索就糊一脸。 -->
+  <!-- 搜索：默认就是一个短输入框，点一下（或聚焦）展开变长。
+       展开后才在右端出现下拉按钮 —— 国家列表要用户自己点，不再一点搜索就糊一脸。 -->
   <div class="search-wrap" id="search-wrap">
-    <button class="search-toggle" id="search-toggle" type="button" aria-label="搜索国家与知识库">
-      <svg viewBox="0 0 24 24" aria-hidden="true">
-        <circle cx="11" cy="11" r="6.5"></circle>
-        <line x1="16" y1="16" x2="21" y2="21"></line>
-      </svg>
-    </button>
     <div class="search-panel" id="search-panel">
       <svg class="search-icon" viewBox="0 0 24 24" aria-hidden="true">
         <circle cx="11" cy="11" r="6.5"></circle>
@@ -960,7 +952,7 @@
   }
 
   var searchWrap = document.getElementById('search-wrap');
-  var searchToggle = document.getElementById('search-toggle');
+  var searchPanel = document.getElementById('search-panel');
   var searchDrop = document.getElementById('search-drop');
 
   /* 开合只有一个入口，避免三处各改一半导致状态对不上 */
@@ -976,12 +968,28 @@
     if (list) showCountryList(); else qRes.hidden = true;
   }
 
-  if (searchToggle) {
-    searchToggle.addEventListener('click', function (e) {
+  /* 框本身常驻：点框内任何位置都算"要输入"，展开并聚焦。
+     不再有那个圆钮 —— 一眼看不出是搜索框，反而像工具菜单。 */
+  if (searchPanel) {
+    searchPanel.addEventListener('click', function (e) {
       e.stopPropagation();
-      setSearch(true, false);
-      // 等面板展开到一半再聚焦，光标不会跟着宽度一起"跑"
-      setTimeout(function () { if (qInput) qInput.focus(); }, 150);
+      if (!searchWrap.classList.contains('open')) setSearch(true, false);
+      if (qInput && document.activeElement !== qInput) {
+        setTimeout(function () { qInput.focus(); }, 130);
+      }
+    });
+  }
+  if (qInput) {
+    qInput.addEventListener('focus', function () {
+      if (!searchWrap.classList.contains('open')) setSearch(true, false);
+    });
+    qInput.addEventListener('blur', function () {
+      // 点了下拉列表的话不收起；空输入离开才收起
+      setTimeout(function () {
+        if (document.activeElement === qInput) return;
+        if (searchWrap.classList.contains('list-open')) return;
+        if (!qInput.value.trim()) setSearch(false);
+      }, 140);
     });
   }
 
@@ -1577,9 +1585,11 @@
     for (var i = 0; i < arr.length; i++) {
       var L = arr[i];
       // ① 缩放门槛：洲名远了才在、洋名中段、国名按 MIN_LABEL 逐个放开
+      /* 国家名一律走 MIN_LABEL，中法美也不例外 ——
+         "永远显示"会让缩小以后只剩三个名字挂在球上，看着像作弊。
+         可点这件事不靠显示来保证：它们仍然排在最前面（避让时优先）。 */
       var show;
-      if (L.iso) show = true;                        // 站内三国永远在
-      else if (L.kind === 'mc') show = nz < 3.5;     // 大洲：拉近就撤
+      if (L.kind === 'mc') show = nz < 3.5;          // 大洲：拉近就撤
       else if (L.kind === 'mo') show = nz < 4.3;     // 大洋：更晚撤
       else show = nz >= L.z;
       if (!show) { hideLabel(L); continue; }
@@ -1589,7 +1599,13 @@
       // 背面判定：点与相机连线同球心法线的夹角
       var dot = (L.v.x * camPos.x + L.v.y * camPos.y + L.v.z * camPos.z) /
                 (L.v.length() * camLen);
-      if (dot < 0.14) { hideLabel(L); continue; }
+      /* 只留"正对镜头的那一面"。之前阈值 0.14 太松，球edge一圈的国家名
+         全被投影到画面边界上挤成一圈 —— 现在 0.30 起步，再往上渐显。 */
+      /* 国名要求正对镜头（球面 61° 以内），否则球边缘那一圈压缩得最厉害、
+         文字挤成一排。大洲大洋例外：它们本来就稀疏、一个字管一大片，
+         放宽到 75° 才能压住画面四周的空。 */
+      var dotMin = (L.kind === 'kp') ? 0.48 : 0.26;
+      if (dot < dotMin) { hideLabel(L); continue; }
 
       _lp.copy(L.v).project(globe.camera);
       var x = (_lp.x * 0.5 + 0.5) * w;
@@ -1607,10 +1623,18 @@
       if (clash) { hideLabel(L); continue; }
       placed.push([rx, ry, rx + L.w, ry + L.h]);
 
+      /* 两道渐隐：越靠近球轮廓越淡（转过去就不会突然消失），
+         越靠近屏幕边缘越淡（不贴着边界堆成一圈）。 */
+      // 距阈值 0.18 以内渐显，再往里满亮
+      var limb = Math.min(1, Math.max(0, (dot - dotMin) / 0.18));
+      var edge = Math.min(Math.min(rx, w - rx - L.w), Math.min(ry, h - ry - L.h));
+      var edgeA = Math.min(1, Math.max(0, edge / 72));
+      var alpha = limb * edgeA;
+      if (alpha < 0.08) { hideLabel(L); continue; }
+
       L.el.style.transform = 'translate(-50%,-50%) translate(' +
         x.toFixed(1) + 'px,' + y.toFixed(1) + 'px)';
-      // 靠近轮廓的淡一点，像地图上的半透明地名
-      L.el.style.opacity = dot > 0.32 ? '1' : '0.4';
+      L.el.style.opacity = alpha.toFixed(2);
       if (L.iso) L.el.style.pointerEvents = 'auto';
       L.on = true;
     }
@@ -1651,15 +1675,16 @@
     globe.idleUntil = performance.now() + 1e9;   // 面板开着就不自转
   }
 
+  /* 只退回"全球尺度"，**不动朝向**。
+     点开中国 → 关面板，应该还是看着中国，只是镜头拉回；
+     转球和挪镜头是两件事，混在一起就变成了"关闭 = 重置"。
+     双击同理：只缩回去，不把球转回初始角度。 */
   function flyOut() {
     if (!globe.spin) return;
     globe.camMode = 'far';
     globe.camTarget = CAM_FAR;
-    globe.rotTargetX = 0;
-    globe.rotTargetY = 0;     // 复位也回正朝向，双击=回到刚打开时的样子
-    globe.flying = true;
     globe.autoSpin = true;
-    globe.idleUntil = performance.now() + 1500;
+    globe.idleUntil = performance.now() + 1200;
   }
 
   function buildGlobe(data) {
@@ -1876,6 +1901,8 @@
       globe.camMode = 'manual';
       globe.camTarget = Math.max(CAM_MIN, Math.min(CAM_MAX, globe.camTarget + d));
       if (globe.camTarget < 2.95) ensure8k();   // 拉近了才去取 8K
+      // 开始缩放就是想看地球了，搜索框该收回去（滚轮不会让 input 失焦）
+      if (searchWrap && searchWrap.classList.contains('open')) setSearch(false);
       globe.autoSpin = true;
       globe.idleUntil = performance.now() + 2600;
       globe.flying = false;         // 手动缩放接管，别再和飞行抢相机
@@ -2146,11 +2173,6 @@
   .dmeta dd{color:var(--ink);font-variant-numeric:tabular-nums}
 
   .dtext p{font-size:14.5px;line-height:2;color:#cfd7e8;margin-bottom:12px}
-  .dtext p.sub-label,.sub-label{
-    font-size:15.5px;font-weight:600;letter-spacing:.04em;
-    color:#e2e9f7;margin:24px 0 10px;
-  }
-
   .dplayer{width:100%;margin-top:16px;border-radius:10px}
   .pending{
     margin-top:16px;padding:11px 14px;border-radius:10px;
@@ -2397,52 +2419,32 @@ body.panel-open #globe-stage{
 .brand-en{font-size:10px;letter-spacing:.22em;text-transform:uppercase;
   color:var(--ink-faint);text-shadow:0 1px 6px rgba(0,0,0,.8)}
 
-/* ============ 搜索：左侧一个圆钮，点开向右展开 ============
-   展开面板是绝对定位的，只改它自己的宽度，不参与 topbar 的 flex 排版。
-   之前是把 .search-wrap 的宽度做过渡，右边那行计数会被挤着跳，看起来"卡"。
+/* ============ 搜索：默认就是一只短输入框，点一下展开 ============
+   之前做成"圆钮 → 点开才变输入框"，看着不像搜索，倒像工具菜单。
+   现在常驻一个短框（150px），聚焦或点击时展开到 360px。
+   宽度过渡直接放在 .search-wrap 上：topbar 里它后面已经没有别的元素了，
+   不会把谁挤得跳来跳去。
    金色只留给地球上的国界，控件一律冷色。 */
 .search-wrap{
-  position:relative;width:30px;height:30px;flex:0 0 auto;
+  position:relative;height:30px;flex:0 0 auto;
+  width:150px;
+  transition:width .46s cubic-bezier(.2,.9,.25,1);
 }
-
-.search-toggle{
-  position:absolute;inset:0;z-index:3;padding:0;
-  display:flex;align-items:center;justify-content:center;
-  border-radius:999px;cursor:pointer;
-  /* 底色要做实：半透明压在球上，球一亮按钮就跟着"闪白"一下 ——
-     那个白其实是它背后的海面/云层透上来，不是元素自己在闪。 */
-  background:rgba(7,11,19,.9);
-  border:1px solid rgba(126,158,198,.26);
-  transition:opacity .18s ease,border-color .22s ease,background .22s ease;
-}
-.search-toggle svg{
-  width:12.5px;height:12.5px;
-  fill:none;stroke:rgba(158,190,228,.86);
-  stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;
-}
-.search-toggle:hover{border-color:rgba(150,185,230,.52);background:rgba(19,30,49,.9)}
-.search-wrap.open .search-toggle{opacity:0;pointer-events:none}
+.search-wrap.open{width:min(360px, 46vw)}
 
 .search-panel{
-  position:absolute;left:0;top:0;z-index:4;
+  position:absolute;inset:0;z-index:4;
   display:flex;align-items:center;
-  height:30px;width:30px;
-  border-radius:999px;overflow:hidden;
-  /* 底色压深：之前是半透明蓝灰，展开后中间那块像一块灰白塑料 */
-  background:rgba(5,8,14,.94);
+  height:30px;border-radius:999px;overflow:hidden;
+  /* 底色压深：半透明蓝灰在深色页面上会变成一块"灰白塑料" */
+  background:rgba(5,8,14,.92);
   border:1px solid rgba(126,158,198,.24);
   backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
-  box-shadow:0 12px 34px rgba(0,0,0,.45);
-  opacity:0;pointer-events:none;
-  transition:width .46s cubic-bezier(.2,.9,.25,1),
-             opacity .18s ease,
-             border-color .22s ease;
-  will-change:width;
+  cursor:text;
+  transition:border-color .22s ease,background .22s ease;
 }
-.search-wrap.open .search-panel{
-  width:min(360px, 46vw);opacity:1;pointer-events:auto;
-}
-.search-wrap.open .search-panel:focus-within{border-color:rgba(150,185,230,.5)}
+.search-wrap.open .search-panel{background:rgba(4,7,12,.96)}
+.search-panel:focus-within{border-color:rgba(150,185,230,.52)}
 
 .search-panel .search-icon{
   position:absolute;left:10px;top:50%;transform:translateY(-50%);
@@ -2463,16 +2465,19 @@ body.panel-open #globe-stage{
 
 /* 展开后才出现的下拉按钮：国家列表由用户自己点开 */
 .search-drop{
-  flex:0 0 auto;width:22px;height:22px;margin-right:4px;padding:0;
+  flex:0 0 auto;width:0;height:22px;margin-right:0;padding:0;
+  opacity:0;pointer-events:none;overflow:hidden;
+  transition:width .2s ease,opacity .2s ease,background .2s ease,border-color .2s ease;
   display:flex;align-items:center;justify-content:center;
   border-radius:50%;cursor:pointer;
   background:transparent;border:1px solid transparent;
-  opacity:.68;
-  transition:opacity .2s ease,border-color .2s ease,background .2s ease;
+}
+.search-wrap.open .search-drop{
+  width:22px;margin-right:4px;opacity:.9;pointer-events:auto;
 }
 .search-drop svg{
   width:11px;height:11px;
-  fill:none;stroke:rgba(158,190,228,.85);
+  fill:none;stroke:rgba(184,210,242,.95);
   stroke-width:2;stroke-linecap:round;stroke-linejoin:round;
   transition:transform .3s cubic-bezier(.2,.9,.25,1);
 }
@@ -2480,16 +2485,10 @@ body.panel-open #globe-stage{
 .search-wrap.list-open .search-drop{opacity:1}
 .search-wrap.list-open .search-drop svg{transform:rotate(180deg)}
 
-.topbar-meta{
-  flex:0 0 auto;margin-left:auto;
-  font-size:11px;letter-spacing:.10em;color:var(--ink-faint);
-  font-variant-numeric:tabular-nums;
-}
-
 /* 搜索结果 / 国家列表：从搜索框下方浮出 */
 #q-res{
   position:absolute;top:calc(100% + 8px);left:0;
-  width:min(360px, 46vw);
+  width:100%;
   max-height:52vh;overflow-y:auto;
   border-radius:12px;border:1px solid rgba(120,150,190,.28);
   background:rgba(8,13,23,.96);
@@ -2610,8 +2609,8 @@ body.panel-open #globe-stage{
   .brand-en{display:none}
   .brand-cn{font-size:17px}
   .topbar-meta{display:none}
-  .search-wrap.open .search-panel{width:calc(100vw - 108px)}
-  #q-res{width:calc(100vw - 108px)}
+  .search-wrap{width:116px}
+  .search-wrap.open{width:calc(100vw - 118px)}
   #globe-stage{inset:0}
   #detail{
     top:auto;left:10px;right:10px;bottom:10px;
@@ -2671,11 +2670,15 @@ body.panel-open #globe-stage{
 .prose p:last-child{margin-bottom:0}
 .prose{padding:0}
 
-/* 面板里的标题层级：分组标签比正文重一档，比大标题轻一档 */
+/* 面板里的标题层级。
+   这里曾经是 11.5px —— 比正文 14.5px 还小，属于排版错误而不是风格选择：
+   标题必须比正文大、比正文粗。而且早先那条 `.dtext p.sub-label` 的选择器
+   要求 p 标签，实际元素是 div，所以从来没生效过，改了三轮都没改对。
+   现在只有这一处定义，17.5px / 700。 */
 .sub-label{
-  font-size:11.5px;letter-spacing:.12em;text-transform:none;
-  color:rgba(148,182,224,.82);
-  margin:20px 0 10px;
+  font-size:17.5px;font-weight:700;letter-spacing:.02em;
+  line-height:1.4;color:#eef4ff;
+  margin:26px 0 12px;
 }
 .sub-label:first-child{margin-top:0}
 
