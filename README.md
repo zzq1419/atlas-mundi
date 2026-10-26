@@ -18,6 +18,7 @@
 | **代码仓库（课程交付）** | <https://gitee.com/zzq-1419/atlas-mundi> |
 | 代码仓库（开发主库） | <https://github.com/zzq1419/atlas-mundi> |
 | 线网站点 | <https://zzq1419.github.io/atlas-mundi/> |
+| 素材分发（华为云 OBS） | <https://atlas-mundi-1419.obs.cn-east-3.myhuaweicloud.com/> |
 | 数据集快照（v0.1.0） | <https://github.com/zzq1419/atlas-mundi/releases/tag/v0.1.0> |
 | CI 运行记录 | <https://github.com/zzq1419/atlas-mundi/actions> |
 
@@ -107,8 +108,26 @@ atlas-mundi/
 | 3 | **GitHub Releases** | 数据集快照发布 `v0.1.0`（含 `MANIFEST.json`） | ✅ |
 | 4 | GitHub REST API | 建仓、提交、开启 Pages、创建 Release（不单列为「平台」） | ✅ |
 | 5 | Edge TTS | 构建期语音合成（免 key、无控制台，按「在线 TTS 服务」记） | ✅ |
-| — | 华为云 OBS | 素材对象存储 | ❌ 未使用 |
-| — | 华为云 TTS | 语音合成 | ❌ 未使用（改用 Edge TTS） |
+| 6 | **华为云 OBS**（上海一） | 素材分发：24 张图 + 4 条音频，57 个对象 / 1.59 MB | ✅ |
+
+**关于华为云 OBS 的定位，必须说清楚**：它**没有**被用来托管网站。
+
+华为云从 2022-01-01 起（华东-上海一等区域）禁止用默认域名做静态网站托管 —— 官方文档原文：
+用 `*.obs-website.*` 或桶域名在浏览器访问网页时**不显示内容，而作为附件下载**（强制
+`Content-Disposition: attachment`）。我们实测过三种绕法全部无效：设置正确的
+`Content-Type`、带浏览器 `Accept` 头、用 OBS 原生签名显式发 `Content-Disposition: inline`
+（后者连 `Cache-Control` 都生效了，`inline` 仍被平台覆盖）。
+
+唯一官方解法是绑定已备案的自定义域名，备案周期不适合本项目节奏。
+
+所以最终方案是**双源分离**：
+
+| 内容 | 托管位置 | 原因 |
+| --- | --- | --- |
+| `index.html`、`data/*.json`、`geo/*.geojson` | GitHub Pages | 同域 fetch 不需要 CORS |
+| `assets/` 图片与音频 | **华为云 OBS（上海一）** | `<img>`/`<audio>` 作为子资源**不受** `Content-Disposition` 影响（已实测）；国内节点 **0.17 秒**，比 GitHub Pages 的 1.8 秒快一个数量级 |
+
+前端用 `setAsset()` 做**双源回退**：优先 OBS，失败自动退到仓库相对路径，两个源互为备份。
 
 **关于华为云**：素材总量仅 1.3MB，全部随仓库托管，`assets/` 走相对路径即可，
 引入对象存储反而要额外配 CORS、加一域名、多一份维护成本，收益为零。

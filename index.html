@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-10-26-C">
+<meta name="build" content="2026-10-26-D">
 <title>寰宇图志 · Atlas Mundi</title>
 <meta name="description" content="寰宇图志：3D 地球上的多模态国家文化图谱">
 <style>
@@ -359,6 +359,35 @@
   var MOD_LABEL = { image: '地标', audio: '语音', text: '文本', coords: '坐标', geometry: '边界' };
   var CUR = null;
 
+  /* ---------- 素材双源 ----------
+     优先从华为云 OBS（上海节点）取图片与音频，实测 0.17 秒；失败自动回退到
+     仓库相对路径（GitHub Pages）。回退不是为了好看 —— OBS 欠费、桶策略变更、
+     某地节点不通时，页面不至于整片破图。
+
+     注意：OBS 对静态站默认域名强制 Content-Disposition: attachment（平台策略，
+     2022 年起上海一等区域生效），所以 OBS 只能做素材源，不能做站点。
+     但 <img> 与 <audio> 作为子资源不受该头影响 —— 这点是实测过的，不是推断。 */
+  var OBS_BASE = 'https://atlas-mundi-1419.obs.cn-east-3.myhuaweicloud.com/';
+
+  function assetSrc(rel) {
+    if (!rel) return '';
+    if (/^https?:\/\//i.test(rel)) return rel;
+    return OBS_BASE + rel.replace(/^\/+/, '');
+  }
+
+  function setAsset(node, rel) {
+    var fellBack = false;
+    node.addEventListener('error', function () {
+      if (!fellBack) {
+        fellBack = true;
+        node.src = rel;                       // 回退到仓库相对路径
+        return;
+      }
+      if (typeof node.__onfail === 'function') node.__onfail();
+    });
+    node.src = assetSrc(rel);
+  }
+
   function el(tag, cls, text) {
     var n = document.createElement(tag);
     if (cls) n.className = cls;
@@ -393,11 +422,11 @@
           wrap.classList.add('loaded');
         };
         // 不加 crossOrigin：普通展示无需 CORS，加了反而会被 302 链拦下
-        img.onerror = function () {
+        img.__onfail = function () {
           wrap.className = 'thumb-wrap blank';
           wrap.textContent = '图片未加载';
         };
-        img.src = c.thumb;
+        setAsset(img, c.thumb);
         wrap.appendChild(img);
         card.appendChild(wrap);
       } else {
@@ -490,11 +519,11 @@
           var portrait = pic.naturalHeight > pic.naturalWidth * 1.15;
           picWrap.classList.toggle('fit', portrait);
         };
-        pic.onerror = function () {
+        pic.__onfail = function () {
           picWrap.classList.remove('loading');
           picWrap.classList.add('blank');
         };
-        pic.src = it.url;
+        setAsset(pic, it.url);
         capEl.textContent = it.caption_zh || it.caption || '';
         licEl.textContent = it.license
           ? '授权：' + it.license + (it.author ? ' · ' + it.author : '')
@@ -509,7 +538,7 @@
           t.alt = it.caption_zh || it.caption || (d.name_zh + ' 图片 ' + (i + 1));
           t.title = t.alt;
           t.loading = 'lazy';
-          t.src = it.thumb_url || it.url;
+          setAsset(t, it.thumb_url || it.url);
           t.addEventListener('click', function () { showPic(i); });
           items.push(t);
           strip.appendChild(t);
@@ -614,7 +643,7 @@
         au.controls = true;
         au.preload = 'none';
         au.className = 'la-player';
-        au.src = l.audio_url;
+        setAsset(au, l.audio_url);
         row.appendChild(au);
         right.appendChild(row);
       });
