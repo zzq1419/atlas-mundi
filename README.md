@@ -11,6 +11,20 @@
 
 核心价值不在 3D 视觉效果，而在于**多模态 + 多源异构数据的采集与融合**。
 
+## 仓库与在线地址
+
+| 用途 | 地址 |
+| --- | --- |
+| **代码仓库（课程交付）** | <https://gitee.com/zzq-1419/atlas-mundi> |
+| 代码仓库（开发主库） | <https://github.com/zzq1419/atlas-mundi> |
+| 线网站点 | <https://zzq1419.github.io/atlas-mundi/> |
+| 数据集快照（v0.1.0） | <https://github.com/zzq1419/atlas-mundi/releases/tag/v0.1.0> |
+| CI 运行记录 | <https://github.com/zzq1419/atlas-mundi/actions> |
+
+**为什么代码放两处**：课程要求交 Gitee 链接，所以 Gitee 作为交付主库；但
+Gitee Pages 免费版需要实名审核、且对静态站有限制，而 GitHub Pages + Actions +
+Releases 是零成本且已验证可用的，所以运行与 CI 放在 GitHub。两处内容一致。
+
 ## 技术栈（明确不做的事）
 
 | 选型 | 结论 |
