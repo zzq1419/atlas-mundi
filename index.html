@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-10-26-E">
+<meta name="build" content="2026-10-26-F">
 <title>寰宇图志 · Atlas Mundi</title>
 <meta name="description" content="寰宇图志：3D 地球上的多模态国家文化图谱">
 <style>
@@ -264,108 +264,49 @@
 </style>
 </head>
 <body>
-<div class="wrap">
-
-  <div class="eyebrow"><i></i>Atlas Mundi · 数据采集与融合技术</div>
-
-  <h1>寰宇图志</h1>
-  <div class="latin">3D 地球上的多模态国家文化图谱</div>
-
-  <p class="lede">
-    点击地球上的任一国家或地区，展开它的<b>地标影像、语言方言、地理坐标与历史民俗</b>。
-    五类异构数据在构建期完成采集、实体对齐与融合，运行时只是一次静态读取。
-  </p>
-
-  <blockquote class="quote">
-    清人魏源《海国图志》、徐继畬《瀛寰志略》，皆以图文志寰宇、述万国。<br>
-    本项目以 3D 地球与多模态数据，续此一脉。
-    <cite>—— 项目立意</cite>
-  </blockquote>
-
-  <!-- ============ 知识库检索 ============ -->
-  <section class="sec">
-    <div class="sec-head">
-      <h2>用一句话找国家</h2>
-      <span id="search-sub">读取 data/search.json…</span>
-    </div>
-    <div class="search-box">
-      <input type="search" id="q" autocomplete="off" spellcheck="false"
-             placeholder="哪里能看长城 / 有什么传统节日 / 说什么话 / 吃什么">
-    </div>
-    <div class="sr-examples">
-      <button class="sr-ex" data-q="哪里能看长城">哪里能看长城</button>
-      <button class="sr-ex" data-q="有什么传统节日">有什么传统节日</button>
-      <button class="sr-ex" data-q="说什么语言">说什么语言</button>
-      <button class="sr-ex" data-q="吃什么">吃什么</button>
-      <button class="sr-ex" data-q="有什么地标">有什么地标</button>
-    </div>
-    <div class="search-res" id="q-res" hidden></div>
-    <p class="hint">
-      检索在浏览器本地完成（中文 2-gram 切分 + BM25 打分），不联网、不调 API；
-      问答对由 DeepSeek 在构建期预生成。知识库当前只覆盖 3 个国家/地区，问别的会明确说没有。
-    </p>
-  </section>
-
-  <!-- ============ 国家入口（数据驱动） ============ -->
-  <section class="sec">
-    <div class="sec-head">
-      <h2>首批范围</h2>
-      <span id="cards-sub">读取 data/index.json…</span>
-    </div>
-    <div class="grid" id="cards"></div>
-    <p class="hint" id="cards-hint"></p>
-  </section>
-
-  <!-- ============ 3D 地球 ============ -->
-  <section class="sec" id="globe-sec">
-    <div class="sec-head">
-      <h2>环球视角</h2>
-      <span id="globe-sub">滚到此处才加载 3D 模型</span>
-    </div>
-    <div class="globe-wrap">
-      <div class="globe-stage" id="globe-stage">
-        <div class="globe-msg" id="globe-msg">继续下滑，地球即将出现</div>
-      </div>
-      <div class="globe-side">
-        <div class="sub-label">已收录</div>
-        <div id="globe-list"></div>
-        <p class="hint globe-tip">
-          拖动旋转 · 滚轮缩放 · 点击国土打开档案<br>
-          球面为 Natural Earth 110m 轮廓，国界为 50m 提取
-        </p>
-      </div>
-    </div>
-  </section>
-
-  <!-- ============ 详情面板 ============ -->
-  <section class="sec" id="detail" hidden>
-    <div class="sec-head">
-      <h2 id="d-title">国家档案</h2>
-      <span id="d-sub"></span>
-    </div>
-    <div id="d-body"></div>
-  </section>
-
-  <!-- ============ 进度 ============ -->
-  <section class="sec">
-    <div class="sec-head">
-      <h2>当前进度</h2>
-      <span>严格按阶段推进，每阶段可独立验收</span>
-    </div>
-    <div class="stages">
-      <div class="stage done"><b>阶段 A</b>静态托管跑通，公网可访问</div>
-      <div class="stage done"><b>阶段 B</b>跨域图片 / 音频取用验证</div>
-      <div class="stage doing"><b>阶段 C</b>三国数据采集与卡片页</div>
-      <div class="stage todo"><b>阶段 D</b>3D 地球 + 搜索框</div>
-      <div class="stage todo"><b>阶段 E</b>扩至 100+ 国家/地区</div>
-    </div>
-  </section>
-
-  <footer>
-    <div>寰宇图志 · Atlas Mundi　|　福州大学 · 数据采集与融合技术 课程实践</div>
-    <div class="r">Atlas Mundi</div>
-  </footer>
+<!-- 全屏 3D 舞台。地球是页面主体，不是"页面里的一个区块" ——
+     所以这里用 fixed 铺满视口，其余 UI 全部浮在它上面。 -->
+<div id="globe-stage">
+  <div class="globe-msg" id="globe-msg">正在准备地球…</div>
 </div>
+
+<!-- 顶部悬浮栏：品牌 + 搜索 -->
+<header id="topbar">
+  <div class="brand">
+    <span class="brand-cn">寰宇图志</span>
+    <span class="brand-en">Atlas&nbsp;Mundi</span>
+  </div>
+  <div class="search-wrap">
+    <input type="search" id="q" autocomplete="off" spellcheck="false"
+           placeholder="哪里能看长城 / 有什么传统节日 / 说什么语言">
+    <div class="search-res" id="q-res" hidden></div>
+  </div>
+  <div class="topbar-meta" id="topbar-meta">3 国 · 5 模态</div>
+</header>
+
+<!-- 底部国家导航：点一下，地球飞过去、档案从右侧滑出 -->
+<nav id="dock" aria-label="已收录国家"><div id="cards"></div></nav>
+
+<!-- 右侧档案面板 -->
+<aside id="detail" aria-hidden="true">
+  <button class="dclose" id="d-close" aria-label="关闭档案">×</button>
+  <div class="dhead">
+    <h2 id="d-title">国家档案</h2>
+    <div id="d-sub"></div>
+  </div>
+  <div class="dscroll"><div id="d-body"></div></div>
+</aside>
+
+<!-- 左下角：操作提示与数据来源 -->
+<div id="footline">
+  <span id="globe-sub">拖动旋转 · 滚轮缩放 · 点击国土开档</span>
+  <span class="fl-src">Natural Earth · Wikidata · Wikipedia · Commons · 华为云 OBS</span>
+</div>
+
+<!-- 旧版遗留的状态位，保留 id 以免脚本取空 -->
+<span id="cards-sub" hidden></span>
+<span id="cards-hint" hidden></span>
+<span id="search-sub" hidden></span>
 
 <script>
 (function () {
@@ -422,92 +363,87 @@
     cardsEl.innerHTML = '';
   }
 
-  /* ---------- 入口卡 ---------- */
+  /* ---------- 底部国家导航 ----------
+     原来这里是一整屏卡片墙。改成胶囊的理由：地球已经是主界面，卡片再占一屏
+     就是重复入口；而且"点国家 → 滚到卡片"要求用户滚动，打断观看。
+     现在点胶囊 = 地球飞过去 + 档案从右侧滑出，视线不用离开地球。 */
   function renderCards(list) {
     cardsEl.innerHTML = '';
     list.forEach(function (c) {
-      var card = el('article', 'card' + (c.status === 'placeholder' ? ' is-placeholder' : ''));
-      card.dataset.iso = c.iso_a2 || '';
-      card.tabIndex = 0;
-      card.setAttribute('role', 'button');
-
-      if (c.thumb) {
-        // 必须用 div 包一层：<img> 是替换元素，CSS 伪元素 ::after 在它身上不渲染，
-        // 骨架微光挂不上（这就是之前"看不到动效"的原因）。
-        var wrap = el('div', 'thumb-wrap loading');
-        var img = el('img', 'thumb');
-        img.alt = c.name_zh;
-        img.loading = 'lazy';
-        img.onload = function () {
-          wrap.classList.remove('loading');
-          wrap.classList.add('loaded');
-        };
-        // 不加 crossOrigin：普通展示无需 CORS，加了反而会被 302 链拦下
-        img.__onfail = function () {
-          wrap.className = 'thumb-wrap blank';
-          wrap.textContent = '图片未加载';
-        };
-        setAsset(img, c.thumb);
-        wrap.appendChild(img);
-        card.appendChild(wrap);
-      } else {
-        card.appendChild(el('div', 'thumb-wrap blank',
-          c.status === 'placeholder' ? '数据待采集' : '暂无图片'));
-      }
-
-      var body = el('div', 'cbody');
-      body.appendChild(el('div', 'flag', c.iso_a2 + ' · ' + c.continent));
-      body.appendChild(el('h3', null, c.name_zh));
-      body.appendChild(el('div', 'en', c.name_en));
-
-      var mods = el('div', 'mods');
-      Object.keys(MOD_LABEL).forEach(function (k) {
-        var on = c.modalities && c.modalities[k];
-        mods.appendChild(el('em', on ? 'on' : 'off', MOD_LABEL[k]));
-      });
-      body.appendChild(mods);
-
-      var state = el('div', 'state');
-      state.appendChild(el('span', 'dot'));
+      var iso = c.iso_a2 || '';
+      var b = el('button', 'dock-item');
+      b.type = 'button';
+      b.dataset.iso = iso;
+      b.appendChild(el('span', 'di-iso', iso));
+      b.appendChild(el('span', 'di-name', c.name_zh || ''));
       var n = 0;
-      Object.keys(MOD_LABEL).forEach(function (k) { if (c.modalities && c.modalities[k]) n++; });
-      state.appendChild(el('span', null, n + ' / 5 模态就绪 · ' + (c.status === 'partial' ? '部分' : '占位')));
-      body.appendChild(state);
-
-      card.appendChild(body);
-      card.addEventListener('click', function () { openDetail(c.iso_a2, card); });
-      card.addEventListener('keydown', function (e) {
-        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openDetail(c.iso_a2, card); }
+      Object.keys(MOD_LABEL).forEach(function (k) {
+        if (c.modalities && c.modalities[k]) n++;
       });
-      cardsEl.appendChild(card);
+      b.title = (c.name_zh || '') + ' · ' + n + '/5 模态就绪';
+      b.addEventListener('click', function () { openDetail(iso, b); });
+      cardsEl.appendChild(b);
     });
+
+    var meta = document.getElementById('topbar-meta');
+    if (meta && list.length) {
+      var done = list.filter(function (x) { return x.status === 'complete'; }).length;
+      meta.textContent = list.length + ' 国 · ' + done + ' 完整';
+    }
   }
 
   /* ---------- 详情 ---------- */
-  function openDetail(iso, card, quiet) {
-    Array.prototype.forEach.call(cardsEl.children, function (n) { n.classList.remove('active'); });
-    if (card) card.classList.add('active');
+  function openPanel() {
+    detail.classList.add('open');
+    detail.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('panel-open');
+  }
+
+  function closePanel() {
+    detail.classList.remove('open');
+    detail.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('panel-open');
+    Array.prototype.forEach.call(cardsEl.children, function (n) {
+      n.classList.remove('active');
+    });
+    if (typeof flyOut === 'function') flyOut();
+  }
+
+  function openDetail(iso, item, quiet) {
+    Array.prototype.forEach.call(cardsEl.children, function (n) {
+      n.classList.toggle('active', n === item);
+    });
+    if (typeof setActive === 'function') setActive(iso);
 
     dTitle.textContent = '读取中…';
     dSub.textContent = iso;
     dBody.innerHTML = '';
-    detail.hidden = false;
+    openPanel();
+    if (typeof flyToCountry === 'function') flyToCountry(iso);
 
     fetch('data/' + iso.toLowerCase() + '.json')
       .then(function (r) {
         if (!r.ok) throw new Error('HTTP ' + r.status);
         return r.json();
       })
-      .then(function (d) { renderDetail(d, quiet); })
+      .then(function (d) { renderDetail(d, true); })
       .catch(function (e) {
         dTitle.textContent = '档案未就绪';
         dSub.textContent = iso;
         dBody.appendChild(el('p', 'hint',
           '读取 data/' + iso.toLowerCase() + '.json 失败（' + e.message + '）。' +
           '该国家/地区的数据尚未采集，属预期状态。'));
-        if (!quiet) detail.scrollIntoView({ behavior: 'smooth', block: 'start' });
       });
   }
+
+  /* 面板关闭按钮 + Esc */
+  (function bindPanel() {
+    var btn = document.getElementById('d-close');
+    if (btn) btn.addEventListener('click', closePanel);
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && detail.classList.contains('open')) closePanel();
+    });
+  })();
 
   function renderDetail(d, quiet) {
     dTitle.textContent = d.name_zh;
@@ -687,7 +623,6 @@
     wrap.appendChild(right);
     dBody.innerHTML = '';
     dBody.appendChild(wrap);
-    if (!quiet) detail.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
   /* ---------- 国界轮廓（等距圆柱投影，纯 SVG） ---------- */
@@ -835,9 +770,9 @@
   }
 
   function cardOf(iso) {
-    var all = cardsEl.querySelectorAll('.card');
+    var all = cardsEl.children;
     for (var i = 0; i < all.length; i++) {
-      if (all[i].dataset.iso === iso) return all[i];
+      if (all[i].dataset && all[i].dataset.iso === iso) return all[i];
     }
     return null;
   }
@@ -861,9 +796,9 @@
       item.appendChild(top);
       item.appendChild(el('div', 'sr-a', d.a));
       item.addEventListener('click', function () {
-        var c = cardOf(d.iso);
-        openDetail(d.iso, c, false);
-        if (c) c.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        openDetail(d.iso, cardOf(d.iso), false);
+        qRes.hidden = true;            // 选中即收起，视线回到地球
+        if (qInput) qInput.blur();
       });
       qRes.appendChild(item);
     });
@@ -941,7 +876,11 @@
     last: { x: 0, y: 0 },
     vel: { x: 0, y: 0 },
     idleUntil: 0,
-    raf: 0
+    raf: 0,
+    camTarget: 3.02,      // 相机的目标 z，每帧阻尼逼近
+    rotTargetY: 0,        // 飞行目标经度（弧度）
+    rotTargetX: 0,
+    flying: false
   };
 
   var D2R = Math.PI / 180;
@@ -1073,7 +1012,7 @@
       globe.groups[k].material = (k === iso) ? globe.matOn : globe.matOff;
     });
     Array.prototype.forEach.call(
-      document.querySelectorAll('.globe-item'),
+      document.querySelectorAll('.dock-item'),
       function (n) { n.classList.toggle('active', n.dataset.iso === iso); }
     );
   }
@@ -1108,6 +1047,145 @@
     })();
   }
 
+  /* ---------- 地球贴图与材质 ----------
+     为什么需要 CORS：<img> 展示图片不受跨域限制，但 WebGL **纹理**必须有
+     Access-Control-Allow-Origin，否则纹理会加载失败（画布被污染）。这是
+     图片与纹理最容易踩的差别 —— 之前 assets 里的图片能显示，不代表贴图能用。
+
+     所以这里做了三级降级：
+       1. OBS（快，但需要桶配 CORS）
+       2. 仓库同域（慢，但无跨域问题）
+       3. 都没有 → 素色球 + 经纬网 + 大陆轮廓（仍是可用的地球，只是没有地表纹理）
+     不管哪一级，页面都不至于空着。 */
+  var TEX_BASES = [OBS_BASE + 'assets/tex/', 'assets/tex/'];
+
+  function loadEarthTextures(done) {
+    var loader = new THREE.TextureLoader();
+    var i = 0;
+    var settled = false;
+
+    function finish(day, night) {
+      if (settled) return;
+      settled = true;
+      done(day, night);
+    }
+
+    function tryBase() {
+      if (i >= TEX_BASES.length) { finish(null, null); return; }
+      var base = TEX_BASES[i++];
+      loader.load(base + 'earth-day.webp',
+        function (day) {
+          // 夜景可选：拿不到就只用日间图做昼夜明暗
+          loader.load(base + 'earth-night.webp',
+            function (night) { finish(day, night); },
+            undefined,
+            function () { finish(day, null); });
+        },
+        undefined,
+        function () { tryBase(); }        // 这一级失败，换下一级
+      );
+    }
+    tryBase();
+  }
+
+  function srgbToLin(c) { return Math.pow(c, 2.2); }
+
+  function earthMaterial(dayTex, nightTex) {
+    var hasNight = nightTex ? 1 : 0;
+    var uniforms = {
+      dayMap: { value: dayTex },
+      nightMap: { value: nightTex || dayTex },
+      hasNight: { value: hasNight },
+      lightDir: { value: new THREE.Vector3(1.0, 0.34, 0.72).normalize() }
+    };
+
+    var vert = [
+      'varying vec2 vUv;',
+      'varying vec3 vN;',
+      'varying vec3 vV;',
+      'void main() {',
+      '  vUv = uv;',
+      '  vN = normalize(mat3(modelMatrix) * normal);',
+      '  vec4 wp = modelMatrix * vec4(position, 1.0);',
+      '  vV = normalize(cameraPosition - wp.xyz);',
+      '  gl_Position = projectionMatrix * viewMatrix * wp;',
+      '}'
+    ].join('\n');
+
+    var frag = [
+      'uniform sampler2D dayMap;',
+      'uniform sampler2D nightMap;',
+      'uniform float hasNight;',
+      'uniform vec3 lightDir;',
+      'varying vec2 vUv;',
+      'varying vec3 vN;',
+      'varying vec3 vV;',
+      'vec3 s2l(vec3 c){ return pow(c, vec3(2.2)); }',
+      'vec3 l2s(vec3 c){ return pow(c, vec3(1.0/2.2)); }',
+      'void main() {',
+      '  vec3 n = normalize(vN);',
+      '  float ndl = dot(n, normalize(lightDir));',
+      // 晨昏线留一点柔化，硬切会有锯齿
+      '  float dayAmt = smoothstep(-0.28, 0.34, ndl);',
+      '  vec3 day = s2l(texture2D(dayMap, vUv).rgb);',
+      '  vec3 col;',
+      '  if (hasNight > 0.5) {',
+      '    vec3 night = s2l(texture2D(nightMap, vUv).rgb);',
+      // 夜面略微提亮，让城市灯光看得见但不刺眼
+      '    col = mix(night * 1.25, day, dayAmt);',
+      '  } else {',
+      // 没有夜景图时，暗面压到 18%，保留一点轮廓可读性
+      '    col = day * mix(0.18, 1.0, dayAmt);',
+      '  }',
+      // 边缘大气：Fresnel 越靠轮廓越亮，模拟散射
+      '  float rim = pow(1.0 - max(dot(n, normalize(vV)), 0.0), 3.2);',
+      '  col += vec3(0.13, 0.34, 0.68) * rim * 0.85;',
+      // 迎光面轻微提亮，增强立体感
+      '  col *= 1.0 + 0.10 * smoothstep(0.55, 1.0, ndl);',
+      '  gl_FragColor = vec4(l2s(col), 1.0);',
+      '}'
+    ].join('\n');
+
+    return new THREE.ShaderMaterial({
+      uniforms: uniforms,
+      vertexShader: vert,
+      fragmentShader: frag
+    });
+  }
+
+  /* ---------- 相机与飞行动画 ----------
+     用"目标值 + 每帧阻尼逼近"而不是 tween 时间轴：这样飞行途中随时可以
+     被拖拽打断，不会出现动画和手动操作互相抢控制权。 */
+  var CAM_FAR = 3.02;      // 全球视角
+  var CAM_NEAR = 1.92;     // 聚焦某国
+
+  function flyTo(lon, lat, camZ) {
+    if (!globe.spin) return;
+    globe.rotTargetY = -lon * D2R - Math.PI / 2;
+    globe.rotTargetX = Math.max(-1.15, Math.min(1.15, lat * D2R));
+    globe.camTarget = camZ;
+    globe.flying = true;
+    globe.autoSpin = false;
+  }
+
+  function flyToCountry(iso) {
+    var list = (globe.data && globe.data.countries) || [];
+    var c = null;
+    for (var i = 0; i < list.length; i++) if (list[i].iso === iso) c = list[i];
+    if (!c) return;
+    flyTo(c.center[0], c.center[1], CAM_NEAR);
+    globe.idleUntil = performance.now() + 1e9;   // 面板开着就不自转
+  }
+
+  function flyOut() {
+    if (!globe.spin) return;
+    globe.camTarget = CAM_FAR;
+    globe.rotTargetX = 0;
+    globe.flying = true;
+    globe.autoSpin = true;
+    globe.idleUntil = performance.now() + 1500;
+  }
+
   function buildGlobe(data) {
     var stage = globeStage();
     var msg = document.getElementById('globe-msg');
@@ -1118,7 +1196,7 @@
 
     var scene = new THREE.Scene();
     var camera = new THREE.PerspectiveCamera(42, w / h, 0.1, 100);
-    camera.position.set(0, 0, 2.85);
+    camera.position.set(0, 0, CAM_FAR);
 
     var renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
@@ -1130,46 +1208,63 @@
     tilt.add(spin);
     scene.add(tilt);
 
-    // 球体：暗蓝，带一点高光避免看起来像纯色圆片
-    var sphere = new THREE.Mesh(
-      new THREE.SphereGeometry(1, 64, 48),
-      new THREE.MeshPhongMaterial({
-        color: 0x0b1a2b, emissive: 0x050d18, specular: 0x1d4368,
-        shininess: 14, transparent: true, opacity: 0.97
-      })
-    );
+    /* 先建素色球，贴图到位再换材质。这样即使纹理跨域失败，
+       地球仍然是可见的实心球，而不是一片空白。 */
+    var fallbackMat = new THREE.MeshBasicMaterial({ color: 0x0e2438 });
+    var sphere = new THREE.Mesh(new THREE.SphereGeometry(1, 96, 64), fallbackMat);
     spin.add(sphere);
 
-    // 大气层：略大的背面球，只留边缘一圈冷光
+    /* 大气：两层。内层贴着球面做轮廓辉光，外层散开做稀薄的气体感。 */
     scene.add(new THREE.Mesh(
-      new THREE.SphereGeometry(1.055, 48, 32),
+      new THREE.SphereGeometry(1.013, 64, 48),
       new THREE.MeshBasicMaterial({
-        color: 0x4a90c2, transparent: true, opacity: 0.075, side: THREE.BackSide
+        color: 0x4088c8, transparent: true, opacity: 0.11, side: THREE.BackSide
+      })
+    ));
+    scene.add(new THREE.Mesh(
+      new THREE.SphereGeometry(1.145, 48, 32),
+      new THREE.MeshBasicMaterial({
+        color: 0x2a6096, transparent: true, opacity: 0.05, side: THREE.BackSide
       })
     ));
 
-    scene.add(new THREE.AmbientLight(0x93b6d8, 0.95));
-    var key = new THREE.DirectionalLight(0xffffff, 0.8);
-    key.position.set(1.8, 1.2, 2.4);
-    scene.add(key);
+    /* 经纬网与大陆轮廓：只在没有贴图时显示（兜底形态）。
+       有贴图后它们会显得杂乱，所以贴图一到就隐藏。 */
+    var grat = graticule(1.001);
+    spin.add(grat);
+    var landLine = ringsToLines(data.land || [], 1.0015, new THREE.LineBasicMaterial({
+      color: 0x4a7ea8, transparent: true, opacity: 0.40
+    }));
+    spin.add(landLine);
 
-    // 经纬网 + 大陆轮廓（背景参照）
-    spin.add(graticule(1.001));
-    spin.add(ringsToLines(data.land || [], 1.0015, new THREE.LineBasicMaterial({
-      color: 0x3f6f96, transparent: true, opacity: 0.55
-    })));
-
-    // 三国国界
+    /* 三国国界：这是数据标记，贴图之上也要保留，否则看不出"收录了哪里" */
     globe.matOn = new THREE.LineBasicMaterial({
-      color: 0xf0c878, transparent: true, opacity: 1
+      color: 0xffd98a, transparent: true, opacity: 1
     });
     globe.matOff = new THREE.LineBasicMaterial({
-      color: 0xd8b26a, transparent: true, opacity: 0.62
+      color: 0xe8c078, transparent: true, opacity: 0.5
     });
     (data.countries || []).forEach(function (c) {
-      var line = ringsToLines(c.rings, 1.003, globe.matOff);
+      var line = ringsToLines(c.rings, 1.004, globe.matOff);
       spin.add(line);
       globe.groups[c.iso] = line;
+    });
+
+    /* 贴图异步替换 */
+    loadEarthTextures(function (dayTex, nightTex) {
+      if (!dayTex) {
+        var subEl2 = document.getElementById('globe-sub');
+        if (subEl2) {
+          subEl2.textContent = '纹理未能加载，已回退为轮廓模式（拖动旋转 · 点击国土开档）';
+        }
+        return;
+      }
+      sphere.material = earthMaterial(dayTex, nightTex);
+      grat.visible = false;
+      landLine.visible = false;
+      // 贴图到位后，环境光与方向光不再需要（着色全在 shader 里）
+      var subEl3 = document.getElementById('globe-sub');
+      if (subEl3) subEl3.textContent = '拖动旋转 · 滚轮缩放 · 点击国土开档';
     });
 
     globe.scene = scene;
@@ -1194,7 +1289,8 @@
       cv.classList.add('dragging');
       cv.setPointerCapture && cv.setPointerCapture(e.pointerId);
       globe.autoSpin = false;
-      globe.idleUntil = Infinity;
+      globe.flying = false;        // 手动接管，打断正在进行的飞行
+      globe.idleUntil = performance.now() + 1e9;
     });
     cv.addEventListener('pointermove', function (e) {
       if (!globe.dragging) return;
@@ -1222,8 +1318,8 @@
     // ---- 交互：缩放 ----
     cv.addEventListener('wheel', function (e) {
       e.preventDefault();
-      var z = camera.position.z + e.deltaY * 0.0016;
-      camera.position.z = Math.max(1.55, Math.min(4.6, z));
+      globe.camTarget = Math.max(1.45, Math.min(4.8,
+        globe.camTarget + e.deltaY * 0.0018));
     }, { passive: false });
 
     // ---- 交互：点击拾取 ----
@@ -1250,18 +1346,35 @@
     // ---- 渲染循环 ----
     function render() {
       globe.raf = requestAnimationFrame(render);
-      if (!globe.inView) return;
-      if (globe.autoSpin && !globe.dragging && performance.now() > globe.idleUntil) {
-        globe.spin.rotation.y += 0.0016;
+      if (document.hidden) return;          // 切到别的标签页就停，省电
+
+      // 飞行：朝目标角度阻尼逼近。用阻尼而不是时间轴 tween，
+      // 是为了飞行途中被拖拽打断时不会两套动画抢控制权。
+      if (globe.flying && !globe.dragging) {
+        var dy = globe.rotTargetY - spin.rotation.y;
+        while (dy > Math.PI) dy -= Math.PI * 2;
+        while (dy < -Math.PI) dy += Math.PI * 2;
+        spin.rotation.y += dy * 0.075;
+        tilt.rotation.x += (globe.rotTargetX - tilt.rotation.x) * 0.075;
+        if (Math.abs(dy) < 0.0015 &&
+            Math.abs(globe.rotTargetX - tilt.rotation.x) < 0.0015) {
+          globe.flying = false;
+        }
+      }
+
+      camera.position.z += (globe.camTarget - camera.position.z) * 0.075;
+
+      if (globe.autoSpin && !globe.dragging && !globe.flying &&
+          performance.now() > globe.idleUntil) {
+        spin.rotation.y += 0.0013;
       }
       if (!globe.dragging && Math.abs(globe.vel.x) + Math.abs(globe.vel.y) > 0.0002) {
-        // 松手后的惯性衰减
         globe.vel.x *= 0.93;
         globe.vel.y *= 0.93;
-        globe.spin.rotation.y += globe.vel.x;
-        globe.tilt.rotation.x += globe.vel.y;
+        spin.rotation.y += globe.vel.x;
+        tilt.rotation.x += globe.vel.y;
         var lim2 = 78 * D2R;
-        globe.tilt.rotation.x = Math.max(-lim2, Math.min(lim2, globe.tilt.rotation.x));
+        tilt.rotation.x = Math.max(-lim2, Math.min(lim2, tilt.rotation.x));
       }
       renderer.render(scene, camera);
     }
@@ -1277,28 +1390,6 @@
     }
     if (window.ResizeObserver) new ResizeObserver(resize).observe(stage);
     window.addEventListener('resize', resize);
-
-    // ---- 侧边列表 ----
-    var listHost = document.getElementById('globe-list');
-    if (listHost) {
-      listHost.innerHTML = '';
-      (data.countries || []).forEach(function (c) {
-        var item = el('div', 'globe-item');
-        item.dataset.iso = c.iso;
-        item.appendChild(el('span', 'gi-flag', c.iso));
-        item.appendChild(el('span', 'gi-name', c.name));
-        var lat = c.center[1], lon = c.center[0];
-        item.appendChild(el('span', 'gi-coord',
-          Math.abs(lat).toFixed(1) + '°' + (lat >= 0 ? 'N' : 'S') + ' ' +
-          Math.abs(lon).toFixed(1) + '°' + (lon >= 0 ? 'E' : 'W')));
-        item.addEventListener('click', function () {
-          setActive(c.iso);
-          focusCountry(c.iso);
-          openDetail(c.iso, cardOf(c.iso), false);
-        });
-        listHost.appendChild(item);
-      });
-    }
 
     var sub = document.getElementById('globe-sub');
     if (sub) sub.textContent = data.countries.length + ' 国已上图 · 拖拽旋转';
@@ -1341,25 +1432,13 @@
     });
   }
 
-  /* 滚到地球区块才加载，避免 670KB 的 three.js 拖慢首屏 */
-  (function watchGlobe() {
-    var sec = document.getElementById('globe-sec');
-    if (!sec) return;
-    if (!('IntersectionObserver' in window)) { startGlobe(); return; }
-    var io = new IntersectionObserver(function (entries) {
-      entries.forEach(function (en) {
-        // 只负责触发加载，不碰 inView（渲染开关由下面那个 observer 独占）
-        if (en.isIntersecting && globe.state === 'idle') startGlobe();
-      });
-    }, { rootMargin: '220px 0px' });
-    io.observe(sec);
-    if (globeStage()) {
-      var io2 = new IntersectionObserver(function (es) {
-        globe.inView = es[0].isIntersecting;
-      }, { threshold: 0.05 });
-      io2.observe(globeStage());
-    }
-  })();
+  /* 首屏就是地球，直接启动。之前那套"滚到区块才加载"已经不适用 ——
+     现在地球是页面主体，拖到后面才出现是不可接受的。 */
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', startGlobe);
+  } else {
+    startGlobe();
+  }
 
   /* ---------- 启动 ---------- */
   fetch('data/index.json')
@@ -1372,8 +1451,9 @@
       var total = (idx.countries || []).length;
       var ready = (idx.countries || []).filter(function (c) { return c.status !== 'placeholder'; }).length;
       subEl.textContent = total + ' 个国家/地区 · ' + ready + ' 条已接入 · schema v' + idx.schema_version;
-      hintEl.textContent = '卡片来自 data/index.json，点击读取对应 data/{iso}.json。占位项点开会提示数据未就绪。';
-      openDetail('CN', cardsEl.firstChild, true);
+      hintEl.textContent = '';
+      // 注意：这里**不**自动打开任何档案。首屏应该是完整的地球，
+      // 由用户点击国土或底部胶囊再展开面板。
       loadSearchIndex();
     })
     .catch(function (e) {
@@ -1621,6 +1701,197 @@
   @media (max-width:760px){
     .dwrap{grid-template-columns:1fr}
   }
+
+/* ============ 全屏地球布局 ============ */
+/* 这一层覆盖旧的"长页面"排版：不再有文档流滚动，一切浮在 3D 舞台之上。 */
+html,body{
+  height:100%;overflow:hidden;
+}
+body{
+  margin:0;padding:0;
+  background:#04070d;
+}
+
+#globe-stage{
+  position:fixed;inset:0;z-index:0;
+  transform-origin:50% 50%;
+  transition:transform .68s cubic-bezier(.22,.61,.36,1);
+}
+#globe-stage canvas{display:block;width:100%;height:100%}
+
+/* 档案面板打开时，地球整体左移并缩小 —— 比改相机更稳，
+   不会触发 canvas 反复 resize，也不会有一次性的抖动。 */
+body.panel-open #globe-stage{
+  transform:translateX(-19%) scale(.84);
+}
+
+/* --- 顶部栏 --- */
+#topbar{
+  position:fixed;top:0;left:0;right:0;z-index:30;
+  display:flex;align-items:center;gap:24px;
+  padding:16px 26px;
+  background:linear-gradient(180deg,rgba(4,7,13,.92) 0%,rgba(4,7,13,.55) 62%,transparent 100%);
+  pointer-events:none;              /* 只有子元素可点，避免挡住地球拖拽 */
+}
+#topbar > *{pointer-events:auto}
+
+.brand{display:flex;align-items:baseline;gap:10px;flex:0 0 auto}
+.brand-cn{
+  font-family:var(--serif,"Songti SC",serif);
+  font-size:20px;letter-spacing:.16em;color:var(--ink);
+}
+.brand-en{
+  font-size:10px;letter-spacing:.22em;text-transform:uppercase;
+  color:var(--ink-faint);
+}
+
+.search-wrap{
+  position:relative;flex:1 1 auto;max-width:520px;margin:0 auto;
+}
+#q{
+  width:100%;box-sizing:border-box;
+  padding:11px 16px;font-size:13.5px;font-family:inherit;
+  color:var(--ink);
+  background:rgba(12,20,34,.72);
+  border:1px solid rgba(120,150,190,.30);
+  border-radius:999px;outline:none;
+  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  transition:border-color .22s ease,background .22s ease,box-shadow .22s ease;
+  -webkit-appearance:none;appearance:none;
+}
+#q::placeholder{color:var(--ink-faint)}
+#q:focus{
+  border-color:rgba(216,178,106,.62);
+  background:rgba(14,22,38,.88);
+  box-shadow:0 0 0 3px rgba(216,178,106,.10);
+}
+#q::-webkit-search-cancel-button{filter:invert(.45)}
+
+.topbar-meta{
+  flex:0 0 auto;font-size:11px;letter-spacing:.10em;color:var(--ink-faint);
+  font-variant-numeric:tabular-nums;
+}
+
+/* 搜索结果：从搜索框下方浮出 */
+#q-res{
+  position:absolute;top:calc(100% + 8px);left:0;right:0;
+  max-height:52vh;overflow-y:auto;
+  border-radius:12px;border:1px solid rgba(120,150,190,.28);
+  background:rgba(8,13,23,.95);
+  backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+  box-shadow:0 18px 48px rgba(0,0,0,.55);
+}
+#q-res[hidden]{display:none}
+
+/* --- 底部国家导航 --- */
+#dock{
+  position:fixed;left:50%;bottom:30px;transform:translateX(-50%);
+  z-index:30;pointer-events:none;
+}
+#dock #cards{
+  display:flex;gap:10px;pointer-events:auto;
+}
+.dock-item{
+  display:flex;align-items:center;gap:9px;
+  padding:9px 16px;border-radius:999px;cursor:pointer;
+  font-family:inherit;font-size:13px;color:var(--ink-dim);
+  background:rgba(10,16,28,.72);
+  border:1px solid rgba(120,150,190,.26);
+  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  transition:border-color .22s ease,background .22s ease,color .22s ease,transform .22s ease;
+}
+.dock-item:hover{
+  border-color:rgba(216,178,106,.55);color:var(--ink);
+  transform:translateY(-2px);
+}
+.dock-item.active{
+  border-color:rgba(216,178,106,.85);
+  background:rgba(216,178,106,.14);
+  color:#f2d9a4;
+}
+.di-iso{
+  font-size:9.5px;letter-spacing:.10em;color:var(--ink-faint);
+  font-variant-numeric:tabular-nums;
+}
+.dock-item.active .di-iso{color:rgba(242,217,164,.75)}
+
+/* --- 右侧档案面板 --- */
+#detail{
+  position:fixed;top:0;right:0;z-index:40;
+  width:min(452px,100vw);height:100vh;height:100dvh;
+  display:flex;flex-direction:column;
+  background:rgba(8,13,22,.93);
+  border-left:1px solid rgba(120,150,190,.24);
+  backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);
+  box-shadow:-24px 0 64px rgba(0,0,0,.5);
+  transform:translateX(102%);
+  transition:transform .52s cubic-bezier(.22,.61,.36,1);
+  visibility:hidden;
+}
+#detail.open{transform:none;visibility:visible}
+#detail[hidden]{display:none}
+
+.dhead{
+  padding:22px 26px 16px;border-bottom:1px solid var(--line);
+  flex:0 0 auto;
+}
+.dhead h2{
+  margin:0;font-family:var(--serif,"Songti SC",serif);
+  font-size:23px;font-weight:500;letter-spacing:.06em;color:var(--ink);
+}
+#d-sub{
+  margin-top:5px;font-size:11px;letter-spacing:.07em;color:var(--ink-faint);
+  font-variant-numeric:tabular-nums;
+}
+.dscroll{
+  flex:1 1 auto;overflow-y:auto;overscroll-behavior:contain;
+  padding:18px 26px 30px;
+}
+.dclose{
+  position:absolute;top:16px;right:16px;
+  width:30px;height:30px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:19px;line-height:1;cursor:pointer;
+  color:var(--ink-dim);background:rgba(255,255,255,.05);
+  border:1px solid var(--line);font-family:inherit;
+  transition:color .2s ease,border-color .2s ease,background .2s ease;
+}
+.dclose:hover{color:var(--ink);border-color:rgba(216,178,106,.5);background:rgba(216,178,106,.10)}
+
+/* 面板里空间窄，详情原本的两列网格改为单列 */
+#detail .dwrap{grid-template-columns:1fr;gap:16px}
+#detail .dimg-wrap{aspect-ratio:16/10}
+
+/* --- 左下角提示 --- */
+#footline{
+  position:fixed;left:26px;bottom:30px;z-index:20;
+  display:flex;flex-direction:column;gap:4px;
+  font-size:10.5px;letter-spacing:.05em;color:var(--ink-faint);
+  pointer-events:none;
+  opacity:.8;
+}
+.fl-src{font-size:9.5px;opacity:.7}
+
+/* --- 移动端 --- */
+@media (max-width:760px){
+  #topbar{padding:12px 14px;gap:12px;flex-wrap:wrap}
+  .brand-en{display:none}
+  .brand-cn{font-size:17px}
+  .topbar-meta{display:none}
+  .search-wrap{max-width:none;order:3;flex-basis:100%;margin-top:2px}
+  #q{font-size:13px;padding:10px 14px}
+  #dock{bottom:20px}
+  .dock-item{padding:8px 13px;font-size:12px}
+  #detail{
+    width:100vw;height:78vh;height:78dvh;top:auto;bottom:0;
+    border-left:0;border-top:1px solid rgba(120,150,190,.26);
+    border-radius:18px 18px 0 0;
+    transform:translateY(102%);
+  }
+  #detail.open{transform:none}
+  body.panel-open #globe-stage{transform:translateY(-14%) scale(.9)}
+  #footline{display:none}
+}
 </style>
 </body>
 </html>
