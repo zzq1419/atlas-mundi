@@ -28,6 +28,13 @@ jobs:
       - name: 数据集完整性
         run: python scripts/check_data.py
 
+      - name: 重建检索索引
+        run: |
+          # 索引必须由 data/*.json 反推，避免手工维护的 search.json 与档案脱节
+          python scripts/build_search_index.py
+          git diff --stat --exit-code data/search.json || \
+            echo "::warning::data/search.json 与档案不一致，请本地重跑 build_search_index.py 后提交"
+
       - name: 数据集统计
         run: |
           python scripts/stats.py | tee stats.txt

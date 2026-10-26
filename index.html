@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-10-26-B">
+<meta name="build" content="2026-10-26-C">
 <title>寰宇图志 · Atlas Mundi</title>
 <meta name="description" content="寰宇图志：3D 地球上的多模态国家文化图谱">
 <style>
@@ -282,6 +282,30 @@
     <cite>—— 项目立意</cite>
   </blockquote>
 
+  <!-- ============ 知识库检索 ============ -->
+  <section class="sec">
+    <div class="sec-head">
+      <h2>用一句话找国家</h2>
+      <span id="search-sub">读取 data/search.json…</span>
+    </div>
+    <div class="search-box">
+      <input type="search" id="q" autocomplete="off" spellcheck="false"
+             placeholder="哪里能看长城 / 有什么传统节日 / 说什么话 / 吃什么">
+    </div>
+    <div class="sr-examples">
+      <button class="sr-ex" data-q="哪里能看长城">哪里能看长城</button>
+      <button class="sr-ex" data-q="有什么传统节日">有什么传统节日</button>
+      <button class="sr-ex" data-q="说什么语言">说什么语言</button>
+      <button class="sr-ex" data-q="吃什么">吃什么</button>
+      <button class="sr-ex" data-q="有什么地标">有什么地标</button>
+    </div>
+    <div class="search-res" id="q-res" hidden></div>
+    <p class="hint">
+      检索在浏览器本地完成（中文 2-gram 切分 + BM25 打分），不联网、不调 API；
+      问答对由 DeepSeek 在构建期预生成。知识库当前只覆盖 3 个国家/地区，问别的会明确说没有。
+    </p>
+  </section>
+
   <!-- ============ 国家入口（数据驱动） ============ -->
   <section class="sec">
     <div class="sec-head">
@@ -353,6 +377,7 @@
     cardsEl.innerHTML = '';
     list.forEach(function (c) {
       var card = el('article', 'card' + (c.status === 'placeholder' ? ' is-placeholder' : ''));
+      card.dataset.iso = c.iso_a2 || '';
       card.tabIndex = 0;
       card.setAttribute('role', 'button');
 
@@ -669,6 +694,169 @@
       });
   }
 
+  /* ---------- 知识库检索（2-gram + BM25，纯本地） ----------
+     为什么在前端检索而不是每次调大模型：
+     1) key 不能进浏览器，公开仓库的静态站更是碰都不能碰；
+     2) 三个国家的知识库只有几十条，本地算比一次网络往返快两个数量级；
+     3) 断网、无代理也能演示 —— 这是录屏的硬要求。
+     中文没有空格，用 2-gram 切分（不分词、不引词典），BM25 打分。 */
+  var IDX = null;
+  var qInput = document.getElementById('q');
+  var qRes = document.getElementById('q-res');
+  var qSub = document.getElementById('search-sub');
+
+  function tokenize(text) {
+    var s = String(text || '').toLowerCase();
+    var toks = [], buf = '', mode = null;
+    function flushCJK(b) {
+      if (!b) return;
+      if (b.length === 1) { toks.push(b); return; }
+      for (var i = 0; i < b.length - 1; i++) toks.push(b.substr(i, 2));
+    }
+    function flushWord(b) { if (b.length >= 2) toks.push(b); }
+    for (var i = 0; i < s.length; i++) {
+      var ch = s.charAt(i);
+      var m = /[\u3400-\u9fff]/.test(ch) ? 'c' : (/[a-z0-9]/.test(ch) ? 'a' : null);
+      if (m !== mode) {
+        if (mode === 'c') flushCJK(buf);
+        else if (mode === 'a') flushWord(buf);
+        buf = ''; mode = m;
+      }
+      if (m) buf += ch;
+    }
+    if (mode === 'c') flushCJK(buf);
+    else if (mode === 'a') flushWord(buf);
+    return toks;
+  }
+
+  function buildIdx(docs) {
+    var postings = {}, df = {}, lens = [];
+    docs.forEach(function (d, i) {
+      var toks = tokenize(d.index_text);
+      lens[i] = toks.length || 1;
+      var tf = {};
+      toks.forEach(function (t) { tf[t] = (tf[t] || 0) + 1; });
+      for (var t in tf) {
+        if (!postings[t]) postings[t] = {};
+        postings[t][i] = tf[t];
+        df[t] = (df[t] || 0) + 1;
+      }
+    });
+    var sum = lens.reduce(function (a, b) { return a + b; }, 0);
+    return { docs: docs, postings: postings, df: df, lens: lens,
+             avgdl: sum / (docs.length || 1), N: docs.length };
+  }
+
+  /* 疑问句里的虚词。中文 2-gram 会把「哪里能看」切成「哪里/里能/能看」，
+     这些碎片在多个文档里都出现，是纯噪声 —— 实测「哪里能看长城」会把
+     「法国面积有多大？首都是哪里？」顶到第二名，就因为含「哪里」。 */
+  var STOP = {};
+  ('哪里 里能 能看 什么 怎么 哪些 哪个 多少 哪儿 有什 么地 么语 么节 么样 么东 ' +
+   '有哪 些地 请问 一下 告诉 知道 我想 想要 是否 可以 应该 这个 那个 ' +
+   '这些 那些 是什 为什 一个 有些 有没 没有 是不 不是').split(' ').forEach(function (w) {
+    if (w) STOP[w] = 1;
+  });
+
+  var MIN_SCORE = 1.5;   // 绝对阈值：低于此分视为噪声（实测「日本有什么」最高只有 1.74）
+  var REL_RATIO = 0.35;  // 相对阈值：只保留最高分的 35% 以上
+
+  function bm25(q, topk) {
+    if (!IDX) return [];
+    var k1 = 1.5, b = 0.75, score = {};
+    tokenize(q).forEach(function (t) {
+      if (STOP[t]) return;
+      var pl = IDX.postings[t];
+      if (!pl) return;
+      var n = IDX.df[t] || 0;
+      var idf = Math.log(1 + (IDX.N - n + 0.5) / (n + 0.5));
+      for (var i in pl) {
+        var tf = pl[i], dl = IDX.lens[i];
+        score[i] = (score[i] || 0) +
+          idf * (tf * (k1 + 1)) / (tf + k1 * (1 - b + b * dl / IDX.avgdl));
+      }
+    });
+    var arr = [];
+    for (var i in score) { if (score[i] > MIN_SCORE) arr.push([IDX.docs[i], score[i]]); }
+    arr.sort(function (a, b) { return b[1] - a[1]; });
+    if (!arr.length) return [];
+    var floor = arr[0][1] * REL_RATIO;
+    arr = arr.filter(function (x) { return x[1] >= floor; });
+    return arr.slice(0, topk || 5);
+  }
+
+  function cardOf(iso) {
+    var all = cardsEl.querySelectorAll('.card');
+    for (var i = 0; i < all.length; i++) {
+      if (all[i].dataset.iso === iso) return all[i];
+    }
+    return null;
+  }
+
+  function renderResults(q) {
+    var hits = bm25(q, 5);
+    qRes.innerHTML = '';
+    qRes.hidden = false;
+    if (!hits.length) {
+      qRes.appendChild(el('div', 'sr-empty',
+        '知识库里没有匹配内容（当前 ' + (IDX ? IDX.N : 0) + ' 条文档）。这不是故障 —— '
+        + '数据集目前只覆盖 3 个国家/地区，问别的本来就答不出来。'));
+      return;
+    }
+    hits.forEach(function (h) {
+      var d = h[0];
+      var item = el('div', 'sr-item');
+      var top = el('div', 'sr-top');
+      top.appendChild(el('span', 'sr-country', d.name));
+      top.appendChild(el('span', 'sr-q', d.q));
+      item.appendChild(top);
+      item.appendChild(el('div', 'sr-a', d.a));
+      item.addEventListener('click', function () {
+        var c = cardOf(d.iso);
+        openDetail(d.iso, c, false);
+        if (c) c.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      });
+      qRes.appendChild(item);
+    });
+  }
+
+  if (qInput) {
+    var qTimer = null;
+    qInput.addEventListener('input', function () {
+      clearTimeout(qTimer);
+      var v = qInput.value.trim();
+      qTimer = setTimeout(function () {
+        if (v.length < 2) { qRes.hidden = true; qRes.innerHTML = ''; return; }
+        renderResults(v);
+      }, 180);
+    });
+    qInput.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') { qInput.value = ''; qRes.hidden = true; }
+    });
+  }
+
+  Array.prototype.forEach.call(document.querySelectorAll('.sr-ex'), function (btn) {
+    btn.addEventListener('click', function () {
+      qInput.value = btn.dataset.q;
+      renderResults(btn.dataset.q);
+      qInput.focus();
+    });
+  });
+
+  function loadSearchIndex() {
+    fetch('data/search.json')
+      .then(function (r) {
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.json();
+      })
+      .then(function (d) {
+        IDX = buildIdx(d.docs || []);
+        if (qSub) qSub.textContent = '知识库 ' + IDX.N + ' 条 · 2-gram + BM25 本地检索';
+      })
+      .catch(function (e) {
+        if (qSub) qSub.textContent = '索引未加载（' + e.message + '）';
+      });
+  }
+
   /* ---------- 启动 ---------- */
   fetch('data/index.json')
     .then(function (r) {
@@ -682,6 +870,7 @@
       subEl.textContent = total + ' 个国家/地区 · ' + ready + ' 条已接入 · schema v' + idx.schema_version;
       hintEl.textContent = '卡片来自 data/index.json，点击读取对应 data/{iso}.json。占位项点开会提示数据未就绪。';
       openDetail('CN', cardsEl.firstChild, true);
+      loadSearchIndex();
     })
     .catch(function (e) {
       subEl.textContent = '数据未加载';
@@ -784,6 +973,49 @@
     from{background-position:180% 0}
     to{background-position:-80% 0}
   }
+
+  /* 知识库检索 */
+  .search-box{margin-top:2px}
+  #q{
+    width:100%;box-sizing:border-box;
+    padding:13px 16px;font-size:14px;font-family:inherit;
+    color:var(--ink);background:rgba(255,255,255,.03);
+    border:1px solid var(--line);border-radius:10px;outline:none;
+    transition:border-color .2s ease,background .2s ease;
+    -webkit-appearance:none;appearance:none;
+  }
+  #q::placeholder{color:var(--ink-faint)}
+  #q:focus{border-color:rgba(216,178,106,.5);background:rgba(255,255,255,.05)}
+  #q::-webkit-search-cancel-button{filter:invert(.5)}
+
+  .sr-examples{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}
+  .sr-ex{
+    font-size:12px;padding:4px 11px;border-radius:999px;
+    border:1px solid var(--line);color:var(--ink-dim);
+    background:transparent;font-family:inherit;cursor:pointer;
+    transition:border-color .2s ease,color .2s ease;
+  }
+  .sr-ex:hover{border-color:rgba(216,178,106,.45);color:var(--ink)}
+
+  .search-res{
+    margin-top:12px;border:1px solid var(--line);border-radius:10px;
+    overflow:hidden;background:rgba(255,255,255,.018);
+  }
+  .sr-item{
+    padding:11px 14px;border-bottom:1px solid var(--line);cursor:pointer;
+    transition:background .18s ease;
+  }
+  .sr-item:last-child{border-bottom:0}
+  .sr-item:hover{background:rgba(216,178,106,.06)}
+  .sr-top{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+  .sr-country{
+    font-size:11px;letter-spacing:.05em;color:rgba(216,178,106,.9);
+    border:1px solid rgba(216,178,106,.3);border-radius:999px;
+    padding:1px 7px;flex:0 0 auto;
+  }
+  .sr-q{font-size:13px;color:var(--ink)}
+  .sr-a{font-size:12.5px;color:var(--ink-dim);line-height:1.65;margin-top:4px}
+  .sr-empty{padding:14px;font-size:12.5px;color:var(--ink-faint);line-height:1.6}
 
   /* 文化特征标签 */
   .facets{margin-top:4px}

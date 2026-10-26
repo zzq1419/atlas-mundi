@@ -316,6 +316,72 @@ def audit_record(record: dict) -> dict:
     return {"issues": issues, "overall": overall}
 
 
+# ---------------------------------------------------------------- 6 知识库 QA
+QA_SYSTEM = (
+    "你是知识库编辑。你只为给定条目生成问答对，答案只使用给定信息，"
+    "绝不引入外部知识。问题要像真人会问的样子，不要写「请问该国的官方语言是什么」这种考卷腔。"
+)
+
+
+def build_qa(record: dict, n_min: int = 6, n_max: int = 8) -> list[dict]:
+    """为单个国家生成检索用的问答对。
+
+    这是「构建知识库」的实体：问答对比整段摘要更适合做检索单元 ——
+    用户问一句话，命中一条 QA 就能直接给答案，不必每次都让模型重读全文。
+
+    覆盖四类提问：地理、文化节庆、饮食风物、地标景观，外加一组语言。
+    """
+    facets = record.get("custom_facets") or {}
+    kw = [x.get("v") for x in (facets.get("keywords") or []) if x.get("v")]
+    marks = [i.get("caption_zh") or i.get("caption") for i in (record.get("landmark_images") or [])]
+
+    info = {
+        "名称": record.get("name_zh"),
+        "全称": record.get("name_official"),
+        "首都": record.get("capital"),
+        "大洲": record.get("continent"),
+        "语言": [{"名": l.get("name_zh"), "角色": l.get("role")}
+                 for l in (record.get("languages") or [])],
+        "简介": (record.get("summary_text") or "")[:600],
+        "民俗": (record.get("custom_text") or "")[:500],
+        "文化关键词": kw,
+        "地标": marks,
+    }
+
+    prompt = f"""为「{record.get('name_zh')}」生成 {n_min}~{n_max} 组问答对，用于一个多模态国家文化图谱的检索知识库。
+
+可用信息（这是唯一允许使用的信息源）：
+{json.dumps(info, ensure_ascii=False, indent=2)}
+
+要求：
+1. 问题像真人会问的，简短口语化。覆盖下列四类，每类至少 1 组：
+   - 地理：在哪、周围是什么、面积多大、首都是哪
+   - 文化：有什么节日、有什么传统习俗
+   - 饮食/风物：吃什么、有什么特产或饮食制度
+   - 地标：有什么值得看的建筑或景观
+   另外必须有 1 组问及语言（说什么话 / 有哪些方言）。
+2. 答案只用上面给的信息，**不编造**。答案 30~80 字，直接给结论，不要复述问题。
+3. 每组配 2~4 个检索标签 tags，必须是用户可能打进去的口语词
+   （如「长城」「看雪」「节日」「方言」「吃什么」），不要用书面语标签。
+4. 若某类信息在给定数据里没有，就不生成那一类，不要硬凑。
+
+只输出 json：{{"qa": [{{"q": "问题", "a": "答案", "tags": ["标签"]}}]}}"""
+    d = chat_json(prompt, system=QA_SYSTEM, scene="build_qa",
+                  max_tokens=2000, note=record.get("name_zh") or "")
+
+    out = []
+    for it in (d.get("qa") or []):
+        if not isinstance(it, dict):
+            continue
+        q = str(it.get("q") or "").strip()
+        a = str(it.get("a") or "").strip()
+        if not q or not a:
+            continue
+        tags = [str(t).strip()[:12] for t in (it.get("tags") or []) if str(t).strip()]
+        out.append({"q": q[:60], "a": a[:220], "tags": tags[:5]})
+    return out[:n_max]
+
+
 # ---------------------------------------------------------------- 测试夹具
 
 # 说明：结构与真实 Wikidata wbsearchentities + EntityData 返回一致，
@@ -430,6 +496,19 @@ def run_country(iso: str, apply: bool = False, only: str = "all") -> dict:
                   encoding="utf-8") as f:
             json.dump(caps, f, ensure_ascii=False, indent=2)
 
+    # --- 知识库问答对 ---
+    qa = []
+    if want("qa"):
+        print("  [知识库 QA] …")
+        qa = build_qa(rec)
+        result["qa"] = qa
+        print("     生成 %d 组" % len(qa))
+        for x in qa:
+            print("       Q: %-28s tags=%s" % (x["q"][:26], "/".join(x["tags"])))
+        with open(os.path.join(PREVIEW, "%s.qa.json" % iso.lower()), "w",
+                  encoding="utf-8") as f:
+            json.dump(qa, f, ensure_ascii=False, indent=2)
+
     # --- 数据质检 ---
     if want("audit"):
         print("  [数据质检] …")
@@ -473,6 +552,9 @@ def run_country(iso: str, apply: bool = False, only: str = "all") -> dict:
                 im["caption_zh"] = c["llm_zh"]
                 im["caption"] = c["llm_zh"]
                 im["caption_zh_source"] = "llm_from_commons_filename"
+
+        if qa:
+            rec["knowledge_qa"] = qa
 
         if "audit" in result:
             rec["llm_audit"] = audit
@@ -526,7 +608,7 @@ def main() -> int:
                     help="跑实体消歧的测试夹具")
     ap.add_argument("--run", help="对单个 ISO 跑四类任务（CN / FR / US / all）")
     ap.add_argument("--only", default="all",
-                    choices=["all", "facets", "summary", "captions", "audit"],
+                    choices=["all", "facets", "summary", "captions", "audit", "qa"],
                     help="只跑某一类，便于单类迭代")
     ap.add_argument("--apply", action="store_true", help="把结果写回正式档案（默认只预览）")
     ap.add_argument("--audit-injection", metavar="ISO", default=None,
