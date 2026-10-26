@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-10-26-K">
+<meta name="build" content="2026-10-26-L">
 <title>寰宇图志 · Atlas Mundi</title>
 <meta name="description" content="寰宇图志：3D 地球上的多模态国家文化图谱">
 <style>
@@ -1943,6 +1943,12 @@
       globe.raf = requestAnimationFrame(render);
       if (document.hidden) return;          // 切到别的标签页就停，省电
 
+      /* 帧间隔归一化。所有"每帧加一点"的动画都必须乘这个系数，
+         否则 144Hz 屏上转得比 60Hz 快 2.4 倍 —— 之前自转就是"每帧固定加"。 */
+      var nowMs = performance.now();
+      var dtf = Math.min(3, (nowMs - (globe.lastMs || nowMs)) / 16.667) || 1;
+      globe.lastMs = nowMs;
+
       // 飞行：朝目标角度阻尼逼近。用阻尼而不是时间轴 tween，
       // 是为了飞行途中被拖拽打断时不会两套动画抢控制权。
       if (globe.flying && !globe.dragging) {
@@ -1987,14 +1993,19 @@
       }
 
       if (globe.autoSpin && !globe.dragging && !globe.flying &&
-          performance.now() > globe.idleUntil) {
-        spin.rotation.y += 0.0013;
+          nowMs > globe.idleUntil) {
+        /* 自转：0.0009 弧度/帧@60fps ≈ 116 秒一圈（原来 0.0013 = 80 秒，偏快）。
+           再按相机距离减速：同样的角速度，凑近看时地表掠过屏幕的速度会快得多，
+           乘 z/CAM_FAR 正好把这个放大抵消掉，远近看着一样从容。 */
+        var spd = 0.0009 * Math.min(1.2, Math.max(0.35, camera.position.z / CAM_FAR));
+        spin.rotation.y += spd * dtf;
       }
       if (!globe.dragging && Math.abs(globe.vel.x) + Math.abs(globe.vel.y) > 0.0002) {
-        globe.vel.x *= 0.93;
-        globe.vel.y *= 0.93;
-        spin.rotation.y += globe.vel.x;
-        tilt.rotation.x += globe.vel.y;
+        var decay = Math.pow(0.93, dtf);
+        globe.vel.x *= decay;
+        globe.vel.y *= decay;
+        spin.rotation.y += globe.vel.x * dtf;
+        tilt.rotation.x += globe.vel.y * dtf;
         var lim2 = 78 * D2R;
         tilt.rotation.x = Math.max(-lim2, Math.min(lim2, tilt.rotation.x));
       }
@@ -2310,25 +2321,38 @@
   }
   .sr-country-row:hover .sr-arrow{color:rgba(200,222,250,.9);transform:translateX(2px)}
 
-  /* 文化特征标签 */
-  .facets{margin-top:4px}
-  .frow{display:flex;gap:10px;align-items:flex-start;margin-top:7px}
+  /* 文化特征：左列窄标签 + 右侧色块。
+     原来是 11px 灰字 + 12px 半透明 chip，在深色面板里几乎看不见；
+     现在键名 13px 提亮、chip 13px 实色、行间加细分隔线，
+     整体像一张"规格表"而不是一堆散落的灰点。 */
+  .facets{margin-top:2px}
+  .frow{
+    display:grid;grid-template-columns:56px minmax(0,1fr);
+    gap:4px 12px;align-items:start;
+    padding:8px 0;
+    border-bottom:1px solid rgba(140,165,220,.10);
+  }
+  .frow:last-child{border-bottom:0;padding-bottom:2px}
   .fkey{
-    flex:0 0 40px;font-size:11px;letter-spacing:.06em;
-    color:var(--ink-faint);padding-top:4px;
+    font-size:13px;line-height:1.5;letter-spacing:.02em;
+    color:rgba(184,202,230,.92);padding-top:3px;white-space:nowrap;
   }
   .fval{display:flex;flex-wrap:wrap;gap:6px}
   .chip{
-    font-size:12px;padding:2px 9px;border-radius:999px;
-    border:1px solid var(--line);color:var(--ink-dim);
-    background:rgba(255,255,255,.02);cursor:default;
-    transition:border-color .2s ease,color .2s ease;
+    font-size:13px;line-height:1.5;padding:3px 10px;border-radius:7px;
+    border:1px solid rgba(140,170,215,.24);
+    color:#d7e0ef;background:rgba(255,255,255,.04);
+    cursor:default;
+    transition:border-color .18s ease,color .18s ease,background .18s ease;
   }
-  .chip:hover{border-color:rgba(148,182,224,.5);color:var(--ink)}
+  .chip:hover{
+    border-color:rgba(160,192,236,.6);color:#fff;
+    background:rgba(150,185,230,.12);
+  }
+  /* 关键词是"从正文里抽出来的词"，比人工归类的其它项亮一档 */
   .chip-kw{
-    border-color:rgba(148,182,224,.35);
-    color:rgba(148,182,224,.92);
-    background:rgba(148,182,224,.05);
+    border-color:rgba(140,180,240,.38);
+    color:#d3e6ff;background:rgba(120,165,235,.10);
   }
 
   /* 国界轮廓 */
@@ -2412,7 +2436,7 @@ body.panel-open #globe-stage{
 .brand{display:flex;align-items:baseline;gap:10px;flex:0 0 auto}
 .brand-cn{
   font-family:var(--serif,"Songti SC",serif);
-  font-size:23px;letter-spacing:.18em;color:var(--ink);
+  font-size:26px;letter-spacing:.18em;color:var(--ink);
   /* 品牌字压在球上也读得清：投影而不是底衬，不遮挡画面 */
   text-shadow:0 2px 10px rgba(0,0,0,.75), 0 0 2px rgba(0,0,0,.6);
 }
@@ -2426,16 +2450,16 @@ body.panel-open #globe-stage{
    不会把谁挤得跳来跳去。
    金色只留给地球上的国界，控件一律冷色。 */
 .search-wrap{
-  position:relative;height:30px;flex:0 0 auto;
-  width:150px;
+  position:relative;height:34px;flex:0 0 auto;
+  width:168px;
   transition:width .46s cubic-bezier(.2,.9,.25,1);
 }
-.search-wrap.open{width:min(360px, 46vw)}
+.search-wrap.open{width:min(384px, 46vw)}
 
 .search-panel{
   position:absolute;inset:0;z-index:4;
   display:flex;align-items:center;
-  height:30px;border-radius:999px;overflow:hidden;
+  height:34px;border-radius:999px;overflow:hidden;
   /* 底色压深：半透明蓝灰在深色页面上会变成一块"灰白塑料" */
   background:rgba(5,8,14,.92);
   border:1px solid rgba(126,158,198,.24);
@@ -2444,19 +2468,29 @@ body.panel-open #globe-stage{
   transition:border-color .22s ease,background .22s ease;
 }
 .search-wrap.open .search-panel{background:rgba(4,7,12,.96)}
-.search-panel:focus-within{border-color:rgba(150,185,230,.52)}
+/* hover 必须有反应：之前只有聚焦才变，鼠标扫过去毫无反馈，像块死板子 */
+.search-panel:hover{
+  border-color:rgba(150,185,230,.46);
+  background:rgba(14,22,36,.95);
+}
+.search-panel:hover .search-icon{stroke:rgba(196,222,252,.92)}
+.search-panel:focus-within{
+  border-color:rgba(160,196,240,.62);
+  box-shadow:0 0 0 3px rgba(120,165,235,.10);
+}
 
 .search-panel .search-icon{
-  position:absolute;left:10px;top:50%;transform:translateY(-50%);
-  width:12px;height:12px;pointer-events:none;
-  fill:none;stroke:rgba(150,182,220,.6);stroke-width:1.8;
+  position:absolute;left:11px;top:50%;transform:translateY(-50%);
+  width:13.5px;height:13.5px;pointer-events:none;
+  fill:none;stroke:rgba(158,190,228,.72);stroke-width:1.8;
+  transition:stroke .18s ease;
   stroke-linecap:round;stroke-linejoin:round;
 }
 
 #q{
   flex:1 1 auto;min-width:0;height:100%;box-sizing:border-box;
-  padding:0 4px 0 27px;
-  font-size:12.5px;font-family:inherit;
+  padding:0 6px 0 31px;
+  font-size:13.5px;font-family:inherit;
   color:var(--ink);caret-color:#bcd6f5;
   background:transparent;border:0;outline:none;
   -webkit-appearance:none;appearance:none;
@@ -2609,8 +2643,8 @@ body.panel-open #globe-stage{
   .brand-en{display:none}
   .brand-cn{font-size:17px}
   .topbar-meta{display:none}
-  .search-wrap{width:116px}
-  .search-wrap.open{width:calc(100vw - 118px)}
+  .search-wrap{width:128px;height:32px}
+  .search-wrap.open{width:calc(100vw - 126px)}
   #globe-stage{inset:0}
   #detail{
     top:auto;left:10px;right:10px;bottom:10px;
@@ -2690,24 +2724,33 @@ body.panel-open #globe-stage{
 .mlabel{
   position:absolute;left:0;top:0;
   white-space:nowrap;opacity:0;
-  font-size:12px;letter-spacing:.06em;
-  color:rgba(240,246,255,.94);
-  text-shadow:0 1px 2px rgba(0,0,0,.9), 0 0 8px rgba(0,0,0,.7);
+  font-size:13px;letter-spacing:.04em;
+  color:#fff;
+  /* 白字压白雪（亚洲正好落在西伯利亚雪原上）的解法：
+     用"深色描边 + 浅色填充"，先描边后填充（paint-order），白底黑底都分得开。
+     注意描边宽度是**相对字号**的：13px 的中文笔画只有 1px 出头，
+     描边一旦到 0.8px 就会从里外两侧把笔画吃光，字变成一块灰饼 ——
+     所以字号提到 14px，描边压到 0.5px。 */
+  -webkit-text-stroke:.5px rgba(0,0,0,.6);
+  paint-order:stroke fill;
+  text-shadow:0 1px 1px rgba(0,0,0,.45);
   transition:opacity .26s ease;
   will-change:transform;
 }
 .mlabel.mc{
-  font-size:12px;letter-spacing:.42em;font-weight:500;
-  color:rgba(206,220,244,.58);
+  /* 大洲名之前 58% 透明度、字距 0.42em，压在雪山白底上根本看不见。
+     现在提亮到 0.84、字距收到 0.3em（拉太开会显得更细更虚）。 */
+  font-size:14.5px;letter-spacing:.26em;font-weight:600;
+  color:rgba(232,241,254,.92);
 }
 .mlabel.mo{
-  font-size:11.5px;letter-spacing:.34em;font-style:italic;
-  color:rgba(158,196,236,.5);
+  font-size:13px;letter-spacing:.24em;font-style:italic;
+  color:rgba(180,212,246,.78);
 }
 /* 已收录、可点开档案的国家：比普通国名亮一档，hover 变白 */
 .mlabel.mk{
   pointer-events:auto;cursor:pointer;
-  font-size:13px;font-weight:500;
+  font-size:13.5px;font-weight:500;
   color:#ffffff;
   text-shadow:0 1px 3px rgba(0,0,0,.95), 0 0 12px rgba(120,170,235,.5);
 }
