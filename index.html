@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-10-26-F">
+<meta name="build" content="2026-10-26-G">
 <title>寰宇图志 · Atlas Mundi</title>
 <meta name="description" content="寰宇图志：3D 地球上的多模态国家文化图谱">
 <style>
@@ -274,18 +274,22 @@
 <header id="topbar">
   <div class="brand">
     <span class="brand-cn">寰宇图志</span>
-    <span class="brand-en">Atlas&nbsp;Mundi</span>
   </div>
   <div class="search-wrap">
+    <svg class="search-icon" viewBox="0 0 24 24" aria-hidden="true">
+      <circle cx="11" cy="11" r="6.5"></circle>
+      <line x1="16" y1="16" x2="21" y2="21"></line>
+    </svg>
     <input type="search" id="q" autocomplete="off" spellcheck="false"
-           placeholder="哪里能看长城 / 有什么传统节日 / 说什么语言">
+           aria-label="搜索国家、地标、语言、饮食与节庆">
     <div class="search-res" id="q-res" hidden></div>
   </div>
-  <div class="topbar-meta" id="topbar-meta">3 国 · 5 模态</div>
+  <div class="topbar-meta" id="topbar-meta"></div>
 </header>
 
-<!-- 底部国家导航：点一下，地球飞过去、档案从右侧滑出 -->
-<nav id="dock" aria-label="已收录国家"><div id="cards"></div></nav>
+<!-- 国家入口已并入搜索框：空输入聚焦时列出已收录国家，
+     不再用底部胶囊 —— 那排按钮和搜索框一起把地球压掉一条。 -->
+<div id="cards" hidden></div>
 
 <!-- 右侧档案面板 -->
 <aside id="detail" aria-hidden="true">
@@ -357,34 +361,45 @@
     return n;
   }
 
+  /* 把一整段长文本按句子切成分段。
+     中文长段落不缩进、不分段会连成一片，读起来非常吃力；
+     每句都单独成段又太碎，所以两句一段。 */
+  function paraText(text, perPara) {
+    var host = el('div', 'prose');
+    var src = String(text || '').trim();
+    if (!src) return host;
+    var parts = [];
+    var buf = '';
+    var marks = '。！？；';
+    for (var i = 0; i < src.length; i++) {
+      buf += src.charAt(i);
+      if (marks.indexOf(src.charAt(i)) >= 0) {
+        if (buf.trim()) parts.push(buf.trim());
+        buf = '';
+      }
+    }
+    if (buf.trim()) parts.push(buf.trim());
+
+    var per = perPara || 2;
+    for (var k = 0; k < parts.length; k += per) {
+      var seg = parts.slice(k, k + per).join('');
+      if (seg.replace(/\s/g, '').length < 6) continue;
+      host.appendChild(el('p', null, seg));
+    }
+    return host;
+  }
+
   function fail(msg) {
     hintEl.innerHTML = '';
     hintEl.appendChild(el('span', '', msg));
     cardsEl.innerHTML = '';
   }
 
-  /* ---------- 底部国家导航 ----------
-     原来这里是一整屏卡片墙。改成胶囊的理由：地球已经是主界面，卡片再占一屏
-     就是重复入口；而且"点国家 → 滚到卡片"要求用户滚动，打断观看。
-     现在点胶囊 = 地球飞过去 + 档案从右侧滑出，视线不用离开地球。 */
+  /* ---------- 国家入口 ----------
+     底部胶囊已删除：它和搜索框一起把地球压掉一条。
+     现在入口并入搜索框 —— 空输入聚焦时列出已收录国家（见 showCountryList）。 */
   function renderCards(list) {
     cardsEl.innerHTML = '';
-    list.forEach(function (c) {
-      var iso = c.iso_a2 || '';
-      var b = el('button', 'dock-item');
-      b.type = 'button';
-      b.dataset.iso = iso;
-      b.appendChild(el('span', 'di-iso', iso));
-      b.appendChild(el('span', 'di-name', c.name_zh || ''));
-      var n = 0;
-      Object.keys(MOD_LABEL).forEach(function (k) {
-        if (c.modalities && c.modalities[k]) n++;
-      });
-      b.title = (c.name_zh || '') + ' · ' + n + '/5 模态就绪';
-      b.addEventListener('click', function () { openDetail(iso, b); });
-      cardsEl.appendChild(b);
-    });
-
     var meta = document.getElementById('topbar-meta');
     if (meta && list.length) {
       var done = list.filter(function (x) { return x.status === 'complete'; }).length;
@@ -538,10 +553,10 @@
     }
 
     var txt = el('div', 'dtext');
-    if (d.summary_text) txt.appendChild(el('p', null, d.summary_text));
+    if (d.summary_text) txt.appendChild(paraText(d.summary_text, 2));
     if (d.custom_text) {
-      txt.appendChild(el('p', 'sub-label', '历史与民俗'));
-      txt.appendChild(el('p', null, d.custom_text));
+      txt.appendChild(el('div', 'sub-label', '历史与民俗'));
+      txt.appendChild(paraText(d.custom_text, 2));
     }
     right.appendChild(txt);
 
@@ -804,8 +819,40 @@
     });
   }
 
+  /* 空输入聚焦：给出已收录国家，替代被删掉的底部胶囊。
+     这是入口，不是提示语 —— 用户点一下就进，不用先背关键词。 */
+  function showCountryList() {
+    if (!IDX || !IDX.docs) return;
+    var seen = {}, list = [];
+    IDX.docs.forEach(function (d) {
+      if (d.iso && !seen[d.iso]) { seen[d.iso] = 1; list.push(d); }
+    });
+    qRes.innerHTML = '';
+    qRes.hidden = false;
+    qRes.appendChild(el('div', 'sr-empty', '已收录 ' + list.length + ' 个国家/地区'));
+    list.forEach(function (d) {
+      var item = el('div', 'sr-item');
+      var top = el('div', 'sr-top');
+      top.appendChild(el('span', 'sr-country', d.iso));
+      top.appendChild(el('span', 'sr-q', d.name));
+      item.appendChild(top);
+      item.addEventListener('click', function () {
+        openDetail(d.iso, cardOf(d.iso), false);
+        qRes.hidden = true;
+        qInput.blur();
+      });
+      qRes.appendChild(item);
+    });
+  }
+
   if (qInput) {
     var qTimer = null;
+    qInput.addEventListener('focus', function () {
+      if (!qInput.value.trim()) showCountryList();
+    });
+    qInput.addEventListener('blur', function () {
+      setTimeout(function () { if (!qInput.value.trim()) qRes.hidden = true; }, 160);
+    });
     qInput.addEventListener('input', function () {
       clearTimeout(qTimer);
       var v = qInput.value.trim();
@@ -1088,6 +1135,38 @@
     tryBase();
   }
 
+  /* 星空：球面均匀分布的静态点云。
+     没有它，地球像悬在一块纯黑布上；有了才有"在外太空看地球"的空间感。
+     半径 26~66 落在相机 far(100) 之内，不跟随地球自转，所以是"背景"。 */
+  function addStars(scene) {
+    var N = 2400;
+    var pos = new Float32Array(N * 3);
+    var col = new Float32Array(N * 3);
+    for (var i = 0; i < N; i++) {
+      var u = Math.random() * 2 - 1;
+      var th = Math.random() * Math.PI * 2;
+      var r = 26 + Math.pow(Math.random(), 0.65) * 40;
+      var sp = Math.sqrt(1 - u * u);
+      pos[i * 3] = r * sp * Math.cos(th);
+      pos[i * 3 + 1] = r * u;
+      pos[i * 3 + 2] = r * sp * Math.sin(th);
+      // 星色微差：少量暖白、一部分冷蓝、其余纯白，避免一片死白
+      var b = 0.32 + Math.random() * 0.68;
+      var t = Math.random();
+      if (t < 0.16) { col[i*3] = b; col[i*3+1] = b*0.87; col[i*3+2] = b*0.74; }
+      else if (t < 0.46) { col[i*3] = b*0.80; col[i*3+1] = b*0.90; col[i*3+2] = b; }
+      else { col[i*3] = b; col[i*3+1] = b; col[i*3+2] = b; }
+    }
+    var g = new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+    g.setAttribute('color', new THREE.Float32BufferAttribute(col, 3));
+    var m = new THREE.PointsMaterial({
+      size: 0.10, sizeAttenuation: true, vertexColors: true,
+      transparent: true, opacity: 0.9, depthWrite: false
+    });
+    scene.add(new THREE.Points(g, m));
+  }
+
   function srgbToLin(c) { return Math.pow(c, 2.2); }
 
   function earthMaterial(dayTex, nightTex) {
@@ -1138,8 +1217,8 @@
       '    col = day * mix(0.18, 1.0, dayAmt);',
       '  }',
       // 边缘大气：Fresnel 越靠轮廓越亮，模拟散射
-      '  float rim = pow(1.0 - max(dot(n, normalize(vV)), 0.0), 3.2);',
-      '  col += vec3(0.13, 0.34, 0.68) * rim * 0.85;',
+      '  float rim = pow(1.0 - max(dot(n, normalize(vV)), 0.0), 3.8);',
+      '  col += vec3(0.12, 0.32, 0.66) * rim * 0.30;',
       // 迎光面轻微提亮，增强立体感
       '  col *= 1.0 + 0.10 * smoothstep(0.55, 1.0, ndl);',
       '  gl_FragColor = vec4(l2s(col), 1.0);',
@@ -1203,6 +1282,8 @@
     renderer.setSize(w, h, false);
     stage.appendChild(renderer.domElement);
 
+    addStars(scene);
+
     var tilt = new THREE.Group();
     var spin = new THREE.Group();
     tilt.add(spin);
@@ -1216,15 +1297,15 @@
 
     /* 大气：两层。内层贴着球面做轮廓辉光，外层散开做稀薄的气体感。 */
     scene.add(new THREE.Mesh(
-      new THREE.SphereGeometry(1.013, 64, 48),
+      new THREE.SphereGeometry(1.008, 64, 48),
       new THREE.MeshBasicMaterial({
-        color: 0x4088c8, transparent: true, opacity: 0.11, side: THREE.BackSide
+        color: 0x4a90d0, transparent: true, opacity: 0.055, side: THREE.BackSide
       })
     ));
     scene.add(new THREE.Mesh(
-      new THREE.SphereGeometry(1.145, 48, 32),
+      new THREE.SphereGeometry(1.095, 48, 32),
       new THREE.MeshBasicMaterial({
-        color: 0x2a6096, transparent: true, opacity: 0.05, side: THREE.BackSide
+        color: 0x2a6096, transparent: true, opacity: 0.022, side: THREE.BackSide
       })
     ));
 
@@ -1259,6 +1340,19 @@
         }
         return;
       }
+      /* 各向异性过滤 —— 这是"糊"的主因。
+         球面越靠近轮廓，贴图被压缩得越厉害（水平方向几乎压成一条线）。
+         没有各向异性过滤时只能做各向同性的 mipmap 采样，边缘必然模糊。
+         开到硬件上限后，同样的贴图会明显锐利。 */
+      var maxAniso = renderer.capabilities.getMaxAnisotropy
+        ? renderer.capabilities.getMaxAnisotropy() : 1;
+      dayTex.anisotropy = maxAniso;
+      if (nightTex) nightTex.anisotropy = maxAniso;
+      dayTex.minFilter = THREE.LinearMipmapLinearFilter;
+      dayTex.magFilter = THREE.LinearFilter;
+      dayTex.needsUpdate = true;
+      if (nightTex) nightTex.needsUpdate = true;
+
       sphere.material = earthMaterial(dayTex, nightTex);
       grat.visible = false;
       landLine.visible = false;
@@ -1298,8 +1392,10 @@
       var dy = e.clientY - globe.last.y;
       globe.last.x = e.clientX;
       globe.last.y = e.clientY;
-      globe.vel.x = dx * 0.005;
-      globe.vel.y = dy * 0.005;
+      // 0.0022 弧度/像素 ≈ 每像素 0.126°，拖满 1200px 约转 150°。
+      // 原来 0.005 是整屏 280°，手一抖就转到背面去了。
+      globe.vel.x = dx * 0.0022;
+      globe.vel.y = dy * 0.0022;
       globe.spin.rotation.y += globe.vel.x;
       globe.tilt.rotation.x += globe.vel.y;
       var lim = 78 * D2R;
@@ -1713,7 +1809,8 @@ body{
 }
 
 #globe-stage{
-  position:fixed;inset:0;z-index:0;
+  /* 顶部让出 62px：顶栏是浮层，不该压在球上。之前球顶被搜索框切掉一条。 */
+  position:fixed;inset:62px 0 0 0;z-index:0;
   transform-origin:50% 50%;
   transition:transform .68s cubic-bezier(.22,.61,.36,1);
 }
@@ -1729,9 +1826,8 @@ body.panel-open #globe-stage{
 #topbar{
   position:fixed;top:0;left:0;right:0;z-index:30;
   display:flex;align-items:center;gap:24px;
-  padding:16px 26px;
-  background:linear-gradient(180deg,rgba(4,7,13,.92) 0%,rgba(4,7,13,.55) 62%,transparent 100%);
-  pointer-events:none;              /* 只有子元素可点，避免挡住地球拖拽 */
+  padding:14px 26px;
+  pointer-events:none;              /* 只有子元素可点，不挡地球拖拽 */
 }
 #topbar > *{pointer-events:auto}
 
@@ -1745,27 +1841,39 @@ body.panel-open #globe-stage{
   color:var(--ink-faint);
 }
 
+/* 搜索框：默认收窄、无提示语，聚焦时展开。
+   这是页面上唯一" authored moment "的动作 —— 其余都克制。 */
 .search-wrap{
-  position:relative;flex:1 1 auto;max-width:520px;margin:0 auto;
+  position:relative;
+  width:230px;margin:0 auto;
+  transition:width .52s cubic-bezier(.22,.61,.36,1);
 }
+.search-wrap:focus-within{width:min(460px, 46vw)}
+
+.search-icon{
+  position:absolute;left:15px;top:50%;transform:translateY(-50%);
+  width:15px;height:15px;pointer-events:none;
+  fill:none;stroke:rgba(150,178,214,.62);stroke-width:1.7;
+  stroke-linecap:round;stroke-linejoin:round;
+  transition:stroke .22s ease;
+}
+.search-wrap:focus-within .search-icon{stroke:rgba(240,200,120,.85)}
+
 #q{
   width:100%;box-sizing:border-box;
-  padding:11px 16px;font-size:13.5px;font-family:inherit;
-  color:var(--ink);
-  background:rgba(12,20,34,.72);
-  border:1px solid rgba(120,150,190,.30);
+  padding:10px 14px 10px 38px;font-size:13px;font-family:inherit;
+  color:var(--ink);caret-color:#f0c878;
+  background:rgba(11,18,31,.78);
+  border:1px solid rgba(120,150,190,.26);
   border-radius:999px;outline:none;
-  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
-  transition:border-color .22s ease,background .22s ease,box-shadow .22s ease;
   -webkit-appearance:none;appearance:none;
+  transition:border-color .22s ease,background .22s ease;
 }
-#q::placeholder{color:var(--ink-faint)}
 #q:focus{
-  border-color:rgba(216,178,106,.62);
-  background:rgba(14,22,38,.88);
-  box-shadow:0 0 0 3px rgba(216,178,106,.10);
+  border-color:rgba(216,178,106,.52);
+  background:rgba(13,21,36,.92);
 }
-#q::-webkit-search-cancel-button{filter:invert(.45)}
+#q::-webkit-search-cancel-button{filter:invert(.42)}
 
 .topbar-meta{
   flex:0 0 auto;font-size:11px;letter-spacing:.10em;color:var(--ink-faint);
@@ -1816,17 +1924,20 @@ body.panel-open #globe-stage{
 .dock-item.active .di-iso{color:rgba(242,217,164,.75)}
 
 /* --- 右侧档案面板 --- */
+/* 档案面板：一张浮起来的卡片，四边留白、圆角、带偏移的柔和阴影。
+   之前是贴边的侧栏，像浏览器自带的抽屉；浮卡才有"弹出来"的感觉。 */
 #detail{
-  position:fixed;top:0;right:0;z-index:40;
-  width:min(452px,100vw);height:100vh;height:100dvh;
+  position:fixed;top:16px;right:16px;bottom:16px;z-index:40;
+  width:min(500px, calc(100vw - 32px));
   display:flex;flex-direction:column;
-  background:rgba(8,13,22,.93);
-  border-left:1px solid rgba(120,150,190,.24);
-  backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);
-  box-shadow:-24px 0 64px rgba(0,0,0,.5);
-  transform:translateX(102%);
-  transition:transform .52s cubic-bezier(.22,.61,.36,1);
+  background:rgba(9,14,24,.955);
+  border:1px solid rgba(126,158,198,.22);
+  border-radius:20px;
+  box-shadow:0 28px 70px rgba(0,0,0,.62), 0 3px 10px rgba(0,0,0,.42);
+  transform:translateX(calc(100% + 28px));
+  transition:transform .56s cubic-bezier(.22,.61,.36,1);
   visibility:hidden;
+  overflow:hidden;                 /* 圆角要裁掉内部滚动区的直角 */
 }
 #detail.open{transform:none;visibility:visible}
 #detail[hidden]{display:none}
@@ -1844,11 +1955,17 @@ body.panel-open #globe-stage{
   font-variant-numeric:tabular-nums;
 }
 .dscroll{
-  flex:1 1 auto;overflow-y:auto;overscroll-behavior:contain;
-  padding:18px 26px 30px;
+  flex:1 1 auto;overflow-y:auto;overflow-x:hidden;
+  overscroll-behavior:contain;
+  padding:18px 24px 28px;
 }
+/* 内部任何元素都不许撑破面板产生横向滚动条 */
+#detail *{max-width:100%}
+#detail img,#detail video,#detail canvas{max-width:100%;height:auto}
+#detail .dwrap,#detail .dblock,#detail .meta,#detail .facets{min-width:0}
+#detail pre,#detail code{white-space:pre-wrap;word-break:break-word}
 .dclose{
-  position:absolute;top:16px;right:16px;
+  position:absolute;top:15px;right:15px;
   width:30px;height:30px;border-radius:50%;
   display:flex;align-items:center;justify-content:center;
   font-size:19px;line-height:1;cursor:pointer;
@@ -1878,20 +1995,77 @@ body.panel-open #globe-stage{
   .brand-en{display:none}
   .brand-cn{font-size:17px}
   .topbar-meta{display:none}
-  .search-wrap{max-width:none;order:3;flex-basis:100%;margin-top:2px}
+  .search-wrap{width:100%;order:3;flex-basis:100%;margin-top:8px}
+  .search-wrap:focus-within{width:100%}
+  #globe-stage{inset:104px 0 0 0}
   #q{font-size:13px;padding:10px 14px}
   #dock{bottom:20px}
   .dock-item{padding:8px 13px;font-size:12px}
   #detail{
-    width:100vw;height:78vh;height:78dvh;top:auto;bottom:0;
-    border-left:0;border-top:1px solid rgba(120,150,190,.26);
-    border-radius:18px 18px 0 0;
-    transform:translateY(102%);
+    top:auto;left:10px;right:10px;bottom:10px;
+    width:auto;height:82vh;height:82dvh;
+    border-radius:18px;
+    transform:translateY(calc(100% + 20px));
   }
   #detail.open{transform:none}
   body.panel-open #globe-stage{transform:translateY(-14%) scale(.9)}
   #footline{display:none}
 }
+
+/* ============ 浏览器表面 ============
+   这些部件不是画出来的，但一样带设计：选区颜色、滚动条、焦点环。
+   它们是最便宜的"这页是被建造的"信号，也是最常被漏掉的一层。 */
+::selection{
+  background:rgba(216,178,106,.30);
+  color:#fdf6e8;
+}
+::-moz-selection{background:rgba(216,178,106,.30);color:#fdf6e8}
+
+.dscroll::-webkit-scrollbar,
+#q-res::-webkit-scrollbar{width:10px}
+.dscroll::-webkit-scrollbar-track,
+#q-res::-webkit-scrollbar-track{background:transparent}
+.dscroll::-webkit-scrollbar-thumb,
+#q-res::-webkit-scrollbar-thumb{
+  background:rgba(140,168,208,.24);
+  border:3px solid transparent;
+  background-clip:padding-box;
+  border-radius:10px;
+}
+.dscroll::-webkit-scrollbar-thumb:hover,
+#q-res::-webkit-scrollbar-thumb:hover{
+  background:rgba(216,178,106,.42);
+  background-clip:padding-box;
+}
+.dscroll{scrollbar-width:thin;scrollbar-color:rgba(140,168,208,.28) transparent}
+
+:focus-visible{
+  outline:2px solid rgba(216,178,106,.78);
+  outline-offset:3px;
+  border-radius:6px;
+}
+#q:focus-visible{outline-offset:0;border-radius:999px}
+
+/* ============ 正文段落 ============
+   中文长段落首行缩进两字，段间留白；不缩进会连成一片很难读。 */
+.prose p{
+  margin:0 0 .82em;
+  text-indent:2em;
+  line-height:1.95;
+  color:var(--ink-dim);
+  font-size:13.5px;
+  letter-spacing:.01em;
+}
+.prose p:last-child{margin-bottom:0}
+.prose{padding:0}
+
+/* 面板里的标题层级：分组标签比正文重一档，比大标题轻一档 */
+.sub-label{
+  font-size:11px;letter-spacing:.12em;text-transform:none;
+  color:rgba(216,178,106,.82);
+  margin:20px 0 10px;
+}
+.sub-label:first-child{margin-top:0}
 </style>
 </body>
 </html>
