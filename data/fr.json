@@ -138,6 +138,10 @@
   "collected_at": "2026-10-25T23:16:59+08:00",
   "collector": "scripts/collect.py v0.2",
   "needs_review": true,
+  "review_short": [
+    "摘要 292/300 字",
+    "镜厅缺主视角图"
+  ],
   "review_notes": [
     "P443 发音语种不符已弃用：Hu-francia.ogg、Th-france.ogg、Jer-France.ogg（P443 不保证语种，须按文件名筛）",
     "Commons 无可用发音，语音走构建期 TTS 兜底（待接）",

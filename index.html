@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-10-26-H">
+<meta name="build" content="2026-10-26-I">
 <title>寰宇图志 · Atlas Mundi</title>
 <meta name="description" content="寰宇图志：3D 地球上的多模态国家文化图谱">
 <style>
@@ -276,21 +276,30 @@
   <div class="brand">
     <span class="brand-cn">寰宇图志</span>
   </div>
-  <!-- 搜索默认只是一个圆形按钮。点它才展开输入框和下拉 ——
-       常驻的输入框加下拉会把地球挡掉一大块。 -->
+  <!-- 搜索在左侧：一个圆钮，点开向右展开成输入框。
+       展开只是绝对定位面板改自己的宽度，不动 topbar 排版 ——
+       所以右侧计数不会跟着跳，动效才顺。
+       展开后右端还有一个下拉按钮：国家列表要用户自己点，不再一点搜索就糊一脸。 -->
   <div class="search-wrap" id="search-wrap">
-    <svg class="search-icon" viewBox="0 0 24 24" aria-hidden="true">
-      <circle cx="11" cy="11" r="6.5"></circle>
-      <line x1="16" y1="16" x2="21" y2="21"></line>
-    </svg>
-    <input type="search" id="q" autocomplete="off" spellcheck="false"
-           aria-label="搜索国家、地标、语言、饮食与节庆">
-    <button class="search-toggle" id="search-toggle" aria-label="搜索国家与知识库">
+    <button class="search-toggle" id="search-toggle" type="button" aria-label="搜索国家与知识库">
       <svg viewBox="0 0 24 24" aria-hidden="true">
         <circle cx="11" cy="11" r="6.5"></circle>
         <line x1="16" y1="16" x2="21" y2="21"></line>
       </svg>
     </button>
+    <div class="search-panel" id="search-panel">
+      <svg class="search-icon" viewBox="0 0 24 24" aria-hidden="true">
+        <circle cx="11" cy="11" r="6.5"></circle>
+        <line x1="16" y1="16" x2="21" y2="21"></line>
+      </svg>
+      <input type="search" id="q" autocomplete="off" spellcheck="false"
+             aria-label="搜索国家、地标、语言、饮食与节庆">
+      <button class="search-drop" id="search-drop" type="button" aria-label="展开国家列表">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <polyline points="6 9.5 12 15.5 18 9.5"></polyline>
+        </svg>
+      </button>
+    </div>
     <div class="search-res" id="q-res" hidden></div>
   </div>
   <div class="topbar-meta" id="topbar-meta"></div>
@@ -386,12 +395,39 @@
     return n;
   }
 
-  /* 把一整段长文本按句子切成分段。
-     中文长段落不缩进、不分段会连成一片，读起来非常吃力；
-     每句都单独成段又太碎，所以两句一段。 */
+  /* 按句切分。中文长段落不缩进、不分段会连成一片，读起来非常吃力；
+     每句都单独成段又太碎，所以调用方按两句一段拼回去。 */
+  function splitSent(text) {
+    var src = String(text || '').trim();
+    var out = [], buf = '', marks = '。！？；';
+    for (var i = 0; i < src.length; i++) {
+      buf += src.charAt(i);
+      if (marks.indexOf(src.charAt(i)) >= 0) {
+        if (buf.trim()) out.push(buf.trim());
+        buf = '';
+      }
+    }
+    if (buf.trim()) out.push(buf.trim());
+    return out;
+  }
+
   function fmtTime(x) {
     x = Math.max(0, Math.floor(x || 0));
     return Math.floor(x / 60) + ':' + ('0' + (x % 60)).slice(-2);
+  }
+
+  /* 摘要的末尾本来就含着一份"历史与民俗"（采集时为凑字数拼进去的），
+     再单列一次就是把同样两段念两遍 —— 面板里最扎眼的废话就是它。
+     拿 custom 的前 5 个字去摘要里找落点，找到就从那句起截断。 */
+  function trimDup(sum, cus) {
+    if (!sum || !cus) return sum;
+    var probe = cus.replace(/\s/g, '').slice(0, 5);
+    if (probe.length < 4) return sum;
+    var ss = splitSent(sum);
+    for (var i = 0; i < ss.length; i++) {
+      if (ss[i].replace(/\s/g, '').indexOf(probe) >= 0) return ss.slice(0, i).join('');
+    }
+    return sum;
   }
 
   /* 自绘播放器。浏览器原生 <audio controls> 是一整块浅色系统控件，
@@ -407,8 +443,10 @@
     btn.setAttribute('aria-label', '播放');
     btn.innerHTML = ICON_PLAY;
     var bar = el('div', 'aud-bar');
+    var track = el('div', 'aud-track');
     var fill = el('div', 'aud-fill');
-    bar.appendChild(fill);
+    track.appendChild(fill);
+    bar.appendChild(track);
     var time = el('span', 'aud-time', '0:00');
     wrap.appendChild(btn);
     wrap.appendChild(bar);
@@ -418,6 +456,14 @@
     au.preload = 'metadata';
     setAsset(au, src);
 
+    /* 计时显示「已播 / 总长」：总长也直接说明这段语音有多长，
+       3 秒的国名读音和 40 秒的介绍，一眼能分出来。 */
+    function paint(now) {
+      var d = au.duration || 0;
+      var cur = (now == null ? au.currentTime : now) || 0;
+      time.textContent = fmtTime(cur) + ' / ' + fmtTime(d);
+      fill.style.width = d ? Math.min(100, (cur / d) * 100).toFixed(1) + '%' : '0%';
+    }
     function reset() {
       wrap.classList.remove('playing');
       btn.innerHTML = ICON_PLAY;
@@ -437,41 +483,24 @@
       btn.setAttribute('aria-label', '暂停');
     });
     au.addEventListener('pause', reset);
-    au.addEventListener('ended', function () {
-      reset();
-      fill.style.width = '0%';
-      time.textContent = fmtTime(au.duration);
-    });
-    au.addEventListener('loadedmetadata', function () { time.textContent = fmtTime(au.duration); });
-    au.addEventListener('timeupdate', function () {
-      var d = au.duration || 0;
-      fill.style.width = d ? ((au.currentTime / d) * 100).toFixed(1) + '%' : '0%';
-      time.textContent = fmtTime(au.currentTime);
-    });
+    au.addEventListener('ended', function () { reset(); paint(0); });
+    au.addEventListener('loadedmetadata', function () { paint(); });
+    au.addEventListener('timeupdate', function () { paint(); });
     bar.addEventListener('click', function (e) {
-      var r = bar.getBoundingClientRect();
-      if (!au.duration || !r.width) return;
-      au.currentTime = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)) * au.duration;
+      var d = au.duration || 0;
+      if (!d) return;
+      var r = track.getBoundingClientRect();
+      if (!r.width) return;
+      au.currentTime = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)) * d;
+      paint();
     });
     return wrap;
   }
 
   function paraText(text, perPara) {
     var host = el('div', 'prose');
-    var src = String(text || '').trim();
-    if (!src) return host;
-    var parts = [];
-    var buf = '';
-    var marks = '。！？；';
-    for (var i = 0; i < src.length; i++) {
-      buf += src.charAt(i);
-      if (marks.indexOf(src.charAt(i)) >= 0) {
-        if (buf.trim()) parts.push(buf.trim());
-        buf = '';
-      }
-    }
-    if (buf.trim()) parts.push(buf.trim());
-
+    var parts = splitSent(text);
+    if (!parts.length) return host;
     var per = perPara || 2;
     for (var k = 0; k < parts.length; k += per) {
       var seg = parts.slice(k, k + per).join('');
@@ -481,16 +510,13 @@
     return host;
   }
 
-  var toastOnce = false;
   function onGlobeReady() {
+    /* 提示文字和地球一起淡出，不要"啪"一下子消失 —— 那一下也算一次闪。 */
     var m = document.getElementById('globe-msg');
-    if (m) m.remove();
-    if (toastOnce) return;
-    toastOnce = true;
-    var t = el('div', 'toast', '拖动旋转 · 滚轮缩放 · 点击国名或国土');
-    document.body.appendChild(t);
-    setTimeout(function () { t.classList.add('out'); }, 2900);
-    setTimeout(function () { if (t.parentNode) t.remove(); }, 4000);
+    if (m) {
+      m.classList.add('gone');
+      setTimeout(function () { if (m.parentNode) m.remove(); }, 700);
+    }
   }
 
   function fail(msg) {
@@ -657,7 +683,8 @@
     }
 
     var txt = el('div', 'dtext');
-    if (d.summary_text) txt.appendChild(paraText(d.summary_text, 2));
+    var sumTxt = trimDup(d.summary_text, d.custom_text);
+    if (sumTxt) txt.appendChild(paraText(sumTxt, 2));
     if (d.custom_text) {
       txt.appendChild(el('div', 'sub-label', '历史与民俗'));
       txt.appendChild(paraText(d.custom_text, 2));
@@ -721,16 +748,18 @@
     }
     if (without.length) {
       right.appendChild(el('div', 'pending',
-        '暂无语音：' + without.map(function (l) { return l.name_zh; }).join('、')
-        + ' —— 待补音源或构建期 TTS'));
+        '暂无语音：' + without.map(function (l) { return l.name_zh; }).join('、')));
     }
 
-    /* 待补 */
-    if (d.review_notes && d.review_notes.length) {
-      right.appendChild(el('div', 'sub-label', '待补与复核（needs_review）'));
-      var ul = el('ul', 'todo-list');
-      d.review_notes.forEach(function (t) { ul.appendChild(el('li', null, t)); });
-      right.appendChild(ul);
+    /* 数据待补：只写短标签，一行说完。
+       详细成因（P443 语种不符、Commons 无音源…）留在 docs 与 CI 日志里 ——
+       面板是给人看国家的地方，不是构建日志。 */
+    var brief = d.review_short || [];
+    if (brief.length) {
+      var dq = el('div', 'dq');
+      dq.appendChild(el('span', 'dq-k', '待补'));
+      dq.appendChild(el('span', 'dq-v', brief.join(' · ')));
+      right.appendChild(dq);
     }
 
     wrap.appendChild(left);
@@ -897,8 +926,7 @@
     qRes.hidden = false;
     if (!hits.length) {
       qRes.appendChild(el('div', 'sr-empty',
-        '知识库里没有匹配内容（当前 ' + (IDX ? IDX.N : 0) + ' 条文档）。这不是故障 —— '
-        + '数据集目前只覆盖 3 个国家/地区，问别的本来就答不出来。'));
+        '没有匹配内容（知识库共 ' + (IDX ? IDX.N : 0) + ' 条）'));
       return;
     }
     hits.forEach(function (h) {
@@ -911,34 +939,37 @@
       item.appendChild(el('div', 'sr-a', d.a));
       item.addEventListener('click', function () {
         openDetail(d.iso, cardOf(d.iso), false);
-        qRes.hidden = true;            // 选中即收起，视线回到地球
+        setSearch(false);              // 选中即收起，视线回到地球
         if (qInput) qInput.blur();
       });
       qRes.appendChild(item);
     });
   }
 
-  /* 空输入聚焦：给出已收录国家，替代被删掉的底部胶囊。
-     这是入口，不是提示语 —— 用户点一下就进，不用先背关键词。 */
+  /* 国家列表：由搜索框右端的下拉按钮触发（不自动弹）。
+     空输入直接点开时它就是入口，用户不用先背关键词。 */
   function showCountryList() {
-    if (!IDX || !IDX.docs) return;
+    if (!IDX || !IDX.docs) {
+      qRes.innerHTML = '';
+      qRes.hidden = false;
+      qRes.appendChild(el('div', 'sr-empty', '知识库索引尚未就绪'));
+      return;
+    }
     var seen = {}, list = [];
     IDX.docs.forEach(function (d) {
       if (d.iso && !seen[d.iso]) { seen[d.iso] = 1; list.push(d); }
     });
     qRes.innerHTML = '';
     qRes.hidden = false;
-    qRes.appendChild(el('div', 'sr-empty', '已收录 ' + list.length + ' 个国家/地区'));
     list.forEach(function (d) {
-      var item = el('div', 'sr-item');
-      var top = el('div', 'sr-top');
-      top.appendChild(el('span', 'sr-country', d.iso));
-      top.appendChild(el('span', 'sr-q', d.name));
-      item.appendChild(top);
+      var item = el('div', 'sr-item sr-country-row');
+      item.appendChild(el('span', 'sr-country', d.iso));
+      item.appendChild(el('span', 'sr-q', d.name));
+      item.appendChild(el('span', 'sr-arrow', '›'));
       item.addEventListener('click', function () {
         openDetail(d.iso, cardOf(d.iso), false);
-        qRes.hidden = true;
-        qInput.blur();
+        setSearch(false);
+        if (qInput) qInput.blur();
       });
       qRes.appendChild(item);
     });
@@ -946,31 +977,51 @@
 
   var searchWrap = document.getElementById('search-wrap');
   var searchToggle = document.getElementById('search-toggle');
-  if (searchToggle && searchWrap) {
+  var searchDrop = document.getElementById('search-drop');
+
+  /* 开合只有一个入口，避免三处各改一半导致状态对不上 */
+  function setSearch(open, list) {
+    if (!searchWrap) return;
+    searchWrap.classList.toggle('open', !!open);
+    if (!open) {
+      qRes.hidden = true;
+      searchWrap.classList.remove('list-open');
+      return;
+    }
+    searchWrap.classList.toggle('list-open', !!list);
+    if (list) showCountryList(); else qRes.hidden = true;
+  }
+
+  if (searchToggle) {
     searchToggle.addEventListener('click', function (e) {
       e.stopPropagation();
-      searchWrap.classList.add('open');
-      qInput.focus();
+      setSearch(true, false);
+      // 等面板展开到一半再聚焦，光标不会跟着宽度一起"跑"
+      setTimeout(function () { if (qInput) qInput.focus(); }, 150);
     });
   }
+
+  /* 下拉按钮：只有点了它才列国家。搜索钮只管"打开搜索框"。 */
+  if (searchDrop) {
+    searchDrop.addEventListener('click', function (e) {
+      e.stopPropagation();
+      var openList = searchWrap.classList.contains('list-open');
+      if (openList) { setSearch(true, false); return; }
+      if (qInput) qInput.value = '';
+      setSearch(true, true);
+    });
+  }
+
   document.addEventListener('click', function (e) {
-    if (searchWrap && !searchWrap.contains(e.target)) {
-      searchWrap.classList.remove('open');
-      qRes.hidden = true;
-    }
+    if (searchWrap && !searchWrap.contains(e.target)) setSearch(false);
   });
 
   if (qInput) {
     var qTimer = null;
-    qInput.addEventListener('focus', function () {
-      if (!qInput.value.trim()) showCountryList();
-    });
-    qInput.addEventListener('blur', function () {
-      setTimeout(function () { if (!qInput.value.trim()) qRes.hidden = true; }, 160);
-    });
     qInput.addEventListener('input', function () {
       clearTimeout(qTimer);
       var v = qInput.value.trim();
+      searchWrap.classList.remove('list-open');
       qTimer = setTimeout(function () {
         if (v.length < 2) { qRes.hidden = true; qRes.innerHTML = ''; return; }
         renderResults(v);
@@ -979,8 +1030,7 @@
     qInput.addEventListener('keydown', function (e) {
       if (e.key === 'Escape') {
         qInput.value = '';
-        qRes.hidden = true;
-        if (searchWrap) searchWrap.classList.remove('open');
+        setSearch(false);
         qInput.blur();
       }
     });
@@ -1048,7 +1098,12 @@
     labelsOn: true,       // 国名默认显示
     nightTarget: 0,       // 0=昼夜，1=全夜
     texReady: false,
-    camTarget: 3.04,      // 相机的目标 z，每帧阻尼逼近
+    fadeStart: 0,         // 淡入起点（performance.now），0 表示已完成
+    mixBTarget: 0,        // 8K 交叉淡化的目标值
+    tex4k: null,
+    atmo: null,
+    camTarget: 3.02,      // 相机的目标 z，每帧阻尼逼近
+    camMode: 'far',       // far=全球视角 / near=聚焦某国 / manual=用户滚轮缩放
     rotTargetY: 0,        // 飞行目标经度（弧度）
     rotTargetX: 0,
     flying: false
@@ -1225,40 +1280,48 @@
      Access-Control-Allow-Origin，否则纹理会加载失败（画布被污染）。这是
      图片与纹理最容易踩的差别 —— 之前 assets 里的图片能显示，不代表贴图能用。
 
-     所以这里做了三级降级：
-       1. OBS（快，但需要桶配 CORS）
-       2. 仓库同域（慢，但无跨域问题）
-       3. 都没有 → 素色球 + 经纬网 + 大陆轮廓（仍是可用的地球，只是没有地表纹理）
-     不管哪一级，页面都不至于空着。 */
+     贴图分两级加载，不是一次性等：
+       1. 4K（约 1MB）先到 → 球先淡入，用户不用盯着黑星空等 8K
+       2. 8K 后台补 → 到位后和 4K 交叉淡化 0.7 秒，不硬切
+     这样既解决"清晰度"，也解决"从无到好那一下很僵硬"。 */
   var TEX_BASES = [OBS_BASE + 'assets/tex/', 'assets/tex/'];
 
-  function loadEarthTextures(done) {
-    var loader = new THREE.TextureLoader();
+  /* 单文件多源尝试：OBS 失败退仓库同域 */
+  function loadTex(loader, name, ok, fail) {
     var i = 0;
-    var settled = false;
+    (function next() {
+      if (i >= TEX_BASES.length) { fail(); return; }
+      var url = TEX_BASES[i++] + name;
+      loader.load(url, function (t) { ok(t, url); }, undefined, next);
+    })();
+  }
 
-    function finish(day, night) {
-      if (settled) return;
-      settled = true;
-      done(day, night);
-    }
+  /* 8K 只在真有本钱的情况下加载：
+     - GPU 最大纹理尺寸够 8192（老集显/手机常见上限 4096）
+     - 不是移动端（移动端 8K 纹理 ~180MB 显存，容易直接掉帧）
+     - 用户没开省流量 */
+  function canUse8K() {
+    if (window.matchMedia && window.matchMedia('(pointer:coarse)').matches) return false;
+    if (/Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) return false;
+    if (navigator.connection && navigator.connection.saveData) return false;
+    if ((window.innerWidth || 0) < 1024) return false;
+    return true;
+  }
 
-    function tryBase() {
-      if (i >= TEX_BASES.length) { finish(null, null); return; }
-      var base = TEX_BASES[i++];
-      loader.load(base + 'earth-day.webp',
-        function (day) {
-          // 夜景可选：拿不到就只用日间图做昼夜明暗
-          loader.load(base + 'earth-night.webp',
-            function (night) { finish(day, night); },
-            undefined,
-            function () { finish(day, null); });
-        },
-        undefined,
-        function () { tryBase(); }        // 这一级失败，换下一级
-      );
+  function loadEarthTextures(cb) {
+    var loader = new THREE.TextureLoader();
+    var day4 = null, night = null, pending = 2;
+
+    function maybeDone() {
+      if (--pending > 0) return;
+      cb(day4, night);
     }
-    tryBase();
+    loadTex(loader, 'earth-day.webp',
+      function (t) { day4 = t; maybeDone(); },
+      function () { day4 = null; maybeDone(); });
+    loadTex(loader, 'earth-night.webp',
+      function (t) { night = t; maybeDone(); },
+      function () { night = null; maybeDone(); });
   }
 
   /* 星空：球面均匀分布的静态点云。
@@ -1299,10 +1362,12 @@
     var hasNight = nightTex ? 1 : 0;
     var uniforms = {
       dayMap: { value: dayTex },
+      dayMapB: { value: dayTex },   // 8K 到达前先指向同一张，mix 恒为 0
+      uMixB: { value: 0 },          // 0 → 1 时从 dayMap 交叉淡化到 dayMapB
       nightMap: { value: nightTex || dayTex },
       hasNight: { value: hasNight },
-      nightMix: { value: 0 },      // 0=正常昼夜，1=全夜（看城市灯光）
-      lightDir: { value: new THREE.Vector3(0.95, 0.24, 0.26).normalize() }
+      nightMix: { value: 0 },       // 0=白天，1=全夜（看城市灯光）
+      uFade: { value: 0 }           // 整球淡入，避免"啪"一下贴上来
     };
 
     var vert = [
@@ -1318,12 +1383,18 @@
       '}'
     ].join('\n');
 
+    /* 光照只跟「面朝相机」有关，不再跟世界坐标里的太阳位置有关。
+       原因很直接：地球一转，固定光源就会把暗面转到正面，于是"白天模式"
+       看起来总有半颗球是黑的。现在亮面永远朝着观察者，边缘做一点收暗
+       保留球体的立体感，但不再出现晨昏线 —— 白天就是全球白天。 */
     var frag = [
       'uniform sampler2D dayMap;',
+      'uniform sampler2D dayMapB;',
       'uniform sampler2D nightMap;',
+      'uniform float uMixB;',
       'uniform float hasNight;',
-      'uniform vec3 lightDir;',
       'uniform float nightMix;',
+      'uniform float uFade;',
       'varying vec2 vUv;',
       'varying vec3 vN;',
       'varying vec3 vV;',
@@ -1331,28 +1402,24 @@
       'vec3 l2s(vec3 c){ return pow(c, vec3(1.0/2.2)); }',
       'void main() {',
       '  vec3 n = normalize(vN);',
-      '  float ndl = dot(n, normalize(lightDir));',
-      // 晨昏线留一点柔化，硬切会有锯齿
-      '  float dayAmt = smoothstep(-0.30, 0.30, ndl);',
-      // nightMix=1 时整球切到夜面：这是"看夜晚的地球"模式，
-      // 而不是把白天压暗 —— 城市灯光在暗面上才看得清。
-      '  dayAmt *= (1.0 - nightMix);',
-      '  vec3 day = s2l(texture2D(dayMap, vUv).rgb);',
-      '  vec3 col;',
+      '  vec3 v = normalize(vV);',
+      '  float facing = max(dot(n, v), 0.0);',
+      // 只在轮缘收暗到 80%，既有体积感又不出现"暗面"
+      '  float limb = mix(0.80, 1.0, smoothstep(0.0, 0.66, facing));',
+      '  vec3 dA = s2l(texture2D(dayMap, vUv).rgb);',
+      '  vec3 dB = s2l(texture2D(dayMapB, vUv).rgb);',
+      '  vec3 day = mix(dA, dB, uMixB) * limb;',
+      '  vec3 col = day;',
       '  if (hasNight > 0.5) {',
-      '    vec3 night = s2l(texture2D(nightMap, vUv).rgb);',
-      // 夜面略微提亮，让城市灯光看得见但不刺眼
-      '    col = mix(night * 2.8, day, dayAmt);',
-      '  } else {',
-      // 没有夜景图时，暗面压到 18%，保留一点轮廓可读性
-      '    col = day * mix(0.18, 1.0, dayAmt);',
+      '    vec3 lights = s2l(texture2D(nightMap, vUv).rgb);',
+      // 夜空 = 城市灯光 + 极淡的地表底色，否则除灯光外纯黑一片
+      '    vec3 night = lights * 2.6 + day * 0.055;',
+      '    col = mix(day, night, nightMix);',
       '  }',
       // 边缘大气：Fresnel 越靠轮廓越亮，模拟散射
-      '  float rim = pow(1.0 - max(dot(n, normalize(vV)), 0.0), 3.8);',
-      '  col += vec3(0.12, 0.32, 0.66) * rim * 0.30;',
-      // 迎光面轻微提亮，增强立体感
-      '  col *= 1.0 + 0.10 * smoothstep(0.55, 1.0, ndl);',
-      '  gl_FragColor = vec4(l2s(col), 1.0);',
+      '  float rim = pow(1.0 - facing, 3.8);',
+      '  col += vec3(0.12, 0.32, 0.66) * rim * 0.26;',
+      '  gl_FragColor = vec4(l2s(col) * uFade, 1.0);',
       '}'
     ].join('\n');
 
@@ -1412,11 +1479,17 @@
   /* ---------- 相机与飞行动画 ----------
      用"目标值 + 每帧阻尼逼近"而不是 tween 时间轴：这样飞行途中随时可以
      被拖拽打断，不会出现动画和手动操作互相抢控制权。 */
-  /* 相机距离要保证整球入画：fov=42° 时视口高 = 2*z*tan(21°)。
-     z=3.02 → 视高 2.32（球占 86%）；z=2.62 → 视高 2.01（球刚好占满）。
-     之前的 1.92 视高只有 1.47，球被上下各切掉 13%，看起来像被压扁。 */
-  var CAM_FAR = 3.04;      // 全球视角
-  var CAM_NEAR = 2.60;     // 聚焦某国（整球刚好入画）
+  /* 相机距离要保证「整颗球 + 大气层」都在画面里：
+     fov=42° 时视口高 = 2*z*tan(21°)，要装下半径 R 的球，z ≥ R/tan(21°)。
+     之前的 CAM_NEAR=2.60 是按半径 1.0 算出来的临界值，可大气层半径 1.095，
+     于是点到某个国家、相机压到 2.60 时上下各被切掉一条 —— 这才是
+     "点开之后上面一小部分被截断"的真凶。现在两个距离都由 fitZ() 按实际
+     大气外缘反算，竖屏时还会把水平方向一起算进去。
+     手动缩放下限单独给（比聚焦距离近得多），才能像以前一样贴到地表看细节。 */
+  var CAM_FAR = 3.02;      // 全球视角（buildGlobe 里按视口重算）
+  var CAM_NEAR = 2.81;     // 聚焦某国（整球入画）
+  var CAM_MIN = 1.42;      // 手动缩放最近：球会超出画面，等于贴近看
+  var CAM_MAX = 5.20;
 
   function flyTo(lon, lat, camZ) {
     if (!globe.spin) return;
@@ -1432,12 +1505,14 @@
     var c = null;
     for (var i = 0; i < list.length; i++) if (list[i].iso === iso) c = list[i];
     if (!c) return;
+    globe.camMode = 'near';
     flyTo(c.center[0], c.center[1], CAM_NEAR);
     globe.idleUntil = performance.now() + 1e9;   // 面板开着就不自转
   }
 
   function flyOut() {
     if (!globe.spin) return;
+    globe.camMode = 'far';
     globe.camTarget = CAM_FAR;
     globe.rotTargetX = 0;
     globe.flying = true;
@@ -1453,12 +1528,40 @@
 
     var scene = new THREE.Scene();
     var camera = new THREE.PerspectiveCamera(42, w / h, 0.1, 100);
+
+    /* 整球入画所需的相机距离。
+       注意是 sin 不是 tan：球体的投影边界由切线锥决定，视半角 = asin(R/z)。
+       用 tan（当平面圆盘算）会得到偏小的距离，球顶球底就差那一两条像素被切掉。
+       竖屏时水平方向更紧，所以取竖直/水平中更小的那个半角。
+       比例直接量 DOM，不用 camera.aspect —— 首帧那一刻的 aspect 有可能还没定。 */
+    function stageAspect() {
+      return (stage.clientHeight > 0) ? (stage.clientWidth / stage.clientHeight) : 1.78;
+    }
+    function fitZ(R) {
+      var vHalf = 21 * D2R;
+      var hHalf = Math.atan(Math.tan(vHalf) * stageAspect());
+      return R / Math.sin(Math.min(vHalf, hHalf));
+    }
+    /* 竖屏时若严格按 1.14（含大气外缘）装下，球只能占屏高四成，太小。
+       竖屏改按 1.02 —— 球体本身几乎满宽，大气在左右各裁掉一点点看不出。 */
+    function farZ() { return fitZ(stageAspect() < 1.05 ? 1.02 : 1.14); }
+    function nearZ() { return fitZ(stageAspect() < 1.05 ? 1.00 : 1.07); }
+
+    CAM_FAR = farZ();
+    CAM_NEAR = nearZ();
     camera.position.set(0, 0, CAM_FAR);
+    globe.camTarget = CAM_FAR;
+    globe.camMode = 'far';
 
     var renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
     renderer.setSize(w, h, false);
     stage.appendChild(renderer.domElement);
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        renderer.domElement.classList.add('ready');
+      });
+    });
 
     addStars(scene);
 
@@ -1473,23 +1576,23 @@
        "一个透明的球"，比什么都不显示更差。现在加载期间只有星空 + 进度提示，
        贴图到了再把球显示出来。 */
     var fallbackMat = new THREE.MeshBasicMaterial({ color: 0x0e2438 });
-    var sphere = new THREE.Mesh(new THREE.SphereGeometry(1, 96, 64), fallbackMat);
+    /* 分段提到 160×100：贴到近处看时轮廓不再是折线。
+       贴图 UV 不受影响，代价只有多几千个三角形。 */
+    var sphere = new THREE.Mesh(new THREE.SphereGeometry(1, 160, 100), fallbackMat);
     sphere.visible = false;
     spin.add(sphere);
 
-    /* 大气：两层。内层贴着球面做轮廓辉光，外层散开做稀薄的气体感。 */
-    scene.add(new THREE.Mesh(
-      new THREE.SphereGeometry(1.008, 64, 48),
-      new THREE.MeshBasicMaterial({
-        color: 0x4a90d0, transparent: true, opacity: 0.055, side: THREE.BackSide
-      })
-    ));
-    scene.add(new THREE.Mesh(
-      new THREE.SphereGeometry(1.095, 48, 32),
-      new THREE.MeshBasicMaterial({
-        color: 0x2a6096, transparent: true, opacity: 0.022, side: THREE.BackSide
-      })
-    ));
+    /* 大气：两层。内层贴着球面做轮廓辉光，外层再散开一点。
+       外缘 1.055 和 fitZ(1.07) 配套 —— 聚焦时不会被上下切掉。
+       opacity 初始为 0，跟着地球一起淡入；否则会先出现一圈光晕、球还没出来。 */
+    globe.atmo = [
+      { mat: new THREE.MeshBasicMaterial({
+          color: 0x4a90d0, transparent: true, opacity: 0, side: THREE.BackSide }), base: 0.05 },
+      { mat: new THREE.MeshBasicMaterial({
+          color: 0x2a6096, transparent: true, opacity: 0, side: THREE.BackSide }), base: 0.026 }
+    ];
+    scene.add(new THREE.Mesh(new THREE.SphereGeometry(1.006, 64, 48), globe.atmo[0].mat));
+    scene.add(new THREE.Mesh(new THREE.SphereGeometry(1.055, 48, 32), globe.atmo[1].mat));
 
     /* 经纬网与大陆轮廓：只在没有贴图时显示（兜底形态）。
        有贴图后它们会显得杂乱，所以贴图一到就隐藏。 */
@@ -1531,12 +1634,16 @@
          开到硬件上限后，同样的贴图会明显锐利。 */
       var maxAniso = renderer.capabilities.getMaxAnisotropy
         ? renderer.capabilities.getMaxAnisotropy() : 1;
-      dayTex.anisotropy = maxAniso;
-      if (nightTex) nightTex.anisotropy = maxAniso;
-      dayTex.minFilter = THREE.LinearMipmapLinearFilter;
-      dayTex.magFilter = THREE.LinearFilter;
-      dayTex.needsUpdate = true;
-      if (nightTex) nightTex.needsUpdate = true;
+      function tune(t) {
+        if (!t) return;
+        t.anisotropy = maxAniso;
+        t.minFilter = THREE.LinearMipmapLinearFilter;
+        t.magFilter = THREE.LinearFilter;
+        t.generateMipmaps = true;
+        t.needsUpdate = true;
+      }
+      tune(dayTex);
+      tune(nightTex);
 
       sphere.material = earthMaterial(dayTex, nightTex);
       globe.earthMat = sphere.material;
@@ -1544,8 +1651,26 @@
       grat.visible = false;
       landLine.visible = false;
       globe.texReady = true;
+      /* 不直接显示，而是 1.1 秒淡入：之前是一帧之内从"什么都没有"跳到
+         一整颗高亮地球，视觉上就是闪了一下。 */
+      globe.fadeStart = performance.now();
       if (typeof onGlobeReady === 'function') onGlobeReady();
-      // 贴图到位后，环境光与方向光不再需要（着色全在 shader 里）
+
+      /* 4K 已经能看了，8K 继续在后台取，到位后交叉淡化过去。
+         两张纹理同时驻留只有几百毫秒，之后立刻释放 4K。
+         延后 0.9 秒再发请求：8K 解码要几十毫秒主线程，别和淡入抢帧。 */
+      var maxTex = renderer.capabilities.maxTextureSize || 4096;
+      if (maxTex >= 8192 && canUse8K()) {
+        setTimeout(function () {
+          loadTex(new THREE.TextureLoader(), 'earth-day-8k.webp', function (big) {
+            tune(big);
+            if (!globe.earthMat) return;
+            globe.earthMat.uniforms.dayMapB.value = big;
+            globe.tex4k = dayTex;
+            globe.mixBTarget = 1;
+          }, function () { /* 8K 拿不到就继续用 4K，不影响使用 */ });
+        }, 900);
+      }
       var subEl3 = document.getElementById('globe-sub');
       if (subEl3) subEl3.textContent = '拖动旋转 · 滚轮缩放 · 点击国土开档';
     });
@@ -1605,10 +1730,13 @@
     // ---- 交互：缩放 ----
     cv.addEventListener('wheel', function (e) {
       e.preventDefault();
-      globe.camTarget = Math.max(CAM_NEAR - 0.05, Math.min(4.6,
-        globe.camTarget + e.deltaY * 0.0018));
+      // 触控板捏合会带 ctrlKey，deltaY 很小，得放大步长才跟手
+      var d = e.deltaY * (e.ctrlKey ? 0.006 : 0.0016);
+      globe.camMode = 'manual';
+      globe.camTarget = Math.max(CAM_MIN, Math.min(CAM_MAX, globe.camTarget + d));
       globe.autoSpin = true;
       globe.idleUntil = performance.now() + 2600;
+      globe.flying = false;         // 手动缩放接管，别再和飞行抢相机
     }, { passive: false });
 
     // ---- 交互：点击拾取 ----
@@ -1654,8 +1782,35 @@
       camera.position.z += (globe.camTarget - camera.position.z) * 0.075;
 
       if (globe.earthMat) {
-        var nm = globe.earthMat.uniforms.nightMix;
-        nm.value += (globe.nightTarget - nm.value) * 0.09;
+        var U = globe.earthMat.uniforms;
+        U.nightMix.value += (globe.nightTarget - U.nightMix.value) * 0.09;
+
+        /* 整球淡入：0 → 1 用 1.1 秒、smoothstep 缓动。
+           不是过渡动画炫技 —— 贴图从无到有如果硬切，观感就是"闪了一下"。
+           两层大气一起淡，避免出现"光晕先到、球后到"。 */
+        if (globe.fadeStart) {
+          var kf = (performance.now() - globe.fadeStart) / 1100;
+          kf = kf > 1 ? 1 : kf;
+          var ef = kf * kf * (3 - 2 * kf);
+          U.uFade.value = ef;
+          if (globe.atmo) {
+            globe.atmo.forEach(function (a) { a.mat.opacity = a.base * ef; });
+          }
+          if (kf >= 1) globe.fadeStart = 0;
+        }
+
+        /* 8K 交叉淡化：到位后 ~0.8 秒内从 4K 混到 8K，
+           完成后把 dayMap 直接指向 8K、mix 归零、释放 4K。
+           这两步必须在同一帧做，否则会闪一帧 4K。 */
+        if (U.uMixB.value < globe.mixBTarget) {
+          U.uMixB.value += (globe.mixBTarget - U.uMixB.value) * 0.055 + 0.002;
+          if (U.uMixB.value >= 0.995) {
+            U.uMixB.value = 0;
+            U.dayMap.value = U.dayMapB.value;
+            if (globe.tex4k && globe.tex4k.dispose) globe.tex4k.dispose();
+            globe.tex4k = null;
+          }
+        }
       }
 
       if (globe.autoSpin && !globe.dragging && !globe.flying &&
@@ -1682,6 +1837,14 @@
       camera.aspect = w2 / h2;
       camera.updateProjectionMatrix();
       renderer.setSize(w2, h2, false);
+      /* 视口一变，"整球入画"所需的距离也变（竖窗口时水平方向更紧）。
+         处在这两个"贴合"状态时要把相机重新对到新值上，否则窗口一改
+         球就被裁 —— 只在 buildGlobe 里算一次是不够的。 */
+      CAM_FAR = farZ();
+      CAM_NEAR = nearZ();
+      if (globe.camMode === 'far') globe.camTarget = CAM_FAR;
+      else if (globe.camMode === 'near') globe.camTarget = CAM_NEAR;
+      else globe.camTarget = Math.max(CAM_MIN, Math.min(CAM_MAX, globe.camTarget));
     }
     if (window.ResizeObserver) new ResizeObserver(resize).observe(stage);
     window.addEventListener('resize', resize);
@@ -1864,6 +2027,14 @@
     content:"";position:absolute;left:3px;top:13px;
     width:4px;height:4px;border-radius:50%;background:var(--gold);opacity:.6;
   }
+  /* 数据待补：一行短标签，不写构建日志 */
+  .dq{
+    margin-top:16px;padding-top:12px;border-top:1px solid var(--line);
+    display:flex;gap:9px;align-items:baseline;
+    font-size:11.5px;line-height:1.65;
+  }
+  .dq-k{flex:0 0 auto;letter-spacing:.08em;color:rgba(148,182,224,.7)}
+  .dq-v{color:var(--ink-faint);min-width:0}
 
   /* 加载中骨架：避免录屏时出现纯白或灰块跳动 */
   .thumb-wrap.loading,.dimg-wrap.loading{
@@ -1898,7 +2069,9 @@
     position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
     font-size:12.5px;letter-spacing:.06em;color:var(--ink-faint);
     text-align:center;padding:20px;line-height:1.7;
+    transition:opacity .6s ease;
   }
+  .globe-msg.gone{opacity:0}
   .globe-msg.err{color:#c98a6a}
 
   .globe-side .sub-label{margin-top:0}
@@ -1968,6 +2141,12 @@
   .sr-q{font-size:13.5px;color:var(--ink)}
   .sr-a{font-size:12.5px;color:var(--ink-dim);line-height:1.65;margin-top:4px}
   .sr-empty{padding:14px;font-size:12.5px;color:var(--ink-faint);line-height:1.6}
+  .sr-country-row{display:flex;align-items:center;gap:9px;padding:10px 14px}
+  .sr-arrow{
+    margin-left:auto;font-size:15px;line-height:1;color:rgba(148,182,224,.45);
+    transition:color .18s ease,transform .18s ease;
+  }
+  .sr-country-row:hover .sr-arrow{color:rgba(200,222,250,.9);transform:translateX(2px)}
 
   /* 文化特征标签 */
   .facets{margin-top:4px}
@@ -2042,7 +2221,12 @@ body{
   transform-origin:50% 50%;
   transition:transform .68s cubic-bezier(.22,.61,.36,1);
 }
-#globe-stage canvas{display:block;width:100%;height:100%}
+#globe-stage canvas{
+  display:block;width:100%;height:100%;cursor:grab;
+  /* WebGL 首帧合成偶尔会白一帧。canvas 自己淡进来，这点白就被吃掉了。 */
+  opacity:0;transition:opacity .9s ease;
+}
+#globe-stage canvas.ready{opacity:1}
 
 /* 档案面板打开时，地球整体左移并缩小 —— 比改相机更稳，
    不会触发 canvas 反复 resize，也不会有一次性的抖动。 */
@@ -2055,7 +2239,7 @@ body.panel-open #globe-stage{
 /* --- 顶部栏 --- */
 #topbar{
   position:fixed;top:0;left:0;right:0;z-index:30;
-  display:flex;align-items:center;gap:24px;
+  display:flex;align-items:center;gap:14px;
   padding:14px 26px;
   pointer-events:none;              /* 只有子元素可点，不挡地球拖拽 */
 }
@@ -2071,24 +2255,13 @@ body.panel-open #globe-stage{
   color:var(--ink-faint);
 }
 
-/* ============ 搜索：平时只是一个圆钮 ============
-   常驻输入框 + 下拉会把地球挡掉一块。改成"点开才有"，
-   金色只留给地球上的国界高亮，界面本身走冷色。 */
+/* ============ 搜索：左侧一个圆钮，点开向右展开 ============
+   展开面板是绝对定位的，只改它自己的宽度，不参与 topbar 的 flex 排版。
+   之前是把 .search-wrap 的宽度做过渡，右边那行计数会被挤着跳，看起来"卡"。
+   金色只留给地球上的国界，控件一律冷色。 */
 .search-wrap{
-  position:relative;height:38px;
-  width:38px;margin:0 auto;
-  transition:width .48s cubic-bezier(.22,.61,.36,1);
+  position:relative;width:38px;height:38px;flex:0 0 auto;
 }
-.search-wrap.open{width:min(420px, 44vw)}
-
-.search-icon{
-  position:absolute;left:12px;top:50%;transform:translateY(-50%);
-  width:15px;height:15px;pointer-events:none;z-index:2;
-  fill:none;stroke:rgba(150,182,220,.72);stroke-width:1.7;
-  stroke-linecap:round;stroke-linejoin:round;
-  opacity:0;transition:opacity .18s ease;
-}
-.search-wrap.open .search-icon{opacity:1}
 
 .search-toggle{
   position:absolute;inset:0;z-index:3;padding:0;
@@ -2106,32 +2279,74 @@ body.panel-open #globe-stage{
 .search-toggle:hover{border-color:rgba(150,185,230,.52);background:rgba(19,30,49,.9)}
 .search-wrap.open .search-toggle{opacity:0;pointer-events:none}
 
-#q{
-  width:100%;height:100%;box-sizing:border-box;
-  padding:0 14px 0 36px;font-size:13px;font-family:inherit;
-  color:var(--ink);caret-color:#bcd6f5;
-  background:rgba(11,18,31,.86);
-  border:1px solid rgba(126,158,198,.24);
-  border-radius:999px;outline:none;
+.search-panel{
+  position:absolute;left:0;top:0;z-index:4;
+  display:flex;align-items:center;
+  height:38px;width:38px;
+  border-radius:999px;overflow:hidden;
+  background:rgba(11,18,31,.94);
+  border:1px solid rgba(126,158,198,.26);
+  box-shadow:0 12px 34px rgba(0,0,0,.42);
   opacity:0;pointer-events:none;
-  -webkit-appearance:none;appearance:none;
-  transition:opacity .18s ease,border-color .22s ease;
+  transition:width .46s cubic-bezier(.2,.9,.25,1),
+             opacity .18s ease,
+             border-color .22s ease;
+  will-change:width;
 }
-.search-wrap.open #q{opacity:1;pointer-events:auto}
-#q:focus{border-color:rgba(150,185,230,.55)}
+.search-wrap.open .search-panel{
+  width:min(392px, 46vw);opacity:1;pointer-events:auto;
+}
+.search-wrap.open .search-panel:focus-within{border-color:rgba(150,185,230,.5)}
+
+.search-panel .search-icon{
+  position:absolute;left:13px;top:50%;transform:translateY(-50%);
+  width:14px;height:14px;pointer-events:none;
+  fill:none;stroke:rgba(150,182,220,.62);stroke-width:1.7;
+  stroke-linecap:round;stroke-linejoin:round;
+}
+
+#q{
+  flex:1 1 auto;min-width:0;height:100%;box-sizing:border-box;
+  padding:0 4px 0 34px;
+  font-size:13px;font-family:inherit;
+  color:var(--ink);caret-color:#bcd6f5;
+  background:transparent;border:0;outline:none;
+  -webkit-appearance:none;appearance:none;
+}
 #q::-webkit-search-cancel-button{filter:invert(.42)}
 
+/* 展开后才出现的下拉按钮：国家列表由用户自己点开 */
+.search-drop{
+  flex:0 0 auto;width:26px;height:26px;margin-right:5px;padding:0;
+  display:flex;align-items:center;justify-content:center;
+  border-radius:50%;cursor:pointer;
+  background:transparent;border:1px solid transparent;
+  opacity:.68;
+  transition:opacity .2s ease,border-color .2s ease,background .2s ease;
+}
+.search-drop svg{
+  width:13px;height:13px;
+  fill:none;stroke:rgba(158,190,228,.85);
+  stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;
+  transition:transform .3s cubic-bezier(.2,.9,.25,1);
+}
+.search-drop:hover{opacity:1;border-color:rgba(150,185,230,.42);background:rgba(150,185,230,.1)}
+.search-wrap.list-open .search-drop{opacity:1}
+.search-wrap.list-open .search-drop svg{transform:rotate(180deg)}
+
 .topbar-meta{
-  flex:0 0 auto;font-size:11px;letter-spacing:.10em;color:var(--ink-faint);
+  flex:0 0 auto;margin-left:auto;
+  font-size:11px;letter-spacing:.10em;color:var(--ink-faint);
   font-variant-numeric:tabular-nums;
 }
 
-/* 搜索结果：从搜索框下方浮出 */
+/* 搜索结果 / 国家列表：从搜索框下方浮出 */
 #q-res{
-  position:absolute;top:calc(100% + 8px);left:0;right:0;
+  position:absolute;top:calc(100% + 8px);left:0;
+  width:min(392px, 46vw);
   max-height:52vh;overflow-y:auto;
   border-radius:12px;border:1px solid rgba(120,150,190,.28);
-  background:rgba(8,13,23,.95);
+  background:rgba(8,13,23,.96);
   backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
   box-shadow:0 18px 48px rgba(0,0,0,.55);
 }
@@ -2237,16 +2452,13 @@ body.panel-open #globe-stage{
 
 /* --- 移动端 --- */
 @media (max-width:760px){
-  #topbar{padding:12px 14px;gap:12px;flex-wrap:wrap}
+  #topbar{padding:12px 14px;gap:10px;flex-wrap:nowrap}
   .brand-en{display:none}
   .brand-cn{font-size:17px}
   .topbar-meta{display:none}
-  .search-wrap{width:100%;order:3;flex-basis:100%;margin-top:8px}
-  .search-wrap:focus-within{width:100%}
-  #globe-stage{inset:104px 0 0 0}
-  #q{font-size:13px;padding:10px 14px}
-  #dock{bottom:20px}
-  .dock-item{padding:8px 13px;font-size:12px}
+  .search-wrap.open .search-panel{width:calc(100vw - 108px)}
+  #q-res{width:calc(100vw - 108px)}
+  #globe-stage{inset:60px 0 0 0}
   #detail{
     top:auto;left:10px;right:10px;bottom:10px;
     width:auto;height:82vh;height:82dvh;
@@ -2372,33 +2584,52 @@ body.panel-open #globe-stage{
 
 /* ============ 语言音频：自绘控件 ============
    浏览器原生 <audio controls> 是一整块浅色系统控件，在深色面板里非常扎眼。 */
-.aud{display:flex;align-items:center;gap:10px;padding:7px 0}
+.aud{display:flex;align-items:center;gap:9px;flex:1 1 auto;min-width:0}
 .aud-btn{
-  width:30px;height:30px;flex:0 0 auto;padding:0;
+  width:28px;height:28px;flex:0 0 auto;padding:0;
   border-radius:50%;cursor:pointer;
   display:flex;align-items:center;justify-content:center;
-  background:rgba(255,255,255,.045);
-  border:1px solid rgba(150,185,230,.30);
+  background:rgba(255,255,255,.05);
+  border:1px solid rgba(126,158,198,.3);
   transition:border-color .2s ease,background .2s ease;
 }
-.aud-btn svg{width:11px;height:11px;fill:rgba(200,222,248,.92)}
+.aud-btn svg{width:10px;height:10px;fill:rgba(178,203,232,.9)}
 .aud-btn:hover{border-color:rgba(150,185,230,.6);background:rgba(150,185,230,.12)}
-.aud.playing .aud-btn{border-color:rgba(216,178,106,.58);background:rgba(216,178,106,.13)}
-.aud.playing .aud-btn svg{fill:rgba(242,214,160,.98)}
+/* 播放中只提亮，不用金色 —— 金色是地球国界的专属 */
+.aud.playing .aud-btn{border-color:rgba(178,208,244,.8);background:rgba(150,185,230,.16)}
+.aud.playing .aud-btn svg{fill:#e8f2ff}
+
+/* 进度条给足高度：之前只有 3px，在深色面板里几乎看不见，
+   看起来就像"只剩按钮和计时器"。 */
 .aud-bar{
-  flex:1 1 auto;height:3px;border-radius:2px;cursor:pointer;
-  background:rgba(255,255,255,.13);position:relative;
+  flex:1 1 auto;min-width:56px;height:18px;
+  display:flex;align-items:center;position:relative;cursor:pointer;
 }
+.aud-track{
+  position:relative;width:100%;height:4px;border-radius:3px;
+  background:rgba(160,190,225,.22);
+  transition:height .16s ease;
+}
+.aud-bar:hover .aud-track{height:6px}
 .aud-fill{
-  height:100%;width:0;border-radius:2px;
-  background:rgba(196,220,248,.9);
-  transition:width .12s linear;
+  position:absolute;left:0;top:0;height:100%;width:0;border-radius:3px;
+  background:rgba(190,216,248,.85);
+  transition:width .1s linear;
 }
-.aud.playing .aud-fill{background:rgba(216,178,106,.9)}
+.aud.playing .aud-fill{background:rgba(214,232,255,.95)}
+.aud-fill::after{
+  content:"";position:absolute;right:-4px;top:50%;
+  width:8px;height:8px;border-radius:50%;
+  transform:translateY(-50%) scale(.001);
+  background:#eaf3ff;
+  transition:transform .16s ease;
+}
+.aud-bar:hover .aud-fill::after,
+.aud.playing .aud-fill::after{transform:translateY(-50%) scale(1)}
 .aud-time{
-  flex:0 0 auto;min-width:34px;text-align:right;
-  font-size:11px;color:var(--ink-faint);
-  font-variant-numeric:tabular-nums;
+  flex:0 0 auto;min-width:62px;text-align:right;
+  font-size:10.5px;color:var(--ink-faint);
+  font-variant-numeric:tabular-nums;letter-spacing:.02em;
 }
 </style>
 </body>

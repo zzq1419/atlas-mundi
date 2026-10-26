@@ -147,6 +147,9 @@
   "collected_at": "2026-10-25T23:29:42+08:00",
   "collector": "scripts/collect.py v0.2",
   "needs_review": true,
+  "review_short": [
+    "夏威夷语缺音源"
+  ],
   "review_notes": [
     "P37 返回 6 个语言，去重/去上位概念后保留 2 个：英语、夏威夷语",
     "P443 发音语种不符已弃用：Lb-Amerika.ogg、LL-Q7913 (ron)-KlaudiuMihaila-Statele Unite ale Americii.wav、LL-Q33810 (ori)-Psubhashish-ଯୁକ୍ତରାଷ୍ଟ୍ର ଆମେରିକା.wav（P443 不保证语种，须按文件名筛）",

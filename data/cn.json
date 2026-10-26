@@ -212,6 +212,10 @@
     }
   ],
   "needs_review": false,
+  "review_short": [
+    "摘要 268/300 字",
+    "边界为示意轮廓"
+  ],
   "review_notes": [
     "P443 发音语种不符（Lb-China.ogg 为卢森堡语），已改用本地 TTS；P443 需按文件名做语种过滤",
     "粤语缺少可用音源：Commons 未取到，本机仅有普通话音色（Huihui），待补 zh-HK 音源或人工录制",
