@@ -3,9 +3,17 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-10-27-A">
+<meta name="build" content="2026-10-27-B">
 <title>寰宇图志 · Atlas Mundi</title>
 <meta name="description" content="寰宇图志：3D 地球上的多模态国家文化图谱">
+<style>
+  /* 首帧兜底：样式解析完之前，浏览器用的是默认白底白控件。
+     1) 先把 html/body 底色钉死；
+     2) color-scheme:dark 让表单控件（输入框、按钮）默认也走深色主题 ——
+        万一样式还没生效，露出的是深色控件而不是一块白。 */
+  html,body{margin:0;background:#02040a}
+  :root{color-scheme:dark}
+</style>
 <style>
   :root{
     --bg:#02040a;
@@ -261,6 +269,737 @@
   @media (prefers-reduced-motion:reduce){
     *{transition:none!important}
   }
+</style>
+<style>
+  /* --- 卡片：图文头 + 正文 --- */
+  .card{padding:0}
+  .card .cbody{padding:18px 20px 20px}
+
+  /* 图片一律套在 .*-wrap 里：<img> 是替换元素，伪元素在它身上不渲染，
+     骨架必须由父容器画。loaded 之前图片 opacity:0，不出现半张图抖一下。 */
+  .thumb-wrap{
+    position:relative;height:132px;overflow:hidden;
+    border-bottom:1px solid var(--line);background:#0b1020;
+  }
+  .thumb-wrap .thumb{
+    display:block;width:100%;height:100%;object-fit:cover;
+    opacity:0;transition:opacity .45s ease;
+  }
+  .thumb-wrap.loaded .thumb{opacity:1}
+  .thumb-wrap.blank{
+    display:flex;align-items:center;justify-content:center;
+    font-size:12px;letter-spacing:.1em;color:var(--ink-faint);
+    background:
+      repeating-linear-gradient(135deg,rgba(255,255,255,.022) 0 2px,transparent 2px 9px),
+      linear-gradient(160deg,#0d1322,#0a0f1c);
+  }
+  .card.is-placeholder{opacity:.62}
+  .card.is-placeholder:hover{opacity:.85}
+  .card.active{border-color:rgba(148,182,224,.5);background:rgba(148,182,224,.05)}
+  .mods em.off{opacity:.36}
+
+  /* --- 详情 --- */
+  .dwrap{display:grid;grid-template-columns:minmax(220px,360px) 1fr;gap:26px;align-items:start}
+  .dimg-wrap{
+    position:relative;width:100%;aspect-ratio:16/10;overflow:hidden;
+    border:1px solid var(--line);border-radius:12px;background:#070b14;
+  }
+  .dimg-wrap .dimg{
+    display:block;width:100%;height:100%;object-fit:cover;
+    opacity:0;transition:opacity .45s ease;
+  }
+  .dimg-wrap.loaded .dimg{opacity:1}
+  /* 竖构图（埃菲尔铁塔 760×1406、长城烽燧之类）：框改成竖的、整张装进去，
+     不再拿 16:10 的死框去裁 —— 那正是"塔被拉平看不到全貌"的来源。 */
+  .dimg-wrap.fit{aspect-ratio:3/4;background:#070b14}
+  .dimg-wrap.fit .dimg{object-fit:contain}
+  .dimg-wrap.blank{
+    display:flex;align-items:center;justify-content:center;
+    font-size:12.5px;color:var(--ink-faint);text-align:center;padding:12px;
+    background:linear-gradient(160deg,#0d1322,#0a0f1c);
+  }
+  .dimg-wrap.blank .dimg{display:none}
+  .cap{font-size:12.5px;color:var(--ink-dim);margin-top:9px;line-height:1.65}
+  .cap.dim{color:var(--ink-faint)}
+
+  .dmeta{display:grid;grid-template-columns:auto 1fr;gap:9px 18px;font-size:13.5px;margin-bottom:20px}
+  .dmeta dt{color:var(--ink-faint);letter-spacing:.06em;white-space:nowrap}
+  .dmeta dd{color:var(--ink);font-variant-numeric:tabular-nums}
+
+  .dtext p{font-size:14.5px;line-height:2;color:#cfd7e8;margin-bottom:12px}
+  .dplayer{width:100%;margin-top:16px;border-radius:10px}
+  .pending{
+    margin-top:16px;padding:11px 14px;border-radius:10px;
+    border:1px dashed rgba(148,182,224,.3);
+    background:rgba(148,182,224,.05);
+    font-size:12.5px;color:#c9b58c;line-height:1.75;
+  }
+  .todo-list{list-style:none;margin-top:4px}
+  .todo-list li{
+    position:relative;padding:5px 0 5px 15px;
+    font-size:12.5px;color:var(--ink-faint);line-height:1.7;
+  }
+  .todo-list li::before{
+    content:"";position:absolute;left:3px;top:13px;
+    width:4px;height:4px;border-radius:50%;background:var(--gold);opacity:.6;
+  }
+  /* 数据待补：一行短标签，不写构建日志 */
+  .dq{
+    margin-top:16px;padding-top:12px;border-top:1px solid var(--line);
+    display:flex;gap:9px;align-items:baseline;
+    font-size:11.5px;line-height:1.65;
+  }
+  .dq-k{flex:0 0 auto;letter-spacing:.08em;color:rgba(148,182,224,.7)}
+  .dq-v{color:var(--ink-faint);min-width:0}
+
+  /* 加载中骨架：避免录屏时出现纯白或灰块跳动 */
+  .thumb-wrap.loading,.dimg-wrap.loading{
+    background:linear-gradient(160deg,#0d1322,#0a0f1c);
+  }
+  .thumb-wrap.loading::after,.dimg-wrap.loading::after{
+    content:"";position:absolute;inset:0;z-index:2;
+    background:linear-gradient(100deg,transparent 20%,rgba(140,165,220,.13) 50%,transparent 80%);
+    background-size:220% 100%;
+    animation:shimmer 1.35s linear infinite;
+  }
+  /* 占位文字（无图时的灰底卡）不参与骨架动画 */
+  .thumb-wrap.blank::after,.dimg-wrap.blank::after{content:none}
+  @keyframes shimmer{
+    from{background-position:180% 0}
+    to{background-position:-80% 0}
+  }
+
+  /* 3D 地球 */
+  .globe-wrap{
+    display:grid;grid-template-columns:1fr 232px;gap:22px;align-items:start;
+  }
+  .globe-stage{
+    position:relative;aspect-ratio:4/3;border-radius:14px;overflow:hidden;
+    border:1px solid var(--line);
+    background:radial-gradient(circle at 42% 36%,#0e1b2e 0%,#070d16 55%,#03060b 100%);
+    touch-action:none;               /* 拖拽时不触发页面滚动 */
+  }
+  .globe-stage canvas{display:block;width:100%;height:100%;cursor:grab}
+  .globe-stage canvas.dragging{cursor:grabbing}
+  .globe-msg{
+    position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    font-size:12.5px;letter-spacing:.06em;color:var(--ink-faint);
+    text-align:center;padding:20px;line-height:1.7;
+    transition:opacity .6s ease;
+  }
+  .globe-msg.gone{opacity:0}
+  .globe-msg.err{color:#c98a6a}
+
+  .globe-side .sub-label{margin-top:0}
+  .globe-item{
+    display:flex;align-items:center;gap:10px;
+    padding:9px 10px;margin-top:6px;border-radius:8px;
+    border:1px solid var(--line);cursor:pointer;
+    transition:border-color .2s ease,background .2s ease;
+  }
+  .globe-item:hover{border-color:rgba(148,182,224,.45);background:rgba(148,182,224,.05)}
+  .globe-item.active{border-color:rgba(148,182,224,.7);background:rgba(148,182,224,.08)}
+  .gi-flag{
+    font-size:9.5px;letter-spacing:.08em;color:var(--ink-faint);
+    border:1px solid var(--line);border-radius:4px;padding:1px 4px;flex:0 0 auto;
+  }
+  .gi-name{font-size:13px;color:var(--ink)}
+  .gi-coord{
+    margin-left:auto;font-size:10.5px;color:var(--ink-faint);
+    font-variant-numeric:tabular-nums;
+  }
+  .globe-tip{font-size:11.5px;line-height:1.75}
+
+  @media (max-width:900px){
+    .globe-wrap{grid-template-columns:1fr}
+    .globe-stage{aspect-ratio:1/1}
+  }
+
+  /* 知识库检索 */
+  .search-box{margin-top:2px}
+  #q{
+    width:100%;box-sizing:border-box;
+    padding:13px 16px;font-size:14px;font-family:inherit;
+    color:var(--ink);background:rgba(255,255,255,.03);
+    border:1px solid var(--line);border-radius:10px;outline:none;
+    transition:border-color .2s ease,background .2s ease;
+    -webkit-appearance:none;appearance:none;
+  }
+  #q::placeholder{color:var(--ink-faint)}
+  #q:focus{border-color:rgba(148,182,224,.5);background:rgba(255,255,255,.05)}
+  #q::-webkit-search-cancel-button{filter:invert(.5)}
+
+  .sr-examples{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}
+  .sr-ex{
+    font-size:12px;padding:4px 11px;border-radius:999px;
+    border:1px solid var(--line);color:var(--ink-dim);
+    background:transparent;font-family:inherit;cursor:pointer;
+    transition:border-color .2s ease,color .2s ease;
+  }
+  .sr-ex:hover{border-color:rgba(148,182,224,.45);color:var(--ink)}
+
+  .search-res{
+    margin-top:12px;border:1px solid var(--line);border-radius:10px;
+    overflow:hidden;background:rgba(255,255,255,.018);
+  }
+  .sr-item{
+    padding:11px 14px;border-bottom:1px solid var(--line);cursor:pointer;
+    transition:background .18s ease;
+  }
+  .sr-item:last-child{border-bottom:0}
+  .sr-item:hover{background:rgba(148,182,224,.06)}
+  .sr-top{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+  .sr-country{
+    font-size:11px;letter-spacing:.05em;color:rgba(148,182,224,.9);
+    border:1px solid rgba(148,182,224,.3);border-radius:999px;
+    padding:1px 7px;flex:0 0 auto;
+  }
+  .sr-q{font-size:13.5px;color:var(--ink)}
+  .sr-a{font-size:12.5px;color:var(--ink-dim);line-height:1.65;margin-top:4px}
+  .sr-empty{padding:14px;font-size:12.5px;color:var(--ink-faint);line-height:1.6}
+  .sr-country-row{display:flex;align-items:center;gap:9px;padding:10px 14px}
+  .sr-arrow{
+    margin-left:auto;font-size:15px;line-height:1;color:rgba(148,182,224,.45);
+    transition:color .18s ease,transform .18s ease;
+  }
+  .sr-country-row:hover .sr-arrow{color:rgba(200,222,250,.9);transform:translateX(2px)}
+
+  /* 文化特征：左列窄标签 + 右侧色块。
+     原来是 11px 灰字 + 12px 半透明 chip，在深色面板里几乎看不见；
+     现在键名 13px 提亮、chip 13px 实色、行间加细分隔线，
+     整体像一张"规格表"而不是一堆散落的灰点。 */
+  .facets{margin-top:2px}
+  .frow{
+    display:grid;grid-template-columns:56px minmax(0,1fr);
+    gap:4px 12px;align-items:start;
+    padding:8px 0;
+    border-bottom:1px solid rgba(140,165,220,.10);
+  }
+  .frow:last-child{border-bottom:0;padding-bottom:2px}
+  .fkey{
+    font-size:13px;line-height:1.5;letter-spacing:.02em;
+    color:rgba(184,202,230,.92);padding-top:3px;white-space:nowrap;
+  }
+  .fval{display:flex;flex-wrap:wrap;gap:6px}
+  .chip{
+    font-size:13px;line-height:1.5;padding:3px 10px;border-radius:7px;
+    border:1px solid rgba(140,170,215,.24);
+    color:#d7e0ef;background:rgba(255,255,255,.04);
+    cursor:default;
+    transition:border-color .18s ease,color .18s ease,background .18s ease;
+  }
+  .chip:hover{
+    border-color:rgba(160,192,236,.6);color:#fff;
+    background:rgba(150,185,230,.12);
+  }
+  /* 关键词是"从正文里抽出来的词"，比人工归类的其它项亮一档 */
+  .chip-kw{
+    border-color:rgba(140,180,240,.38);
+    color:#d3e6ff;background:rgba(120,165,235,.10);
+  }
+
+  /* 国界轮廓 */
+  .geo-box{margin-top:4px}
+  .geo-svg{
+    border:1px solid var(--line);border-radius:10px;
+    background:linear-gradient(160deg,#0c1220,#090e1a);
+    padding:4px;font-size:12px;color:var(--ink-faint);
+  }
+  .geo-svg svg{display:block;width:100%;height:auto}
+
+  /* 多图切换 */
+  .thumbstrip{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+  .ts-item{
+    width:64px;height:46px;object-fit:cover;border-radius:6px;
+    border:1px solid var(--line);cursor:pointer;opacity:.55;
+    transition:opacity .2s ease,border-color .2s ease;
+  }
+  .ts-item:hover{opacity:.85}
+  .ts-item.active{opacity:1;border-color:rgba(148,182,224,.65)}
+
+  /* 语言音频行 */
+  .lang-audio{
+    display:flex;align-items:center;gap:10px;
+    padding:8px 0;border-bottom:1px solid var(--line);
+  }
+  .lang-audio:last-child{border-bottom:0}
+  .la-name{font-size:14px;color:var(--ink);min-width:88px}
+  .la-role{
+    font-size:10.5px;letter-spacing:.08em;color:var(--ink-faint);
+    border:1px solid var(--line);border-radius:999px;padding:1px 7px;
+  }
+  .la-player{flex:1;height:32px;min-width:0}
+
+  @media (max-width:760px){
+    .dwrap{grid-template-columns:1fr}
+  }
+
+/* ============ 全屏地球布局 ============ */
+/* 这一层覆盖旧的"长页面"排版：不再有文档流滚动，一切浮在 3D 舞台之上。 */
+html,body{
+  height:100%;overflow:hidden;
+}
+body{
+  margin:0;padding:0;
+  background:#02040a;
+}
+
+#globe-stage{
+  /* 全屏。顶栏是浮层、不吃布局，地球可以顶到屏幕最上边 ——
+     之前留了 62px 给顶栏，等于在画面上方盖了一条遮罩，球一大就被切。
+     品牌字压在上面也没关系，加一点投影就够读。 */
+  position:fixed;inset:0;z-index:0;
+  transform-origin:50% 50%;
+  transition:transform .68s cubic-bezier(.22,.61,.36,1);
+}
+#globe-stage canvas{
+  display:block;width:100%;height:100%;cursor:grab;
+  /* WebGL 首帧合成偶尔会白一帧。canvas 自己淡进来，这点白就被吃掉了。 */
+  opacity:0;transition:opacity .9s ease;
+}
+#globe-stage canvas.ready{opacity:1}
+
+/* 档案面板打开时，地球整体左移并缩小 —— 比改相机更稳，
+   不会触发 canvas 反复 resize，也不会有一次性的抖动。 */
+body.panel-open #globe-stage{
+  /* 只平移，不缩放。缩放在视觉上会同时"变小 + 被裁"，
+     而用户接受面板压住一点地球，所以让球保持原尺寸左移即可。 */
+  transform:translateX(-14%);
+}
+
+/* --- 顶部栏 --- */
+#topbar{
+  position:fixed;top:0;left:0;right:0;z-index:30;
+  display:flex;align-items:center;gap:14px;
+  padding:14px 26px;
+  pointer-events:none;              /* 只有子元素可点，不挡地球拖拽 */
+}
+#topbar > *{pointer-events:auto}
+
+.brand{display:flex;align-items:baseline;gap:10px;flex:0 0 auto}
+.brand-cn{
+  font-family:var(--serif,"Songti SC",serif);
+  font-size:26px;letter-spacing:.18em;color:var(--ink);
+  /* 品牌字压在球上也读得清：投影而不是底衬，不遮挡画面 */
+  text-shadow:0 2px 10px rgba(0,0,0,.75), 0 0 2px rgba(0,0,0,.6);
+}
+.brand-en{font-size:10px;letter-spacing:.22em;text-transform:uppercase;
+  color:var(--ink-faint);text-shadow:0 1px 6px rgba(0,0,0,.8)}
+
+/* ============ 搜索：默认就是一只短输入框，点一下展开 ============
+   之前做成"圆钮 → 点开才变输入框"，看着不像搜索，倒像工具菜单。
+   现在常驻一个短框（150px），聚焦或点击时展开到 360px。
+   宽度过渡直接放在 .search-wrap 上：topbar 里它后面已经没有别的元素了，
+   不会把谁挤得跳来跳去。
+   金色只留给地球上的国界，控件一律冷色。 */
+.search-wrap{
+  position:relative;height:34px;flex:0 0 auto;
+  width:168px;
+  transition:width .46s cubic-bezier(.2,.9,.25,1);
+}
+.search-wrap.open{width:min(384px, 46vw)}
+
+.search-panel{
+  position:absolute;inset:0;z-index:4;
+  display:flex;align-items:center;
+  height:34px;border-radius:999px;overflow:hidden;
+  /* 底色压深：半透明蓝灰在深色页面上会变成一块"灰白塑料" */
+  background:rgba(5,8,14,.92);
+  border:1px solid rgba(126,158,198,.24);
+  /* 这里原来有 backdrop-filter:blur(10px)。它会在首次合成时新建一个
+     带模糊的图层，Chrome 上表现为刷新瞬间这块区域亮一下（就是"闪白"）。
+     框里本来就没有需要虚化的内容，去掉最省事。 */
+  cursor:text;
+  transition:border-color .22s ease,background .22s ease;
+}
+.search-wrap.open .search-panel{background:rgba(4,7,12,.96)}
+/* hover 必须有反应：之前只有聚焦才变，鼠标扫过去毫无反馈，像块死板子 */
+.search-panel:hover{
+  border-color:rgba(150,185,230,.46);
+  background:rgba(14,22,36,.95);
+}
+.search-panel:hover .search-icon{stroke:rgba(196,222,252,.92)}
+.search-panel:focus-within{
+  border-color:rgba(160,196,240,.62);
+  box-shadow:0 0 0 3px rgba(120,165,235,.10);
+}
+
+.search-panel .search-icon{
+  position:absolute;left:11px;top:50%;transform:translateY(-50%);
+  width:13.5px;height:13.5px;pointer-events:none;
+  fill:none;stroke:rgba(158,190,228,.72);stroke-width:1.8;
+  transition:stroke .18s ease;
+  stroke-linecap:round;stroke-linejoin:round;
+}
+
+#q{
+  flex:1 1 auto;min-width:0;height:100%;box-sizing:border-box;
+  padding:0 6px 0 31px;
+  font-size:13.5px;font-family:inherit;
+  color:var(--ink);caret-color:#bcd6f5;
+  background:transparent;border:0;outline:none;
+  -webkit-appearance:none;appearance:none;
+}
+#q::-webkit-search-cancel-button{filter:invert(.42)}
+
+/* 展开后才出现的下拉按钮：国家列表由用户自己点开 */
+.search-drop{
+  flex:0 0 auto;width:0;height:22px;margin-right:0;padding:0;
+  opacity:0;pointer-events:none;overflow:hidden;
+  transition:width .2s ease,opacity .2s ease,background .2s ease,border-color .2s ease;
+  display:flex;align-items:center;justify-content:center;
+  border-radius:50%;cursor:pointer;
+  background:transparent;border:1px solid transparent;
+}
+.search-wrap.open .search-drop{
+  width:22px;margin-right:4px;opacity:.9;pointer-events:auto;
+}
+.search-drop svg{
+  width:11px;height:11px;
+  fill:none;stroke:rgba(184,210,242,.95);
+  stroke-width:2;stroke-linecap:round;stroke-linejoin:round;
+  transition:transform .3s cubic-bezier(.2,.9,.25,1);
+}
+.search-drop:hover{opacity:1;border-color:rgba(150,185,230,.42);background:rgba(150,185,230,.1)}
+.search-wrap.list-open .search-drop{opacity:1}
+.search-wrap.list-open .search-drop svg{transform:rotate(180deg)}
+
+/* 搜索结果 / 国家列表：从搜索框下方浮出 */
+#q-res{
+  position:absolute;top:calc(100% + 8px);left:0;
+  width:100%;
+  max-height:52vh;overflow-y:auto;
+  border-radius:12px;border:1px solid rgba(120,150,190,.28);
+  background:rgba(8,13,23,.96);
+  backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+  box-shadow:0 18px 48px rgba(0,0,0,.55);
+}
+#q-res[hidden]{display:none}
+
+/* --- 底部国家导航 --- */
+#dock{
+  position:fixed;left:50%;bottom:30px;transform:translateX(-50%);
+  z-index:30;pointer-events:none;
+}
+#dock #cards{
+  display:flex;gap:10px;pointer-events:auto;
+}
+.dock-item{
+  display:flex;align-items:center;gap:9px;
+  padding:9px 16px;border-radius:999px;cursor:pointer;
+  font-family:inherit;font-size:13px;color:var(--ink-dim);
+  background:rgba(10,16,28,.72);
+  border:1px solid rgba(120,150,190,.26);
+  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  transition:border-color .22s ease,background .22s ease,color .22s ease,transform .22s ease;
+}
+.dock-item:hover{
+  border-color:rgba(148,182,224,.55);color:var(--ink);
+  transform:translateY(-2px);
+}
+.dock-item.active{
+  border-color:rgba(148,182,224,.85);
+  background:rgba(148,182,224,.14);
+  color:#f2d9a4;
+}
+.di-iso{
+  font-size:9.5px;letter-spacing:.10em;color:var(--ink-faint);
+  font-variant-numeric:tabular-nums;
+}
+.dock-item.active .di-iso{color:rgba(242,217,164,.75)}
+
+/* --- 右侧档案面板 --- */
+/* 档案面板：一张浮起来的卡片，四边留白、圆角、带偏移的柔和阴影。
+   之前是贴边的侧栏，像浏览器自带的抽屉；浮卡才有"弹出来"的感觉。 */
+#detail{
+  position:fixed;top:16px;right:16px;bottom:16px;z-index:40;
+  width:min(500px, calc(100vw - 32px));
+  display:flex;flex-direction:column;
+  background:rgba(9,14,24,.955);
+  border:1px solid rgba(126,158,198,.22);
+  border-radius:20px;
+  box-shadow:0 28px 70px rgba(0,0,0,.62), 0 3px 10px rgba(0,0,0,.42);
+  transform:translateX(calc(100% + 28px));
+  transition:transform .56s cubic-bezier(.22,.61,.36,1);
+  visibility:hidden;
+  overflow:hidden;                 /* 圆角要裁掉内部滚动区的直角 */
+}
+#detail.open{transform:none;visibility:visible}
+#detail[hidden]{display:none}
+
+.dhead{
+  padding:22px 26px 16px;border-bottom:1px solid var(--line);
+  flex:0 0 auto;
+}
+.dhead h2{
+  margin:0;font-family:var(--serif,"Songti SC",serif);
+  font-size:26px;font-weight:500;letter-spacing:.05em;color:var(--ink);
+}
+#d-sub{
+  margin-top:6px;font-size:11.5px;letter-spacing:.06em;color:var(--ink-faint);
+  font-variant-numeric:tabular-nums;
+}
+.dscroll{
+  flex:1 1 auto;overflow-y:auto;overflow-x:hidden;
+  overscroll-behavior:contain;
+  padding:18px 24px 28px;
+}
+/* 内部任何元素都不许撑破面板产生横向滚动条 */
+#detail *{max-width:100%}
+/* 只在正文流里限制媒体宽度。这里必须排除 .dimg / .ts-item：
+   一条 `#detail img{height:auto}` 的优先级高于 `.dimg-wrap .dimg{height:100%}`，
+   会把主图的高度改成图片自身比例，于是 4:3 的框只露出竖图顶部一截 ——
+   埃菲尔铁塔那张（760×1406）看起来就是"被拉平、看不到全貌"。 */
+#detail .prose img,#detail .prose video,
+#detail .dimg-wrap .dimg,#detail .thumbstrip .ts-item{max-width:100%}
+#detail video,#detail canvas{max-width:100%;height:auto}
+#detail .dwrap,#detail .dblock,#detail .meta,#detail .facets{min-width:0}
+#detail pre,#detail code{white-space:pre-wrap;word-break:break-word}
+.dclose{
+  position:absolute;top:15px;right:15px;
+  width:30px;height:30px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:19px;line-height:1;cursor:pointer;
+  color:var(--ink-dim);background:rgba(255,255,255,.05);
+  border:1px solid var(--line);font-family:inherit;
+  transition:color .2s ease,border-color .2s ease,background .2s ease;
+}
+.dclose:hover{color:var(--ink);border-color:rgba(148,182,224,.5);background:rgba(148,182,224,.10)}
+
+/* 面板里空间窄，详情原本的两列网格改为单列 */
+#detail .dwrap{grid-template-columns:1fr;gap:16px}
+#detail .dimg-wrap{aspect-ratio:16/10}
+/* 竖图在面板里单独给一个更高的框（这条必须带 #detail，否则被上面那条盖掉） */
+#detail .dimg-wrap.fit{aspect-ratio:4/5}
+
+/* --- 左下角提示 --- */
+#footline{
+  position:fixed;left:26px;bottom:30px;z-index:20;
+  display:flex;flex-direction:column;gap:4px;
+  font-size:10.5px;letter-spacing:.05em;color:var(--ink-faint);
+  pointer-events:none;
+  opacity:.8;
+}
+.fl-src{font-size:9.5px;opacity:.7}
+
+/* --- 移动端 --- */
+@media (max-width:760px){
+  #topbar{padding:12px 14px;gap:10px;flex-wrap:nowrap}
+  .brand-en{display:none}
+  .brand-cn{font-size:17px}
+  .topbar-meta{display:none}
+  .search-wrap{width:128px;height:32px}
+  .search-wrap.open{width:calc(100vw - 126px)}
+  #globe-stage{inset:0}
+  #detail{
+    top:auto;left:10px;right:10px;bottom:10px;
+    width:auto;height:82vh;height:82dvh;
+    border-radius:18px;
+    transform:translateY(calc(100% + 20px));
+  }
+  #detail.open{transform:none}
+  body.panel-open #globe-stage{transform:translateY(-11%)}
+  #footline{display:none}
+}
+
+/* ============ 浏览器表面 ============
+   这些部件不是画出来的，但一样带设计：选区颜色、滚动条、焦点环。
+   它们是最便宜的"这页是被建造的"信号，也是最常被漏掉的一层。 */
+::selection{
+  background:rgba(148,182,224,.30);
+  color:#fdf6e8;
+}
+::-moz-selection{background:rgba(148,182,224,.30);color:#fdf6e8}
+
+.dscroll::-webkit-scrollbar,
+#q-res::-webkit-scrollbar{width:10px}
+.dscroll::-webkit-scrollbar-track,
+#q-res::-webkit-scrollbar-track{background:transparent}
+.dscroll::-webkit-scrollbar-thumb,
+#q-res::-webkit-scrollbar-thumb{
+  background:rgba(140,168,208,.24);
+  border:3px solid transparent;
+  background-clip:padding-box;
+  border-radius:10px;
+}
+.dscroll::-webkit-scrollbar-thumb:hover,
+#q-res::-webkit-scrollbar-thumb:hover{
+  background:rgba(148,182,224,.42);
+  background-clip:padding-box;
+}
+.dscroll{scrollbar-width:thin;scrollbar-color:rgba(140,168,208,.28) transparent}
+
+:focus-visible{
+  outline:2px solid rgba(148,182,224,.78);
+  outline-offset:3px;
+  border-radius:6px;
+}
+#q:focus-visible{outline-offset:0;border-radius:999px}
+
+/* ============ 正文段落 ============
+   中文长段落首行缩进两字，段间留白；不缩进会连成一片很难读。 */
+.prose p{
+  margin:0 0 .82em;
+  text-indent:2em;
+  line-height:1.95;
+  color:var(--ink-dim);
+  font-size:14.5px;
+  letter-spacing:.01em;
+}
+.prose p:last-child{margin-bottom:0}
+.prose{padding:0}
+
+/* 面板里的标题层级。
+   这里曾经是 11.5px —— 比正文 14.5px 还小，属于排版错误而不是风格选择：
+   标题必须比正文大、比正文粗。而且早先那条 `.dtext p.sub-label` 的选择器
+   要求 p 标签，实际元素是 div，所以从来没生效过，改了三轮都没改对。
+   现在只有这一处定义，17.5px / 700。 */
+.sub-label{
+  font-size:17.5px;font-weight:700;letter-spacing:.02em;
+  line-height:1.4;color:#eef4ff;
+  margin:26px 0 12px;
+}
+/* 只在"文本流的第一块"才清零上边距。
+   之前这条是通用的 :first-child，而「文化特征」正好是 .facets 的第一个子元素，
+   于是它的 26px 上边距被吃掉了，标题直接贴在「历史与民俗」正文下面。 */
+#d-body > .sub-label:first-child{margin-top:0}
+.facets > .sub-label:first-child{margin-top:22px}
+
+/* ============ 球面地名标注 ============
+   像地图那样：纯文字、无胶囊底、带投影保证在浅色地表上也读得清。
+   每帧由 JS 投影定位，转到背面淡出，互相重叠的按重要度让位。
+   尺寸分三级：大洲最轻、大洋斜体、国家名最实。 */
+#labels{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:5}
+.mlabel{
+  position:absolute;left:0;top:0;
+  white-space:nowrap;opacity:0;
+  font-size:13px;letter-spacing:.04em;
+  color:#fff;
+  /* 白字压白雪（亚洲正好落在西伯利亚雪原上）的解法：
+     用"深色描边 + 浅色填充"，先描边后填充（paint-order），白底黑底都分得开。
+     注意描边宽度是**相对字号**的：13px 的中文笔画只有 1px 出头，
+     描边一旦到 0.8px 就会从里外两侧把笔画吃光，字变成一块灰饼 ——
+     所以字号提到 14px，描边压到 0.5px。 */
+  -webkit-text-stroke:.5px rgba(0,0,0,.6);
+  paint-order:stroke fill;
+  text-shadow:0 1px 1px rgba(0,0,0,.45);
+  transition:opacity .26s ease;
+  will-change:transform;
+}
+.mlabel.mc{
+  /* 大洲名之前 58% 透明度、字距 0.42em，压在雪山白底上根本看不见。
+     现在提亮到 0.84、字距收到 0.3em（拉太开会显得更细更虚）。 */
+  font-size:14.5px;letter-spacing:.26em;font-weight:600;
+  color:rgba(232,241,254,.92);
+}
+.mlabel.mo{
+  font-size:13px;letter-spacing:.24em;font-style:italic;
+  color:rgba(180,212,246,.78);
+}
+/* 岛 / 湖 / 海峡：只在放得很大时才出现，比国名轻一档，但各自有颜色语义 */
+.mlabel.mi{font-size:12.5px;color:rgba(214,232,252,.82)}
+.mlabel.ml{font-size:12px;font-style:italic;color:rgba(148,206,238,.82)}
+.mlabel.ms{
+  font-size:11.5px;letter-spacing:.14em;font-style:italic;
+  color:rgba(162,202,240,.76);
+}
+/* 已收录、可点开档案的国家：比普通国名亮一档，hover 变白 */
+.mlabel.mk{
+  pointer-events:auto;cursor:pointer;
+  font-size:13.5px;font-weight:500;
+  color:#ffffff;
+  text-shadow:0 1px 3px rgba(0,0,0,.95), 0 0 12px rgba(120,170,235,.5);
+}
+.mlabel.mk:hover{color:#cfe6ff}
+
+/* ============ 左下角工具按钮 ============ */
+#tools{
+  position:fixed;left:22px;bottom:22px;z-index:25;
+  display:flex;flex-direction:column;gap:8px;
+}
+.tool-btn{
+  width:36px;height:36px;padding:0;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;
+  /* 同理：小球现在会顶到屏幕边缘，按钮底色必须做实 */
+  background:rgba(7,11,19,.9);
+  border:1px solid rgba(126,158,198,.26);
+  transition:border-color .2s ease,background .2s ease;
+}
+.tool-btn svg{
+  width:15px;height:15px;
+  fill:none;stroke:rgba(158,190,228,.7);
+  stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;
+  transition:stroke .2s ease;
+}
+.tool-btn:hover{border-color:rgba(150,185,230,.55);background:rgba(19,31,50,.88)}
+.tool-btn:hover svg{stroke:rgba(200,222,250,.95)}
+.tool-btn.on{border-color:rgba(150,185,230,.62);background:rgba(28,44,68,.9)}
+.tool-btn.on svg{stroke:rgba(214,232,255,.98)}
+
+/* ============ 提示（加载完成后短暂出现） ============ */
+.toast{
+  position:fixed;left:50%;bottom:58px;z-index:28;
+  transform:translateX(-50%);
+  padding:8px 18px;border-radius:999px;
+  font-size:11.5px;letter-spacing:.08em;color:rgba(206,224,246,.9);
+  background:rgba(10,17,29,.78);
+  border:1px solid rgba(126,158,198,.22);
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+  opacity:1;transition:opacity .9s ease;
+  pointer-events:none;white-space:nowrap;
+}
+.toast.out{opacity:0}
+
+/* ============ 语言音频：自绘控件 ============
+   浏览器原生 <audio controls> 是一整块浅色系统控件，在深色面板里非常扎眼。 */
+.aud{display:flex;align-items:center;gap:9px;flex:1 1 auto;min-width:0}
+.aud-btn{
+  width:28px;height:28px;flex:0 0 auto;padding:0;
+  border-radius:50%;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(255,255,255,.05);
+  border:1px solid rgba(126,158,198,.3);
+  transition:border-color .2s ease,background .2s ease;
+}
+.aud-btn svg{width:10px;height:10px;fill:rgba(178,203,232,.9)}
+.aud-btn:hover{border-color:rgba(150,185,230,.6);background:rgba(150,185,230,.12)}
+/* 播放中只提亮，不用金色 —— 金色是地球国界的专属 */
+.aud.playing .aud-btn{border-color:rgba(178,208,244,.8);background:rgba(150,185,230,.16)}
+.aud.playing .aud-btn svg{fill:#e8f2ff}
+
+/* 进度条给足高度：之前只有 3px，在深色面板里几乎看不见，
+   看起来就像"只剩按钮和计时器"。 */
+.aud-bar{
+  flex:1 1 auto;min-width:56px;height:18px;
+  display:flex;align-items:center;position:relative;cursor:pointer;
+}
+.aud-track{
+  position:relative;width:100%;height:4px;border-radius:3px;
+  background:rgba(160,190,225,.22);
+  transition:height .16s ease;
+}
+.aud-bar:hover .aud-track{height:6px}
+.aud-fill{
+  position:absolute;left:0;top:0;height:100%;width:0;border-radius:3px;
+  background:rgba(190,216,248,.85);
+  transition:width .1s linear;
+}
+.aud.playing .aud-fill{background:rgba(214,232,255,.95)}
+.aud-fill::after{
+  content:"";position:absolute;right:-4px;top:50%;
+  width:8px;height:8px;border-radius:50%;
+  transform:translateY(-50%) scale(.001);
+  background:#eaf3ff;
+  transition:transform .16s ease;
+}
+.aud-bar:hover .aud-fill::after,
+.aud.playing .aud-fill::after{transform:translateY(-50%) scale(1)}
+.aud-time{
+  flex:0 0 auto;min-width:62px;text-align:right;
+  font-size:10.5px;color:var(--ink-faint);
+  font-variant-numeric:tabular-nums;letter-spacing:.02em;
+}
 </style>
 </head>
 <body>
@@ -1615,7 +2354,7 @@
          可点这件事不靠显示来保证：它们仍然排在最前面（避让时优先）。 */
       var show;
       if (L.kind === 'mc') show = nz < 3.5;          // 大洲：拉近就撤
-      else if (L.kind === 'mo') show = nz < 4.3;     // 大洋：更晚撤
+      else if (L.kind === 'mo') show = nz >= (L.z || 0);  // 海域：按各自的门槛浮现
       else show = nz >= L.z;
       if (!show) { hideLabel(L); continue; }
 
@@ -1653,7 +2392,7 @@
       // 距阈值 0.18 以内渐显，再往里满亮
       var limb = Math.min(1, Math.max(0, (dot - dotMin) / 0.18));
       var edge = Math.min(Math.min(rx, w - rx - L.w), Math.min(ry, h - ry - L.h));
-      var edgeA = Math.min(1, Math.max(0, edge / 72));
+      var edgeA = Math.min(1, Math.max(0, edge / 110));
       var alpha = limb * edgeA;
       if (alpha < 0.08) { hideLabel(L); continue; }
 
@@ -1892,6 +2631,7 @@
     });
     cv.addEventListener('pointermove', function (e) {
       if (!globe.dragging) return;
+      globe.lastInput = performance.now();
       var dx = e.clientX - globe.last.x;
       var dy = e.clientY - globe.last.y;
       globe.last.x = e.clientX;
@@ -1994,7 +2734,11 @@
       camera.position.z += (globe.camTarget - camera.position.z) * 0.075;
       if (STAR_MAT) STAR_MAT.uniforms.uTime.value = performance.now() / 1000;
       // 滚轮停下来了，才把 8K 传上 GPU
-      if (globe.tex8kReady && nowMs - (globe.lastInput || 0) > 420) bind8k();
+      /* 只在"手停下来"的时候才把 8K 传上 GPU。拖拽过程中 pointerdown 之后
+         就没有新的输入事件了，所以必须同时看 dragging 标记 ——
+         否则用户拖到一半正好命中上传，就是"拖拽途中卡一下"。 */
+      if (globe.tex8kReady && !globe.dragging &&
+          nowMs - (globe.lastInput || 0) > 420) bind8k();
 
       if (globe.earthMat) {
         var U = globe.earthMat.uniforms;
@@ -2157,736 +2901,6 @@
     });
 })();
 </script>
-<style>
-  /* --- 卡片：图文头 + 正文 --- */
-  .card{padding:0}
-  .card .cbody{padding:18px 20px 20px}
 
-  /* 图片一律套在 .*-wrap 里：<img> 是替换元素，伪元素在它身上不渲染，
-     骨架必须由父容器画。loaded 之前图片 opacity:0，不出现半张图抖一下。 */
-  .thumb-wrap{
-    position:relative;height:132px;overflow:hidden;
-    border-bottom:1px solid var(--line);background:#0b1020;
-  }
-  .thumb-wrap .thumb{
-    display:block;width:100%;height:100%;object-fit:cover;
-    opacity:0;transition:opacity .45s ease;
-  }
-  .thumb-wrap.loaded .thumb{opacity:1}
-  .thumb-wrap.blank{
-    display:flex;align-items:center;justify-content:center;
-    font-size:12px;letter-spacing:.1em;color:var(--ink-faint);
-    background:
-      repeating-linear-gradient(135deg,rgba(255,255,255,.022) 0 2px,transparent 2px 9px),
-      linear-gradient(160deg,#0d1322,#0a0f1c);
-  }
-  .card.is-placeholder{opacity:.62}
-  .card.is-placeholder:hover{opacity:.85}
-  .card.active{border-color:rgba(148,182,224,.5);background:rgba(148,182,224,.05)}
-  .mods em.off{opacity:.36}
-
-  /* --- 详情 --- */
-  .dwrap{display:grid;grid-template-columns:minmax(220px,360px) 1fr;gap:26px;align-items:start}
-  .dimg-wrap{
-    position:relative;width:100%;aspect-ratio:16/10;overflow:hidden;
-    border:1px solid var(--line);border-radius:12px;background:#070b14;
-  }
-  .dimg-wrap .dimg{
-    display:block;width:100%;height:100%;object-fit:cover;
-    opacity:0;transition:opacity .45s ease;
-  }
-  .dimg-wrap.loaded .dimg{opacity:1}
-  /* 竖构图（埃菲尔铁塔 760×1406、长城烽燧之类）：框改成竖的、整张装进去，
-     不再拿 16:10 的死框去裁 —— 那正是"塔被拉平看不到全貌"的来源。 */
-  .dimg-wrap.fit{aspect-ratio:3/4;background:#070b14}
-  .dimg-wrap.fit .dimg{object-fit:contain}
-  .dimg-wrap.blank{
-    display:flex;align-items:center;justify-content:center;
-    font-size:12.5px;color:var(--ink-faint);text-align:center;padding:12px;
-    background:linear-gradient(160deg,#0d1322,#0a0f1c);
-  }
-  .dimg-wrap.blank .dimg{display:none}
-  .cap{font-size:12.5px;color:var(--ink-dim);margin-top:9px;line-height:1.65}
-  .cap.dim{color:var(--ink-faint)}
-
-  .dmeta{display:grid;grid-template-columns:auto 1fr;gap:9px 18px;font-size:13.5px;margin-bottom:20px}
-  .dmeta dt{color:var(--ink-faint);letter-spacing:.06em;white-space:nowrap}
-  .dmeta dd{color:var(--ink);font-variant-numeric:tabular-nums}
-
-  .dtext p{font-size:14.5px;line-height:2;color:#cfd7e8;margin-bottom:12px}
-  .dplayer{width:100%;margin-top:16px;border-radius:10px}
-  .pending{
-    margin-top:16px;padding:11px 14px;border-radius:10px;
-    border:1px dashed rgba(148,182,224,.3);
-    background:rgba(148,182,224,.05);
-    font-size:12.5px;color:#c9b58c;line-height:1.75;
-  }
-  .todo-list{list-style:none;margin-top:4px}
-  .todo-list li{
-    position:relative;padding:5px 0 5px 15px;
-    font-size:12.5px;color:var(--ink-faint);line-height:1.7;
-  }
-  .todo-list li::before{
-    content:"";position:absolute;left:3px;top:13px;
-    width:4px;height:4px;border-radius:50%;background:var(--gold);opacity:.6;
-  }
-  /* 数据待补：一行短标签，不写构建日志 */
-  .dq{
-    margin-top:16px;padding-top:12px;border-top:1px solid var(--line);
-    display:flex;gap:9px;align-items:baseline;
-    font-size:11.5px;line-height:1.65;
-  }
-  .dq-k{flex:0 0 auto;letter-spacing:.08em;color:rgba(148,182,224,.7)}
-  .dq-v{color:var(--ink-faint);min-width:0}
-
-  /* 加载中骨架：避免录屏时出现纯白或灰块跳动 */
-  .thumb-wrap.loading,.dimg-wrap.loading{
-    background:linear-gradient(160deg,#0d1322,#0a0f1c);
-  }
-  .thumb-wrap.loading::after,.dimg-wrap.loading::after{
-    content:"";position:absolute;inset:0;z-index:2;
-    background:linear-gradient(100deg,transparent 20%,rgba(140,165,220,.13) 50%,transparent 80%);
-    background-size:220% 100%;
-    animation:shimmer 1.35s linear infinite;
-  }
-  /* 占位文字（无图时的灰底卡）不参与骨架动画 */
-  .thumb-wrap.blank::after,.dimg-wrap.blank::after{content:none}
-  @keyframes shimmer{
-    from{background-position:180% 0}
-    to{background-position:-80% 0}
-  }
-
-  /* 3D 地球 */
-  .globe-wrap{
-    display:grid;grid-template-columns:1fr 232px;gap:22px;align-items:start;
-  }
-  .globe-stage{
-    position:relative;aspect-ratio:4/3;border-radius:14px;overflow:hidden;
-    border:1px solid var(--line);
-    background:radial-gradient(circle at 42% 36%,#0e1b2e 0%,#070d16 55%,#03060b 100%);
-    touch-action:none;               /* 拖拽时不触发页面滚动 */
-  }
-  .globe-stage canvas{display:block;width:100%;height:100%;cursor:grab}
-  .globe-stage canvas.dragging{cursor:grabbing}
-  .globe-msg{
-    position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
-    font-size:12.5px;letter-spacing:.06em;color:var(--ink-faint);
-    text-align:center;padding:20px;line-height:1.7;
-    transition:opacity .6s ease;
-  }
-  .globe-msg.gone{opacity:0}
-  .globe-msg.err{color:#c98a6a}
-
-  .globe-side .sub-label{margin-top:0}
-  .globe-item{
-    display:flex;align-items:center;gap:10px;
-    padding:9px 10px;margin-top:6px;border-radius:8px;
-    border:1px solid var(--line);cursor:pointer;
-    transition:border-color .2s ease,background .2s ease;
-  }
-  .globe-item:hover{border-color:rgba(148,182,224,.45);background:rgba(148,182,224,.05)}
-  .globe-item.active{border-color:rgba(148,182,224,.7);background:rgba(148,182,224,.08)}
-  .gi-flag{
-    font-size:9.5px;letter-spacing:.08em;color:var(--ink-faint);
-    border:1px solid var(--line);border-radius:4px;padding:1px 4px;flex:0 0 auto;
-  }
-  .gi-name{font-size:13px;color:var(--ink)}
-  .gi-coord{
-    margin-left:auto;font-size:10.5px;color:var(--ink-faint);
-    font-variant-numeric:tabular-nums;
-  }
-  .globe-tip{font-size:11.5px;line-height:1.75}
-
-  @media (max-width:900px){
-    .globe-wrap{grid-template-columns:1fr}
-    .globe-stage{aspect-ratio:1/1}
-  }
-
-  /* 知识库检索 */
-  .search-box{margin-top:2px}
-  #q{
-    width:100%;box-sizing:border-box;
-    padding:13px 16px;font-size:14px;font-family:inherit;
-    color:var(--ink);background:rgba(255,255,255,.03);
-    border:1px solid var(--line);border-radius:10px;outline:none;
-    transition:border-color .2s ease,background .2s ease;
-    -webkit-appearance:none;appearance:none;
-  }
-  #q::placeholder{color:var(--ink-faint)}
-  #q:focus{border-color:rgba(148,182,224,.5);background:rgba(255,255,255,.05)}
-  #q::-webkit-search-cancel-button{filter:invert(.5)}
-
-  .sr-examples{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}
-  .sr-ex{
-    font-size:12px;padding:4px 11px;border-radius:999px;
-    border:1px solid var(--line);color:var(--ink-dim);
-    background:transparent;font-family:inherit;cursor:pointer;
-    transition:border-color .2s ease,color .2s ease;
-  }
-  .sr-ex:hover{border-color:rgba(148,182,224,.45);color:var(--ink)}
-
-  .search-res{
-    margin-top:12px;border:1px solid var(--line);border-radius:10px;
-    overflow:hidden;background:rgba(255,255,255,.018);
-  }
-  .sr-item{
-    padding:11px 14px;border-bottom:1px solid var(--line);cursor:pointer;
-    transition:background .18s ease;
-  }
-  .sr-item:last-child{border-bottom:0}
-  .sr-item:hover{background:rgba(148,182,224,.06)}
-  .sr-top{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
-  .sr-country{
-    font-size:11px;letter-spacing:.05em;color:rgba(148,182,224,.9);
-    border:1px solid rgba(148,182,224,.3);border-radius:999px;
-    padding:1px 7px;flex:0 0 auto;
-  }
-  .sr-q{font-size:13.5px;color:var(--ink)}
-  .sr-a{font-size:12.5px;color:var(--ink-dim);line-height:1.65;margin-top:4px}
-  .sr-empty{padding:14px;font-size:12.5px;color:var(--ink-faint);line-height:1.6}
-  .sr-country-row{display:flex;align-items:center;gap:9px;padding:10px 14px}
-  .sr-arrow{
-    margin-left:auto;font-size:15px;line-height:1;color:rgba(148,182,224,.45);
-    transition:color .18s ease,transform .18s ease;
-  }
-  .sr-country-row:hover .sr-arrow{color:rgba(200,222,250,.9);transform:translateX(2px)}
-
-  /* 文化特征：左列窄标签 + 右侧色块。
-     原来是 11px 灰字 + 12px 半透明 chip，在深色面板里几乎看不见；
-     现在键名 13px 提亮、chip 13px 实色、行间加细分隔线，
-     整体像一张"规格表"而不是一堆散落的灰点。 */
-  .facets{margin-top:2px}
-  .frow{
-    display:grid;grid-template-columns:56px minmax(0,1fr);
-    gap:4px 12px;align-items:start;
-    padding:8px 0;
-    border-bottom:1px solid rgba(140,165,220,.10);
-  }
-  .frow:last-child{border-bottom:0;padding-bottom:2px}
-  .fkey{
-    font-size:13px;line-height:1.5;letter-spacing:.02em;
-    color:rgba(184,202,230,.92);padding-top:3px;white-space:nowrap;
-  }
-  .fval{display:flex;flex-wrap:wrap;gap:6px}
-  .chip{
-    font-size:13px;line-height:1.5;padding:3px 10px;border-radius:7px;
-    border:1px solid rgba(140,170,215,.24);
-    color:#d7e0ef;background:rgba(255,255,255,.04);
-    cursor:default;
-    transition:border-color .18s ease,color .18s ease,background .18s ease;
-  }
-  .chip:hover{
-    border-color:rgba(160,192,236,.6);color:#fff;
-    background:rgba(150,185,230,.12);
-  }
-  /* 关键词是"从正文里抽出来的词"，比人工归类的其它项亮一档 */
-  .chip-kw{
-    border-color:rgba(140,180,240,.38);
-    color:#d3e6ff;background:rgba(120,165,235,.10);
-  }
-
-  /* 国界轮廓 */
-  .geo-box{margin-top:4px}
-  .geo-svg{
-    border:1px solid var(--line);border-radius:10px;
-    background:linear-gradient(160deg,#0c1220,#090e1a);
-    padding:4px;font-size:12px;color:var(--ink-faint);
-  }
-  .geo-svg svg{display:block;width:100%;height:auto}
-
-  /* 多图切换 */
-  .thumbstrip{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
-  .ts-item{
-    width:64px;height:46px;object-fit:cover;border-radius:6px;
-    border:1px solid var(--line);cursor:pointer;opacity:.55;
-    transition:opacity .2s ease,border-color .2s ease;
-  }
-  .ts-item:hover{opacity:.85}
-  .ts-item.active{opacity:1;border-color:rgba(148,182,224,.65)}
-
-  /* 语言音频行 */
-  .lang-audio{
-    display:flex;align-items:center;gap:10px;
-    padding:8px 0;border-bottom:1px solid var(--line);
-  }
-  .lang-audio:last-child{border-bottom:0}
-  .la-name{font-size:14px;color:var(--ink);min-width:88px}
-  .la-role{
-    font-size:10.5px;letter-spacing:.08em;color:var(--ink-faint);
-    border:1px solid var(--line);border-radius:999px;padding:1px 7px;
-  }
-  .la-player{flex:1;height:32px;min-width:0}
-
-  @media (max-width:760px){
-    .dwrap{grid-template-columns:1fr}
-  }
-
-/* ============ 全屏地球布局 ============ */
-/* 这一层覆盖旧的"长页面"排版：不再有文档流滚动，一切浮在 3D 舞台之上。 */
-html,body{
-  height:100%;overflow:hidden;
-}
-body{
-  margin:0;padding:0;
-  background:#02040a;
-}
-
-#globe-stage{
-  /* 全屏。顶栏是浮层、不吃布局，地球可以顶到屏幕最上边 ——
-     之前留了 62px 给顶栏，等于在画面上方盖了一条遮罩，球一大就被切。
-     品牌字压在上面也没关系，加一点投影就够读。 */
-  position:fixed;inset:0;z-index:0;
-  transform-origin:50% 50%;
-  transition:transform .68s cubic-bezier(.22,.61,.36,1);
-}
-#globe-stage canvas{
-  display:block;width:100%;height:100%;cursor:grab;
-  /* WebGL 首帧合成偶尔会白一帧。canvas 自己淡进来，这点白就被吃掉了。 */
-  opacity:0;transition:opacity .9s ease;
-}
-#globe-stage canvas.ready{opacity:1}
-
-/* 档案面板打开时，地球整体左移并缩小 —— 比改相机更稳，
-   不会触发 canvas 反复 resize，也不会有一次性的抖动。 */
-body.panel-open #globe-stage{
-  /* 只平移，不缩放。缩放在视觉上会同时"变小 + 被裁"，
-     而用户接受面板压住一点地球，所以让球保持原尺寸左移即可。 */
-  transform:translateX(-14%);
-}
-
-/* --- 顶部栏 --- */
-#topbar{
-  position:fixed;top:0;left:0;right:0;z-index:30;
-  display:flex;align-items:center;gap:14px;
-  padding:14px 26px;
-  pointer-events:none;              /* 只有子元素可点，不挡地球拖拽 */
-}
-#topbar > *{pointer-events:auto}
-
-.brand{display:flex;align-items:baseline;gap:10px;flex:0 0 auto}
-.brand-cn{
-  font-family:var(--serif,"Songti SC",serif);
-  font-size:26px;letter-spacing:.18em;color:var(--ink);
-  /* 品牌字压在球上也读得清：投影而不是底衬，不遮挡画面 */
-  text-shadow:0 2px 10px rgba(0,0,0,.75), 0 0 2px rgba(0,0,0,.6);
-}
-.brand-en{font-size:10px;letter-spacing:.22em;text-transform:uppercase;
-  color:var(--ink-faint);text-shadow:0 1px 6px rgba(0,0,0,.8)}
-
-/* ============ 搜索：默认就是一只短输入框，点一下展开 ============
-   之前做成"圆钮 → 点开才变输入框"，看着不像搜索，倒像工具菜单。
-   现在常驻一个短框（150px），聚焦或点击时展开到 360px。
-   宽度过渡直接放在 .search-wrap 上：topbar 里它后面已经没有别的元素了，
-   不会把谁挤得跳来跳去。
-   金色只留给地球上的国界，控件一律冷色。 */
-.search-wrap{
-  position:relative;height:34px;flex:0 0 auto;
-  width:168px;
-  transition:width .46s cubic-bezier(.2,.9,.25,1);
-}
-.search-wrap.open{width:min(384px, 46vw)}
-
-.search-panel{
-  position:absolute;inset:0;z-index:4;
-  display:flex;align-items:center;
-  height:34px;border-radius:999px;overflow:hidden;
-  /* 底色压深：半透明蓝灰在深色页面上会变成一块"灰白塑料" */
-  background:rgba(5,8,14,.92);
-  border:1px solid rgba(126,158,198,.24);
-  /* 这里原来有 backdrop-filter:blur(10px)。它会在首次合成时新建一个
-     带模糊的图层，Chrome 上表现为刷新瞬间这块区域亮一下（就是"闪白"）。
-     框里本来就没有需要虚化的内容，去掉最省事。 */
-  cursor:text;
-  transition:border-color .22s ease,background .22s ease;
-}
-.search-wrap.open .search-panel{background:rgba(4,7,12,.96)}
-/* hover 必须有反应：之前只有聚焦才变，鼠标扫过去毫无反馈，像块死板子 */
-.search-panel:hover{
-  border-color:rgba(150,185,230,.46);
-  background:rgba(14,22,36,.95);
-}
-.search-panel:hover .search-icon{stroke:rgba(196,222,252,.92)}
-.search-panel:focus-within{
-  border-color:rgba(160,196,240,.62);
-  box-shadow:0 0 0 3px rgba(120,165,235,.10);
-}
-
-.search-panel .search-icon{
-  position:absolute;left:11px;top:50%;transform:translateY(-50%);
-  width:13.5px;height:13.5px;pointer-events:none;
-  fill:none;stroke:rgba(158,190,228,.72);stroke-width:1.8;
-  transition:stroke .18s ease;
-  stroke-linecap:round;stroke-linejoin:round;
-}
-
-#q{
-  flex:1 1 auto;min-width:0;height:100%;box-sizing:border-box;
-  padding:0 6px 0 31px;
-  font-size:13.5px;font-family:inherit;
-  color:var(--ink);caret-color:#bcd6f5;
-  background:transparent;border:0;outline:none;
-  -webkit-appearance:none;appearance:none;
-}
-#q::-webkit-search-cancel-button{filter:invert(.42)}
-
-/* 展开后才出现的下拉按钮：国家列表由用户自己点开 */
-.search-drop{
-  flex:0 0 auto;width:0;height:22px;margin-right:0;padding:0;
-  opacity:0;pointer-events:none;overflow:hidden;
-  transition:width .2s ease,opacity .2s ease,background .2s ease,border-color .2s ease;
-  display:flex;align-items:center;justify-content:center;
-  border-radius:50%;cursor:pointer;
-  background:transparent;border:1px solid transparent;
-}
-.search-wrap.open .search-drop{
-  width:22px;margin-right:4px;opacity:.9;pointer-events:auto;
-}
-.search-drop svg{
-  width:11px;height:11px;
-  fill:none;stroke:rgba(184,210,242,.95);
-  stroke-width:2;stroke-linecap:round;stroke-linejoin:round;
-  transition:transform .3s cubic-bezier(.2,.9,.25,1);
-}
-.search-drop:hover{opacity:1;border-color:rgba(150,185,230,.42);background:rgba(150,185,230,.1)}
-.search-wrap.list-open .search-drop{opacity:1}
-.search-wrap.list-open .search-drop svg{transform:rotate(180deg)}
-
-/* 搜索结果 / 国家列表：从搜索框下方浮出 */
-#q-res{
-  position:absolute;top:calc(100% + 8px);left:0;
-  width:100%;
-  max-height:52vh;overflow-y:auto;
-  border-radius:12px;border:1px solid rgba(120,150,190,.28);
-  background:rgba(8,13,23,.96);
-  backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
-  box-shadow:0 18px 48px rgba(0,0,0,.55);
-}
-#q-res[hidden]{display:none}
-
-/* --- 底部国家导航 --- */
-#dock{
-  position:fixed;left:50%;bottom:30px;transform:translateX(-50%);
-  z-index:30;pointer-events:none;
-}
-#dock #cards{
-  display:flex;gap:10px;pointer-events:auto;
-}
-.dock-item{
-  display:flex;align-items:center;gap:9px;
-  padding:9px 16px;border-radius:999px;cursor:pointer;
-  font-family:inherit;font-size:13px;color:var(--ink-dim);
-  background:rgba(10,16,28,.72);
-  border:1px solid rgba(120,150,190,.26);
-  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
-  transition:border-color .22s ease,background .22s ease,color .22s ease,transform .22s ease;
-}
-.dock-item:hover{
-  border-color:rgba(148,182,224,.55);color:var(--ink);
-  transform:translateY(-2px);
-}
-.dock-item.active{
-  border-color:rgba(148,182,224,.85);
-  background:rgba(148,182,224,.14);
-  color:#f2d9a4;
-}
-.di-iso{
-  font-size:9.5px;letter-spacing:.10em;color:var(--ink-faint);
-  font-variant-numeric:tabular-nums;
-}
-.dock-item.active .di-iso{color:rgba(242,217,164,.75)}
-
-/* --- 右侧档案面板 --- */
-/* 档案面板：一张浮起来的卡片，四边留白、圆角、带偏移的柔和阴影。
-   之前是贴边的侧栏，像浏览器自带的抽屉；浮卡才有"弹出来"的感觉。 */
-#detail{
-  position:fixed;top:16px;right:16px;bottom:16px;z-index:40;
-  width:min(500px, calc(100vw - 32px));
-  display:flex;flex-direction:column;
-  background:rgba(9,14,24,.955);
-  border:1px solid rgba(126,158,198,.22);
-  border-radius:20px;
-  box-shadow:0 28px 70px rgba(0,0,0,.62), 0 3px 10px rgba(0,0,0,.42);
-  transform:translateX(calc(100% + 28px));
-  transition:transform .56s cubic-bezier(.22,.61,.36,1);
-  visibility:hidden;
-  overflow:hidden;                 /* 圆角要裁掉内部滚动区的直角 */
-}
-#detail.open{transform:none;visibility:visible}
-#detail[hidden]{display:none}
-
-.dhead{
-  padding:22px 26px 16px;border-bottom:1px solid var(--line);
-  flex:0 0 auto;
-}
-.dhead h2{
-  margin:0;font-family:var(--serif,"Songti SC",serif);
-  font-size:26px;font-weight:500;letter-spacing:.05em;color:var(--ink);
-}
-#d-sub{
-  margin-top:6px;font-size:11.5px;letter-spacing:.06em;color:var(--ink-faint);
-  font-variant-numeric:tabular-nums;
-}
-.dscroll{
-  flex:1 1 auto;overflow-y:auto;overflow-x:hidden;
-  overscroll-behavior:contain;
-  padding:18px 24px 28px;
-}
-/* 内部任何元素都不许撑破面板产生横向滚动条 */
-#detail *{max-width:100%}
-/* 只在正文流里限制媒体宽度。这里必须排除 .dimg / .ts-item：
-   一条 `#detail img{height:auto}` 的优先级高于 `.dimg-wrap .dimg{height:100%}`，
-   会把主图的高度改成图片自身比例，于是 4:3 的框只露出竖图顶部一截 ——
-   埃菲尔铁塔那张（760×1406）看起来就是"被拉平、看不到全貌"。 */
-#detail .prose img,#detail .prose video,
-#detail .dimg-wrap .dimg,#detail .thumbstrip .ts-item{max-width:100%}
-#detail video,#detail canvas{max-width:100%;height:auto}
-#detail .dwrap,#detail .dblock,#detail .meta,#detail .facets{min-width:0}
-#detail pre,#detail code{white-space:pre-wrap;word-break:break-word}
-.dclose{
-  position:absolute;top:15px;right:15px;
-  width:30px;height:30px;border-radius:50%;
-  display:flex;align-items:center;justify-content:center;
-  font-size:19px;line-height:1;cursor:pointer;
-  color:var(--ink-dim);background:rgba(255,255,255,.05);
-  border:1px solid var(--line);font-family:inherit;
-  transition:color .2s ease,border-color .2s ease,background .2s ease;
-}
-.dclose:hover{color:var(--ink);border-color:rgba(148,182,224,.5);background:rgba(148,182,224,.10)}
-
-/* 面板里空间窄，详情原本的两列网格改为单列 */
-#detail .dwrap{grid-template-columns:1fr;gap:16px}
-#detail .dimg-wrap{aspect-ratio:16/10}
-/* 竖图在面板里单独给一个更高的框（这条必须带 #detail，否则被上面那条盖掉） */
-#detail .dimg-wrap.fit{aspect-ratio:4/5}
-
-/* --- 左下角提示 --- */
-#footline{
-  position:fixed;left:26px;bottom:30px;z-index:20;
-  display:flex;flex-direction:column;gap:4px;
-  font-size:10.5px;letter-spacing:.05em;color:var(--ink-faint);
-  pointer-events:none;
-  opacity:.8;
-}
-.fl-src{font-size:9.5px;opacity:.7}
-
-/* --- 移动端 --- */
-@media (max-width:760px){
-  #topbar{padding:12px 14px;gap:10px;flex-wrap:nowrap}
-  .brand-en{display:none}
-  .brand-cn{font-size:17px}
-  .topbar-meta{display:none}
-  .search-wrap{width:128px;height:32px}
-  .search-wrap.open{width:calc(100vw - 126px)}
-  #globe-stage{inset:0}
-  #detail{
-    top:auto;left:10px;right:10px;bottom:10px;
-    width:auto;height:82vh;height:82dvh;
-    border-radius:18px;
-    transform:translateY(calc(100% + 20px));
-  }
-  #detail.open{transform:none}
-  body.panel-open #globe-stage{transform:translateY(-11%)}
-  #footline{display:none}
-}
-
-/* ============ 浏览器表面 ============
-   这些部件不是画出来的，但一样带设计：选区颜色、滚动条、焦点环。
-   它们是最便宜的"这页是被建造的"信号，也是最常被漏掉的一层。 */
-::selection{
-  background:rgba(148,182,224,.30);
-  color:#fdf6e8;
-}
-::-moz-selection{background:rgba(148,182,224,.30);color:#fdf6e8}
-
-.dscroll::-webkit-scrollbar,
-#q-res::-webkit-scrollbar{width:10px}
-.dscroll::-webkit-scrollbar-track,
-#q-res::-webkit-scrollbar-track{background:transparent}
-.dscroll::-webkit-scrollbar-thumb,
-#q-res::-webkit-scrollbar-thumb{
-  background:rgba(140,168,208,.24);
-  border:3px solid transparent;
-  background-clip:padding-box;
-  border-radius:10px;
-}
-.dscroll::-webkit-scrollbar-thumb:hover,
-#q-res::-webkit-scrollbar-thumb:hover{
-  background:rgba(148,182,224,.42);
-  background-clip:padding-box;
-}
-.dscroll{scrollbar-width:thin;scrollbar-color:rgba(140,168,208,.28) transparent}
-
-:focus-visible{
-  outline:2px solid rgba(148,182,224,.78);
-  outline-offset:3px;
-  border-radius:6px;
-}
-#q:focus-visible{outline-offset:0;border-radius:999px}
-
-/* ============ 正文段落 ============
-   中文长段落首行缩进两字，段间留白；不缩进会连成一片很难读。 */
-.prose p{
-  margin:0 0 .82em;
-  text-indent:2em;
-  line-height:1.95;
-  color:var(--ink-dim);
-  font-size:14.5px;
-  letter-spacing:.01em;
-}
-.prose p:last-child{margin-bottom:0}
-.prose{padding:0}
-
-/* 面板里的标题层级。
-   这里曾经是 11.5px —— 比正文 14.5px 还小，属于排版错误而不是风格选择：
-   标题必须比正文大、比正文粗。而且早先那条 `.dtext p.sub-label` 的选择器
-   要求 p 标签，实际元素是 div，所以从来没生效过，改了三轮都没改对。
-   现在只有这一处定义，17.5px / 700。 */
-.sub-label{
-  font-size:17.5px;font-weight:700;letter-spacing:.02em;
-  line-height:1.4;color:#eef4ff;
-  margin:26px 0 12px;
-}
-/* 只在"文本流的第一块"才清零上边距。
-   之前这条是通用的 :first-child，而「文化特征」正好是 .facets 的第一个子元素，
-   于是它的 26px 上边距被吃掉了，标题直接贴在「历史与民俗」正文下面。 */
-#d-body > .sub-label:first-child{margin-top:0}
-.facets > .sub-label:first-child{margin-top:22px}
-
-/* ============ 球面地名标注 ============
-   像地图那样：纯文字、无胶囊底、带投影保证在浅色地表上也读得清。
-   每帧由 JS 投影定位，转到背面淡出，互相重叠的按重要度让位。
-   尺寸分三级：大洲最轻、大洋斜体、国家名最实。 */
-#labels{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:5}
-.mlabel{
-  position:absolute;left:0;top:0;
-  white-space:nowrap;opacity:0;
-  font-size:13px;letter-spacing:.04em;
-  color:#fff;
-  /* 白字压白雪（亚洲正好落在西伯利亚雪原上）的解法：
-     用"深色描边 + 浅色填充"，先描边后填充（paint-order），白底黑底都分得开。
-     注意描边宽度是**相对字号**的：13px 的中文笔画只有 1px 出头，
-     描边一旦到 0.8px 就会从里外两侧把笔画吃光，字变成一块灰饼 ——
-     所以字号提到 14px，描边压到 0.5px。 */
-  -webkit-text-stroke:.5px rgba(0,0,0,.6);
-  paint-order:stroke fill;
-  text-shadow:0 1px 1px rgba(0,0,0,.45);
-  transition:opacity .26s ease;
-  will-change:transform;
-}
-.mlabel.mc{
-  /* 大洲名之前 58% 透明度、字距 0.42em，压在雪山白底上根本看不见。
-     现在提亮到 0.84、字距收到 0.3em（拉太开会显得更细更虚）。 */
-  font-size:14.5px;letter-spacing:.26em;font-weight:600;
-  color:rgba(232,241,254,.92);
-}
-.mlabel.mo{
-  font-size:13px;letter-spacing:.24em;font-style:italic;
-  color:rgba(180,212,246,.78);
-}
-/* 岛 / 湖 / 海峡：只在放得很大时才出现，比国名轻一档，但各自有颜色语义 */
-.mlabel.mi{font-size:12.5px;color:rgba(214,232,252,.82)}
-.mlabel.ml{font-size:12px;font-style:italic;color:rgba(148,206,238,.82)}
-.mlabel.ms{
-  font-size:11.5px;letter-spacing:.14em;font-style:italic;
-  color:rgba(162,202,240,.76);
-}
-/* 已收录、可点开档案的国家：比普通国名亮一档，hover 变白 */
-.mlabel.mk{
-  pointer-events:auto;cursor:pointer;
-  font-size:13.5px;font-weight:500;
-  color:#ffffff;
-  text-shadow:0 1px 3px rgba(0,0,0,.95), 0 0 12px rgba(120,170,235,.5);
-}
-.mlabel.mk:hover{color:#cfe6ff}
-
-/* ============ 左下角工具按钮 ============ */
-#tools{
-  position:fixed;left:22px;bottom:22px;z-index:25;
-  display:flex;flex-direction:column;gap:8px;
-}
-.tool-btn{
-  width:36px;height:36px;padding:0;border-radius:50%;
-  display:flex;align-items:center;justify-content:center;
-  cursor:pointer;
-  /* 同理：小球现在会顶到屏幕边缘，按钮底色必须做实 */
-  background:rgba(7,11,19,.9);
-  border:1px solid rgba(126,158,198,.26);
-  transition:border-color .2s ease,background .2s ease;
-}
-.tool-btn svg{
-  width:15px;height:15px;
-  fill:none;stroke:rgba(158,190,228,.7);
-  stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;
-  transition:stroke .2s ease;
-}
-.tool-btn:hover{border-color:rgba(150,185,230,.55);background:rgba(19,31,50,.88)}
-.tool-btn:hover svg{stroke:rgba(200,222,250,.95)}
-.tool-btn.on{border-color:rgba(150,185,230,.62);background:rgba(28,44,68,.9)}
-.tool-btn.on svg{stroke:rgba(214,232,255,.98)}
-
-/* ============ 提示（加载完成后短暂出现） ============ */
-.toast{
-  position:fixed;left:50%;bottom:58px;z-index:28;
-  transform:translateX(-50%);
-  padding:8px 18px;border-radius:999px;
-  font-size:11.5px;letter-spacing:.08em;color:rgba(206,224,246,.9);
-  background:rgba(10,17,29,.78);
-  border:1px solid rgba(126,158,198,.22);
-  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
-  opacity:1;transition:opacity .9s ease;
-  pointer-events:none;white-space:nowrap;
-}
-.toast.out{opacity:0}
-
-/* ============ 语言音频：自绘控件 ============
-   浏览器原生 <audio controls> 是一整块浅色系统控件，在深色面板里非常扎眼。 */
-.aud{display:flex;align-items:center;gap:9px;flex:1 1 auto;min-width:0}
-.aud-btn{
-  width:28px;height:28px;flex:0 0 auto;padding:0;
-  border-radius:50%;cursor:pointer;
-  display:flex;align-items:center;justify-content:center;
-  background:rgba(255,255,255,.05);
-  border:1px solid rgba(126,158,198,.3);
-  transition:border-color .2s ease,background .2s ease;
-}
-.aud-btn svg{width:10px;height:10px;fill:rgba(178,203,232,.9)}
-.aud-btn:hover{border-color:rgba(150,185,230,.6);background:rgba(150,185,230,.12)}
-/* 播放中只提亮，不用金色 —— 金色是地球国界的专属 */
-.aud.playing .aud-btn{border-color:rgba(178,208,244,.8);background:rgba(150,185,230,.16)}
-.aud.playing .aud-btn svg{fill:#e8f2ff}
-
-/* 进度条给足高度：之前只有 3px，在深色面板里几乎看不见，
-   看起来就像"只剩按钮和计时器"。 */
-.aud-bar{
-  flex:1 1 auto;min-width:56px;height:18px;
-  display:flex;align-items:center;position:relative;cursor:pointer;
-}
-.aud-track{
-  position:relative;width:100%;height:4px;border-radius:3px;
-  background:rgba(160,190,225,.22);
-  transition:height .16s ease;
-}
-.aud-bar:hover .aud-track{height:6px}
-.aud-fill{
-  position:absolute;left:0;top:0;height:100%;width:0;border-radius:3px;
-  background:rgba(190,216,248,.85);
-  transition:width .1s linear;
-}
-.aud.playing .aud-fill{background:rgba(214,232,255,.95)}
-.aud-fill::after{
-  content:"";position:absolute;right:-4px;top:50%;
-  width:8px;height:8px;border-radius:50%;
-  transform:translateY(-50%) scale(.001);
-  background:#eaf3ff;
-  transition:transform .16s ease;
-}
-.aud-bar:hover .aud-fill::after,
-.aud.playing .aud-fill::after{transform:translateY(-50%) scale(1)}
-.aud-time{
-  flex:0 0 auto;min-width:62px;text-align:right;
-  font-size:10.5px;color:var(--ink-faint);
-  font-variant-numeric:tabular-nums;letter-spacing:.02em;
-}
-</style>
 </body>
 </html>
