@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-10-27-E">
+<meta name="build" content="2026-10-27-F">
 <title>寰宇图志 · Atlas Mundi</title>
 <meta name="description" content="寰宇图志：3D 地球上的多模态国家文化图谱">
 <style>
@@ -300,8 +300,12 @@
 
   /* --- 详情 --- */
   .dwrap{display:grid;grid-template-columns:minmax(220px,360px) 1fr;gap:26px;align-items:start}
+  /* 高度写死，不跟着图片自身比例变。
+     之前竖图（埃菲尔铁塔 760×1406）触发 .fit 把框改成 3/4，横图又是 16:10，
+     于是"切一张图，下面的文字整体上移一截"。现在框高固定，
+     竖图 contain 装整张、横图 cover 铺满，版式不动。 */
   .dimg-wrap{
-    position:relative;width:100%;aspect-ratio:16/10;overflow:hidden;
+    position:relative;width:100%;height:clamp(230px,34vh,372px);overflow:hidden;
     border:1px solid var(--line);border-radius:12px;background:#070b14;
   }
   .dimg-wrap .dimg{
@@ -311,7 +315,7 @@
   .dimg-wrap.loaded .dimg{opacity:1}
   /* 竖构图（埃菲尔铁塔 760×1406、长城烽燧之类）：框改成竖的、整张装进去，
      不再拿 16:10 的死框去裁 —— 那正是"塔被拉平看不到全貌"的来源。 */
-  .dimg-wrap.fit{aspect-ratio:3/4;background:rgba(0,0,0,.28)}
+  .dimg-wrap.fit{background:rgba(0,0,0,.28)}
   .dimg-wrap.fit .dimg{object-fit:contain}
   .dimg-wrap.blank{
     display:flex;align-items:center;justify-content:center;
@@ -327,7 +331,9 @@
   .dmeta dd{color:var(--ink);font-variant-numeric:tabular-nums}
 
   /* 正文提一档字重：中文黑体在深底上 400 偏细 */
-  .dtext p{font-size:14.5px;line-height:2;color:#d6deee;margin-bottom:12px;font-weight:500}
+  .dtext p{font-size:14.5px;line-height:2;color:#dde5f3;margin-bottom:12px;font-weight:500;
+    text-shadow:0 1px 2px rgba(0,0,0,.45)}
+  .dtext p .kw,.dtext p .kn{text-shadow:none}
   .dplayer{width:100%;margin-top:16px;border-radius:10px}
   .pending{
     margin-top:16px;padding:11px 14px;border-radius:10px;
@@ -523,9 +529,11 @@
   .lang-block:last-child{border-bottom:0;padding-bottom:2px}
   /* 三列网格：语言名固定 96px，播放器永远从同一条竖线开始。
      flex 时代名字长短不同，播放器位置就跟着飘，"英语"和"现代标准汉语"看着像两张表。 */
-  .lang-audio{display:grid;grid-template-columns:104px 44px minmax(0,1fr);align-items:center;gap:8px}
+  /* 列宽由内容决定：名字多长，角色和播放器就跟到多后，永远紧挨着名字。
+     固定 104px 时"英语"两个字和播放器之间会空出一大段。 */
+  .lang-audio{display:grid;grid-template-columns:auto auto minmax(0,1fr);align-items:center;gap:10px;justify-content:start}
   /* 原文一行 + 中文一行。原文淡、译文亮，读的时候先看译文。 */
-  .lang-trans{margin:6px 0 0 160px;display:flex;flex-direction:column;gap:3px}
+  .lang-trans{margin:6px 0 0 0;display:flex;flex-direction:column;gap:3px}
   .lt-src{
     font-size:12px;line-height:1.6;color:rgba(150,170,198,.72);
     font-style:italic;letter-spacing:.01em;
@@ -618,25 +626,55 @@ body.panel-open #globe-stage{
   position:absolute;inset:0;z-index:4;
   display:flex;align-items:center;
   height:34px;border-radius:999px;overflow:hidden;
-  /* 底色压深：半透明蓝灰在深色页面上会变成一块"灰白塑料" */
-  background:rgba(5,8,14,.92);
-  border:1px solid rgba(126,158,198,.24);
+  /* 底色用竖向微弱渐变而不是纯色：纯色在近黑背景上永远"发扁"，
+     顶部亮一点点就有厚度。 */
+  background:linear-gradient(180deg,rgba(23,33,50,.97) 0%,rgba(6,10,17,.985) 100%);
+  border:1px solid rgba(126,158,198,.34);
   /* 这里原来有 backdrop-filter:blur(10px)。它会在首次合成时新建一个
      带模糊的图层，Chrome 上表现为刷新瞬间这块区域亮一下（就是"闪白"）。
      框里本来就没有需要虚化的内容，去掉最省事。 */
   cursor:text;
-  transition:border-color .22s ease,background .22s ease;
+  /* 双环：外圈一道深描边 + 外投影，内侧再压一道 inset 环。
+     只在 hover/focus 加阴影的话，静态时框是"浮不起来"的。 */
+  /* 双环：外面一道暗环把胶囊从背景里"刻"出来，紧贴内壁再压一道暗环，
+     加上顶部 1px 高光 —— 外深内深中间亮，才有金属边框的层次感。 */
+  box-shadow:
+    0 0 0 1px rgba(1,3,8,.9),
+    0 2px 6px rgba(0,0,0,.7),
+    0 10px 26px rgba(0,0,0,.55),
+    0 22px 56px rgba(0,0,0,.3),
+    inset 0 0 0 1px rgba(1,4,9,.94),
+    inset 0 1px 0 rgba(255,255,255,.075),
+    inset 0 -1px 0 rgba(0,0,0,.55);
+  transition:border-color .22s ease,background .22s ease,box-shadow .22s ease;
 }
 .search-wrap.open .search-panel{background:rgba(4,7,12,.96)}
 /* hover 必须有反应：之前只有聚焦才变，鼠标扫过去毫无反馈，像块死板子 */
 .search-panel:hover{
-  border-color:rgba(150,185,230,.46);
-  background:rgba(14,22,36,.95);
+  border-color:rgba(158,192,232,.5);
+  background:linear-gradient(180deg,rgba(30,43,64,.98) 0%,rgba(9,14,23,.99) 100%);
+  box-shadow:
+    0 0 0 1px rgba(3,6,12,.92),
+    0 0 0 2px rgba(120,170,235,.16),
+    0 3px 8px rgba(0,0,0,.72),
+    0 12px 30px rgba(0,0,0,.6),
+    0 24px 60px rgba(0,0,0,.34),
+    inset 0 0 0 1px rgba(2,6,12,.96),
+    inset 0 1px 0 rgba(255,255,255,.10),
+    inset 0 -1px 0 rgba(0,0,0,.55);
 }
 .search-panel:hover .search-icon{stroke:rgba(196,222,252,.92)}
 .search-panel:focus-within{
-  border-color:rgba(160,196,240,.62);
-  box-shadow:0 0 0 3px rgba(120,165,235,.10);
+  border-color:rgba(164,200,244,.72);
+  box-shadow:
+    0 0 0 1px rgba(2,5,11,.94),
+    0 0 0 3px rgba(120,175,235,.22),
+    0 4px 10px rgba(0,0,0,.74),
+    0 16px 40px rgba(0,0,0,.62),
+    0 30px 70px rgba(0,0,0,.36),
+    inset 0 0 0 1px rgba(3,8,15,.96),
+    inset 0 1px 0 rgba(255,255,255,.11),
+    inset 0 -1px 0 rgba(0,0,0,.55);
 }
 
 .search-panel .search-icon{
@@ -754,18 +792,22 @@ body.panel-open #globe-stage{
   position:fixed;top:16px;right:16px;bottom:16px;z-index:40;
   width:min(500px, calc(100vw - 32px));
   display:flex;flex-direction:column;
-  /* 卡片三段色 #303d67 → #79799a → #fddfdc，从左到右。
-     第二层是同一个方向的压暗罩：右端 #fddfdc 太亮，直接用白字会糊，
-     压成暖灰之后三段的色相还在，文字也能读。
-     边框用同一组色的全强度渐变（padding-box / border-box 双背景，
+  /* 三段色 #303d67 → #79799a → #fddfdc 从左到右。
+     直接铺满会有一个绕不开的矛盾：右端 #fddfdc 太亮，白字读不出；
+     左端太暗，黑字也读不出 —— 而正文只有一种颜色。
+     所以改成"深底 + 三段色的半透明罩染"：色相和走向都保留，
+     但整条都被压到同一明度区间（右端合成后约 rgb(107,94,92)，
+     白字对比度 5.6:1），文字终于能读了。
+     边框用同组色全强度渐变（双背景 padding-box/border-box，
      border-image 会破坏圆角）。 */
   background:
-    linear-gradient(96deg,
-      rgba(6,9,16,.42) 0%,
-      rgba(10,12,20,.50) 54%,
-      rgba(52,34,40,.72) 100%) padding-box,
-    linear-gradient(96deg,#303d67 0%,#79799a 56%,#fddfdc 100%) padding-box,
-    linear-gradient(96deg,#303d67 0%,#79799a 56%,#fddfdc 100%) border-box;
+    linear-gradient(100deg,
+      rgba(48,61,103,.80) 0%,
+      rgba(84,88,122,.66) 38%,
+      rgba(121,121,154,.56) 66%,
+      rgba(253,223,220,.40) 100%) padding-box,
+    linear-gradient(180deg,#0b0f19 0%,#080b12 100%) padding-box,
+    linear-gradient(100deg,#303d67 0%,#79799a 56%,#fddfdc 100%) border-box;
   border:1px solid transparent;
   border-radius:20px;
   box-shadow:0 28px 70px rgba(0,0,0,.62), 0 3px 10px rgba(0,0,0,.42);
@@ -937,7 +979,10 @@ body.panel-open #globe-stage{
   -webkit-text-stroke:.5px rgba(0,0,0,.6);
   paint-order:stroke fill;
   text-shadow:0 1px 1px rgba(0,0,0,.45);
-  transition:opacity .26s ease;
+  /* 这里原来有 transition:opacity .26s。它和"每帧按距离写透明度"打架：
+     快速缩放时 300 多个标签各自延迟 0.26 秒才收掉，屏幕上就是一层残影。
+     现在每帧直接给值，隐藏即刻生效。 */
+  transition:none;
 }
 .mlabel.mc{
   /* 大洲名之前 58% 透明度、字距 0.42em，压在雪山白底上根本看不见。
@@ -992,17 +1037,21 @@ body.panel-open #globe-stage{
 
 /* ============ 正文里的关键词高亮 ============
    用下划线式的高亮条而不是背景块：一整段里出现十几次背景块会像荧光笔乱涂。 */
+/* 概念关键词与数字/年代共用一套"细下划线"样式，只靠颜色区分。
+   之前关键词是渐变粗条（视觉上像荧光笔），数字是 1px 下划线，
+   两种样式混在一段里很乱。 */
 .kw{
-  color:#a9e2f6;font-weight:700;
-  background:linear-gradient(180deg,transparent 58%,rgba(39,166,204,.34) 0);
-  border-radius:2px;padding:0 1px;
+  color:#9fdcf2;font-weight:700;
+  border-bottom:1px solid rgba(130,205,235,.55);
 }
-/* 数字/年代：暖色，与概念关键词（冷色）区分 */
 .kn{
   color:#ffd9a8;font-weight:700;
   font-variant-numeric:tabular-nums;
   border-bottom:1px solid rgba(255,196,140,.55);
 }
+/* 高亮词左右要留气口：inline 元素的 padding 不占位，会直接盖到相邻汉字上，
+   所以间距必须用 margin（inline 的水平 margin 是参与排版的）。 */
+.kw,.kn{margin:0 2px}
 /* 从搜索结果定位过来的段落，闪一下让人看到落点 */
 .hit-flash{
   animation:hitFlash 1.6s ease-out 1;
@@ -1347,27 +1396,36 @@ body.panel-open #globe-stage{
   /* 数字与年代（14.1亿 / 960万平方千米 / 1776年 / 2020年第七次…）
      也算"要点"：读国家档案时最有信息量的其实就是这些数字。
      用另一种颜色标，和概念关键词区分开。 */
-  var NUM_RE = /\d+(?:\.\d+)?\s*(?:亿|万|千人|%|平方公里|平方千米|公里|千米|年|世纪|人|座|个)/;
+  /* 只抓"有量级"的数字：把"23 个省、5 个自治区"这种计数也标出来，
+     一段里会冒出十来个色块，等于什么都没标。 */
+  var NUM_RE = /\d+(?:\.\d+)?\s*(?:亿|万|%|平方千米|平方公里|千米|公里|年|世纪)/;
 
   function markKeywords(text) {
     var src = String(text || '');
     if (!KW_LIST.length && !NUM_RE.test(src)) return escHtml(src);
+    /* 同一个词在一段里只标第一次。
+       "历史与民俗"这类段落里"长城""春节"会反复出现，每个都标就成了满屏下划线，
+       反而看不出重点；第一处标出来，后面当普通文字读。 */
+    var used = {};
     var out = '', i = 0, guard = 0;
     while (i < src.length && guard++ < 3000) {
       var hit = null, hitAt = -1, isNum = false;
       for (var k = 0; k < KW_LIST.length; k++) {
-        var at = src.indexOf(KW_LIST[k], i);
+        var kw = KW_LIST[k];
+        if (used[kw]) continue;
+        var at = src.indexOf(kw, i);
         if (at < 0) continue;
-        if (hitAt < 0 || at < hitAt || (at === hitAt && KW_LIST[k].length > hit.length)) {
-          hitAt = at; hit = KW_LIST[k];
+        if (hitAt < 0 || at < hitAt || (at === hitAt && kw.length > hit.length)) {
+          hitAt = at; hit = kw;
         }
       }
       var m = src.slice(i).match(NUM_RE);
-      if (m) {
+      if (m && !used[m[0]]) {
         var nat = i + m.index;
         if (hitAt < 0 || nat < hitAt) { hitAt = nat; hit = m[0]; isNum = true; }
       }
       if (hitAt < 0) { out += escHtml(src.slice(i)); break; }
+      used[hit] = 1;
       out += escHtml(src.slice(i, hitAt)) +
              '<em class="' + (isNum ? 'kn' : 'kw') + '">' + escHtml(hit) + '</em>';
       i = hitAt + hit.length;
@@ -1619,9 +1677,16 @@ body.panel-open #globe-stage{
       right.appendChild(fbox);
     }
 
-    /* 音频：每个语言一条，区域语言也在内 */
-    var withAudio = (d.languages || []).filter(function (l) { return l.audio_url; });
-    var without = (d.languages || []).filter(function (l) { return !l.audio_url; });
+    /* 音频：每个语言一条。
+       地区语言只在大国给 —— 卢森堡、摩纳哥这种国家列一串地区语言纯属噪音，
+       读的人只会觉得"怎么这么多"。阈值 1000 万人口。 */
+    var popNow = LABEL_POP[(d.iso_a2 || '').toUpperCase()] || 0;
+    var langs = (d.languages || []);
+    if (popNow && popNow < 1e7) {
+      langs = langs.filter(function (l) { return l.role !== 'regional'; });
+    }
+    var withAudio = langs.filter(function (l) { return l.audio_url; });
+    var without = langs.filter(function (l) { return !l.audio_url; });
     if (withAudio.length) {
       right.appendChild(el('div', 'sub-label', '语音'));
       withAudio.forEach(function (l) {
@@ -2583,12 +2648,15 @@ body.panel-open #globe-stage{
 
      用 3D 点投影到屏幕坐标，而不是 CSS2DRenderer（那要多引一个模块）。 */
   var NE_FAR_ZOOM = 2.0;          // 世界视角 ≈ Natural Earth zoom 2.0
-  var _lp = null;                 // 复用的投影临时量，避免每帧分配
+  var _lp = null;
+  var _lc = null;                 // 复用的投影临时量，避免每帧分配
 
   function neZoomNow() {
     var z = globe.camTarget || CAM_FAR;
     return NE_FAR_ZOOM + (CAM_FAR - z) * 2.4;
   }
+
+  var LABEL_POP = {};
 
   function buildLabels(pack) {
     var host = document.getElementById('labels');
@@ -2596,13 +2664,20 @@ body.panel-open #globe-stage{
     host.innerHTML = '';
     globe.labels = [];
     if (!_lp) _lp = new THREE.Vector3();
+    /* 各国人口（NE 的 POP_EST），卡片用它决定"要不要列地区语言"：
+       小国只留官方语言。数据里没有人口时按 0 处理，等于不筛。 */
+    LABEL_POP = pack.pops || {};
 
+    /* 优先级的唯一含义是"抢位顺序"：数字小的先放，后来者撞上就让。
+       国家要排在大洲前面 —— 大洲的锚点几乎一定压在大国领土上（南美洲的锚点
+       就在巴西境内），大洲先放的话，巴西、阿根廷在全球视角永远显示不出来，
+       屏幕上只剩"南美洲"。 */
     var list = [];
     (pack.countries || []).forEach(function (c) {
-      list.push({ c: c, cls: c.iso ? 'mk' : '', pri: c.iso ? 0 : 3 });
+      list.push({ c: c, cls: c.iso ? 'mk' : '', pri: c.iso ? 0 : 1 });
     });
-    (pack.continents || []).forEach(function (c) { list.push({ c: c, cls: 'mc', pri: 1 }); });
     (pack.oceans || []).forEach(function (c) { list.push({ c: c, cls: 'mo', pri: 2 }); });
+    (pack.continents || []).forEach(function (c) { list.push({ c: c, cls: 'mc', pri: 3 }); });
     /* 岛 / 湖 / 海峡：都要放大到很后面才出现，优先级最低 —— 位置冲突时先让国家名 */
     (pack.features || []).forEach(function (c) {
       list.push({ c: c, cls: c.k === 'i' ? 'mi' : (c.k === 'l' ? 'ml' : 'ms'), pri: 4 });
@@ -2648,11 +2723,24 @@ body.panel-open #globe-stage{
     var stage = globeStage();
     if (!stage) return;
     if (!_lp) _lp = new THREE.Vector3();
+    if (!_lc) _lc = new THREE.Vector3();
     var w = stage.clientWidth, h = stage.clientHeight;
     var nz = neZoomNow();
     var camPos = globe.camera.position;
     var camLen = camPos.length() || 1;
     var placed = [];               // 已占用矩形 [x0,y0,x1,y1]
+
+    /* ---- 球体的屏幕投影圆 ----
+       球在透视投影下仍是一个圆：视半角 asin(R/z)，投影到 NDC 的半径
+       = tan(asin(R/z)) / tan(fov/2)，再乘半屏高就是像素半径。
+       以前只按"法线朝向"过滤，但球缘的点投影压缩得很厉害，标签自己还有宽高，
+       于是字会越过球的轮廓、飘在星空上。现在硬性要求整个标签框都落在圆内。 */
+    var vHalf = (globe.camera.fov * 0.5) * Math.PI / 180;
+    var silN = Math.tan(Math.asin(Math.min(0.995, 1 / camLen))) / Math.tan(vHalf);
+    var rPx = silN * h * 0.5;
+    _lc.set(0, 0, 0).project(globe.camera);
+    var cx = (_lc.x * 0.5 + 0.5) * w;
+    var cy = (-_lc.y * 0.5 + 0.5) * h;
 
     for (var i = 0; i < arr.length; i++) {
       var L = arr[i];
@@ -2663,7 +2751,10 @@ body.panel-open #globe-stage{
       var show;
       if (L.kind === 'mc') show = nz < 3.5;          // 大洲：拉近就撤
       else if (L.kind === 'mo') show = nz >= (L.z || 0);  // 海域：按各自的门槛浮现
-      else show = nz >= L.z;
+      /* 留 0.03 的容差：全球视角 nz 恰好算成 2.0，可相机阻尼永远差一点点
+         到不了目标值，nz 就是 1.99x —— 于是 MIN_LABEL=2.0 的那批大国
+         （巴西、阿根廷、中国）在全球视角全都不显示。 */
+      else show = nz >= L.z - 0.03;
       if (!show) { hideLabel(L); continue; }
 
       llToVec3(L.lon, L.lat, 1.02, L.v);
@@ -2678,7 +2769,10 @@ body.panel-open #globe-stage{
          放宽到 75° 才能压住画面四周的空。 */
       /* 只留"真正正对镜头"的那一片：0.62 约等于球面 ±52°。
          再往外，投影压缩得厉害，字会飘到球外、压在星空上。 */
-      var dotMin = (L.kind === 'mc' || L.kind === 'mo') ? 0.50 : 0.62;
+      /* 圆边界裁剪已经保证"字不会出球"，所以这里不必再用很高的角度门槛。
+         门槛太高（0.62≈52°）时，巴西、阿根廷这种正好落在球缘附近的国家
+         会整片消失 —— 那是"少了一半国家"而不是"更干净"。 */
+      var dotMin = (L.kind === 'mc' || L.kind === 'mo') ? 0.26 : 0.34;
       if (dot < dotMin) { hideLabel(L); continue; }
 
       _lp.copy(L.v).project(globe.camera);
@@ -2690,6 +2784,15 @@ body.panel-open #globe-stage{
       // 出画一半的地名直接藏：贴着边缘被切一半的字比没有还难看
       var rx = x - L.w / 2, ry = y - L.h / 2;
       if (rx < 2 || rx + L.w > w - 2 || ry < 2 || ry + L.h > h - 2) { hideLabel(L); continue; }
+
+      /* 整个标签框必须落在球体投影圆内（用框的对角半径算，不是中心点）：
+         中心在圆内、四个角探出去的，照样会飘在星空上。 */
+      var qx = Math.abs(x - cx) + L.w * 0.5;
+      var qy = Math.abs(y - cy) + L.h * 0.5;
+      var far = Math.sqrt(qx * qx + qy * qy);
+      var discA = (rPx * 0.99 - far) / Math.max(22, rPx * 0.13);
+      if (discA <= 0) { hideLabel(L); continue; }
+      discA = Math.min(1, discA);
 
       // ② 矩形避让
       var clash = false;
@@ -2703,10 +2806,10 @@ body.panel-open #globe-stage{
       /* 两道渐隐：越靠近球轮廓越淡（转过去就不会突然消失），
          越靠近屏幕边缘越淡（不贴着边界堆成一圈）。 */
       // 距阈值 0.18 以内渐显，再往里满亮
-      var limb = Math.min(1, Math.max(0, (dot - dotMin) / 0.18));
+      var limb = Math.min(1, Math.max(0, (dot - dotMin) / 0.16));
       var edge = Math.min(Math.min(rx, w - rx - L.w), Math.min(ry, h - ry - L.h));
       var edgeA = Math.min(1, Math.max(0, edge / 110));
-      var alpha = limb * edgeA;
+      var alpha = limb * edgeA * discA;
       if (alpha < 0.08) { hideLabel(L); continue; }
 
       /* 341 个标注每帧无脑写 style 是最贵的一笔开销（首屏卡顿的来源之一）。

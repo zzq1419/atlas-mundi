@@ -192,6 +192,7 @@ def main() -> int:
         data = json.load(f)
 
     countries = []
+    pops = {}
     for feat in data["features"]:
         p = feat["properties"]
         lon, lat = p.get("LABEL_X"), p.get("LABEL_Y")
@@ -205,6 +206,14 @@ def main() -> int:
         if len(iso) != 2:
             iso = (p.get("ISO_A2_EH") or "").upper()
         name = SHORT.get(name, name)
+        # 人口（NE 的 POP_EST）：只用于卡片决定"要不要给地区语言"——
+        # 小国只列官方语言，地区语言纯属噪音。
+        try:
+            pop = int(p.get("POP_EST") or 0)
+        except (TypeError, ValueError):
+            pop = 0
+        if len(iso) == 2 and pop > 0:
+            pops[iso] = pop
         countries.append({
             "n": name,
             "lon": round(float(lon), 2),
@@ -250,6 +259,7 @@ def main() -> int:
         "note": "锚点/缩放级别取自 Natural Earth LABEL_X/LABEL_Y/MIN_LABEL/LABELRANK",
         "features": feats,
         "countries": countries,
+        "pops": pops,
         "continents": [{"n": n, "lon": x, "lat": y, "z": z, "r": r}
                        for (n, x, y, z, r) in CONTINENTS],
         "oceans": [{"n": n, "lon": x, "lat": y, "z": z, "r": r}
