@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-10-27-B">
+<meta name="build" content="2026-10-27-C">
 <title>寰宇图志 · Atlas Mundi</title>
 <meta name="description" content="寰宇图志：3D 地球上的多模态国家文化图谱">
 <style>
@@ -326,7 +326,8 @@
   .dmeta dt{color:var(--ink-faint);letter-spacing:.06em;white-space:nowrap}
   .dmeta dd{color:var(--ink);font-variant-numeric:tabular-nums}
 
-  .dtext p{font-size:14.5px;line-height:2;color:#cfd7e8;margin-bottom:12px}
+  /* 正文提一档字重：中文黑体在深底上 400 偏细 */
+  .dtext p{font-size:14.5px;line-height:2;color:#d6deee;margin-bottom:12px;font-weight:500}
   .dplayer{width:100%;margin-top:16px;border-radius:10px}
   .pending{
     margin-top:16px;padding:11px 14px;border-radius:10px;
@@ -518,11 +519,16 @@
   .ts-item.active{opacity:1;border-color:rgba(148,182,224,.65)}
 
   /* 语言音频行 */
-  .lang-audio{
-    display:flex;align-items:center;gap:10px;
-    padding:8px 0;border-bottom:1px solid var(--line);
+  .lang-block{padding:10px 0;border-bottom:1px solid rgba(140,165,220,.12)}
+  .lang-block:last-child{border-bottom:0;padding-bottom:2px}
+  .lang-audio{display:flex;align-items:center;gap:10px}
+  /* 原文一行 + 中文一行。原文淡、译文亮，读的时候先看译文。 */
+  .lang-trans{margin:6px 0 0 38px;display:flex;flex-direction:column;gap:3px}
+  .lt-src{
+    font-size:11.5px;line-height:1.6;color:rgba(150,170,198,.72);
+    font-style:italic;letter-spacing:.01em;
   }
-  .lang-audio:last-child{border-bottom:0}
+  .lt-zh{font-size:12.5px;line-height:1.7;color:#bcd4ee}
   .la-name{font-size:14px;color:var(--ink);min-width:88px}
   .la-role{
     font-size:10.5px;letter-spacing:.08em;color:var(--ink-faint);
@@ -550,7 +556,8 @@ body{
      品牌字压在上面也没关系，加一点投影就够读。 */
   position:fixed;inset:0;z-index:0;
   transform-origin:50% 50%;
-  transition:transform .68s cubic-bezier(.22,.61,.36,1);
+  will-change:transform;
+  transition:transform 1.05s cubic-bezier(.22,.61,.36,1);
 }
 #globe-stage canvas{
   display:block;width:100%;height:100%;cursor:grab;
@@ -642,6 +649,28 @@ body.panel-open #globe-stage{
 }
 #q::-webkit-search-cancel-button{filter:invert(.42)}
 
+/* 清空按钮：只在有字时出现。原生 ::-webkit-search-cancel-button 只在聚焦时冒出来，
+   点它还要先抢一次焦点，用起来是"点两下才删"的感觉，所以自己画一个。 */
+.search-clear{
+  flex:0 0 auto;width:0;height:20px;margin-right:0;padding:0;
+  display:flex;align-items:center;justify-content:center;
+  border-radius:50%;cursor:pointer;overflow:hidden;
+  background:transparent;border:0;opacity:0;pointer-events:none;
+  transition:width .18s ease,opacity .18s ease,margin .18s ease;
+}
+.search-wrap.has-text .search-clear{
+  width:20px;margin-right:2px;opacity:.7;pointer-events:auto;
+}
+.search-clear:hover{opacity:1;background:rgba(150,185,230,.16)}
+.search-clear svg{
+  width:10px;height:10px;
+  fill:none;stroke:rgba(190,214,244,.95);
+  stroke-width:2.2;stroke-linecap:round;
+}
+/* 原生那个去掉，免得两个叉并排 */
+#q::-webkit-search-cancel-button,
+#q::-webkit-search-decoration{-webkit-appearance:none;display:none}
+
 /* 展开后才出现的下拉按钮：国家列表由用户自己点开 */
 .search-drop{
   flex:0 0 auto;width:0;height:22px;margin-right:0;padding:0;
@@ -712,11 +741,20 @@ body.panel-open #globe-stage{
 /* 档案面板：一张浮起来的卡片，四边留白、圆角、带偏移的柔和阴影。
    之前是贴边的侧栏，像浏览器自带的抽屉；浮卡才有"弹出来"的感觉。 */
 #detail{
+  font-family:"PingFang SC","Microsoft YaHei","Noto Sans SC","Source Han Sans SC",
+              "Segoe UI",system-ui,sans-serif;
   position:fixed;top:16px;right:16px;bottom:16px;z-index:40;
   width:min(500px, calc(100vw - 32px));
   display:flex;flex-direction:column;
-  background:rgba(9,14,24,.955);
-  border:1px solid rgba(126,158,198,.22);
+  /* 卡片底色 #27a6cc —— 整块实色会让白字读不出来，
+     所以做成"上浓下淡的青蓝罩染 + 深底"：一眼是青色卡片，细节还看得清。 */
+  background:
+    linear-gradient(180deg,
+      rgba(39,166,204,.34) 0,
+      rgba(19,74,96,.42) 148px,
+      rgba(6,14,22,.97) 320px),
+    #061019;
+  border:1px solid rgba(39,166,204,.42);
   border-radius:20px;
   box-shadow:0 28px 70px rgba(0,0,0,.62), 0 3px 10px rgba(0,0,0,.42);
   transform:translateX(calc(100% + 28px));
@@ -732,8 +770,12 @@ body.panel-open #globe-stage{
   flex:0 0 auto;
 }
 .dhead h2{
-  margin:0;font-family:var(--serif,"Songti SC",serif);
-  font-size:26px;font-weight:500;letter-spacing:.05em;color:var(--ink);
+  /* 面板一律走无衬线粗体：中文用黑体（苹方/微软雅黑/思源黑），
+     西文用同族无衬线粗体。之前用宋体，压在这个深色面板上显得又细又飘。 */
+  margin:0;
+  font-family:"PingFang SC","Microsoft YaHei","Noto Sans SC","Source Han Sans SC",
+              "Segoe UI",system-ui,sans-serif;
+  font-size:26px;font-weight:700;letter-spacing:.02em;color:#fff;
 }
 #d-sub{
   margin-top:6px;font-size:11.5px;letter-spacing:.06em;color:var(--ink-faint);
@@ -884,7 +926,6 @@ body.panel-open #globe-stage{
   paint-order:stroke fill;
   text-shadow:0 1px 1px rgba(0,0,0,.45);
   transition:opacity .26s ease;
-  will-change:transform;
 }
 .mlabel.mc{
   /* 大洲名之前 58% 透明度、字距 0.42em，压在雪山白底上根本看不见。
@@ -937,6 +978,39 @@ body.panel-open #globe-stage{
 .tool-btn.on{border-color:rgba(150,185,230,.62);background:rgba(28,44,68,.9)}
 .tool-btn.on svg{stroke:rgba(214,232,255,.98)}
 
+/* ============ 正文里的关键词高亮 ============
+   用下划线式的高亮条而不是背景块：一整段里出现十几次背景块会像荧光笔乱涂。 */
+.kw{
+  color:#a9e2f6;font-weight:700;
+  background:linear-gradient(180deg,transparent 58%,rgba(39,166,204,.34) 0);
+  border-radius:2px;padding:0 1px;
+}
+/* 从搜索结果定位过来的段落，闪一下让人看到落点 */
+.hit-flash{
+  animation:hitFlash 1.6s ease-out 1;
+  border-radius:6px;
+}
+@keyframes hitFlash{
+  0%{background:rgba(39,166,204,.30);box-shadow:0 0 0 6px rgba(39,166,204,.30)}
+  100%{background:transparent;box-shadow:0 0 0 6px transparent}
+}
+
+/* ============ 自绘提示气泡 ============
+   原生 title 要悬停一秒才出、样式不可控、移动端还没有。 */
+.tip{
+  position:fixed;z-index:60;left:0;top:0;
+  max-width:260px;padding:6px 10px;border-radius:8px;
+  font-size:12px;line-height:1.55;color:#e8f0fb;
+  background:rgba(10,16,26,.96);
+  border:1px solid rgba(120,160,210,.32);
+  box-shadow:0 10px 28px rgba(0,0,0,.5);
+  pointer-events:none;opacity:0;
+  transform:translate(-50%,0) scale(.96);
+  transform-origin:50% 0;
+  transition:opacity .14s ease,transform .14s ease;
+}
+.tip.on{opacity:1;transform:translate(-50%,0) scale(1)}
+
 /* ============ 提示（加载完成后短暂出现） ============ */
 .toast{
   position:fixed;left:50%;bottom:58px;z-index:28;
@@ -983,7 +1057,7 @@ body.panel-open #globe-stage{
 .aud-fill{
   position:absolute;left:0;top:0;height:100%;width:0;border-radius:3px;
   background:rgba(190,216,248,.85);
-  transition:width .1s linear;
+  transition:none;   /* 由 rAF 每帧写，交给 transition 反而会卡成 4Hz */
 }
 .aud.playing .aud-fill{background:rgba(214,232,255,.95)}
 .aud-fill::after{
@@ -1025,6 +1099,12 @@ body.panel-open #globe-stage{
       </svg>
       <input type="search" id="q" autocomplete="off" spellcheck="false"
              aria-label="搜索国家、地标、语言、饮食与节庆">
+      <button class="search-clear" id="search-clear" type="button" aria-label="清空搜索">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <line x1="7" y1="7" x2="17" y2="17"></line>
+          <line x1="17" y1="7" x2="7" y2="17"></line>
+        </svg>
+      </button>
       <button class="search-drop" id="search-drop" type="button" aria-label="展开国家列表">
         <svg viewBox="0 0 24 24" aria-hidden="true">
           <polyline points="6 9.5 12 15.5 18 9.5"></polyline>
@@ -1052,12 +1132,15 @@ body.panel-open #globe-stage{
 <!-- 左下角只留一个视图开关。国名不再用开关 —— 像地图那样按缩放自动分级；
      复位也不再要按钮，双击画面即可。 -->
 <div id="tools">
-  <button class="tool-btn" id="btn-night" type="button" title="切换夜晚模式（看城市灯光）">
+  <button class="tool-btn" id="btn-night" type="button" aria-label="切换白天 / 夜晚" data-tip="切换到夜晚模式">
     <svg viewBox="0 0 24 24" aria-hidden="true">
       <path d="M20.4 14.6A8.6 8.6 0 1 1 9.4 3.6a6.8 6.8 0 0 0 11 11z"/>
     </svg>
   </button>
 </div>
+
+<!-- 自绘提示气泡：浏览器原生 title 太慢、样式也不受控 -->
+<div id="tip" class="tip" aria-hidden="true"></div>
 
 <!-- 旧版遗留的状态位，保留 id 以免脚本取空 -->
 <span id="globe-sub" hidden></span>
@@ -1196,15 +1279,29 @@ body.panel-open #globe-stage{
         au.pause();
       }
     });
+    /* 进度用 rAF 逐帧写。靠 timeupdate 只有 4Hz，再叠一个 CSS transition
+       就变成"一格一格挪"；这里直接按 currentTime 每帧算，60fps 丝滑。 */
+    var rafId = 0;
+    function tick() {
+      if (au.paused || au.ended) { rafId = 0; return; }
+      paint();
+      rafId = requestAnimationFrame(tick);
+    }
     au.addEventListener('play', function () {
       wrap.classList.add('playing');
       btn.innerHTML = ICON_PAUSE;
       btn.setAttribute('aria-label', '暂停');
+      if (!rafId) rafId = requestAnimationFrame(tick);
     });
-    au.addEventListener('pause', reset);
-    au.addEventListener('ended', function () { reset(); paint(0); });
+    au.addEventListener('pause', function () {
+      if (rafId) { cancelAnimationFrame(rafId); rafId = 0; }
+      reset();
+    });
+    au.addEventListener('ended', function () {
+      if (rafId) { cancelAnimationFrame(rafId); rafId = 0; }
+      reset(); paint(0);
+    });
     au.addEventListener('loadedmetadata', function () { paint(); });
-    au.addEventListener('timeupdate', function () { paint(); });
     bar.addEventListener('click', function (e) {
       var d = au.duration || 0;
       if (!d) return;
@@ -1216,6 +1313,38 @@ body.panel-open #globe-stage{
     return wrap;
   }
 
+  /* ---------- 正文关键词高亮 ----------
+     关键词来自 custom_facets.keywords（模型从原文里抽的词），
+     在摘要与历史民俗里把它们标出来，读的时候能一眼看到落点。
+     用纯字符串扫描而不是正则：关键词里可能带括号、斜杠。 */
+  var KW_LIST = [];
+
+  function escHtml(t) {
+    return String(t).replace(/[&<>"]/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
+    });
+  }
+
+  function markKeywords(text) {
+    var src = String(text || '');
+    if (!KW_LIST.length) return escHtml(src);
+    var out = '', i = 0, guard = 0;
+    while (i < src.length && guard++ < 3000) {
+      var hit = null, hitAt = -1;
+      for (var k = 0; k < KW_LIST.length; k++) {
+        var at = src.indexOf(KW_LIST[k], i);
+        if (at < 0) continue;
+        if (hitAt < 0 || at < hitAt || (at === hitAt && KW_LIST[k].length > hit.length)) {
+          hitAt = at; hit = KW_LIST[k];
+        }
+      }
+      if (hitAt < 0) { out += escHtml(src.slice(i)); break; }
+      out += escHtml(src.slice(i, hitAt)) + '<em class="kw">' + escHtml(hit) + '</em>';
+      i = hitAt + hit.length;
+    }
+    return out;
+  }
+
   function paraText(text, perPara) {
     var host = el('div', 'prose');
     var parts = splitSent(text);
@@ -1224,7 +1353,9 @@ body.panel-open #globe-stage{
     for (var k = 0; k < parts.length; k += per) {
       var seg = parts.slice(k, k + per).join('');
       if (seg.replace(/\s/g, '').length < 6) continue;
-      host.appendChild(el('p', null, seg));
+      var p = el('p');
+      p.innerHTML = markKeywords(seg);
+      host.appendChild(p);
     }
     return host;
   }
@@ -1266,6 +1397,8 @@ body.panel-open #globe-stage{
     Array.prototype.forEach.call(cardsEl.children, function (n) {
       n.classList.remove('active');
     });
+    /* 关掉档案就把金色国界一起撤掉 —— 之前它还亮着，等于"退出了但还选着"。 */
+    if (typeof setActive === 'function') setActive(null);
     if (typeof flyOut === 'function') flyOut();
   }
 
@@ -1353,7 +1486,7 @@ body.panel-open #globe-stage{
         imgs.forEach(function (it, i) {
           var t = el('img', 'ts-item');
           t.alt = it.caption_zh || it.caption || (d.name_zh + ' 图片 ' + (i + 1));
-          t.title = t.alt;
+          t.setAttribute('data-tip', t.alt);
           t.loading = 'lazy';
           setAsset(t, it.thumb_url || it.url);
           t.addEventListener('click', function () { showPic(i); });
@@ -1397,6 +1530,12 @@ body.panel-open #globe-stage{
       renderOutline(d.geometry, svgHost);
     }
 
+    /* 先把关键词列表设好，paraText 才能把正文里的词标出来 */
+    KW_LIST = ((d.custom_facets || {}).keywords || [])
+      .map(function (k) { return String(k.v || k || '').trim(); })
+      .filter(function (w) { return w.length >= 2; })
+      .sort(function (a, b) { return b.length - a.length; });
+
     var txt = el('div', 'dtext');
     var sumTxt = trimDup(d.summary_text, d.custom_text);
     if (sumTxt) txt.appendChild(paraText(sumTxt, 2));
@@ -1427,7 +1566,7 @@ body.panel-open #globe-stage{
         var kwrap = el('div', 'fval');
         kws.forEach(function (k) {
           var c = el('span', 'chip chip-kw', k.v || k);
-          if (k.evidence) c.title = '原文：' + k.evidence;
+          if (k.evidence) c.setAttribute('data-tip', '原文：' + k.evidence);
           kwrap.appendChild(c);
         });
         krow.appendChild(kwrap);
@@ -1439,7 +1578,7 @@ body.panel-open #globe-stage{
         var wrap = el('div', 'fval');
         g[1].forEach(function (x) {
           var c = el('span', 'chip', x.v || x);
-          if (x.evidence) c.title = '原文：' + x.evidence;
+          if (x.evidence) c.setAttribute('data-tip', '原文：' + x.evidence);
           wrap.appendChild(c);
         });
         row.appendChild(wrap);
@@ -1454,11 +1593,24 @@ body.panel-open #globe-stage{
     if (withAudio.length) {
       right.appendChild(el('div', 'sub-label', '语音'));
       withAudio.forEach(function (l) {
+        var box = el('div', 'lang-block');
         var row = el('div', 'lang-audio');
         row.appendChild(el('span', 'la-name', l.name_zh));
         row.appendChild(el('span', 'la-role', l.role === 'official' ? '官方' : '区域'));
         row.appendChild(makePlayer(l.audio_url));
-        right.appendChild(row);
+        box.appendChild(row);
+        /* 播放器下面配原文 + 中文翻译：外国语音不翻译等于听不懂。
+           中文语音本身就不用再翻一遍。 */
+        if (l.tts_text) {
+          var tr = el('div', 'lang-trans');
+          var srcLine = el('div', 'lt-src', l.tts_text);
+          tr.appendChild(srcLine);
+          if (l.tts_text_zh && l.code !== 'zh') {
+            tr.appendChild(el('div', 'lt-zh', l.tts_text_zh));
+          }
+          box.appendChild(tr);
+        }
+        right.appendChild(box);
       });
     }
     if (without.length) {
@@ -1656,9 +1808,42 @@ body.panel-open #globe-stage{
         openDetail(d.iso, cardOf(d.iso), false);
         setSearch(false);              // 选中即收起，视线回到地球
         if (qInput) qInput.blur();
+        locateInPanel(q);              // 滚到命中的那一段，而不是永远停在顶部
       });
       qRes.appendChild(item);
     });
+  }
+
+  /* 搜到了却只跳到面板顶部，等于没定位。
+     这里在渲染完之后按相关度找一段，滚过去并闪一下。
+     中文没有空格，所以切成二元组打分（"中国传统节日" → 中国/国传/传统/统节/节日），
+     这样"传统节日"也能命中正文里的"是岁首最重要的节日"。 */
+  function locateInPanel(q) {
+    var host = document.getElementById('d-body');
+    if (!host || !q) return;
+    var raw = String(q).trim();
+    var terms = [];
+    if (/[\u4e00-\u9fa5]/.test(raw)) {
+      for (var i = 0; i + 2 <= raw.length; i++) terms.push(raw.substr(i, 2));
+    } else {
+      raw.split(/\s+/).forEach(function (t) { if (t.length >= 2) terms.push(t.toLowerCase()); });
+    }
+    if (!terms.length) return;
+    setTimeout(function () {
+      var nodes = host.querySelectorAll('.prose p, .chip, .cap, dd');
+      var best = null, bestScore = 0;
+      for (var i = 0; i < nodes.length; i++) {
+        var t = (nodes[i].textContent || '');
+        var tl = t.toLowerCase();
+        var score = 0;
+        for (var k = 0; k < terms.length; k++) if (tl.indexOf(terms[k]) >= 0) score += terms[k].length;
+        if (score > bestScore) { bestScore = score; best = nodes[i]; }
+      }
+      if (!best || bestScore < 2) return;
+      best.scrollIntoView({ block: 'center', behavior: 'smooth' });
+      best.classList.add('hit-flash');
+      setTimeout(function () { best.classList.remove('hit-flash'); }, 1700);
+    }, 260);
   }
 
   /* 国家列表：由搜索框右端的下拉按钮触发（不自动弹）。
@@ -1693,6 +1878,52 @@ body.panel-open #globe-stage{
   var searchWrap = document.getElementById('search-wrap');
   var searchPanel = document.getElementById('search-panel');
   var searchDrop = document.getElementById('search-drop');
+
+  /* ---------- 自绘提示气泡 ----------
+     原生 title 要悬停一秒才弹、样式不可控、移动端干脆没有。
+     这里用 data-tip 接管，悬停 120ms 后出现在元素上方（空间不够就放下面）。 */
+  (function bindTip() {
+    var tip = document.getElementById('tip');
+    var cur = null, timer = 0;
+    function place(el) {
+      if (!tip) return;
+      var r = el.getBoundingClientRect();
+      tip.classList.add('on');
+      var tw = tip.offsetWidth, th = tip.offsetHeight;
+      var cx = Math.min(Math.max(r.left + r.width / 2, tw / 2 + 8),
+                        window.innerWidth - tw / 2 - 8);
+      var y = r.top - th - 8;
+      if (y < 6) y = r.bottom + 8;
+      tip.style.left = cx + 'px';
+      tip.style.top = y + 'px';
+    }
+    function show(el) {
+      var txt = el.getAttribute('data-tip');
+      if (!txt || !tip) return;
+      cur = el;
+      tip.textContent = txt;
+      place(el);
+    }
+    function hide() {
+      clearTimeout(timer);
+      cur = null;
+      if (tip) tip.classList.remove('on');
+    }
+    document.addEventListener('pointerover', function (e) {
+      var el = e.target && e.target.closest ? e.target.closest('[data-tip]') : null;
+      if (!el || el === cur) return;
+      clearTimeout(timer);
+      timer = setTimeout(function () { show(el); }, 120);
+    });
+    document.addEventListener('pointerout', function (e) {
+      var el = e.target && e.target.closest ? e.target.closest('[data-tip]') : null;
+      if (el && el === cur) hide();
+      else if (el) clearTimeout(timer);
+    });
+    document.addEventListener('pointerdown', hide, true);
+    window.addEventListener('scroll', hide, true);
+    window.__tipHide = hide;
+  })();
 
   /* 开合只有一个入口，避免三处各改一半导致状态对不上 */
   function setSearch(open, list) {
@@ -1747,11 +1978,23 @@ body.panel-open #globe-stage{
     if (searchWrap && !searchWrap.contains(e.target)) setSearch(false);
   });
 
+  var searchClear = document.getElementById('search-clear');
+  if (searchClear) {
+    searchClear.addEventListener('click', function (e) {
+      e.stopPropagation();
+      if (qInput) { qInput.value = ''; qInput.focus(); }
+      qRes.hidden = true;
+      qRes.innerHTML = '';
+      searchWrap.classList.remove('list-open', 'has-text');
+    });
+  }
+
   if (qInput) {
     var qTimer = null;
     qInput.addEventListener('input', function () {
       clearTimeout(qTimer);
       var v = qInput.value.trim();
+      searchWrap.classList.toggle('has-text', !!qInput.value);
       searchWrap.classList.remove('list-open');
       qTimer = setTimeout(function () {
         if (v.length < 2) { qRes.hidden = true; qRes.innerHTML = ''; return; }
@@ -2248,12 +2491,14 @@ body.panel-open #globe-stage{
       '  if (hasNight > 0.5) {',
       '    vec3 lights = s2l(texture2D(nightMap, vUv).rgb);',
       // 夜空 = 城市灯光 + 极淡的地表底色，否则除灯光外纯黑一片
-      '    vec3 night = lights * 2.6 + day * 0.055;',
+      // 夜面底色压到 3%：之前 5.5% 的海洋蓝叠上大气雾，整颗球像蒙了层蓝纱
+      '    vec3 night = lights * 2.9 + day * 0.03;',
       '    col = mix(day, night, nightMix);',
       '  }',
       // 边缘大气：Fresnel 越靠轮廓越亮，模拟散射
       '  float rim = pow(1.0 - facing, 3.8);',
-      '  col += vec3(0.12, 0.32, 0.66) * rim * 0.26;',
+      // 夜面把蓝色边缘光收掉大半，否则整个轮廓糊成一圈蓝雾
+      '  col += vec3(0.12, 0.32, 0.66) * rim * 0.26 * (1.0 - 0.7 * nightMix);',
       '  gl_FragColor = vec4(l2s(col) * uFade, 1.0);',
       '}'
     ].join('\n');
@@ -2330,7 +2575,7 @@ body.panel-open #globe-stage{
   }
 
   function hideLabel(L) {
-    if (L.on) { L.on = false; L.el.style.opacity = '0'; }
+    if (L.on || L._o !== '0') { L.on = false; L._o = '0'; L.el.style.opacity = '0'; }
     if (L.el.style.pointerEvents !== 'none') L.el.style.pointerEvents = 'none';
   }
 
@@ -2374,6 +2619,9 @@ body.panel-open #globe-stage{
       _lp.copy(L.v).project(globe.camera);
       var x = (_lp.x * 0.5 + 0.5) * w;
       var y = (-_lp.y * 0.5 + 0.5) * h;
+      /* 岛屿标签抬到点上方：小岛本来就只有几个像素，字压在正中间等于把岛盖住。 */
+      if (L.kind === 'mi') y -= L.h * 0.75;
+
       // 出画一半的地名直接藏：贴着边缘被切一半的字比没有还难看
       var rx = x - L.w / 2, ry = y - L.h / 2;
       if (rx < 2 || rx + L.w > w - 2 || ry < 2 || ry + L.h > h - 2) { hideLabel(L); continue; }
@@ -2396,9 +2644,12 @@ body.panel-open #globe-stage{
       var alpha = limb * edgeA;
       if (alpha < 0.08) { hideLabel(L); continue; }
 
-      L.el.style.transform = 'translate(-50%,-50%) translate(' +
-        x.toFixed(1) + 'px,' + y.toFixed(1) + 'px)';
-      L.el.style.opacity = alpha.toFixed(2);
+      /* 341 个标注每帧无脑写 style 是最贵的一笔开销（首屏卡顿的来源之一）。
+         只在数值真的变了才写，静止时几乎零写入。 */
+      var tr = 'translate(-50%,-50%) translate(' + x.toFixed(1) + 'px,' + y.toFixed(1) + 'px)';
+      if (L._t !== tr) { L._t = tr; L.el.style.transform = tr; }
+      var op = alpha.toFixed(2);
+      if (L._o !== op) { L._o = op; L.el.style.opacity = op; }
       if (L.iso) L.el.style.pointerEvents = 'auto';
       L.on = true;
     }
@@ -2599,7 +2850,14 @@ body.panel-open #globe-stage{
          于是 8K 这张根本不需要 mipmap，上传成本少掉一大半。 */
       var maxTex = renderer.capabilities.maxTextureSize || 4096;
       globe.can8k = (maxTex >= 8192 && canUse8K());
-      if (globe.can8k) setTimeout(prefetch8k, 2600);   // 空闲时先把字节抓下来
+      /* 预取放到 7 秒后的空闲里。之前 2.6 秒——那会儿用户刚开始玩地球，
+         3.5MB 下载会跟首屏的贴图上传/着色器编译抢带宽和主线程。 */
+      if (globe.can8k) {
+        setTimeout(function () {
+          if (window.requestIdleCallback) requestIdleCallback(prefetch8k, { timeout: 4000 });
+          else prefetch8k();
+        }, 7000);
+      }
       var subEl3 = document.getElementById('globe-sub');
       if (subEl3) subEl3.textContent = '拖动旋转 · 滚轮缩放 · 点击国土开档';
     });
@@ -2638,8 +2896,9 @@ body.panel-open #globe-stage{
       globe.last.y = e.clientY;
       // 0.0022 弧度/像素 ≈ 每像素 0.126°，拖满 1200px 约转 150°。
       // 原来 0.005 是整屏 280°，手一抖就转到背面去了。
-      globe.vel.x = dx * 0.0022;
-      globe.vel.y = dy * 0.0022;
+      // 0.0016 弧度/像素：拖满 1200px 约转 110°，比原来 0.0022 稳手
+      globe.vel.x = dx * 0.0016;
+      globe.vel.y = dy * 0.0016;
       globe.spin.rotation.y += globe.vel.x;
       globe.tilt.rotation.x += globe.vel.y;
       var lim = 78 * D2R;
@@ -2664,7 +2923,7 @@ body.panel-open #globe-stage{
     cv.addEventListener('wheel', function (e) {
       e.preventDefault();
       // 触控板捏合会带 ctrlKey，deltaY 很小，得放大步长才跟手
-      var d = e.deltaY * (e.ctrlKey ? 0.006 : 0.0016);
+      var d = e.deltaY * (e.ctrlKey ? 0.010 : 0.0026);
       globe.camMode = 'manual';
       globe.lastInput = performance.now();
       globe.camTarget = Math.max(CAM_MIN, Math.min(CAM_MAX, globe.camTarget + d));
@@ -2731,7 +2990,9 @@ body.panel-open #globe-stage{
         }
       }
 
-      camera.position.z += (globe.camTarget - camera.position.z) * 0.075;
+      /* 帧率无关的指数逼近：60fps 下系数 0.075，144fps 下自动变小，
+         否则高刷屏上"飞近国家"会瞬间到位、看不到过程。 */
+      camera.position.z += (globe.camTarget - camera.position.z) * (1 - Math.pow(0.925, dtf));
       if (STAR_MAT) STAR_MAT.uniforms.uTime.value = performance.now() / 1000;
       // 滚轮停下来了，才把 8K 传上 GPU
       /* 只在"手停下来"的时候才把 8K 传上 GPU。拖拽过程中 pointerdown 之后
@@ -2752,10 +3013,15 @@ body.panel-open #globe-stage{
           kf = kf > 1 ? 1 : kf;
           var ef = kf * kf * (3 - 2 * kf);
           U.uFade.value = ef;
-          if (globe.atmo) {
-            globe.atmo.forEach(function (a) { a.mat.opacity = a.base * ef; });
-          }
+          globe.fadeVal = ef;
           if (kf >= 1) globe.fadeStart = 0;
+        }
+        /* 大气壳的透明度每帧算一次：淡入值 × 夜面衰减。
+           夜面时蓝色气壳几乎收掉，否则整颗球像蒙着蓝纱、城市灯光也糊。 */
+        if (globe.atmo) {
+          var atmoK = (globe.fadeVal == null ? 1 : globe.fadeVal) *
+                      (1 - 0.75 * U.nightMix.value);
+          globe.atmo.forEach(function (a) { a.mat.opacity = a.base * atmoK; });
         }
 
         /* 8K 淡入：只把 uMixB 推到 1，不接管 dayMap、也不释放 4K ——
@@ -2864,8 +3130,10 @@ body.panel-open #globe-stage{
     if (bni) {
       bni.addEventListener('click', function () {
         globe.nightTarget = globe.nightTarget > 0.5 ? 0 : 1;
-        bni.classList.toggle('on', globe.nightTarget > 0.5);
-        bni.title = globe.nightTarget > 0.5 ? '回到白天' : '切换夜晚模式（看城市灯光）';
+        var on = globe.nightTarget > 0.5;
+        bni.classList.toggle('on', on);
+        bni.setAttribute('data-tip', on ? '回到白天模式' : '切换到夜晚模式');
+        if (window.__tipHide) window.__tipHide();
       });
     }
   })();

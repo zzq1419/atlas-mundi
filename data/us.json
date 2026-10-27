@@ -21,6 +21,7 @@
       "audio_source": "tts_edge",
       "audio_status": "ok",
       "tts_text": "Hello, welcome to the United States. Its capital is Washington, D.C., and the Grand Canyon lies in the southwest.",
+      "tts_text_zh": "你好，欢迎来到美国。首都是华盛顿哥伦比亚特区，大峡谷位于西南部。",
       "audio_voice": "en-US-AriaNeural",
       "audio_bytes": 52272
     },

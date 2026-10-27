@@ -21,6 +21,7 @@
       "audio_source": "tts_edge",
       "audio_status": "ok",
       "tts_text": "Bonjour, bienvenue en France. Sa capitale est Paris, et la tour Eiffel se dresse au bord de la Seine.",
+      "tts_text_zh": "你好，欢迎来到法国。首都是巴黎，埃菲尔铁塔矗立在塞纳河畔。",
       "audio_voice": "fr-FR-DeniseNeural",
       "audio_bytes": 44496
     }

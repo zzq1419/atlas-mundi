@@ -36,6 +36,7 @@
       "audio_status": "ok",
       "note": "本机仅有普通话音色，粤语需另找音源",
       "tts_text": "你好，歡迎嚟到中國。首都係北京，萬里長城橫貫北方。",
+      "tts_text_zh": "你好，欢迎来到中国。首都是北京，万里长城横贯北方。",
       "audio_voice": "zh-HK-HiuMaanNeural",
       "audio_bytes": 43056
     }
