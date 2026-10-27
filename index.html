@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-10-27-D">
+<meta name="build" content="2026-10-27-E">
 <title>寰宇图志 · Atlas Mundi</title>
 <meta name="description" content="寰宇图志：3D 地球上的多模态国家文化图谱">
 <style>
@@ -311,7 +311,7 @@
   .dimg-wrap.loaded .dimg{opacity:1}
   /* 竖构图（埃菲尔铁塔 760×1406、长城烽燧之类）：框改成竖的、整张装进去，
      不再拿 16:10 的死框去裁 —— 那正是"塔被拉平看不到全貌"的来源。 */
-  .dimg-wrap.fit{aspect-ratio:3/4;background:#070b14}
+  .dimg-wrap.fit{aspect-ratio:3/4;background:rgba(0,0,0,.28)}
   .dimg-wrap.fit .dimg{object-fit:contain}
   .dimg-wrap.blank{
     display:flex;align-items:center;justify-content:center;
@@ -754,12 +754,18 @@ body.panel-open #globe-stage{
   position:fixed;top:16px;right:16px;bottom:16px;z-index:40;
   width:min(500px, calc(100vw - 32px));
   display:flex;flex-direction:column;
-  /* 卡片底色 #8ac4e2：浅青底 + 渐变描边。
-     双背景的写法（padding-box 填内容、border-box 填 1px 边框区）是唯一能
-     同时满足"圆角 + 渐变描边"的做法，border-image 会破坏圆角。 */
+  /* 卡片三段色 #303d67 → #79799a → #fddfdc，从左到右。
+     第二层是同一个方向的压暗罩：右端 #fddfdc 太亮，直接用白字会糊，
+     压成暖灰之后三段的色相还在，文字也能读。
+     边框用同一组色的全强度渐变（padding-box / border-box 双背景，
+     border-image 会破坏圆角）。 */
   background:
-    linear-gradient(180deg,#add8ee 0%,#8ac4e2 30%,#77b6d8 100%) padding-box,
-    linear-gradient(158deg,rgba(255,255,255,.92),rgba(12,70,96,.55) 48%,rgba(255,255,255,.7)) border-box;
+    linear-gradient(96deg,
+      rgba(6,9,16,.42) 0%,
+      rgba(10,12,20,.50) 54%,
+      rgba(52,34,40,.72) 100%) padding-box,
+    linear-gradient(96deg,#303d67 0%,#79799a 56%,#fddfdc 100%) padding-box,
+    linear-gradient(96deg,#303d67 0%,#79799a 56%,#fddfdc 100%) border-box;
   border:1px solid transparent;
   border-radius:20px;
   box-shadow:0 28px 70px rgba(0,0,0,.62), 0 3px 10px rgba(0,0,0,.42);
@@ -991,13 +997,19 @@ body.panel-open #globe-stage{
   background:linear-gradient(180deg,transparent 58%,rgba(39,166,204,.34) 0);
   border-radius:2px;padding:0 1px;
 }
+/* 数字/年代：暖色，与概念关键词（冷色）区分 */
+.kn{
+  color:#ffd9a8;font-weight:700;
+  font-variant-numeric:tabular-nums;
+  border-bottom:1px solid rgba(255,196,140,.55);
+}
 /* 从搜索结果定位过来的段落，闪一下让人看到落点 */
 .hit-flash{
   animation:hitFlash 1.6s ease-out 1;
   border-radius:6px;
 }
 @keyframes hitFlash{
-  0%{background:rgba(6,64,90,.22);box-shadow:0 0 0 6px rgba(6,64,90,.20)}
+  0%{background:rgba(150,200,235,.26);box-shadow:0 0 0 6px rgba(150,200,235,.22)}
   100%{background:transparent;box-shadow:0 0 0 6px transparent}
 }
 
@@ -1081,54 +1093,6 @@ body.panel-open #globe-stage{
   font-variant-numeric:tabular-nums;letter-spacing:.02em;
 }
 
-/* ============ 档案卡片：浅青底主题 ============
-   底色 #8ac4e2 属于浅色面，面板里所有文字必须整体转深。
-   做法是在 #detail 作用域内重定义那套语义变量（--ink/--line…），
-   再逐条覆盖写死颜色的规则 —— 比到处找 color 改要稳。 */
-#detail{
-  --ink:#08222e;
-  --ink-dim:#1d4658;
-  --ink-faint:#3f6a7e;
-  --line:rgba(8,44,60,.20);
-  --gold:#0b566d;
-  box-shadow:0 26px 64px rgba(0,8,16,.46);
-}
-#detail .dhead h2{color:#06202b}
-#detail .dhead{border-bottom-color:rgba(8,44,60,.18)}
-#detail .dtext p{color:#12303f}
-#detail .sub-label{color:#0a3a4c}
-#detail .cap{color:#2b5566}
-#detail .cap.dim{color:#4a7285}
-#detail .fkey{color:#1b4a5d}
-#detail .frow{border-bottom-color:rgba(8,44,60,.14)}
-#detail .chip{color:#123444;background:rgba(255,255,255,.46);border-color:rgba(10,52,70,.22)}
-#detail .chip:hover{color:#04222e;background:rgba(255,255,255,.72);border-color:rgba(10,52,70,.46)}
-#detail .chip-kw{color:#08455a;background:rgba(255,255,255,.6);border-color:rgba(10,90,120,.45)}
-#detail .lt-src{color:rgba(18,58,78,.74)}
-#detail .lt-zh{color:#0e3644}
-#detail .kw{color:#05405a;background:linear-gradient(180deg,transparent 58%,rgba(11,86,109,.24) 0)}
-#detail .hit-flash{--hitc:rgba(11,86,109,.20)}
-#detail .dclose{color:#2b5d70;border-color:rgba(8,44,60,.22);background:rgba(255,255,255,.5)}
-#detail .dclose:hover{color:#04222e;background:rgba(255,255,255,.9);border-color:rgba(8,44,60,.45)}
-#detail .geo-svg{background:rgba(255,255,255,.55);border-color:rgba(8,44,60,.22)}
-#detail .ts-item{border-color:rgba(8,44,60,.26)}
-#detail .ts-item.active{border-color:#0b566d}
-#detail .dq{background:rgba(255,255,255,.42);border-color:rgba(8,44,60,.22)}
-#detail .dq-k{color:rgba(10,70,90,.78)}
-#detail .dq-v{color:#3f6a7e}
-#detail .pending{background:rgba(255,255,255,.44);border-color:rgba(8,44,60,.24);color:#2b5566}
-#detail .lang-block{border-bottom-color:rgba(8,44,60,.16)}
-#detail .la-role{color:#2b5566;border-color:rgba(8,44,60,.3)}
-#detail .aud-btn{border-color:rgba(8,60,80,.36);background:rgba(255,255,255,.5)}
-#detail .aud-btn svg{fill:#0d3d50}
-#detail .aud-btn:hover{background:rgba(255,255,255,.85);border-color:#0b566d}
-#detail .aud-track{background:rgba(8,44,60,.20)}
-#detail .aud-fill{background:#0b566d}
-#detail .aud.playing .aud-fill{background:#06405a}
-#detail .aud-time{color:#2b5566}
-#detail .dimg-wrap{background:rgba(255,255,255,.35)}
-#detail .dimg-wrap.fit{background:rgba(255,255,255,.35)}
-#detail .todo-list li{color:#3f6a7e}
 </style>
 </head>
 <body>
@@ -1380,12 +1344,17 @@ body.panel-open #globe-stage{
     });
   }
 
+  /* 数字与年代（14.1亿 / 960万平方千米 / 1776年 / 2020年第七次…）
+     也算"要点"：读国家档案时最有信息量的其实就是这些数字。
+     用另一种颜色标，和概念关键词区分开。 */
+  var NUM_RE = /\d+(?:\.\d+)?\s*(?:亿|万|千人|%|平方公里|平方千米|公里|千米|年|世纪|人|座|个)/;
+
   function markKeywords(text) {
     var src = String(text || '');
-    if (!KW_LIST.length) return escHtml(src);
+    if (!KW_LIST.length && !NUM_RE.test(src)) return escHtml(src);
     var out = '', i = 0, guard = 0;
     while (i < src.length && guard++ < 3000) {
-      var hit = null, hitAt = -1;
+      var hit = null, hitAt = -1, isNum = false;
       for (var k = 0; k < KW_LIST.length; k++) {
         var at = src.indexOf(KW_LIST[k], i);
         if (at < 0) continue;
@@ -1393,8 +1362,14 @@ body.panel-open #globe-stage{
           hitAt = at; hit = KW_LIST[k];
         }
       }
+      var m = src.slice(i).match(NUM_RE);
+      if (m) {
+        var nat = i + m.index;
+        if (hitAt < 0 || nat < hitAt) { hitAt = nat; hit = m[0]; isNum = true; }
+      }
       if (hitAt < 0) { out += escHtml(src.slice(i)); break; }
-      out += escHtml(src.slice(i, hitAt)) + '<em class="kw">' + escHtml(hit) + '</em>';
+      out += escHtml(src.slice(i, hitAt)) +
+             '<em class="' + (isNum ? 'kn' : 'kw') + '">' + escHtml(hit) + '</em>';
       i = hitAt + hit.length;
     }
     return out;
@@ -1582,7 +1557,9 @@ body.panel-open #globe-stage{
       var svgHost = el('div', 'geo-svg', '读取边界数据…');
       geoBox.appendChild(svgHost);
       right.appendChild(geoBox);
-      renderOutline(d.geometry, svgHost);
+      /* 轮廓是一大串 path 字符串 + 一次布局，放在面板滑入动画之后再算，
+         否则正好卡在动画第一帧。 */
+      setTimeout(function () { renderOutline(d.geometry, svgHost); }, 220);
     }
 
     /* 先把关键词列表设好，paraText 才能把正文里的词标出来 */
@@ -1737,8 +1714,8 @@ body.panel-open #globe-stage{
         }).join('');
 
         host.innerHTML = '<svg viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="xMidYMid meet">' +
-          /* 卡片现在是浅青底，轮廓必须改用深色描边，否则整条线看不见 */
-          '<path d="' + d + '" fill="rgba(11,86,109,.12)" stroke="rgba(8,70,92,.88)" ' +
+          /* 深底卡片：轮廓用浅青描边 */
+          '<path d="' + d + '" fill="rgba(150,200,226,.12)" stroke="rgba(178,214,240,.85)" ' +
           'stroke-width=".8" stroke-linejoin="round"/></svg>';
         host.setAttribute('data-rings', rings.length);
       })
@@ -2577,7 +2554,7 @@ body.panel-open #globe-stage{
          给陆地一点轮廓 —— 再多就又开始发蓝了。 */
       '    float ll = dot(lights, vec3(0.299, 0.587, 0.114));',
       '    lights *= smoothstep(0.014, 0.11, ll);',
-      '    vec3 night = lights * 3.4 + day * 0.006;',
+      '    vec3 night = lights * 2.1 + day * 0.006;',
       '    col = mix(day, night, nightMix);',
       '  }',
       // 边缘大气：Fresnel 越靠轮廓越亮，模拟散射
@@ -2699,7 +2676,9 @@ body.panel-open #globe-stage{
       /* 国名要求正对镜头（球面 61° 以内），否则球边缘那一圈压缩得最厉害、
          文字挤成一排。大洲大洋例外：它们本来就稀疏、一个字管一大片，
          放宽到 75° 才能压住画面四周的空。 */
-      var dotMin = (L.kind === 'mc' || L.kind === 'mo') ? 0.26 : 0.48;
+      /* 只留"真正正对镜头"的那一片：0.62 约等于球面 ±52°。
+         再往外，投影压缩得厉害，字会飘到球外、压在星空上。 */
+      var dotMin = (L.kind === 'mc' || L.kind === 'mo') ? 0.50 : 0.62;
       if (dot < dotMin) { hideLabel(L); continue; }
 
       _lp.copy(L.v).project(globe.camera);
@@ -2735,8 +2714,11 @@ body.panel-open #globe-stage{
       /* translate3d 让浏览器把这一层交给合成器按小数像素平移，
          而不是每帧重新栅格化文字 —— 后者就是"自转时国名疯狂抖动"的原因。
          will-change 只给当前可见的那几十个，不然 341 个图层会把首屏拖死。 */
+      /* 越靠球缘字越小（0.78→1.0）：这是"贴在球面上"的视觉线索之一，
+         比单纯淡出更像球面透视。 */
+      var sc = (0.78 + 0.22 * dot).toFixed(3);
       var tr = 'translate(-50%,-50%) translate3d(' +
-               x.toFixed(2) + 'px,' + y.toFixed(2) + 'px,0)';
+               x.toFixed(2) + 'px,' + y.toFixed(2) + 'px,0) scale(' + sc + ')';
       if (L._t !== tr) { L._t = tr; L.el.style.transform = tr; }
       if (!L._wc) { L._wc = 1; L.el.style.willChange = 'transform'; }
       var op = alpha.toFixed(2);
@@ -3255,6 +3237,21 @@ body.panel-open #globe-stage{
       // 注意：这里**不**自动打开任何档案。首屏应该是完整的地球，
       // 由用户点击国土或底部胶囊再展开面板。
       loadSearchIndex();
+      /* 三个国家的 data/*.json 与 geo/*.geojson 都很小（十几 KB），
+         空闲时先抓下来放进 HTTP 缓存 —— 否则"第一次点某个国家"要现取现解析，
+         就是那种"有时卡有时不卡"的玄学。 */
+      setTimeout(function () {
+        var warm = function () {
+          (idx.countries || []).forEach(function (c) {
+            var iso = String(c.iso || c.iso_a2 || '').toLowerCase();
+            if (!iso) return;
+            fetch('data/' + iso + '.json').catch(function () {});
+            fetch('geo/' + iso + '.geojson').catch(function () {});
+          });
+        };
+        if (window.requestIdleCallback) requestIdleCallback(warm, { timeout: 3000 });
+        else warm();
+      }, 4200);
     })
     .catch(function (e) {
       subEl.textContent = '数据未加载';
