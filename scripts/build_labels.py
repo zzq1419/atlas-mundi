@@ -221,7 +221,10 @@ def main() -> int:
             # MIN_LABEL 是 NE 的 zoom 级；LABELRANK 越小越重要
             "z": float(p.get("MIN_LABEL") or 5),
             "r": int(p.get("LABELRANK") or 6),
-            "iso": iso if iso in FEATURED else "",
+            # 所有国家都给 iso：站点的定位是"所有国家"，地名要能点开基础档案。
+            # d 表示"已有完整多模态档案"（目前三家），只影响样式与优先级。
+            "iso": iso if len(iso) == 2 else "",
+            "d": 1 if iso in FEATURED else 0,
         })
 
     countries.sort(key=lambda c: (c["r"], c["z"], -len(c["n"])))

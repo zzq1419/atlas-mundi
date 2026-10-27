@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-10-27-G">
+<meta name="build" content="2026-10-27-H">
 <title>寰宇图志 · Atlas Mundi</title>
-<meta name="description" content="寰宇图志：3D 地球上的多模态国家文化图谱">
+<meta name="description" content="寰宇图志：3D 地球上的多模态国家文化图谱。全球 200 多个国家与地区均有基础档案，多模态档案逐国推进。">
 <style>
   /* 首帧兜底：样式解析完之前，浏览器用的是默认白底白控件。
      1) 先把 html/body 底色钉死；
@@ -478,6 +478,13 @@
   .sr-a{font-size:12.5px;color:var(--ink-dim);line-height:1.65;margin-top:4px}
   .sr-empty{padding:14px;font-size:12.5px;color:var(--ink-faint);line-height:1.6}
   .sr-country-row{display:flex;align-items:center;gap:9px;padding:10px 14px}
+  /* "基础"标签：表示这个国家只有几何/地名/人口，多模态在队列里 */
+  .sr-tag{
+    flex:0 0 auto;margin-left:6px;padding:0 5px;border-radius:4px;
+    font-size:10.5px;line-height:1.5;letter-spacing:.04em;
+    color:rgba(214,196,172,.9);
+    border:1px solid rgba(214,196,172,.28);
+  }
   .sr-arrow{
     margin-left:auto;font-size:15px;line-height:1;color:rgba(148,182,224,.45);
     transition:color .18s ease,transform .18s ease;
@@ -639,62 +646,54 @@ body.panel-open #globe-stage{
   position:absolute;inset:0;z-index:4;
   display:flex;align-items:center;
   height:34px;border-radius:999px;overflow:hidden;
-  /* 底色用竖向微弱渐变而不是纯色：纯色在近黑背景上永远"发扁"，
-     顶部亮一点点就有厚度。 */
-  background:linear-gradient(180deg,rgba(23,33,50,.97) 0%,rgba(6,10,17,.985) 100%);
-  border:1px solid rgba(126,158,198,.34);
+  /* 温润而不是"锐"：
+     1) 中性偏暖的底（灰褐而不是钢蓝），竖向渐变只差 8 个亮度，不做金属反光；
+     2) 描边压到 16% 的暖白 —— 上一版 34% 的冷蓝边在近黑底上像一道硬线；
+     3) 阴影只留一层近距 + 一层远距，去掉 0 0 0 1px 的死黑环。 */
+  background:linear-gradient(180deg,rgba(32,34,40,.94) 0%,rgba(19,21,27,.96) 60%,rgba(14,16,21,.97) 100%);
+  border:1px solid rgba(178,172,164,.16);
   /* 这里原来有 backdrop-filter:blur(10px)。它会在首次合成时新建一个
      带模糊的图层，Chrome 上表现为刷新瞬间这块区域亮一下（就是"闪白"）。
      框里本来就没有需要虚化的内容，去掉最省事。 */
   cursor:text;
-  /* 双环：外圈一道深描边 + 外投影，内侧再压一道 inset 环。
-     只在 hover/focus 加阴影的话，静态时框是"浮不起来"的。 */
-  /* 双环：外面一道暗环把胶囊从背景里"刻"出来，紧贴内壁再压一道暗环，
-     加上顶部 1px 高光 —— 外深内深中间亮，才有金属边框的层次感。 */
+  /* 只有两层外阴影（近距接地 + 远距氛围）和一道极淡的内高光。
+     上一版为了"立体"叠了五层，其中两道是纯黑硬环 —— 那就是刺眼的来源。 */
   box-shadow:
-    0 0 0 1px rgba(1,3,8,.9),
-    0 2px 6px rgba(0,0,0,.7),
-    0 10px 26px rgba(0,0,0,.55),
-    0 22px 56px rgba(0,0,0,.3),
-    inset 0 0 0 1px rgba(1,4,9,.94),
-    inset 0 1px 0 rgba(255,255,255,.075),
-    inset 0 -1px 0 rgba(0,0,0,.55);
-  transition:border-color .22s ease,background .22s ease,box-shadow .22s ease;
+    0 1px 2px rgba(0,0,0,.30),
+    0 8px 24px rgba(0,0,0,.42),
+    0 20px 48px rgba(0,0,0,.20),
+    inset 0 1px 0 rgba(255,247,238,.055);
+  transition:border-color .26s ease,background .26s ease,box-shadow .26s ease;
 }
-.search-wrap.open .search-panel{background:rgba(4,7,12,.96)}
+.search-wrap.open .search-panel{
+  background:linear-gradient(180deg,rgba(34,36,42,.96) 0%,rgba(17,19,25,.98) 100%);
+}
 /* hover 必须有反应：之前只有聚焦才变，鼠标扫过去毫无反馈，像块死板子 */
 .search-panel:hover{
-  border-color:rgba(158,192,232,.5);
-  background:linear-gradient(180deg,rgba(30,43,64,.98) 0%,rgba(9,14,23,.99) 100%);
+  border-color:rgba(206,196,182,.26);
+  background:linear-gradient(180deg,rgba(40,42,48,.96) 0%,rgba(22,24,30,.97) 100%);
   box-shadow:
-    0 0 0 1px rgba(3,6,12,.92),
-    0 0 0 2px rgba(120,170,235,.16),
-    0 3px 8px rgba(0,0,0,.72),
-    0 12px 30px rgba(0,0,0,.6),
-    0 24px 60px rgba(0,0,0,.34),
-    inset 0 0 0 1px rgba(2,6,12,.96),
-    inset 0 1px 0 rgba(255,255,255,.10),
-    inset 0 -1px 0 rgba(0,0,0,.55);
+    0 1px 2px rgba(0,0,0,.32),
+    0 10px 28px rgba(0,0,0,.46),
+    0 24px 56px rgba(0,0,0,.22),
+    inset 0 1px 0 rgba(255,247,238,.085);
 }
-.search-panel:hover .search-icon{stroke:rgba(196,222,252,.92)}
+.search-panel:hover .search-icon{stroke:rgba(226,214,198,.9)}
 .search-panel:focus-within{
-  border-color:rgba(164,200,244,.72);
+  border-color:rgba(224,208,188,.34);
   box-shadow:
-    0 0 0 1px rgba(2,5,11,.94),
-    0 0 0 3px rgba(120,175,235,.22),
-    0 4px 10px rgba(0,0,0,.74),
-    0 16px 40px rgba(0,0,0,.62),
-    0 30px 70px rgba(0,0,0,.36),
-    inset 0 0 0 1px rgba(3,8,15,.96),
-    inset 0 1px 0 rgba(255,255,255,.11),
-    inset 0 -1px 0 rgba(0,0,0,.55);
+    0 0 0 3px rgba(214,196,172,.10),
+    0 1px 2px rgba(0,0,0,.34),
+    0 12px 32px rgba(0,0,0,.5),
+    0 28px 64px rgba(0,0,0,.24),
+    inset 0 1px 0 rgba(255,247,238,.10);
 }
 
 .search-panel .search-icon{
   position:absolute;left:11px;top:50%;transform:translateY(-50%);
   width:13.5px;height:13.5px;pointer-events:none;
-  fill:none;stroke:rgba(158,190,228,.72);stroke-width:1.8;
-  transition:stroke .18s ease;
+  fill:none;stroke:rgba(196,186,172,.62);stroke-width:1.8;
+  transition:stroke .26s ease;
   stroke-linecap:round;stroke-linejoin:round;
 }
 
@@ -702,10 +701,11 @@ body.panel-open #globe-stage{
   flex:1 1 auto;min-width:0;height:100%;box-sizing:border-box;
   padding:0 6px 0 31px;
   font-size:13.5px;font-family:inherit;
-  color:var(--ink);caret-color:#bcd6f5;
+  color:#ece5db;caret-color:#d8c8ae;
   background:transparent;border:0;outline:none;
   -webkit-appearance:none;appearance:none;
 }
+#q::placeholder{color:rgba(206,198,186,.40)}
 #q::-webkit-search-cancel-button{filter:invert(.42)}
 
 /* 清空按钮：只在有字时出现。原生 ::-webkit-search-cancel-button 只在聚焦时冒出来，
@@ -996,6 +996,7 @@ body.panel-open #globe-stage{
      快速缩放时 300 多个标签各自延迟 0.26 秒才收掉，屏幕上就是一层残影。
      现在每帧直接给值，隐藏即刻生效。 */
   transition:none;
+  cursor:pointer;          /* 只有 pointer-events:auto 的（有 iso 的）才会显示手型 */
 }
 .mlabel.mc{
   /* 大洲名之前 58% 透明度、字距 0.42em，压在雪山白底上根本看不见。
@@ -1522,11 +1523,18 @@ body.panel-open #globe-stage{
       })
       .then(function (d) { renderDetail(d, true); })
       .catch(function (e) {
+        /* 没有完整档案不等于"没有这个国家"。只要 meta 里有它，
+           就给一张基础档案（几何 + 地名 + 人口），而不是一句读取失败。 */
+        if (LABEL_META && LABEL_META[String(iso).toUpperCase()]) {
+          if (window.console) console.info('[atlas] ' + iso + ' 无完整档案，使用基础档案：' + e.message);
+          renderBasic(iso);
+          return;
+        }
         dTitle.textContent = '档案未就绪';
         dSub.textContent = iso;
         dBody.appendChild(el('p', 'hint',
-          '读取 data/' + iso.toLowerCase() + '.json 失败（' + e.message + '）。' +
-          '该国家/地区的数据尚未采集，属预期状态。'));
+          '读取 data/' + iso.toLowerCase() + '.json 失败（' + e.message + '），' +
+          '基础元数据里也没有这个代码。'));
       });
   }
 
@@ -1747,14 +1755,116 @@ body.panel-open #globe-stage{
     dBody.appendChild(wrap);
   }
 
+  /* ---------- 基础档案 ----------
+     站点的定位是"所有国家"，但多模态档案是逐国采集的，短期只能有三家完整。
+     没采集到的国家不该弹一句"读取失败"—— 那样等于告诉用户"这个国家不存在"。
+     所以这里给一张基础档案：国界几何、中文名、大洲、人口、中心坐标，
+     全部来自 Natural Earth（公有领域），并且明确说明多模态内容还在队列里。 */
+  function fmtPop(n) {
+    n = Number(n) || 0;
+    if (!n) return '—';
+    if (n >= 1e8) return (n / 1e8).toFixed(2).replace(/\.?0+$/, '') + ' 亿';
+    if (n >= 1e4) return (n / 1e4).toFixed(0) + ' 万';
+    return String(n);
+  }
+
+  function fmtLL(lon, lat) {
+    if (lon == null || lat == null) return '—';
+    return Math.abs(lat).toFixed(2) + '°' + (lat >= 0 ? 'N' : 'S') + ', ' +
+           Math.abs(lon).toFixed(2) + '°' + (lon >= 0 ? 'E' : 'W');
+  }
+
+  function renderBasic(iso) {
+    var key = String(iso).toUpperCase();
+    var m = (LABEL_META && LABEL_META[key]) || { n: key, en: '', cont: '', pop: 0, lon: null, lat: null };
+    dTitle.textContent = m.n;
+    dSub.textContent = (m.en || '') + ' · ' + key + ' · 基础档案';
+
+    var wrap = el('div', 'dwrap');
+    var left = el('div');
+    var right = el('div');
+
+    var geoBox = el('div', 'geo-box');
+    var svgHost = el('div', 'geo-svg', '读取边界数据…');
+    geoBox.appendChild(svgHost);
+    geoBox.appendChild(el('div', 'cap dim', '国界轮廓 · Natural Earth 1:50m · 公有领域'));
+    left.appendChild(geoBox);
+
+    var meta = el('dl', 'dmeta');
+    [['中文名', m.n],
+     ['英文名', m.en || '—'],
+     ['大洲', m.cont || '—'],
+     ['人口', m.pop ? fmtPop(m.pop) + '（NE 估算）' : '—'],
+     ['中心坐标', fmtLL(m.lon, m.lat)],
+     ['档案层级', '基础 · 几何与地名']
+    ].forEach(function (pair) {
+      meta.appendChild(el('dt', null, pair[0]));
+      meta.appendChild(el('dd', null, pair[1]));
+    });
+    right.appendChild(meta);
+
+    right.appendChild(el('div', 'sub-label', '多模态内容'));
+    var box = el('div', 'prose');
+    box.appendChild(el('p', null,
+      '这个国家的文本（沿革与文化）、地标影像、多语种语音三类内容还在采集队列里。' +
+      '上面这些是它的基础档案 —— 国界几何、名称、大洲、人口与中心点，' +
+      '来自 Natural Earth 的公有领域数据，可以直接用于定位与检索。'));
+    right.appendChild(box);
+
+    var q = el('div', 'dq');
+    q.appendChild(el('span', 'dq-k', '进度'));
+    q.appendChild(el('span', 'dq-v', '基础档案已就绪 · 文本 / 影像 / 语音待补'));
+    right.appendChild(q);
+
+    wrap.appendChild(left);
+    wrap.appendChild(right);
+    dBody.innerHTML = '';
+    dBody.appendChild(wrap);
+    /* 轮廓在面板滑入之后再算，避开动画第一帧（与完整档案同一套逻辑） */
+    setTimeout(function () {
+      loadGeo(key).then(function (gj) { drawOutline(gj, svgHost); });
+    }, 220);
+  }
+
   /* ---------- 国界轮廓（等距圆柱投影，纯 SVG） ---------- */
+  /* 轮廓几何分成 8 个分片（见 scripts/build_countries.py）。
+     分片按 ISO 的字符和取模，前后端各算一次，不需要额外索引。
+     拿到的分片在内存里缓存，同一个分片里的国家不会再请求第二次。 */
+  var GEO_CHUNKS = {};
+  function geoBucket(iso) {
+    var n = 0;
+    for (var i = 0; i < iso.length; i++) n += iso.charCodeAt(i);
+    return n % 8;
+  }
+  function loadGeo(iso) {
+    var key = String(iso).toUpperCase();
+    var b = geoBucket(key);
+    if (GEO_CHUNKS[b]) return Promise.resolve(GEO_CHUNKS[b][key] || null);
+    return fetch('geo/c' + b + '.json')
+      .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+      .then(function (all) {
+        GEO_CHUNKS[b] = all || {};
+        return GEO_CHUNKS[b][key] || null;
+      })
+      .catch(function () { return null; });
+  }
+
   function renderOutline(url, host) {
     fetch(url)
       .then(function (r) {
         if (!r.ok) throw new Error('HTTP ' + r.status);
         return r.json();
       })
-      .then(function (gj) {
+      .then(function (gj) { drawOutline(gj, host); })
+      .catch(function (e) {
+        host.textContent = '边界读取失败（' + e.message + '）';
+      });
+  }
+
+  /* 把 FeatureCollection 画成等距圆柱投影的轮廓 */
+  function drawOutline(gj, host) {
+    if (!gj) { host.textContent = '边界数据为空'; return; }
+    (function () {
         var rings = [];
         (gj.features || []).forEach(function (f) {
           var g = f.geometry || {};
@@ -1796,10 +1906,7 @@ body.panel-open #globe-stage{
           '<path d="' + d + '" fill="rgba(150,200,226,.12)" stroke="rgba(178,214,240,.85)" ' +
           'stroke-width=".8" stroke-linejoin="round"/></svg>';
         host.setAttribute('data-rings', rings.length);
-      })
-      .catch(function (e) {
-        host.textContent = '边界读取失败（' + e.message + '）';
-      });
+    })();
   }
 
   /* ---------- 知识库检索（2-gram + BM25，纯本地） ----------
@@ -1915,13 +2022,15 @@ body.panel-open #globe-stage{
       var top = el('div', 'sr-top');
       top.appendChild(el('span', 'sr-country', d.name));
       top.appendChild(el('span', 'sr-q', d.q));
+      if (d.kind === 'country') top.appendChild(el('span', 'sr-tag', '基础'));
       item.appendChild(top);
       item.appendChild(el('div', 'sr-a', d.a));
       item.addEventListener('click', function () {
         openDetail(d.iso, cardOf(d.iso), false);
         setSearch(false);              // 选中即收起，视线回到地球
         if (qInput) qInput.blur();
-        locateInPanel(q);              // 滚到命中的那一段，而不是永远停在顶部
+        /* 基础档案没有正文可定位，别白滚一次 */
+        if (d.kind !== 'country') locateInPanel(q);
       });
       qRes.appendChild(item);
     });
@@ -1970,7 +2079,19 @@ body.panel-open #globe-stage{
     }
     var seen = {}, list = [];
     IDX.docs.forEach(function (d) {
-      if (d.iso && !seen[d.iso]) { seen[d.iso] = 1; list.push(d); }
+      if (d.iso && !seen[d.iso]) {
+        seen[d.iso] = 1;
+        list.push(d);
+      }
+    });
+    /* 全部国家都在这里，排法：有完整档案的置顶，其余按人口降序。
+       人口取不到就排最后 —— 这样打开列表第一屏就是"有料的那几个"。 */
+    list.sort(function (a, b) {
+      var da = a.kind === 'country' ? 0 : 1, db = b.kind === 'country' ? 0 : 1;
+      if (da !== db) return db - da;
+      var pa = (LABEL_META || {})[a.iso] ? LABEL_META[a.iso].pop || 0 : 0;
+      var pb = (LABEL_META || {})[b.iso] ? LABEL_META[b.iso].pop || 0 : 0;
+      return pb - pa;
     });
     qRes.innerHTML = '';
     qRes.hidden = false;
@@ -1978,6 +2099,7 @@ body.panel-open #globe-stage{
       var item = el('div', 'sr-item sr-country-row');
       item.appendChild(el('span', 'sr-country', d.iso));
       item.appendChild(el('span', 'sr-q', d.name));
+      if (d.kind === 'country') item.appendChild(el('span', 'sr-tag', '基础'));
       item.appendChild(el('span', 'sr-arrow', '›'));
       item.addEventListener('click', function () {
         openDetail(d.iso, cardOf(d.iso), false);
@@ -2139,11 +2261,60 @@ body.panel-open #globe-stage{
       })
       .then(function (d) {
         IDX = buildIdx(d.docs || []);
-        if (qSub) qSub.textContent = '知识库 ' + IDX.N + ' 条 · 2-gram + BM25 本地检索';
+        mergeCountryDocs();
+        updateIdxSub();
       })
       .catch(function (e) {
         if (qSub) qSub.textContent = '索引未加载（' + e.message + '）';
       });
+  }
+
+  /* 所有国家的元数据：名称/大洲/人口/中心点。
+     20KB，首屏就取 —— 检索、基础档案、飞行动画都要用。 */
+  function loadCountryMeta() {
+    return fetch('geo/meta.json')
+      .then(function (r) {
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.json();
+      })
+      .then(function (m) {
+        LABEL_META = m || null;
+        mergeCountryDocs();
+        updateIdxSub();
+      })
+      .catch(function () { /* 拿不到就退化成"只有三国可查"，不影响地球本体 */ });
+  }
+
+  function updateIdxSub() {
+    if (!qSub || !IDX) return;
+    var n = Object.keys(LABEL_META || {}).length;
+    qSub.textContent = n
+      ? '知识库 ' + IDX.N + ' 条 · 覆盖 ' + n + ' 个国家与地区 · 本地检索'
+      : '知识库 ' + IDX.N + ' 条 · 2-gram + BM25 本地检索';
+  }
+
+  /* 把"还没有档案的国家"作为基础条目并进检索。
+     这样搜"日本""埃及"也能命中并飞过去，而不是只有三国可查。 */
+  function mergeCountryDocs() {
+    if (!IDX || !LABEL_META) return;
+    var have = {};
+    IDX.docs.forEach(function (d) { if (d.iso) have[d.iso] = 1; });
+    var added = 0;
+    Object.keys(LABEL_META).forEach(function (iso) {
+      if (have[iso]) return;
+      var m = LABEL_META[iso];
+      IDX.docs.push({
+        id: 'c-' + iso,
+        iso: iso,
+        name: m.n,
+        kind: 'country',
+        q: m.n + (m.en ? '　' + m.en : ''),
+        a: (m.cont || '') + (m.pop ? ' · 人口约 ' + fmtPop(m.pop) : '') + ' · 基础档案',
+        index_text: m.n + ' ' + (m.en || '') + ' ' + (m.cont || '')
+      });
+      added++;
+    });
+    if (added) IDX = buildIdx(IDX.docs);
   }
 
   /* ---------- 3D 地球 ----------
@@ -2153,7 +2324,7 @@ body.panel-open #globe-stage{
         用 IntersectionObserver 等区块进入视口再加载，首屏完全不受影响。
 
      2) 不用贴图，只用我们自己的 GeoJSON。真实地球纹理（4K 等距柱状图）动辄
-        2~8MB，且来源授权要单独确认；而我们的数据只有 110KB —— 大陆轮廓 + 三国
+        2~8MB，且来源授权要单独确认；而我们的数据只有 110KB —— 大陆轮廓 + 已采集国家的国界
         国界，全部来自 Natural Earth 与既有 geo/*.geojson。视觉上反而更统一：
         暗球 + 淡色大陆 + 金色国界，和站点其余部分同一套配色。
 
@@ -2328,6 +2499,10 @@ body.panel-open #globe-stage{
 
   function setActive(iso) {
     globe.active = iso;
+    /* 内置几何只有三家（完整档案）。其余国家点开时，按需把它自己的
+       国界画到球上 —— 否则"点了日本，球上什么都没变"，等于告诉用户
+       这个国家不在库里。 */
+    if (globe.showBorder) globe.showBorder(iso);
     Object.keys(globe.groups).forEach(function (k) {
       var on = (k === iso);
       globe.groups[k].visible = on;
@@ -2697,6 +2872,7 @@ body.panel-open #globe-stage{
   }
 
   var LABEL_POP = {};
+  var LABEL_META = null;     // geo/meta.json：所有国家的名称/大洲/人口/中心点
 
   function buildLabels(pack) {
     var host = document.getElementById('labels');
@@ -2714,7 +2890,9 @@ body.panel-open #globe-stage{
        屏幕上只剩"南美洲"。 */
     var list = [];
     (pack.countries || []).forEach(function (c) {
-      list.push({ c: c, cls: c.iso ? 'mk' : '', pri: c.iso ? 0 : 1 });
+      /* 有完整档案的（cn/fr/us）排最前、样式更亮；
+         其余国家也可点，但只是基础档案，按普通国名处理。 */
+      list.push({ c: c, cls: c.d ? 'mk' : '', pri: c.d ? 0 : 1 });
     });
     (pack.oceans || []).forEach(function (c) { list.push({ c: c, cls: 'mo', pri: 2 }); });
     (pack.continents || []).forEach(function (c) { list.push({ c: c, cls: 'mc', pri: 3 }); });
@@ -2735,8 +2913,14 @@ body.panel-open #globe-stage{
       };
       if (c.iso) {
         d.dataset.iso = c.iso;
+        /* 按在字上也要能转球：把 pointerdown 交给同一套拖拽逻辑。
+           松开时如果位移很小才算"点击"，否则一次拖拽会顺手打开一个档案。 */
+        d.addEventListener('pointerdown', function (e) {
+          if (globe.dragDown) globe.dragDown(e);
+        });
         d.addEventListener('click', function (e) {
           e.stopPropagation();
+          if (globe.moved > 6) return;
           openDetail(c.iso, cardOf(c.iso), false);
         });
       }
@@ -2899,9 +3083,18 @@ body.panel-open #globe-stage{
     var list = (globe.data && globe.data.countries) || [];
     var c = null;
     for (var i = 0; i < list.length; i++) if (list[i].iso === iso) c = list[i];
-    if (!c) return;
+    /* 只有三国在球面有国界几何，但"飞过去"这件事对所有国家都成立 ——
+       没有几何就从 meta 的中心点飞。以前这里直接 return，
+       于是点日本、点埃及都停在原地，像没反应。 */
+    var lon, lat;
+    if (c) { lon = c.center[0]; lat = c.center[1]; }
+    else {
+      var m = LABEL_META && LABEL_META[String(iso).toUpperCase()];
+      if (!m) return;
+      lon = m.lon; lat = m.lat;
+    }
     globe.camMode = 'near';
-    flyTo(c.center[0], c.center[1], CAM_NEAR);
+    flyTo(lon, lat, CAM_NEAR);
     globe.idleUntil = performance.now() + 1e9;   // 面板开着就不自转
   }
 
@@ -3008,7 +3201,7 @@ body.panel-open #globe-stage{
       { o: landLine, base: landLine.material.opacity }
     ];
 
-    /* 三国国界：这是数据标记，贴图之上也要保留，否则看不出"收录了哪里" */
+    /* 已采集完整档案的国家国界：这是数据标记，贴图之上也要保留 */
     globe.matOn = new THREE.LineBasicMaterial({
       color: 0xffd98a, transparent: true, opacity: 1
     });
@@ -3082,8 +3275,36 @@ body.panel-open #globe-stage{
       if (typeof onGlobeReady === 'function') onGlobeReady();
 
       var subEl3 = document.getElementById('globe-sub');
-      if (subEl3) subEl3.textContent = '拖动旋转 · 滚轮缩放 · 点击国土开档';
+      if (subEl3) subEl3.textContent = '拖动旋转 · 滚轮缩放 · 点击地名开档';
     }, renderer);
+
+    /* 临时国界：点开某个"只有基础档案"的国家时，在球面画一圈亮线。
+       只保留一条，换国家就替换、关面板就清掉。 */
+    var tempBorder = null;
+    globe.showBorder = function (iso) {
+      if (tempBorder) {
+        spin.remove(tempBorder);
+        if (tempBorder.geometry) tempBorder.geometry.dispose();
+        tempBorder = null;
+      }
+      if (!iso || globe.groups[iso]) return;   // 内置三国由 setActive 管
+      loadGeo(iso).then(function (gj) {
+        /* 异步回来时用户可能已经点了别国（或关了面板），要再确认一次 */
+        if (!gj || globe.active !== iso) return;
+        var rings = [];
+        (gj.features || []).forEach(function (f) {
+          var g = f.geometry || {};
+          var polys = g.type === 'Polygon' ? [g.coordinates]
+            : (g.type === 'MultiPolygon' ? g.coordinates : []);
+          polys.forEach(function (poly) {
+            poly.forEach(function (ring) { if (ring && ring.length > 2) rings.push(ring); });
+          });
+        });
+        if (!rings.length) return;
+        tempBorder = ringsToLines(rings, 1.004, globe.matOn);
+        spin.add(tempBorder);
+      });
+    };
 
     globe.scene = scene;
     globe.camera = camera;
@@ -3097,50 +3318,58 @@ body.panel-open #globe-stage{
     // ---- 交互：拖拽 ----
     var cv = renderer.domElement;
     var downAt = { x: 0, y: 0 };
-    cv.addEventListener('pointerdown', function (e) {
+
+    /* 拖拽要能从"地名"上开始。
+       现在 239 个国家的地名都可点，它们盖住了球面相当大一片；如果按住字就拖不动，
+       手感会碎得厉害。所以：down 绑在 canvas 和每个地名上，move/up 统一挂 window
+       （带 globe.dragging 守卫），这样从字上按下也能直接转球。 */
+    function dragDown(e) {
       globe.dragging = true;
       globe.lastInput = performance.now();
       globe.last.x = e.clientX;
       globe.last.y = e.clientY;
       downAt.x = e.clientX;
       downAt.y = e.clientY;
+      globe.moved = 0;
       globe.vel.x = globe.vel.y = 0;
       cv.classList.add('dragging');
-      cv.setPointerCapture && cv.setPointerCapture(e.pointerId);
       globe.autoSpin = false;
       globe.flying = false;        // 手动接管，打断正在进行的飞行
-    });
-    cv.addEventListener('pointermove', function (e) {
+    }
+    function dragMove(e) {
       if (!globe.dragging) return;
       globe.lastInput = performance.now();
       var dx = e.clientX - globe.last.x;
       var dy = e.clientY - globe.last.y;
       globe.last.x = e.clientX;
       globe.last.y = e.clientY;
-      // 0.0022 弧度/像素 ≈ 每像素 0.126°，拖满 1200px 约转 150°。
-      // 原来 0.005 是整屏 280°，手一抖就转到背面去了。
-      // 0.0016 弧度/像素：拖满 1200px 约转 110°，比原来 0.0022 稳手
+      globe.moved += Math.abs(dx) + Math.abs(dy);
+      // 0.0016 弧度/像素：拖满 1200px 约转 110°，手一抖不会转到背面
       globe.vel.x = dx * 0.0016;
       globe.vel.y = dy * 0.0016;
       globe.spin.rotation.y += globe.vel.x;
       globe.tilt.rotation.x += globe.vel.y;
       var lim = 78 * D2R;
       globe.tilt.rotation.x = Math.max(-lim, Math.min(lim, globe.tilt.rotation.x));
-    });
-    function endDrag() {
+    }
+    function dragUp() {
       if (!globe.dragging) return;
       globe.dragging = false;
       cv.classList.remove('dragging');
       /* 只有真正拖动过才延时恢复自转。
          之前这里一律 +2.4 秒，于是"点一下画面"也会让地球停两秒半 ——
-         单击本来只是看看，不该改变自转状态。 */
-      var moved = Math.abs(downAt.x - globe.last.x) + Math.abs(downAt.y - globe.last.y);
+         单击本来只是看看，不该改变自转状态。
+         顺带修了个老 bug：原来看的是"最后一小段位移"，慢慢拖松手时几乎总是 0，
+         于是拖动之后自转立刻恢复，和"停 2.4 秒"的意图不符。现在累计整段位移。 */
       globe.autoSpin = true;
-      globe.idleUntil = performance.now() + (moved > 6 ? 2400 : 0);
+      globe.idleUntil = performance.now() + (globe.moved > 6 ? 2400 : 0);
     }
-    cv.addEventListener('pointerup', endDrag);
-    cv.addEventListener('pointercancel', endDrag);
-    cv.addEventListener('pointerleave', endDrag);
+    globe.dragDown = dragDown;
+    cv.addEventListener('pointerdown', dragDown);
+    window.addEventListener('pointermove', dragMove);
+    window.addEventListener('pointerup', dragUp);
+    window.addEventListener('pointercancel', dragUp);
+    window.addEventListener('blur', dragUp);
 
     // ---- 交互：缩放 ----
     cv.addEventListener('wheel', function (e) {
@@ -3308,7 +3537,7 @@ body.panel-open #globe-stage{
     if (window.ResizeObserver) new ResizeObserver(resize).observe(stage);
     window.addEventListener('resize', resize);
 
-    /* 地名标注数据（242 个国家/地区 + 洲名洋名），和三国档案分开取，
+    /* 地名标注数据（242 个国家/地区 + 洲名洋名），和逐国档案分开取，
        标注加载失败不影响地球本体 */
     fetch('geo/labels.json')
       .then(function (r) {
@@ -3396,6 +3625,7 @@ body.panel-open #globe-stage{
       // 注意：这里**不**自动打开任何档案。首屏应该是完整的地球，
       // 由用户点击国土或底部胶囊再展开面板。
       loadSearchIndex();
+      loadCountryMeta();
       /* 三个国家的 data/*.json 与 geo/*.geojson 都很小（十几 KB），
          空闲时先抓下来放进 HTTP 缓存 —— 否则"第一次点某个国家"要现取现解析，
          就是那种"有时卡有时不卡"的玄学。 */
