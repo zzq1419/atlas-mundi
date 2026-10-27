@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-10-27-F">
+<meta name="build" content="2026-10-27-G">
 <title>寰宇图志 · Atlas Mundi</title>
 <meta name="description" content="寰宇图志：3D 地球上的多模态国家文化图谱">
 <style>
@@ -390,10 +390,23 @@
   .globe-stage canvas.dragging{cursor:grabbing}
   .globe-msg{
     position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    gap:10px;
     font-size:12.5px;letter-spacing:.06em;color:var(--ink-faint);
     text-align:center;padding:20px;line-height:1.7;
     transition:opacity .6s ease;
   }
+  /* 加载环用 CSS 动画（合成器线程）而不是 JS 驱动。
+     关键点：上传 8K 贴图那一下主线程会停住 100~800ms，JS 驱动的进度条会跟着定住，
+     看着像死机；CSS transform 动画不受影响，照样转，观感就是"在加载"而不是"卡住"。 */
+  .globe-spin{
+    flex:0 0 auto;width:20px;height:20px;border-radius:50%;
+    border:1.5px solid rgba(150,185,230,.16);
+    border-top-color:rgba(180,210,246,.92);
+    border-right-color:rgba(140,180,230,.5);
+    animation:gspin 1.05s linear infinite;
+  }
+  @keyframes gspin{to{transform:rotate(360deg)}}
+  .gm-txt{transition:opacity .26s ease}
   .globe-msg.gone{opacity:0}
   .globe-msg.err{color:#c98a6a}
 
@@ -2174,9 +2187,7 @@ body.panel-open #globe-stage{
     fadeStart: 0,         // 淡入起点（performance.now），0 表示已完成
     mixBTarget: 0,        // 8K 交叉淡化的目标值
     tex8k: null,          // 8K 日面贴图（按需加载，无 mipmap）
-    tex8kLoading: false,
     tex8kReady: false,    // 已下载，等交互停止再绑 GPU
-    tex8kPrefetched: false,
     lastInput: 0,
     can8k: false,
     atmo: null,
@@ -2200,8 +2211,13 @@ body.panel-open #globe-stage{
       m.id = 'globe-msg';
       st.appendChild(m);
     }
-    m.textContent = text;
     m.className = 'globe-msg' + (isErr ? ' err' : '');
+    while (m.firstChild) m.removeChild(m.firstChild);
+    if (!isErr) m.appendChild(el('span', 'globe-spin'));
+    m.appendChild(el('span', 'gm-txt', text));
+    /* 文字本身也做一次淡入：换文案时不要硬切 */
+    var tx = m.querySelector('.gm-txt');
+    if (tx) { tx.style.opacity = '0'; void tx.offsetWidth; tx.style.opacity = '1'; }
   }
 
   function loadScriptOnce(urls, done) {
@@ -2358,10 +2374,13 @@ body.panel-open #globe-stage{
      Access-Control-Allow-Origin，否则纹理会加载失败（画布被污染）。这是
      图片与纹理最容易踩的差别 —— 之前 assets 里的图片能显示，不代表贴图能用。
 
-     贴图分两级加载，不是一次性等：
-       1. 4K（约 1MB）先到 → 球先淡入，用户不用盯着黑星空等 8K
-       2. 8K 后台补 → 到位后和 4K 交叉淡化 0.7 秒，不硬切
-     这样既解决"清晰度"，也解决"从无到好那一下很僵硬"。 */
+     加载策略（v2026-10-27-G 改）：
+       4K 日面、夜面、8K 日面**一起下**，三张都推上显存之后才让球淡入。
+     之前是"4K 先出球、8K 后台补"，但补的那一刻要把 8192×4096 传上 GPU，
+     这笔开销无论怎么挪都会落在用户操作中间（缩放、拖拽、点国家都撞上过）。
+     现在把它挪到"球还完全透明"的阶段：屏幕上只有线框地球 + 加载环，
+     卡也卡在用户预期之内；球一出现就是最终画质，之后不再有任何贴图切换。
+     网络太慢（5.2 秒下不完 8K）才回退到"先出 4K"，迟到的 8K 等手停再挂。 */
   var TEX_BASES = [OBS_BASE + 'assets/tex/', 'assets/tex/'];
 
   /* 单文件多源尝试：OBS 失败退仓库同域 */
@@ -2386,64 +2405,85 @@ body.panel-open #globe-stage{
     return true;
   }
 
-  function loadEarthTextures(cb) {
+  /* 三张图一起下：4K 日面、夜面、8K 日面（能上 8K 的机器才要）。
+     等 4K 与夜面到齐、且 8K 有结论（成功 / 失败 / 超时）之后才出球。
+     为什么不"4K 先出球、8K 后台补"：补的那一刻要把 8192×4096 传上 GPU，
+     这笔开销无论怎么挪都会落在用户操作中间 —— 缩放、拖拽、点国家都撞上过。
+     现在把上传挪到"球还没出现"的阶段：屏幕上只有星空 + 加载环，
+     卡也卡在用户预期之内。 */
+  function loadEarthTextures(cb, renderer) {
     var loader = new THREE.TextureLoader();
-    var day4 = null, night = null, pending = 2;
+    var day4 = null, night = null, day8 = null;
+    var need = 2, settled8 = false, done = false, msgSent = false;
+    /* 注意这里要用传进来的 renderer：globe.renderer 是在 buildGlobe 末尾才赋值的，
+       这个函数在赋值之前就被调用了 —— 用 globe.renderer 会永远读到 4096，8K 永远不加载。 */
+    var maxTex = (renderer && renderer.capabilities &&
+                  renderer.capabilities.maxTextureSize) || 4096;
+    var want8 = (maxTex >= 8192 && canUse8K());
+    globe.can8k = want8;
 
-    function maybeDone() {
-      if (--pending > 0) return;
-      cb(day4, night);
+    function finish() {
+      if (done) return;
+      done = true;
+      cb(day4, night, day8);
     }
+    function maybe() {
+      if (done || need > 0) return;
+      if (want8 && !settled8) {
+        /* 4K 已经到手、还在等 8K：文字换成"准备高清贴图"，
+           让用户知道这几秒不是白等（屏幕上已经有线框地球在转）。 */
+        if (!msgSent) { msgSent = true; globeMsg('地表影像就位，正在准备高清贴图…'); }
+        return;
+      }
+      finish();
+    }
+
     loadTex(loader, 'earth-day.webp',
-      function (t) { day4 = t; maybeDone(); },
-      function () { day4 = null; maybeDone(); });
+      function (t) { day4 = t; need--; maybe(); },
+      function () { day4 = null; need--; maybe(); });
     loadTex(loader, 'earth-night.webp',
-      function (t) { night = t; maybeDone(); },
-      function () { night = null; maybeDone(); });
+      function (t) { night = t; need--; maybe(); },
+      function () { night = null; need--; maybe(); });
+
+    if (want8) {
+      loadTex(loader, 'earth-day-8k.webp', function (t) {
+        t.anisotropy = 1;                 // 无 mipmap，各向异性过滤没意义
+        t.generateMipmaps = false;        // 省掉最贵的一步（3300 万像素的 mip 链）
+        t.minFilter = THREE.LinearFilter;
+        t.magFilter = THREE.LinearFilter;
+        t.needsUpdate = true;
+        day8 = t;
+        globe.tex8k = t;
+        settled8 = true;
+        /* 超时之后才到的：球已经出来了，这时候上传会卡一下。
+           标记成 ready，等用户手停下来（渲染循环里）再挂。 */
+        if (done) globe.tex8kReady = true;
+        maybe();
+      }, function () {
+        globe.can8k = false;
+        settled8 = true;
+        maybe();
+      });
+      /* 网络太慢就别耗着：5.2 秒还没下完就先用 4K 出球。
+         迟到的 8K 仍然会被收下（tex8kReady），等手停下来再挂上去。 */
+      setTimeout(function () {
+        if (settled8) return;
+        settled8 = true;
+        maybe();
+      }, 5200);
+    }
   }
 
-  /* ---------- 8K 贴图：按需取、不建 mipmap ----------
-     它只负责"放大时更清楚"，缩小交给带 mipmap 的 4K（见 shader 里的 k），
-     所以这张 8192×4096 完全不需要 mipmap —— 省掉的正是最贵的那一步
-     （对 3300 万像素做 mipmap 生成，软件渲染上要一秒）。
-     同理不在首屏拉：用户没拉近之前，这 3.5MB 和 134MB 显存都不该花。 */
+  /* ---------- 8K 的"迟到"路径 ----------
+     正常情况 8K 和 4K 一起下、一起上传，球一出现就是高清，没有中途切换。
+     只有网络太慢（5.2 秒没下完）时才会走这条路：球先出 4K，
+     8K 到了先不挂，等用户手停下来（见渲染循环）再挂 —— 那一下的上传卡顿
+     才不会落在拖拽/缩放中间。 */
   function bind8k() {
     if (!globe.tex8k || !globe.earthMat) return;
     globe.tex8kReady = false;
     globe.earthMat.uniforms.dayMapB.value = globe.tex8k;
     globe.mixBTarget = 1;
-  }
-
-  function ensure8k() {
-    if (!globe.can8k || globe.tex8k || globe.tex8kLoading) return;
-    globe.tex8kLoading = true;
-    loadTex(new THREE.TextureLoader(), 'earth-day-8k.webp', function (t) {
-      t.anisotropy = 1;
-      t.generateMipmaps = false;
-      t.minFilter = THREE.LinearFilter;
-      t.magFilter = THREE.LinearFilter;
-      t.needsUpdate = true;
-      globe.tex8k = t;
-      globe.tex8kLoading = false;
-      /* 先不绑定。绑定的那一刻要把 134MB 传上 GPU，如果正好落在用户滚轮过程中，
-         就是"滑到某个位置卡一下，之后又好了"——因为只有第一次要传。
-         等滚轮停 0.4 秒再绑，卡顿落在停顿里，基本感知不到。 */
-      if (performance.now() - (globe.lastInput || 0) > 420) bind8k();
-      else globe.tex8kReady = true;
-    }, function () {
-      globe.tex8kLoading = false;
-      globe.can8k = false;      // 取不到就别再试，4K 已经够用
-    });
-  }
-
-  /* 提前把 8K 的字节抓下来（只抓字节、不解码），这样用户第一次拉近时
-     不需要等 3.5MB 的下载，只剩一次上传。失败就算了，不影响 4K。 */
-  function prefetch8k() {
-    if (!globe.can8k || globe.tex8kPrefetched || !window.fetch) return;
-    globe.tex8kPrefetched = true;
-    fetch(TEX_BASES[0] + 'earth-day-8k.webp')
-      .then(function (r) { return r.ok ? r.blob() : null; })
-      .catch(function () { globe.tex8kPrefetched = false; });
   }
 
   /* 星空：球面均匀分布的点云，带闪烁。
@@ -2963,6 +3003,10 @@ body.panel-open #globe-stage{
       color: 0x4a7ea8, transparent: true, opacity: 0.40
     }));
     spin.add(landLine);
+    globe.wire = [
+      { o: grat, base: grat.material.opacity },
+      { o: landLine, base: landLine.material.opacity }
+    ];
 
     /* 三国国界：这是数据标记，贴图之上也要保留，否则看不出"收录了哪里" */
     globe.matOn = new THREE.LineBasicMaterial({
@@ -2981,7 +3025,7 @@ body.panel-open #globe-stage{
     });
 
     /* 贴图异步替换 */
-    loadEarthTextures(function (dayTex, nightTex) {
+    loadEarthTextures(function (dayTex, nightTex, day8) {
       if (!dayTex) {
         sphere.visible = true;      // 贴图失败才退回素色球
         grat.visible = true;
@@ -3008,34 +3052,38 @@ body.panel-open #globe-stage{
 
       sphere.material = earthMaterial(dayTex, nightTex);
       globe.earthMat = sphere.material;
+      /* 8K 到位就直接挂上，uMixB 恒为 1：
+         shader 里按 fwidth 算"每像素吃几个 8K 纹素"，缩放时自动在 4K/8K 之间软切换，
+         所以这里不需要任何交叉淡化动画 —— 也就没有"淡化到一半卡一下"这回事。 */
+      if (day8) {
+        globe.earthMat.uniforms.dayMapB.value = day8;
+        globe.earthMat.uniforms.uMixB.value = 1;
+      }
       sphere.visible = true;
-      grat.visible = false;
-      landLine.visible = false;
       globe.texReady = true;
-      /* 不直接显示，而是 2 秒淡入：之前 1.1 秒还是显得"啪一下就贴上去"，
-         尤其球体已经从星空里出来之后，贴图突然出现很突兀。 */
-      globe.fadeStart = performance.now();
+      /* 线框不在这里隐藏 —— 见渲染循环里跟 uFade 反向淡出的那一段。
+         直接隐藏会让"线框消失"和"球淡入"之间出现两帧空白。 */
+
+      /* 趁球还完全透明（uFade = 0）把三张贴图都推上显存。
+         renderer.initTexture 是同步的：这一步会卡住主线程（8K 那张在集显上
+         可能几百毫秒），但此时画面上只有星空和加载环，卡在这一刻最不刺眼。 */
+      try {
+        renderer.initTexture(dayTex);
+        if (nightTex) renderer.initTexture(nightTex);
+        if (day8) renderer.initTexture(day8);
+      } catch (e) { /* 老版本 three 没有 initTexture，交给首帧上传也一样 */ }
+
+      /* 再等两帧才起淡入：让"上传 + 着色器编译"都落在球不可见的时候。 */
+      requestAnimationFrame(function () {
+        requestAnimationFrame(function () {
+          globe.fadeStart = performance.now();
+        });
+      });
       if (typeof onGlobeReady === 'function') onGlobeReady();
 
-      /* ---- 8K 只按需取，不在首屏抢 ----
-         首屏那次 8K 上传 + 生成 mipmap 是 134MB 级别的 GPU 操作，
-         在集显/软件渲染上能卡住一两秒 —— 观感就是"地球转两下突然卡死"。
-         所以：8K 改成用户真的拉近了才下载、才上传绑定；
-         而且它在 shader 里只负责"放大"，minification 继续交给带 mipmap 的 4K，
-         于是 8K 这张根本不需要 mipmap，上传成本少掉一大半。 */
-      var maxTex = renderer.capabilities.maxTextureSize || 4096;
-      globe.can8k = (maxTex >= 8192 && canUse8K());
-      /* 预取放到 7 秒后的空闲里。之前 2.6 秒——那会儿用户刚开始玩地球，
-         3.5MB 下载会跟首屏的贴图上传/着色器编译抢带宽和主线程。 */
-      if (globe.can8k) {
-        setTimeout(function () {
-          if (window.requestIdleCallback) requestIdleCallback(prefetch8k, { timeout: 4000 });
-          else prefetch8k();
-        }, 7000);
-      }
       var subEl3 = document.getElementById('globe-sub');
       if (subEl3) subEl3.textContent = '拖动旋转 · 滚轮缩放 · 点击国土开档';
-    });
+    }, renderer);
 
     globe.scene = scene;
     globe.camera = camera;
@@ -3102,11 +3150,7 @@ body.panel-open #globe-stage{
       globe.camMode = 'manual';
       globe.lastInput = performance.now();
       globe.camTarget = Math.max(CAM_MIN, Math.min(CAM_MAX, globe.camTarget + d));
-      /* 只有真的贴到地表才值得上 8K。按 fwidth 算，z≈2.06 时每像素仍吃 1.4 个
-         8K 纹素（还在缩小），8K 的贡献几乎为零，却要付一次 134MB 上传。
-         以前阈值 2.95，点开国家就把上传引爆了 —— 这才是"点国家卡一下"的真凶。 */
-      if (globe.camTarget < 1.95) ensure8k();
-      if (globe.camTarget < 1.55) ensure8k();
+      /* 8K 在首屏就和 4K 一起下好、一起上传了，缩放时不再触发任何贴图操作。 */
       // 开始缩放就是想看地球了，搜索框该收回去（滚轮不会让 input 失焦）
       if (searchWrap && searchWrap.classList.contains('open')) setSearch(false);
       globe.autoSpin = true;
@@ -3188,11 +3232,23 @@ body.panel-open #globe-stage{
            不是过渡动画炫技 —— 贴图从无到有如果硬切，观感就是"闪了一下"。
            两层大气一起淡，避免出现"光晕先到、球后到"。 */
         if (globe.fadeStart) {
-          var kf = (performance.now() - globe.fadeStart) / 2000;
+          /* 2.8 秒淡入。既然 8K 在出球前就准备好了，这里可以把时间拉长：
+             越长越像"从星空里浮出来"，也越不容易看出贴图是"贴"上去的。 */
+          var kf = (performance.now() - globe.fadeStart) / 2800;
           kf = kf > 1 ? 1 : kf;
           var ef = kf * kf * (3 - 2 * kf);
           U.uFade.value = ef;
           globe.fadeVal = ef;
+          /* 线框与大陆轮廓反向淡出：球 0→1 的同时它们 1→0，
+             两者在中间交叠，观感是"骨架化成了实体"，而不是"线框没了、球才来"。 */
+          if (globe.wire) {
+            var wOp = 1 - ef;
+            globe.wire.forEach(function (w) {
+              w.o.material.opacity = w.base * wOp;
+              w.o.visible = wOp > 0.02;
+            });
+            if (kf >= 1) globe.wire = null;
+          }
           if (kf >= 1) globe.fadeStart = 0;
         }
         /* 大气壳的透明度每帧算一次：淡入值 × 夜面衰减。
