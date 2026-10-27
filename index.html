@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-10-27-C">
+<meta name="build" content="2026-10-27-D">
 <title>寰宇图志 · Atlas Mundi</title>
 <meta name="description" content="寰宇图志：3D 地球上的多模态国家文化图谱">
 <style>
@@ -319,10 +319,10 @@
     background:linear-gradient(160deg,#0d1322,#0a0f1c);
   }
   .dimg-wrap.blank .dimg{display:none}
-  .cap{font-size:12.5px;color:var(--ink-dim);margin-top:9px;line-height:1.65}
+  .cap{font-size:12px;color:var(--ink-dim);margin-top:9px;line-height:1.65}
   .cap.dim{color:var(--ink-faint)}
 
-  .dmeta{display:grid;grid-template-columns:auto 1fr;gap:9px 18px;font-size:13.5px;margin-bottom:20px}
+  .dmeta{display:grid;grid-template-columns:auto 1fr;gap:9px 18px;font-size:13px;margin-bottom:20px}
   .dmeta dt{color:var(--ink-faint);letter-spacing:.06em;white-space:nowrap}
   .dmeta dd{color:var(--ink);font-variant-numeric:tabular-nums}
 
@@ -521,17 +521,25 @@
   /* 语言音频行 */
   .lang-block{padding:10px 0;border-bottom:1px solid rgba(140,165,220,.12)}
   .lang-block:last-child{border-bottom:0;padding-bottom:2px}
-  .lang-audio{display:flex;align-items:center;gap:10px}
+  /* 三列网格：语言名固定 96px，播放器永远从同一条竖线开始。
+     flex 时代名字长短不同，播放器位置就跟着飘，"英语"和"现代标准汉语"看着像两张表。 */
+  .lang-audio{display:grid;grid-template-columns:104px 44px minmax(0,1fr);align-items:center;gap:8px}
   /* 原文一行 + 中文一行。原文淡、译文亮，读的时候先看译文。 */
-  .lang-trans{margin:6px 0 0 38px;display:flex;flex-direction:column;gap:3px}
+  .lang-trans{margin:6px 0 0 160px;display:flex;flex-direction:column;gap:3px}
   .lt-src{
-    font-size:11.5px;line-height:1.6;color:rgba(150,170,198,.72);
+    font-size:12px;line-height:1.6;color:rgba(150,170,198,.72);
     font-style:italic;letter-spacing:.01em;
   }
-  .lt-zh{font-size:12.5px;line-height:1.7;color:#bcd4ee}
-  .la-name{font-size:14px;color:var(--ink);min-width:88px}
+  .lt-zh{font-size:12px;line-height:1.7;color:#bcd4ee}
+  /* 名字列给足 104px（"现代标准汉语"六个字要 84px），单行不折；
+     角色列 44px 且不折 —— 否则两个字的"官方"会竖着排。 */
+  .la-name{
+    font-size:14px;color:var(--ink);
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
   .la-role{
-    font-size:10.5px;letter-spacing:.08em;color:var(--ink-faint);
+    justify-self:start;white-space:nowrap;
+    font-size:10.5px;letter-spacing:.04em;color:var(--ink-faint);
     border:1px solid var(--line);border-radius:999px;padding:1px 7px;
   }
   .la-player{flex:1;height:32px;min-width:0}
@@ -746,15 +754,13 @@ body.panel-open #globe-stage{
   position:fixed;top:16px;right:16px;bottom:16px;z-index:40;
   width:min(500px, calc(100vw - 32px));
   display:flex;flex-direction:column;
-  /* 卡片底色 #27a6cc —— 整块实色会让白字读不出来，
-     所以做成"上浓下淡的青蓝罩染 + 深底"：一眼是青色卡片，细节还看得清。 */
+  /* 卡片底色 #8ac4e2：浅青底 + 渐变描边。
+     双背景的写法（padding-box 填内容、border-box 填 1px 边框区）是唯一能
+     同时满足"圆角 + 渐变描边"的做法，border-image 会破坏圆角。 */
   background:
-    linear-gradient(180deg,
-      rgba(39,166,204,.34) 0,
-      rgba(19,74,96,.42) 148px,
-      rgba(6,14,22,.97) 320px),
-    #061019;
-  border:1px solid rgba(39,166,204,.42);
+    linear-gradient(180deg,#add8ee 0%,#8ac4e2 30%,#77b6d8 100%) padding-box,
+    linear-gradient(158deg,rgba(255,255,255,.92),rgba(12,70,96,.55) 48%,rgba(255,255,255,.7)) border-box;
+  border:1px solid transparent;
   border-radius:20px;
   box-shadow:0 28px 70px rgba(0,0,0,.62), 0 3px 10px rgba(0,0,0,.42);
   transform:translateX(calc(100% + 28px));
@@ -897,7 +903,7 @@ body.panel-open #globe-stage{
    要求 p 标签，实际元素是 div，所以从来没生效过，改了三轮都没改对。
    现在只有这一处定义，17.5px / 700。 */
 .sub-label{
-  font-size:17.5px;font-weight:700;letter-spacing:.02em;
+  font-size:17px;font-weight:700;letter-spacing:.02em;
   line-height:1.4;color:#eef4ff;
   margin:26px 0 12px;
 }
@@ -991,7 +997,7 @@ body.panel-open #globe-stage{
   border-radius:6px;
 }
 @keyframes hitFlash{
-  0%{background:rgba(39,166,204,.30);box-shadow:0 0 0 6px rgba(39,166,204,.30)}
+  0%{background:rgba(6,64,90,.22);box-shadow:0 0 0 6px rgba(6,64,90,.20)}
   100%{background:transparent;box-shadow:0 0 0 6px transparent}
 }
 
@@ -1074,6 +1080,55 @@ body.panel-open #globe-stage{
   font-size:10.5px;color:var(--ink-faint);
   font-variant-numeric:tabular-nums;letter-spacing:.02em;
 }
+
+/* ============ 档案卡片：浅青底主题 ============
+   底色 #8ac4e2 属于浅色面，面板里所有文字必须整体转深。
+   做法是在 #detail 作用域内重定义那套语义变量（--ink/--line…），
+   再逐条覆盖写死颜色的规则 —— 比到处找 color 改要稳。 */
+#detail{
+  --ink:#08222e;
+  --ink-dim:#1d4658;
+  --ink-faint:#3f6a7e;
+  --line:rgba(8,44,60,.20);
+  --gold:#0b566d;
+  box-shadow:0 26px 64px rgba(0,8,16,.46);
+}
+#detail .dhead h2{color:#06202b}
+#detail .dhead{border-bottom-color:rgba(8,44,60,.18)}
+#detail .dtext p{color:#12303f}
+#detail .sub-label{color:#0a3a4c}
+#detail .cap{color:#2b5566}
+#detail .cap.dim{color:#4a7285}
+#detail .fkey{color:#1b4a5d}
+#detail .frow{border-bottom-color:rgba(8,44,60,.14)}
+#detail .chip{color:#123444;background:rgba(255,255,255,.46);border-color:rgba(10,52,70,.22)}
+#detail .chip:hover{color:#04222e;background:rgba(255,255,255,.72);border-color:rgba(10,52,70,.46)}
+#detail .chip-kw{color:#08455a;background:rgba(255,255,255,.6);border-color:rgba(10,90,120,.45)}
+#detail .lt-src{color:rgba(18,58,78,.74)}
+#detail .lt-zh{color:#0e3644}
+#detail .kw{color:#05405a;background:linear-gradient(180deg,transparent 58%,rgba(11,86,109,.24) 0)}
+#detail .hit-flash{--hitc:rgba(11,86,109,.20)}
+#detail .dclose{color:#2b5d70;border-color:rgba(8,44,60,.22);background:rgba(255,255,255,.5)}
+#detail .dclose:hover{color:#04222e;background:rgba(255,255,255,.9);border-color:rgba(8,44,60,.45)}
+#detail .geo-svg{background:rgba(255,255,255,.55);border-color:rgba(8,44,60,.22)}
+#detail .ts-item{border-color:rgba(8,44,60,.26)}
+#detail .ts-item.active{border-color:#0b566d}
+#detail .dq{background:rgba(255,255,255,.42);border-color:rgba(8,44,60,.22)}
+#detail .dq-k{color:rgba(10,70,90,.78)}
+#detail .dq-v{color:#3f6a7e}
+#detail .pending{background:rgba(255,255,255,.44);border-color:rgba(8,44,60,.24);color:#2b5566}
+#detail .lang-block{border-bottom-color:rgba(8,44,60,.16)}
+#detail .la-role{color:#2b5566;border-color:rgba(8,44,60,.3)}
+#detail .aud-btn{border-color:rgba(8,60,80,.36);background:rgba(255,255,255,.5)}
+#detail .aud-btn svg{fill:#0d3d50}
+#detail .aud-btn:hover{background:rgba(255,255,255,.85);border-color:#0b566d}
+#detail .aud-track{background:rgba(8,44,60,.20)}
+#detail .aud-fill{background:#0b566d}
+#detail .aud.playing .aud-fill{background:#06405a}
+#detail .aud-time{color:#2b5566}
+#detail .dimg-wrap{background:rgba(255,255,255,.35)}
+#detail .dimg-wrap.fit{background:rgba(255,255,255,.35)}
+#detail .todo-list li{color:#3f6a7e}
 </style>
 </head>
 <body>
@@ -1605,7 +1660,9 @@ body.panel-open #globe-stage{
           var tr = el('div', 'lang-trans');
           var srcLine = el('div', 'lt-src', l.tts_text);
           tr.appendChild(srcLine);
-          if (l.tts_text_zh && l.code !== 'zh') {
+          /* 只给拉丁/非中文字符的语音配中文。粤语本身是中文，再"翻译成普通话"
+             就成了同一句话写两遍。 */
+          if (l.tts_text_zh && /[A-Za-z]/.test(l.tts_text)) {
             tr.appendChild(el('div', 'lt-zh', l.tts_text_zh));
           }
           box.appendChild(tr);
@@ -1680,7 +1737,8 @@ body.panel-open #globe-stage{
         }).join('');
 
         host.innerHTML = '<svg viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="xMidYMid meet">' +
-          '<path d="' + d + '" fill="rgba(111,214,232,.10)" stroke="rgba(111,214,232,.75)" ' +
+          /* 卡片现在是浅青底，轮廓必须改用深色描边，否则整条线看不见 */
+          '<path d="' + d + '" fill="rgba(11,86,109,.12)" stroke="rgba(8,70,92,.88)" ' +
           'stroke-width=".8" stroke-linejoin="round"/></svg>';
         host.setAttribute('data-rings', rings.length);
       })
@@ -2356,20 +2414,32 @@ body.panel-open #globe-stage{
        把星星撒满整个球面，只有 3% 会出现在画面里 —— 3200 颗看起来像 100 颗。
        所以直接在视野锥里撒（半角 44°，覆盖宽屏的水平视场），
        1400 颗就真的能看到 1400 颗，密度才像夜空。 */
-    var N = 1400;
+    var N = 2000;
     var COSA = Math.cos(44 * Math.PI / 180);
+    /* 一条"银河"：约三分之一星集中在一个大圆带附近（法向 n 的平面），
+       实拍照片里银河就是一条斜贯画面的密集带，均匀撒是撒不出来的。 */
+    var NW = [0.46, 0.78, 0.42];
     var pos = new Float32Array(N * 3);
     var col = new Float32Array(N * 3);
     var pha = new Float32Array(N);
     var siz = new Float32Array(N);
+    var spk = new Float32Array(N);
     for (var i = 0; i < N; i++) {
-      var cosT = 1 - Math.random() * (1 - COSA);
-      var sinT = Math.sqrt(Math.max(0, 1 - cosT * cosT));
-      var ph = Math.random() * Math.PI * 2;
       var r = 26 + Math.pow(Math.random(), 0.65) * 40;
-      pos[i * 3] = r * sinT * Math.cos(ph);
-      pos[i * 3 + 1] = r * sinT * Math.sin(ph);
-      pos[i * 3 + 2] = -r * cosT;          // -Z 是相机朝向，星星在正前方
+      var dx, dy, dz, tries = 0;
+      do {
+        var cosT = 1 - Math.random() * (1 - COSA);
+        var sinT = Math.sqrt(Math.max(0, 1 - cosT * cosT));
+        var ph = Math.random() * Math.PI * 2;
+        dx = sinT * Math.cos(ph);
+        dy = sinT * Math.sin(ph);
+        dz = -cosT;                        // -Z 是相机朝向，星星在正前方
+        // 前三分之一的星要求落在银河带附近（|与带法向的夹角| < 0.34）
+        if (i % 2 !== 0) break;
+      } while (Math.abs(dx * NW[0] + dy * NW[1] + dz * NW[2]) > 0.24 && ++tries < 14);
+      pos[i * 3] = r * dx;
+      pos[i * 3 + 1] = r * dy;
+      pos[i * 3 + 2] = r * dz;
       // 星色微差：少量暖白、一部分冷蓝、其余纯白，避免一片死白
       var b = 0.46 + Math.random() * 0.54;
       var t = Math.random();
@@ -2378,13 +2448,16 @@ body.panel-open #globe-stage{
       else { col[i*3] = b; col[i*3+1] = b; col[i*3+2] = b; }
       pha[i] = Math.random() * Math.PI * 2;
       // 幂次压低：多数是小星，少数几颗明显亮 —— 真实夜空就是这个分布
-      siz[i] = 0.85 + Math.pow(Math.random(), 2.4) * 2.4;
+      siz[i] = 0.8 + Math.pow(Math.random(), 2.6) * 2.6;
+      // 最亮的那 3% 给十字星芒（实拍里过曝的亮星都带衍射十字）
+      spk[i] = (i % 2 === 0 && Math.random() < 0.07) ? 1 : 0;
     }
     var g = new THREE.BufferGeometry();
     g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
     g.setAttribute('aColor', new THREE.Float32BufferAttribute(col, 3));
     g.setAttribute('aPhase', new THREE.Float32BufferAttribute(pha, 1));
     g.setAttribute('aSize', new THREE.Float32BufferAttribute(siz, 1));
+    g.setAttribute('aSpike', new THREE.Float32BufferAttribute(spk, 1));
 
     STAR_MAT = new THREE.ShaderMaterial({
       uniforms: {
@@ -2395,30 +2468,39 @@ body.panel-open #globe-stage{
         'attribute vec3 aColor;',
         'attribute float aPhase;',
         'attribute float aSize;',
+        'attribute float aSpike;',
         'uniform float uTime;',
         'uniform float uDpr;',
         'varying vec3 vC;',
         'varying float vA;',
+        'varying float vS;',
         'void main() {',
         '  vC = aColor;',
+        '  vS = aSpike;',
         '  vec4 mv = modelViewMatrix * vec4(position, 1.0);',
         // 每颗星的呼吸周期不同（0.9~2.3 倍速），相位也随机
         '  float tw = 0.5 + 0.5 * sin(uTime * (0.9 + fract(aPhase) * 2.4) + aPhase * 7.0);',
         '  vA = 0.5 + 0.5 * tw;',
         // 点的大小要给足：1 像素以下的点在浏览器里基本看不见，
          // 之前那版就是这样，整片夜空看起来"没有星星"
-        '  gl_PointSize = clamp(aSize * uDpr * (52.0 / -mv.z) * (0.85 + 0.3 * tw),',
-        '                       1.0, 6.0 * uDpr);',
+        '  gl_PointSize = clamp(aSize * uDpr * (52.0 / -mv.z) * (0.85 + 0.3 * tw)',
+        '                       * (1.0 + aSpike * 1.6), 1.0, 9.0 * uDpr);',
         '  gl_Position = projectionMatrix * mv;',
         '}'
       ].join('\n'),
       fragmentShader: [
         'varying vec3 vC;',
         'varying float vA;',
+        'varying float vS;',
         'void main() {',
-        // 圆点而不是方块：按到中心的距离做软边
-        '  float d = length(gl_PointCoord - vec2(0.5));',
-        '  float a = smoothstep(0.5, 0.10, d);',
+        '  vec2 q = gl_PointCoord - vec2(0.5);',
+        '  float d = length(q);',
+        // 星核：软边圆点
+        '  float core = smoothstep(0.5, 0.06, d);',
+        // 十字星芒：两条极窄的亮带叠在核上，只有 vS=1 的亮星才有
+        '  float sx = smoothstep(0.045, 0.0, abs(q.x)) * smoothstep(0.5, 0.02, d);',
+        '  float sy = smoothstep(0.045, 0.0, abs(q.y)) * smoothstep(0.5, 0.02, d);',
+        '  float a = max(core, max(sx, sy) * vS * 0.9);',
         '  gl_FragColor = vec4(vC * vA, a * vA);',
         '}'
       ].join('\n'),
@@ -2490,9 +2572,12 @@ body.panel-open #globe-stage{
       '  vec3 col = day;',
       '  if (hasNight > 0.5) {',
       '    vec3 lights = s2l(texture2D(nightMap, vUv).rgb);',
-      // 夜空 = 城市灯光 + 极淡的地表底色，否则除灯光外纯黑一片
-      // 夜面底色压到 3%：之前 5.5% 的海洋蓝叠上大气雾，整颗球像蒙了层蓝纱
-      '    vec3 night = lights * 2.9 + day * 0.03;',
+      /* 夜图自己的"深蓝海面"就是整片蓝雾的来源：直接乘 3.2 会把它一起提亮。
+         先按亮度做软阈值，只留真正的灯光，底噪压掉；再补 0.6% 的地表亮度
+         给陆地一点轮廓 —— 再多就又开始发蓝了。 */
+      '    float ll = dot(lights, vec3(0.299, 0.587, 0.114));',
+      '    lights *= smoothstep(0.014, 0.11, ll);',
+      '    vec3 night = lights * 3.4 + day * 0.006;',
       '    col = mix(day, night, nightMix);',
       '  }',
       // 边缘大气：Fresnel 越靠轮廓越亮，模拟散射
@@ -2576,6 +2661,7 @@ body.panel-open #globe-stage{
 
   function hideLabel(L) {
     if (L.on || L._o !== '0') { L.on = false; L._o = '0'; L.el.style.opacity = '0'; }
+    if (L._wc) { L._wc = 0; L.el.style.willChange = 'auto'; }
     if (L.el.style.pointerEvents !== 'none') L.el.style.pointerEvents = 'none';
   }
 
@@ -2646,8 +2732,13 @@ body.panel-open #globe-stage{
 
       /* 341 个标注每帧无脑写 style 是最贵的一笔开销（首屏卡顿的来源之一）。
          只在数值真的变了才写，静止时几乎零写入。 */
-      var tr = 'translate(-50%,-50%) translate(' + x.toFixed(1) + 'px,' + y.toFixed(1) + 'px)';
+      /* translate3d 让浏览器把这一层交给合成器按小数像素平移，
+         而不是每帧重新栅格化文字 —— 后者就是"自转时国名疯狂抖动"的原因。
+         will-change 只给当前可见的那几十个，不然 341 个图层会把首屏拖死。 */
+      var tr = 'translate(-50%,-50%) translate3d(' +
+               x.toFixed(2) + 'px,' + y.toFixed(2) + 'px,0)';
       if (L._t !== tr) { L._t = tr; L.el.style.transform = tr; }
+      if (!L._wc) { L._wc = 1; L.el.style.willChange = 'transform'; }
       var op = alpha.toFixed(2);
       if (L._o !== op) { L._o = op; L.el.style.opacity = op; }
       if (L.iso) L.el.style.pointerEvents = 'auto';
@@ -2686,7 +2777,6 @@ body.panel-open #globe-stage{
     if (!c) return;
     globe.camMode = 'near';
     flyTo(c.center[0], c.center[1], CAM_NEAR);
-    ensure8k();                                  // 聚焦会拉近，该上高清贴图了
     globe.idleUntil = performance.now() + 1e9;   // 面板开着就不自转
   }
 
@@ -2927,7 +3017,11 @@ body.panel-open #globe-stage{
       globe.camMode = 'manual';
       globe.lastInput = performance.now();
       globe.camTarget = Math.max(CAM_MIN, Math.min(CAM_MAX, globe.camTarget + d));
-      if (globe.camTarget < 2.95) ensure8k();   // 拉近了才去取 8K
+      /* 只有真的贴到地表才值得上 8K。按 fwidth 算，z≈2.06 时每像素仍吃 1.4 个
+         8K 纹素（还在缩小），8K 的贡献几乎为零，却要付一次 134MB 上传。
+         以前阈值 2.95，点开国家就把上传引爆了 —— 这才是"点国家卡一下"的真凶。 */
+      if (globe.camTarget < 1.95) ensure8k();
+      if (globe.camTarget < 1.55) ensure8k();
       // 开始缩放就是想看地球了，搜索框该收回去（滚轮不会让 input 失焦）
       if (searchWrap && searchWrap.classList.contains('open')) setSearch(false);
       globe.autoSpin = true;
@@ -2998,7 +3092,7 @@ body.panel-open #globe-stage{
       /* 只在"手停下来"的时候才把 8K 传上 GPU。拖拽过程中 pointerdown 之后
          就没有新的输入事件了，所以必须同时看 dragging 标记 ——
          否则用户拖到一半正好命中上传，就是"拖拽途中卡一下"。 */
-      if (globe.tex8kReady && !globe.dragging &&
+      if (globe.tex8kReady && !globe.dragging && !globe.flying &&
           nowMs - (globe.lastInput || 0) > 420) bind8k();
 
       if (globe.earthMat) {
@@ -3020,7 +3114,7 @@ body.panel-open #globe-stage{
            夜面时蓝色气壳几乎收掉，否则整颗球像蒙着蓝纱、城市灯光也糊。 */
         if (globe.atmo) {
           var atmoK = (globe.fadeVal == null ? 1 : globe.fadeVal) *
-                      (1 - 0.75 * U.nightMix.value);
+                      (1 - 0.93 * U.nightMix.value);
           globe.atmo.forEach(function (a) { a.mat.opacity = a.base * atmoK; });
         }
 
