@@ -420,6 +420,174 @@
     "kw": "Fort Jesus Mombasa",
     "must": "jesus"
    }
+  ],
+  "BT": [
+   {
+    "zh": "虎穴寺",
+    "en": "Paro Taktsang Tiger's Nest Monastery",
+    "queries": [
+     "虎穴寺"
+    ],
+    "kw": "Paro Taktsang Tiger's Nest Monastery",
+    "must": "taktsang"
+   },
+   {
+    "zh": "普纳卡宗",
+    "en": "Punakha Dzong Bhutan",
+    "queries": [
+     "普纳卡宗"
+    ],
+    "kw": "Punakha Dzong Bhutan",
+    "must": "punakha"
+   },
+   {
+    "zh": "帕罗宗",
+    "en": "Paro Dzong Rinpung Bhutan",
+    "queries": [
+     "帕罗宗"
+    ],
+    "kw": "Paro Dzong Rinpung Bhutan",
+    "must": "rinpung"
+   },
+   {
+    "zh": "廷布大佛",
+    "en": "Buddha Dordenma Thimphu",
+    "queries": [
+     "廷布大佛"
+    ],
+    "kw": "Buddha Dordenma Thimphu",
+    "must": "dordenma"
+   },
+   {
+    "zh": "多楚拉山口",
+    "en": "Dochula Pass Bhutan",
+    "queries": [
+     "多楚拉山口"
+    ],
+    "kw": "Dochula Pass Bhutan",
+    "must": "dochula"
+   },
+   {
+    "zh": "通萨宗",
+    "en": "Trongsa Dzong Bhutan",
+    "queries": [
+     "通萨宗"
+    ],
+    "kw": "Trongsa Dzong Bhutan",
+    "must": "trongsa"
+   }
+  ],
+  "FJ": [
+   {
+    "zh": "玛玛努卡群岛",
+    "en": "Mamanuca Islands Fiji",
+    "queries": [
+     "玛玛努卡群岛"
+    ],
+    "kw": "Mamanuca Islands Fiji",
+    "must": "mamanuca"
+   },
+   {
+    "zh": "亚萨瓦群岛",
+    "en": "Yasawa Islands Fiji",
+    "queries": [
+     "亚萨瓦群岛"
+    ],
+    "kw": "Yasawa Islands Fiji",
+    "must": "yasawa"
+   },
+   {
+    "zh": "塔韦乌尼岛",
+    "en": "Taveuni Island Fiji",
+    "queries": [
+     "塔韦乌尼岛"
+    ],
+    "kw": "Taveuni Island Fiji",
+    "must": "taveuni"
+   },
+   {
+    "zh": "沉睡巨人花园",
+    "en": "Garden of the Sleeping Giant Fiji",
+    "queries": [
+     "沉睡巨人花园"
+    ],
+    "kw": "Garden of the Sleeping Giant Fiji",
+    "must": "sleeping"
+   },
+   {
+    "zh": "斯里希瓦苏布拉马尼亚庙",
+    "en": "Sri Siva Subramaniya Temple Nadi",
+    "queries": [
+     "斯里希瓦苏布拉马尼亚庙"
+    ],
+    "kw": "Sri Siva Subramaniya Temple Nadi",
+    "must": "subramaniya"
+   },
+   {
+    "zh": "纳瓦拉村",
+    "en": "Navala Village Fiji",
+    "queries": [
+     "纳瓦拉村"
+    ],
+    "kw": "Navala Village Fiji",
+    "must": "navala"
+   }
+  ],
+  "KI": [
+   {
+    "zh": "塔拉瓦环礁",
+    "en": "Tarawa Atoll Kiribati",
+    "queries": [
+     "塔拉瓦环礁"
+    ],
+    "kw": "Tarawa Atoll Kiribati",
+    "must": "tarawa"
+   },
+   {
+    "zh": "圣诞岛",
+    "en": "Kiritimati Christmas Island Kiribati",
+    "queries": [
+     "圣诞岛"
+    ],
+    "kw": "Kiritimati Christmas Island Kiribati",
+    "must": "kiritimati"
+   },
+   {
+    "zh": "菲尼克斯群岛保护区",
+    "en": "Phoenix Islands Protected Area Kiribati",
+    "queries": [
+     "菲尼克斯群岛保护区"
+    ],
+    "kw": "Phoenix Islands Protected Area Kiribati",
+    "must": "phoenix"
+   },
+   {
+    "zh": "贝蒂奥岛",
+    "en": "Betio Island Tarawa",
+    "queries": [
+     "贝蒂奥岛"
+    ],
+    "kw": "Betio Island Tarawa",
+    "must": "betio"
+   },
+   {
+    "zh": "阿拜昂环礁",
+    "en": "Abaiang Atoll Kiribati",
+    "queries": [
+     "阿拜昂环礁"
+    ],
+    "kw": "Abaiang Atoll Kiribati",
+    "must": "abaiang"
+   },
+   {
+    "zh": "巴纳巴岛",
+    "en": "Banaba Island Kiribati",
+    "queries": [
+     "巴纳巴岛"
+    ],
+    "kw": "Banaba Island Kiribati",
+    "must": "banaba"
+   }
   ]
  }
 }

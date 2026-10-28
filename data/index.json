@@ -204,6 +204,27 @@
       "audio_langs": [
         "nb"
       ]
+    },
+    {
+      "iso_a2": "BT",
+      "name_zh": "不丹",
+      "name_en": "Bhutan",
+      "name_local": null,
+      "continent": "亚洲",
+      "capital": "廷布",
+      "centroid": [
+        90.5,
+        27.45
+      ],
+      "thumb": "assets/bt/L01.thumb.webp",
+      "modalities": {
+        "image": true,
+        "audio": false,
+        "text": true,
+        "coords": true,
+        "geometry": true
+      },
+      "status": "partial"
     }
   ]
 }

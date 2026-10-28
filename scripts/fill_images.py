@@ -26,6 +26,7 @@
 import argparse
 import importlib.util
 import json
+import re
 import os
 import sys
 
@@ -56,6 +57,19 @@ TARGET_ASPECT = 1.45     # 面板是 4:3，越接近越好
 MAX_PER_COUNTRY = 5
 MAX_CANDIDATES = 26      # 单个地标最多取这么多个候选去做 imageinfo，再多就慢了
 
+# 上限不是"每国必须凑满 5 张"。小国本来就没几处名胜，硬凑出来的第 4、5 张
+# 往往是市政厅、街景、或者一张跟地标无关的游客照。所以人口不到 100 万的国家
+# 默认封顶 3 张（斐济、不丹、基里巴斯这一档）。
+#
+# 只设一档、不再往下细分，是因为人口在这个问题上是个很弱的信号：
+# 冰岛 37 万人，黄金圈/冰川湖/黑沙滩/极光随便就能凑 5 张；卢森堡 65 万人却真的
+# 只有老城和几座城堡。按人口一路往下切，先受伤的是冰岛、马耳他这种"小国大景观"。
+# 真正决定"还能不能再多一张"的是下面的 LOW_TIER_CAP，不是人口。
+POP_CAP = ((1e6, 3),)
+# 放宽档（relaxed / loose）拿到的图最多留几张。放宽才拿到的，往往是"能用但一般"，
+# 一国的画廊里有两张兜底就够了，再多就是在教用户看烂图。
+LOW_TIER_CAP = 2
+
 # 三档筛选。第一档是"能进画廊"的标准；后两档只在前一档全军覆没时启用。
 # 起因：吉萨金字塔群只有一张 "Pyramids of the Giza Necropolis.jpg"，宽高比 2.4，
 # 被 2.2 的硬线判成"全景"直接淘汰 —— 结果埃及那一栏没有金字塔。
@@ -66,7 +80,8 @@ TIERS = [
     ("loose", {"min_w": 640, "max_ar": 4.5}),
 ]
 # 编辑挑过的图（P18 / 维基首图）优先于关键词命中：加个权重，分数打平时它赢
-SOURCE_BONUS = {"wikidata_p18": 2.5, "wikipedia_lead": 2.0, "commons_search": 0.0}
+SOURCE_BONUS = {"wikidata_p18": 2.5, "wikipedia_lead": 2.0, "en_wiki": 1.0,
+                "commons_search": 0.0}
 CURATED = ("wikidata_p18", "wikipedia_lead")
 
 # 关键词命中里混进来的"合影照"：主体是雕塑/展陈/复原模型，地标只是背景。
@@ -80,11 +95,13 @@ JUNK_WORDS = (
 )
 
 # 尝试顺序：先让编辑挑过的图走严格档，不过就放宽一档；关键词命中只接受严格档
-# （放宽它会立刻引来上面那种合影照）；最后才拿编辑图的最宽档兜底。
+# （放宽它会立刻引来上面那种合影照）；英文维基首图排在关键词之后 —— 它更准，
+# 但"解析条目名"这一步会跑偏，只能当兜底；最后才拿编辑图的最宽档兜底。
 ATTEMPTS = [
     ("curated", "strict"),
     ("curated", "relaxed"),
     ("commons", "strict"),
+    ("late", "strict"),
     ("curated", "loose"),
 ]
 
@@ -179,12 +196,12 @@ def wikidata_lead_images(zh_name, limit=4):
     return out, None
 
 
-def wikipedia_lead_image(zh_name):
-    """中文维基词条首图。比 P18 更贴近中文命名（"凡尔赛宫镜厅"能直接命中镜厅词条）。"""
+def wikipedia_lead_image(name, lang="zh"):
+    """维基词条首图。比 P18 更贴近命名（"凡尔赛宫镜厅"能直接命中镜厅词条）。"""
     try:
-        d = C.api_json("https://zh.wikipedia.org/w/api.php", {
+        d = C.api_json("https://%s.wikipedia.org/w/api.php" % lang, {
             "action": "query", "prop": "pageimages", "piprop": "name|original",
-            "redirects": "1", "titles": zh_name, "format": "json", "formatversion": "2",
+            "redirects": "1", "titles": name, "format": "json", "formatversion": "2",
         })
     except Exception:
         return None, None
@@ -199,6 +216,39 @@ def wikipedia_lead_image(zh_name):
     if not name or C.is_bad_image(name):
         return None, None
     return name, title
+
+
+def en_wiki_lead(entry):
+    """英文维基条目首图 —— 中文维基没有对应条目时唯一能拿到"编辑挑过的图"的路。
+
+    小国的宗堡、环礁、村落基本只有英文条目，中文维基一片空白，
+    原来这些国家只能掉到 Commons 全文搜索，然后拿回地图、书页扫描件。
+
+    两个必须的守卫（实测踩出来的）：
+    * 解析出的条目标题必须含 must。斐济的 "Garden of the Sleeping Giant"
+      按词面能搜到 "Sleeping Giant (Connecticut)" —— 美国康涅狄格的一座山。
+    * 标题带括号消歧义的一律不要。写了括号就说明这个词的主话题不是它。
+    """
+    q = entry.get("en") or entry.get("kw") or ""
+    must = (entry.get("must") or "").lower()
+    try:
+        d = C.api_json("https://en.wikipedia.org/w/api.php", {
+            "action": "query", "list": "search", "srsearch": q,
+            "srlimit": "3", "format": "json",
+        })
+    except Exception as e:
+        return None, "英文维基检索失败：%s" % str(e)[:40]
+
+    for hit in (d.get("query", {}).get("search") or []):
+        title = (hit.get("title") or "").strip()
+        if not title or "(" in title:
+            continue
+        if must and must not in title.lower():
+            continue
+        img, t = wikipedia_lead_image(title, "en")
+        if img:
+            return img, t
+    return None, "英文维基无合适条目"
 
 
 def query_variants(entry):
@@ -220,10 +270,13 @@ def query_variants(entry):
 
 
 def gather_candidates(entry):
-    """按可信度排队收集候选，三路都试（不是命中即停）。
+    """按可信度排队收集候选，几路都试（不是命中即停）。
     以前是 if/elif：拿到 P18 就不搜 Commons 了，结果 P18 那张被宽高比筛掉时，
-    整处地标就没了 —— 埃及金字塔就是这么丢的。"""
-    out, seen = [], set()
+    整处地标就没了 —— 埃及金字塔就是这么丢的。
+
+    返回 (候选, 失败原因列表)。第二个值专门用来区分"确实没有图"和"接口挂了"——
+    以前超时被 try/except 吞成空列表，报告里写成"搜不到"，补图时就不会重试它。"""
+    out, seen, errs = [], set(), []
 
     def add(name, kind):
         if name and name not in seen and not C.is_bad_image(name):
@@ -239,22 +292,68 @@ def gather_candidates(entry):
         wname, wtitle = wikipedia_lead_image(entry.get("zh"))
         if wname:
             add(wname, "wikipedia_lead")
-            log("      · %s 维基首图 → %s（%s）" % (entry.get("zh"), wname[:42], wtitle))
+            log("      · %s 中文维基首图 → %s（%s）" % (entry.get("zh"), wname[:42], wtitle))
 
     if len(out) < 3:
         for q in query_variants(entry):
-            got = search_files(q, limit=12)
+            try:
+                got = search_files(q, limit=12)
+            except Exception as ex:
+                errs.append("Commons「%s」：%s" % (q, str(ex)[:50]))
+                log("      [!] Commons「%s」请求失败，换下一条" % q)
+                continue
             for n in got:
                 add(n, "commons_search")
             log("      · %s Commons「%s」→ %d 个候选" % (entry.get("zh"), q, len(got)))
             if len(out) >= MAX_CANDIDATES:
                 break
-    return out, err
+
+    # 前面几路都没凑出候选，才去英文维基碰运气（会多两次请求，不值得每处都跑）
+    late = None
+    if len(out) < 2:
+        img, note = en_wiki_lead(entry)
+        if img:
+            add(img, "en_wiki")
+            late = img
+            log("      · %s 英文维基首图 → %s（%s）" % (entry.get("zh"), img[:42], note))
+        elif note:
+            errs.append("英文维基：%s" % note)
+    return out, errs
 
 
 def is_junk(name):
     low = (name or "").replace("_", " ").lower()
     return any(w in low for w in JUNK_WORDS)
+
+
+def must_ok(name, must):
+    """文件名里有没有这处地标的专名。忽略空格和大小写，
+    因为 Commons 文件名习惯写 "Rinpung_Dzong_Paro_2007" 这种下划线形式。"""
+    if not must:
+        return True
+    a = (name or "").lower().replace("_", " ").replace(" ", "")
+    b = must.lower().replace("_", " ").replace(" ", "")
+    return b in a
+
+
+def series_bonus(name):
+    """同一组套图的序号偏好。
+
+    Commons 上常见 "Punakha Dzong, Bhutan 01.jpg ... 26.jpg" 这种一次传几十张的系列：
+    01 通常是正面全景，越往后越可能是细部特写。实测第 26 张是屋檐一角的金饰 ——
+    尺寸、比例、专名全合规，但画面上根本没有宗堡。
+    尺寸筛不掉这个，只能靠序号：小号加分，大号减分。"""
+    m = re.search(r"(?<!\d)(\d{1,3})(?!\d)\s*(?:\.\w+)?$", name or "")
+    if not m:
+        return 0.0
+    n = int(m.group(1))
+    if n <= 3:
+        return 0.9
+    if n <= 8:
+        return 0.3
+    if n >= 20:
+        return -0.7
+    return 0.0
 
 
 def rank_pool(pool, info, must, tier):
@@ -274,29 +373,45 @@ def rank_pool(pool, info, must, tier):
         if sc is None:
             rejects.append("%s（%s）" % (name[:38], why))
             continue
-        scored.append((sc + SOURCE_BONUS.get(kind, 0), name, meta, ext, kind))
+        total = sc + SOURCE_BONUS.get(kind, 0) + series_bonus(name)
+        # 编辑图也可能配错条目：Wikidata"帕罗宗"条目的 P18 是 Drugyel Dzong（另一座宗堡）。
+        # 文件名里连这处地标的专名都没有，就没有证据说明它画的是这处地方 ——
+        # 让它退到和关键词命中同一起跑线，让真正命中专名的实搜图赢。
+        if kind in CURATED and must and not must_ok(name, must):
+            total -= 3.0
+        scored.append((total, name, meta, ext, kind))
     scored.sort(key=lambda x: -x[0])
     return scored, rejects
 
 
+
 def pick_for(entry):
-    """在一个地标的候选里挑一张。返回 ((name, meta, ext, tier), None) 或 (None, 原因)。"""
-    cands, err = gather_candidates(entry)
+    """在一个地标的候选里挑一张。
+
+    返回 ((name, meta, ext, tier, kind), None, False)
+      或 (None, 原因, 是否值得重试)。第三个值用来把"接口挂了"和"确实没有图"
+      分开：前者进 --gaps 重试，后者重试一百次也没用。"""
+    cands, errs = gather_candidates(entry)
     if not cands:
-        return None, "Wikidata 与 Commons 都没找到可用图（%s）" % (err or "无结果")
+        if errs:
+            return None, "检索接口全部失败（%s）" % "；".join(errs[:2]), True
+        return None, "Wikidata / 维基 / Commons 都没有可用图", False
 
     cands = cands[:MAX_CANDIDATES]
     info = C.commons_imageinfo([n for n, _ in cands], width=1400) or {}
     must = (entry.get("must") or "").strip() or None
     curated = [c for c in cands if c[1] in CURATED]
-    searched = [c for c in cands if c[1] not in CURATED and not is_junk(c[0])]
-    if len(searched) < len(cands) - len(curated):
+    late = [c for c in cands if c[1] == "en_wiki"]
+    searched = [c for c in cands if c[1] not in CURATED and c[1] != "en_wiki"
+                and not is_junk(c[0])]
+    if len(searched) < len(cands) - len(curated) - len(late):
         log("      · %s 关键词命中里滤掉 %d 张（雕塑/展陈/复原模型）"
-            % (entry.get("zh"), len(cands) - len(curated) - len(searched)))
+            % (entry.get("zh"), len(cands) - len(curated) - len(late) - len(searched)))
 
-    pools = {"curated": curated, "commons": searched}
+    pools = {"curated": curated, "commons": searched, "late": late}
     tiers = dict(TIERS)
     rejects = []
+    fallback = None
     for pool_name, tier_name in ATTEMPTS:
         pool = pools[pool_name]
         if not pool:
@@ -306,21 +421,33 @@ def pick_for(entry):
             rejects = rej or rejects
             continue
         _, name, meta, ext, kind = scored[0]
-        if tier_name != "strict" or pool_name == "commons":
+        # 编辑图连专名都对不上，先记下当兜底，继续让实搜图去争 ——
+        # 直接返回的话，commons 那一路永远轮不到（池子是顺序试的，不是合并排序）。
+        if pool_name == "curated" and must and not must_ok(name, must):
+            if fallback is None:
+                fallback = (name, meta, ext, tier_name, kind)
+            continue
+        if tier_name != "strict" or pool_name != "curated":
             log("      ! %s 走 %s/%s 档（%d 个候选）"
                 % (entry.get("zh"), pool_name, tier_name, len(scored)))
-        return (name, meta, ext, tier_name, kind), None
+        return (name, meta, ext, tier_name, kind), None, False
+
+    if fallback:
+        log("      ! %s 只剩一张与专名不符的编辑图：%s"
+            % (entry.get("zh"), fallback[0][:40]))
+        return fallback, "只有与专名不符的编辑图（%s）" % fallback[0][:30], False
 
     return None, "%d 个候选全部未通过筛选：%s" % (
-        len(cands), "；".join(rejects[:3]) if rejects else "无")
+        len(cands), "；".join(rejects[:3]) if rejects else "无"), False
 
 
-def pick_and_download(iso, entries, rec):
+def pick_and_download(iso, entries, rec, cap=MAX_PER_COUNTRY):
     slug = iso.lower()
     adir = os.path.join(ROOT, "assets", slug)
     os.makedirs(adir, exist_ok=True)
     picked, notes, gaps = [], [], []
     used = set()
+    low_used = 0
 
     # 已经抓好并落盘的图直接沿用。批量跑到一半重跑、或者只想补某一处地标时，
     # 不要把所有图重新下一遍（重下还会换掉已经人工确认过的那几张）。
@@ -331,7 +458,7 @@ def pick_and_download(iso, entries, rec):
             kept[k] = it
 
     for i, e in enumerate(entries, 1):
-        if len(picked) >= MAX_PER_COUNTRY:
+        if len(picked) >= cap:
             break
         kw, zh = e.get("kw"), e.get("zh")
 
@@ -339,21 +466,36 @@ def pick_and_download(iso, entries, rec):
         if old:
             picked.append(old)
             used.add(old.get("title"))
+            if old.get("pick_tier") and old.get("pick_tier") != "strict":
+                low_used += 1
             log("      [=] %-22s 沿用已有的 %s" % (zh, str(old.get("url")).split("/")[-1]))
             continue
 
-        got, why = pick_for(e)
+        got, why, retryable = pick_for(e)
         if not got:
             notes.append("%s：%s" % (zh, why))
-            gaps.append({"zh": zh, "kw": kw, "reason": why})
+            gaps.append({"zh": zh, "kw": kw, "reason": why,
+                         "retryable": bool(retryable)})
             log("      [x] %s %s" % (zh, why))
             continue
 
         name, meta, ext, tier_name, kind = got
         if name in used:
             notes.append("%s：与前面某处重复（同图），已跳过" % zh)
-            gaps.append({"zh": zh, "kw": kw, "reason": "与其他地标同图"})
+            gaps.append({"zh": zh, "kw": kw, "reason": "与其他地标同图",
+                         "retryable": False})
             continue
+
+        # 放宽档的图有总量配额：一国的画廊里留两张兜底就够，再多就是在教用户看烂图。
+        # 小国尤其明显 —— 凑到第 4 张时通常已经是市政厅或者游客自拍。
+        if tier_name != "strict":
+            if low_used >= LOW_TIER_CAP:
+                why = "只有放宽档的候选，低档配额（%d 张）已满" % LOW_TIER_CAP
+                notes.append("%s：%s" % (zh, why))
+                gaps.append({"zh": zh, "kw": kw, "reason": why, "retryable": True})
+                log("      [x] %s %s" % (zh, why))
+                continue
+            low_used += 1
         used.add(name)
 
         rel = "assets/%s/L%02d%s" % (slug, i, ext)
@@ -394,25 +536,62 @@ def pick_and_download(iso, entries, rec):
     return picked, notes, gaps
 
 
+def country_cap(iso, conf, n_entries, meta):
+    """每国留几张图：清单数、硬顶 5、人口分档三者取最小。conf["caps"] 可逐个覆盖。
+
+    为什么按人口：清单是模型给的，它对着一个人口十万的环礁国也会硬凑 6 条
+    （实测基里巴斯给了"巴纳巴岛"这种只有几百人的小岛）。人口在这里不是
+    "值得看多少"，而是"这个国家能撑起多少条不需要放宽筛选的地标"的代理指标。"""
+    cap = max(1, min(MAX_PER_COUNTRY, n_entries))
+    pop = (meta.get(iso) or {}).get("pop") or 0
+    for lim, c in POP_CAP:
+        if pop and pop < lim:
+            cap = min(cap, c)
+            break
+    ov = (conf.get("caps") or {}).get(iso)
+    if ov:
+        cap = max(1, min(MAX_PER_COUNTRY, int(ov)))
+    return cap
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("isos", nargs="*", help="ISO 码，如 CN FR US")
     ap.add_argument("--all", action="store_true", help="处理 landmarks.json 里全部国家")
     ap.add_argument("--gaps", action="store_true",
                     help="只处理上次留下缺口的国家（读 data/_image_gaps.json）")
+    ap.add_argument("--plan", action="store_true",
+                    help="只打印每国准备留几张图，不联网不下载")
     args = ap.parse_args()
 
     with open(os.path.join(ROOT, "data", "landmarks.json"), encoding="utf-8") as f:
         conf = json.load(f)
+    meta = read_json(os.path.join(ROOT, "geo", "meta.json"), {})
 
     isos = [x.upper() for x in args.isos]
-    if args.all:
+    if args.all or args.plan:
         isos = list(conf.get("countries", {}).keys())
     if args.gaps:
         old_gaps = read_json(GAPS, {})
         isos = sorted(k for k, v in old_gaps.items() if v)
     if not isos:
-        ap.error("给个 ISO 码，或用 --all / --gaps")
+        ap.error("给个 ISO 码，或用 --all / --gaps / --plan")
+
+    if args.plan:
+        rows = []
+        for iso in isos:
+            n = len((conf.get("countries") or {}).get(iso) or [])
+            m = meta.get(iso) or {}
+            rows.append((iso, m.get("n") or iso,
+                         (m.get("pop") or 0), n, country_cap(iso, conf, n, meta)))
+        rows.sort(key=lambda r: r[2])
+        print("%-4s %-10s %12s %6s %6s" % ("ISO", "国家", "人口", "清单", "留图"))
+        for r in rows:
+            print("%-4s %-10s %12s %6d %6d" % (r[0], r[1], "{:,}".format(int(r[2] or 0)),
+                                              r[3], r[4]))
+        print("\n共 %d 国，合计 %d 张。想改某一国：在 data/landmarks.json 加 "
+              '"caps": {"FJ": 5}' % (len(rows), sum(r[4] for r in rows)))
+        return 0
 
     gapmap = read_json(GAPS, {})
 
@@ -429,8 +608,10 @@ def main():
         with open(path, encoding="utf-8") as f:
             rec = json.load(f)
 
-        log("[%s] %s —— 目标 %d 处地标" % (iso, rec.get("name_zh"), len(entries)))
-        picked, notes, gaps = pick_and_download(iso, entries, rec)
+        cap = country_cap(iso, conf, len(entries), meta)
+        log("[%s] %s —— 清单 %d 处，上限 %d 张"
+            % (iso, rec.get("name_zh"), len(entries), cap))
+        picked, notes, gaps = pick_and_download(iso, entries, rec, cap=cap)
         gapmap[iso] = gaps
 
         if not picked:

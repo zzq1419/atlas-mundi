@@ -1,0 +1,119 @@
+{
+  "qid": "Q917",
+  "iso_a2": "BT",
+  "iso_a3": "BTN",
+  "name_zh": "不丹",
+  "name_en": "Bhutan",
+  "capital": "廷布",
+  "continent": "亚洲",
+  "centroid": [
+    90.5,
+    27.45
+  ],
+  "centroid_source": "wikidata P625",
+  "languages": [
+    {
+      "code": "dz",
+      "name_zh": "宗卡语",
+      "name_local": "宗卡语",
+      "role": "official",
+      "audio_url": null,
+      "audio_source": null,
+      "audio_status": "pending"
+    }
+  ],
+  "summary_text": "不丹王国（宗卡语：འབྲུག་ཡུལ་，威利：druk yul），通称不丹，清朝史籍称布鲁克巴（藏语：འབྲུག་པ，威利转写：'brug pa，“不丹人”之意），是位于中华人民共和国和印度之间、喜马拉雅山脉东段南坡上的一个君主立宪制内陆国家，西接印度的锡金邦，与尼泊尔相隔，南部与印度的西孟加拉邦和阿萨姆邦接壤，首都及最大城市为廷布。\n在宗卡语中，不丹称为“主克域”，意为雷、龙之地。“不丹”一名来自梵语“भोट-अन्त”（IAST转写：Bhoṭa-anta）一词的转写，意思是“吐蕃的边陲”，暗示不丹是位于藏文化能够传递的最南端。不丹人来源于古代藏人，与藏族同源的门巴族是现在最接近不丹族的民族。\n2008年，不丹由君主专制转变为君主立宪制，建立了一个民选的国民议会。2020年，不丹在人类发展指数中排名南亚第三，仅次于斯里兰卡和马尔代夫。不丹是南亚区域合作联盟的创始成员国，还是易受气候影响脆弱国家论坛、不结盟运动、BIMSTEC、国际货币基金组织、世界银行、联合国教科文组织和世界卫生组织的成员。2016年，不丹在经济自由度、经商便利度、和平和没有腐败方面在南盟中排名第一。",
+  "summary_source": {
+    "source": "wikipedia_extracts",
+    "url": "https://zh.wikipedia.org/wiki/%E4%B8%8D%E4%B8%B9",
+    "title": "不丹",
+    "chars": 492
+  },
+  "landmark_images": [
+    {
+      "title": "File:Taktshang_edit.jpg",
+      "caption_zh": "虎穴寺",
+      "caption": "虎穴寺",
+      "caption_commons": "Taktshang Monastery, Bhutan",
+      "kw": "Paro Taktsang Tiger's Nest Monastery",
+      "url": "assets/bt/L01.webp",
+      "thumb_url": "assets/bt/L01.thumb.webp",
+      "remote_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/14/Taktshang_edit.jpg/1920px-Taktshang_edit.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "source": "wikipedia_lead",
+      "pick_tier": "strict",
+      "author": "Douglas J. McLaughlin (Photograph edited by Vassil)",
+      "license": "CC BY 2.5",
+      "license_url": "https://creativecommons.org/licenses/by/2.5",
+      "license_status": "ok",
+      "load_verified": true,
+      "bytes": 55910,
+      "thumb_bytes": 17822,
+      "size": {
+        "detail": "760x430",
+        "thumb": "400x226"
+      },
+      "encoding": "webp q72/q74 (源 1920x1087 519KB JPEG)"
+    },
+    {
+      "title": "File:Punakha Dzong, Bhutan 05.jpg",
+      "caption_zh": "普纳卡宗",
+      "caption": "普纳卡宗",
+      "caption_commons": "Punakha Dzong, Bhutan",
+      "kw": "Punakha Dzong Bhutan",
+      "url": "assets/bt/L02.webp",
+      "thumb_url": "assets/bt/L02.thumb.webp",
+      "remote_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c3/Punakha_Dzong%2C_Bhutan_05.jpg/1920px-Punakha_Dzong%2C_Bhutan_05.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "source": "commons_search",
+      "pick_tier": "strict",
+      "author": "Bernard Gagnon",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "license_status": "ok",
+      "load_verified": true,
+      "bytes": 56692,
+      "thumb_bytes": 16658,
+      "size": {
+        "detail": "760x507",
+        "thumb": "400x267"
+      },
+      "encoding": "webp q72/q74 (源 1920x1280 648KB JPEG)"
+    },
+    {
+      "title": "File:Rinpung Dzong, Bhutan 01.jpg",
+      "caption_zh": "帕罗宗",
+      "caption": "帕罗宗",
+      "caption_commons": "Rinpung Dzong, Paro, Bhutan",
+      "kw": "Paro Dzong Rinpung Bhutan",
+      "url": "assets/bt/L03.webp",
+      "thumb_url": "assets/bt/L03.thumb.webp",
+      "remote_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/75/Rinpung_Dzong%2C_Bhutan_01.jpg/1920px-Rinpung_Dzong%2C_Bhutan_01.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "source": "commons_search",
+      "pick_tier": "strict",
+      "author": "Bernard Gagnon",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "license_status": "ok",
+      "load_verified": true,
+      "bytes": 78494,
+      "thumb_bytes": 21870,
+      "size": {
+        "detail": "760x507",
+        "thumb": "400x267"
+      },
+      "encoding": "webp q72/q74 (源 1920x1280 845KB JPEG)"
+    }
+  ],
+  "image_license": "CC BY 2.5",
+  "geometry_status": "naturalearth_50m_chunked",
+  "schema_version": "0.1",
+  "collected_at": "2026-10-28T22:28:51+08:00",
+  "collector": "scripts/collect.py v0.2",
+  "needs_review": true,
+  "review_notes": [
+    "P443 发音语种不符已弃用：Lb-Bhutan.ogg、LL-Q7913 (ron)-KlaudiuMihaila-Bhutan.wav、LL-Q33973 (scn)-XANA000-Bhutan.wav（P443 不保证语种，须按文件名筛）",
+    "该实体无对应语种发音，语音改跑 python scripts/tts.py BT",
+    "Commons 无可用发音，语音走构建期 TTS 兜底（待接）",
+    "地标图改为人工指定清单（3 张，中文图注）"
+  ],
+  "image_source_note": "人工按 data/landmarks.json 指定地标，Commons 关键词检索取图；原先自动获得的 2 张已被替换"
+}
