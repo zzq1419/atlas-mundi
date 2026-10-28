@@ -1,4 +1,19 @@
 {
  "EG": [],
- "BT": []
+ "BT": [],
+ "IS": [],
+ "KI": [
+  {
+   "zh": "圣诞岛",
+   "kw": "Kiritimati Christmas Island Kiribati",
+   "reason": "9 个候选全部未通过筛选：Kiritimati-EO.jpg（分类是「ISS Expedition 4 Crew Earth Observations」）",
+   "retryable": false
+  },
+  {
+   "zh": "阿拜昂环礁",
+   "kw": "Abaiang Atoll Kiribati",
+   "reason": "5 个候选全部未通过筛选：Abaiang Council Office.jpg（说明是建筑设施（Abaiang Island Council Off））；Bingham-needle.jpg（文件名不含「abaiang」）；Flugplatz Abaiang Gebaeude.jpg（说明是建筑设施（Airport building Abaiang A））",
+   "retryable": false
+  }
+ ]
 }

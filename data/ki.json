@@ -1,0 +1,108 @@
+{
+  "qid": "Q710",
+  "iso_a2": "KI",
+  "iso_a3": "KIR",
+  "name_zh": "基里巴斯",
+  "name_en": "Kiribati",
+  "capital": "南塔拉瓦",
+  "continent": "太平洋岛国",
+  "centroid": [
+    173.0333,
+    1.4667
+  ],
+  "centroid_source": "wikidata P625",
+  "languages": [
+    {
+      "code": "en",
+      "name_zh": "英语",
+      "name_local": "英语",
+      "role": "official",
+      "audio_url": null,
+      "audio_source": null,
+      "audio_status": "pending"
+    },
+    {
+      "code": "gil",
+      "name_zh": "吉里巴斯語",
+      "name_local": "吉里巴斯語",
+      "role": "official",
+      "audio_url": null,
+      "audio_source": null,
+      "audio_status": "pending"
+    }
+  ],
+  "summary_text": "基里巴斯共和国，通称基里巴斯，是位于太平洋上的岛屿国家，分成吉尔伯特群岛、菲尼克斯群岛和莱恩群岛三大群岛，共有32个环礁及1个珊瑚岛，散布于赤道上3,800平方公里的海域，拥有世界最大的海洋保护区。“基里巴斯”这个名称源自于该国三大群岛当中最大的吉尔伯特群岛之密克罗尼西亚语音译，读作kiribas。基里巴斯是世界最不发达国家之一，在1979年脱离英国独立，目前是英联邦、世界银行和国际货币基金组织的成员，并于1999年成为联合国会员国。\n基里巴斯是世界上唯一横跨东西南北半球区域的国家。\n\n\n== 历史 ==\n\n\n=== 早期 ===\n约公元前3000年至公元1300年，同一语系的密克罗尼西亚群岛的人定居在现今的基里巴斯，当时并没有国家的区分，居民来自汤加、萨摩亚和斐济，带来波利尼西亚和美拉尼西亚文化。\n\n\n=== 殖民地时期 ===\n葡萄牙探险家佩德罗·费尔南德斯·德·基罗斯于1606年发现布塔里塔里环礁和马金群岛。英国人汤玛斯·吉尔伯特与约翰·马歇尔于1788年航近阿贝马马环礁、库里亚岛、阿拉努卡环礁、塔拉瓦环礁、阿拜昂环礁、布塔里塔里环礁和马金群岛，但并未登岛。",
+  "summary_source": {
+    "source": "wikipedia_extracts",
+    "url": "https://zh.wikipedia.org/wiki/%E5%9F%BA%E9%87%8C%E5%B7%B4%E6%96%AF",
+    "title": "基里巴斯",
+    "chars": 489
+  },
+  "landmark_images": [
+    {
+      "title": "File:A healthy coral reef has predators, including this Vampire snapper, in the Phoenix Islands Protected Area.jpg",
+      "caption_zh": "菲尼克斯群岛保护区",
+      "caption": "菲尼克斯群岛保护区",
+      "caption_commons": "A healthy coral reef has predators, including this Vampire snapper, in the Phoen",
+      "kw": "Phoenix Islands Protected Area Kiribati",
+      "url": "assets/ki/L03.webp",
+      "thumb_url": "assets/ki/L03.thumb.webp",
+      "remote_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/63/A_healthy_coral_reef_has_predators%2C_including_this_Vampire_snapper%2C_in_the_Phoenix_Islands_Protected_Area.jpg/1920px-A_healthy_coral_reef_has_predators%2C_including_this_Vampire_snapper%2C_in_the_Phoenix_Islands_Protected_Area.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "source": "article_img",
+      "pick_tier": "strict",
+      "author": "Randidawn",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "license_status": "ok",
+      "load_verified": true,
+      "bytes": 68868,
+      "thumb_bytes": 27322,
+      "size": {
+        "detail": "760x570",
+        "thumb": "400x300"
+      },
+      "encoding": "webp q72/q74 (源 1920x1440 751KB JPEG)"
+    },
+    {
+      "title": "File:Loading copra at Betio port, Kiribati.JPG",
+      "caption_zh": "贝蒂奥岛",
+      "caption": "贝蒂奥岛",
+      "caption_commons": "Loading copra at Betio port, Kiribati",
+      "kw": "Betio Island Tarawa",
+      "url": "assets/ki/L04.webp",
+      "thumb_url": "assets/ki/L04.thumb.webp",
+      "remote_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0f/Loading_copra_at_Betio_port%2C_Kiribati.JPG/1920px-Loading_copra_at_Betio_port%2C_Kiribati.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "source": "article_img",
+      "pick_tier": "strict",
+      "author": "Photo taken by Government of Kiribati employee in the course of their work",
+      "license": "CC BY 3.0",
+      "license_url": "https://creativecommons.org/licenses/by/3.0",
+      "license_status": "ok",
+      "load_verified": true,
+      "bytes": 29928,
+      "thumb_bytes": 10640,
+      "size": {
+        "detail": "760x570",
+        "thumb": "400x300"
+      },
+      "encoding": "webp q72/q74 (源 1920x1440 451KB JPEG)"
+    }
+  ],
+  "image_license": "CC BY-SA 3.0",
+  "geometry_status": "naturalearth_50m_chunked",
+  "schema_version": "0.1",
+  "collected_at": "2026-10-28T22:42:15+08:00",
+  "collector": "scripts/collect.py v0.2",
+  "needs_review": true,
+  "review_notes": [
+    "P443 发音语种不符已弃用：Lb-Kiribati.ogg、LL-Q7913 (ron)-KlaudiuMihaila-Kiribati.wav、LL-Q652 (ita)-Francyskus-Kiribati.wav（P443 不保证语种，须按文件名筛）",
+    "该实体无对应语种发音，语音改跑 python scripts/tts.py KI",
+    "Commons 无可用发音，语音走构建期 TTS 兜底（待接）",
+    "圣诞岛：9 个候选全部未通过筛选：无",
+    "圣诞岛：9 个候选全部未通过筛选：无",
+    "圣诞岛：9 个候选全部未通过筛选：Kiritimati-EO.jpg（分类是「ISS Expedition 4 Crew Earth Observations」）",
+    "阿拜昂环礁：5 个候选全部未通过筛选：Abaiang Council Office.jpg（说明是建筑设施（Abaiang Island Council Off））；Bingham-needle.jpg（文件名不含「abaiang」）；Flugplatz Abaiang Gebaeude.jpg（说明是建筑设施（Airport building Abaiang A））",
+    "地标图改为人工指定清单（4 张，中文图注）"
+  ],
+  "image_source_note": "人工按 data/landmarks.json 指定地标，Commons 关键词检索取图；原先自动获得的 0 张已被替换"
+}

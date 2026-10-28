@@ -209,7 +209,7 @@
       "iso_a2": "BT",
       "name_zh": "不丹",
       "name_en": "Bhutan",
-      "name_local": null,
+      "name_local": "不丹",
       "continent": "亚洲",
       "capital": "廷布",
       "centroid": [
@@ -217,6 +217,50 @@
         27.45
       ],
       "thumb": "assets/bt/L01.thumb.webp",
+      "modalities": {
+        "image": true,
+        "audio": false,
+        "text": true,
+        "coords": true,
+        "geometry": true
+      },
+      "status": "partial",
+      "lang_count": 1,
+      "audio_langs": []
+    },
+    {
+      "iso_a2": "IS",
+      "name_zh": "冰岛",
+      "name_en": "Iceland",
+      "name_local": null,
+      "continent": "欧洲",
+      "capital": "雷克雅未克",
+      "centroid": [
+        -19,
+        65
+      ],
+      "thumb": "assets/is/L01.thumb.webp",
+      "modalities": {
+        "image": true,
+        "audio": false,
+        "text": true,
+        "coords": true,
+        "geometry": true
+      },
+      "status": "partial"
+    },
+    {
+      "iso_a2": "KI",
+      "name_zh": "基里巴斯",
+      "name_en": "Kiribati",
+      "name_local": null,
+      "continent": "太平洋岛国",
+      "capital": "南塔拉瓦",
+      "centroid": [
+        173.0333,
+        1.4667
+      ],
+      "thumb": "assets/ki/L03.thumb.webp",
       "modalities": {
         "image": true,
         "audio": false,

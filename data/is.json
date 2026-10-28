@@ -1,0 +1,167 @@
+{
+  "qid": "Q189",
+  "iso_a2": "IS",
+  "iso_a3": "ISL",
+  "name_zh": "冰岛",
+  "name_en": "Iceland",
+  "capital": "雷克雅未克",
+  "continent": "欧洲",
+  "centroid": [
+    -19,
+    65
+  ],
+  "centroid_source": "wikidata P625",
+  "languages": [
+    {
+      "code": "is",
+      "name_zh": "冰岛语",
+      "name_local": "冰岛语",
+      "role": "official",
+      "audio_url": null,
+      "audio_source": null,
+      "audio_status": "pending"
+    }
+  ],
+  "summary_text": "冰岛（冰岛语：Ísland，发音：[ˈistlant] ）是北欧的一个共和制岛国，位于北大西洋和北冰洋交汇处。冰岛国土面积为10.3万平方公里，人口为39万，尽管面积不大，却是欧洲人口密度最低的国家，也是世界范围内人口密度很小的国家之一。冰岛的首都是雷克雅未克，也是冰岛的最大城市，首都附近的西南地区人口占全国的三分之二，即24万人左右。冰岛地处大西洋中洋脊上，是一个多火山、地质活动频繁的国家。内陆主要是平原地貌，境内多分布沙质地、冷却的熔岩平原和冰川。冰岛虽然位于北极圈边缘，但有北大西洋暖流所以气温适中。\n根据《殖民之书》的记述，欧洲定居者的历史最早可追溯至公元874年，维京人殷格·亚纳逊一行人是冰岛最早的永久定居者，其他更早的定居者仅在冰岛过冬。其后的几个世纪，斯堪的纳维亚人在冰岛定居，他们也带来了盖尔人奴隶。1262至1814年冰岛成为了挪威的一部分，之后属丹麦挪威联合王国治下。1918年冰岛宣布独立并在1944年成立共和国。20世纪前，冰岛人主要依靠渔业和农业为生，冰岛亦曾是欧洲最不发达国家。二战时德国于1940年4月9日攻占了丹麦和入侵挪威，冰岛暂时取得独立。",
+  "summary_source": {
+    "source": "wikipedia_extracts",
+    "url": "https://zh.wikipedia.org/wiki/%E5%86%B0%E5%B2%9B",
+    "title": "冰岛",
+    "chars": 491
+  },
+  "landmark_images": [
+    {
+      "title": "File:Blue lagoon, Iceland 02.jpg",
+      "caption_zh": "蓝湖温泉",
+      "caption": "蓝湖温泉",
+      "caption_commons": "Blue lagoon, Iceland",
+      "kw": "Blue Lagoon Iceland",
+      "url": "assets/is/L01.webp",
+      "thumb_url": "assets/is/L01.thumb.webp",
+      "remote_url": "https://upload.wikimedia.org/wikipedia/commons/b/be/Blue_lagoon%2C_Iceland_02.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+      "source": "commons_search",
+      "pick_tier": "strict",
+      "author": "Christopher Angell from Annapolis, MD",
+      "license": "CC BY-SA 2.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/2.0",
+      "license_status": "ok",
+      "load_verified": true,
+      "bytes": 19032,
+      "thumb_bytes": 7088,
+      "size": {
+        "detail": "760x507",
+        "thumb": "400x267"
+      },
+      "encoding": "webp q72/q74 (源 1024x683 363KB JPEG)"
+    },
+    {
+      "title": "File:Iceland - 2017-02-22 - Gullfoss - 3684.jpg",
+      "caption_zh": "黄金瀑布",
+      "caption": "黄金瀑布",
+      "caption_commons": "Waterfalls of Gullfoss under the snow in Iceland",
+      "kw": "Gullfoss waterfall Iceland",
+      "url": "assets/is/L02.webp",
+      "thumb_url": "assets/is/L02.thumb.webp",
+      "remote_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/6e/Iceland_-_2017-02-22_-_Gullfoss_-_3684.jpg/1920px-Iceland_-_2017-02-22_-_Gullfoss_-_3684.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "source": "article_img",
+      "pick_tier": "strict",
+      "author": "Pierre-Selim Huard",
+      "license": "CC BY 4.0",
+      "license_url": "https://creativecommons.org/licenses/by/4.0",
+      "license_status": "ok",
+      "load_verified": true,
+      "bytes": 63444,
+      "thumb_bytes": 19084,
+      "size": {
+        "detail": "760x475",
+        "thumb": "400x250"
+      },
+      "encoding": "webp q72/q74 (源 1920x1200 690KB JPEG)"
+    },
+    {
+      "title": "File:Great Geysir (4).jpg",
+      "caption_zh": "间歇泉",
+      "caption": "间歇泉",
+      "caption_commons": "Eruption of Great Geysir, Iceland",
+      "kw": "Geysir Strokkur Iceland",
+      "url": "assets/is/L03.webp",
+      "thumb_url": "assets/is/L03.thumb.webp",
+      "remote_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/90/Great_Geysir_%284%29.jpg/1920px-Great_Geysir_%284%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "source": "article_img",
+      "pick_tier": "strict",
+      "author": "Chmee2/Valtameri",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "license_status": "ok",
+      "load_verified": true,
+      "bytes": 43038,
+      "thumb_bytes": 12928,
+      "size": {
+        "detail": "760x509",
+        "thumb": "400x268"
+      },
+      "encoding": "webp q72/q74 (源 1920x1285 560KB JPEG)"
+    },
+    {
+      "title": "File:Þingvellir_from_the_information_centre.JPG",
+      "caption_zh": "辛格维利尔国家公园",
+      "caption": "辛格维利尔国家公园",
+      "caption_commons": "A view of Þingvellir National Park, Iceland from the outlook by the information ",
+      "kw": "Thingvellir National Park Iceland",
+      "url": "assets/is/L04.webp",
+      "thumb_url": "assets/is/L04.thumb.webp",
+      "remote_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/83/%C3%9Eingvellir_from_the_information_centre.JPG/1920px-%C3%9Eingvellir_from_the_information_centre.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "source": "wikipedia_lead",
+      "pick_tier": "strict",
+      "author": "Ivan Sabljak",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "license_status": "ok",
+      "load_verified": true,
+      "bytes": 62348,
+      "thumb_bytes": 17298,
+      "size": {
+        "detail": "760x507",
+        "thumb": "400x267"
+      },
+      "encoding": "webp q72/q74 (源 1920x1280 736KB JPEG)"
+    },
+    {
+      "title": "File:Jokulsarlon_lake,_Iceland.jpg",
+      "caption_zh": "杰古沙龙冰河湖",
+      "caption": "杰古沙龙冰河湖",
+      "caption_commons": "Jökulsárlón, a glacial lake in Iceland. To the right, the mouth of the glacier V",
+      "kw": "Jokulsarlon glacier lagoon Iceland",
+      "url": "assets/is/L05.webp",
+      "thumb_url": "assets/is/L05.thumb.webp",
+      "remote_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a5/Jokulsarlon_lake%2C_Iceland.jpg/1920px-Jokulsarlon_lake%2C_Iceland.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "source": "wikipedia_lead",
+      "pick_tier": "strict",
+      "author": "Kenny Muir",
+      "license": "CC BY 2.0",
+      "license_url": "https://creativecommons.org/licenses/by/2.0",
+      "license_status": "ok",
+      "load_verified": true,
+      "bytes": 33864,
+      "thumb_bytes": 12070,
+      "size": {
+        "detail": "760x502",
+        "thumb": "400x264"
+      },
+      "encoding": "webp q72/q74 (源 1920x1269 471KB JPEG)"
+    }
+  ],
+  "image_license": "CC BY-SA 2.0",
+  "geometry_status": "naturalearth_50m_chunked",
+  "schema_version": "0.1",
+  "collected_at": "2026-10-28T22:41:49+08:00",
+  "collector": "scripts/collect.py v0.2",
+  "needs_review": true,
+  "review_notes": [
+    "P443 发音语种不符已弃用：Lb-Island.ogg、LL-Q7913 (ron)-KlaudiuMihaila-Islanda.wav、LL-Q33810 (ori)-Psubhashish-ଆଇସଲ୍ୟାଣ୍ଡ.wav（P443 不保证语种，须按文件名筛）",
+    "该实体无对应语种发音，语音改跑 python scripts/tts.py IS",
+    "Commons 无可用发音，语音走构建期 TTS 兜底（待接）",
+    "地标图改为人工指定清单（5 张，中文图注）"
+  ],
+  "image_source_note": "人工按 data/landmarks.json 指定地标，Commons 关键词检索取图；原先自动获得的 0 张已被替换"
+}

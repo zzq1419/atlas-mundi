@@ -58,14 +58,17 @@ MAX_PER_COUNTRY = 5
 MAX_CANDIDATES = 26      # 单个地标最多取这么多个候选去做 imageinfo，再多就慢了
 
 # 上限不是"每国必须凑满 5 张"。小国本来就没几处名胜，硬凑出来的第 4、5 张
-# 往往是市政厅、街景、或者一张跟地标无关的游客照。所以人口不到 100 万的国家
-# 默认封顶 3 张（斐济、不丹、基里巴斯这一档）。
+# 往往是市政厅、街景、或者一张跟地标无关的游客照。
 #
-# 只设一档、不再往下细分，是因为人口在这个问题上是个很弱的信号：
-# 冰岛 37 万人，黄金圈/冰川湖/黑沙滩/极光随便就能凑 5 张；卢森堡 65 万人却真的
-# 只有老城和几座城堡。按人口一路往下切，先受伤的是冰岛、马耳他这种"小国大景观"。
-# 真正决定"还能不能再多一张"的是下面的 LOW_TIER_CAP，不是人口。
-POP_CAP = ((1e6, 3),)
+# 但**不能用人口去猜**。一开始写的是"人口不到 100 万封顶 3 张"，被冰岛当场打脸：
+# 冰岛 37 万人，蓝湖 / 黄金瀑布 / 间歇泉 / 辛格维利尔 / 杰古沙龙 / 大教堂，
+# 六处都是真名胜，凭什么只给 3 张？反过来卢森堡 65 万人确实只有两处可写。
+# 人口和文化资源根本不相关。
+#
+# 现在改成不设国家级上限：能过质量闸门几张就是几张。"小国少"是筛出来的结果，
+# 不是预设的规则 —— 基里巴斯就算硬凑 6 条清单，卫星图和海底地形图会被下面的
+# 分类闸门挡掉，最后能剩几张就几张。
+MAX_PER_COUNTRY = 5
 # 放宽档（relaxed / loose）拿到的图最多留几张。放宽才拿到的，往往是"能用但一般"，
 # 一国的画廊里有两张兜底就够了，再多就是在教用户看烂图。
 LOW_TIER_CAP = 2
@@ -80,8 +83,8 @@ TIERS = [
     ("loose", {"min_w": 640, "max_ar": 4.5}),
 ]
 # 编辑挑过的图（P18 / 维基首图）优先于关键词命中：加个权重，分数打平时它赢
-SOURCE_BONUS = {"wikidata_p18": 2.5, "wikipedia_lead": 2.0, "en_wiki": 1.0,
-                "commons_search": 0.0}
+SOURCE_BONUS = {"wikidata_p18": 2.5, "wikipedia_lead": 2.0, "article_img": 1.4,
+                "en_wiki": 1.0, "commons_search": 0.0}
 CURATED = ("wikidata_p18", "wikipedia_lead")
 
 # 关键词命中里混进来的"合影照"：主体是雕塑/展陈/复原模型，地标只是背景。
@@ -92,7 +95,48 @@ JUNK_WORDS = (
     "model of", "miniature", "painting", "drawing", "engraving",
     "stamp", "banknote", "coin", "logo", "coat of arms", "poster",
     "panorama of", "collage", "montage",
+    # 人物照：搜 "Abaiang" 会返回 "Mayor of the Abaiang Island Council (10702...).jpg"
+    # —— 一个村长在开会，和海岛风景没有关系
+    "mayor", "governor", "minister", "president of", "prime minister",
+    "politician", "portrait of", "signing", "ceremony",
+    # 普通办公/公共设施：小国的地标清单本来就是"环礁、小岛"这种非建筑对象，
+    # 全文搜索能给到的只有办公楼 —— 实测阿拜昂环礁配到 "Abaiang Council Office.jpg"，
+    # 巴纳巴岛配到 "Pacific Phosphate Company Offices"。这些不是地标。
+    "office", "council", "headquarters", "company", "factory", "warehouse",
+    "town hall", "city hall", "municipal", "government", "clinic", "hospital",
+    "post office", "school building", "prison", "barracks",
 )
+
+# 卫星影像 / 地图 / 海底地形 / 科学示意图。尺寸、比例、文件名全都合规，
+# 画面上却没有一处地标 —— 只能靠 Commons 的分类来认。
+#
+# 基里巴斯是最典型的反面教材，P18 给的三张分别是：
+#   Tarawa, Kiribati ESA22224800.jpeg  → Category: Satellite pictures of Kiribati
+#   Kiritimati-EO.jpg                  → Category: Satellite pictures of Kiribati
+#   3dPerspective wSeamounts NoRefs.jpg→ Category: National Geophysical Data Center
+# 三张全是废图，而旧的 is_bad_image 只查文件名里的 map/flag/logo，一张都拦不住。
+BAD_CAT_RE = re.compile(
+    r"satellite|sentinel-?2|landsat|copernicus|earth observation|earth observ|"
+    r"expedition \d+ crew|topographic|bathymetr|seamount|geophysical data|"
+    r"diagrams? of|charts? of|graphs? of|3d ?perspective|"
+    r"nasa|esa files|astronaut|space station|taken from the iss|"
+    # 档案照/历史图版：基里巴斯的"圣诞岛"配到 1967 年 Smithsonian 的黑白鸟类图版
+    r"historical image|archival|photographs$|illustrations$", re.I)
+
+# 说明里出现这些，基本可以断定画面主体是普通设施而不是景观。
+# 不直接用 building —— 宗堡、教堂、宫殿本身就是地标，会误伤。
+FACILITY_RE = re.compile(
+    r"airport|airstrip|terminal building|office building|council office|"
+    r"warehouse|factory|power station|power plant|post office|police station|"
+    r"fire station|residential|housing estate|shop|supermarket|petrol station", re.I)
+
+# 文件名层面的同一件事，成本更低，先用它挡一道
+BAD_NAME_RE = re.compile(
+    r"(?<![a-z])(esa|nasa|landsat|sentinel|copernicus|bathymetry|seamount|"
+    r"topographic|geological|iss)(?![a-z])", re.I)
+
+# "LocationBanaba.PNG" 这种不加空格的定位图命名，靠词边界抓不到，只能看前缀
+BAD_PREFIX_RE = re.compile(r"^(location|locations|map|maps|karte|carte)", re.I)
 
 # 尝试顺序：先让编辑挑过的图走严格档，不过就放宽一档；关键词命中只接受严格档
 # （放宽它会立刻引来上面那种合影照）；英文维基首图排在关键词之后 —— 它更准，
@@ -100,6 +144,7 @@ JUNK_WORDS = (
 ATTEMPTS = [
     ("curated", "strict"),
     ("curated", "relaxed"),
+    ("article", "strict"),     # 条目正文配图：编辑挑过，比全文搜索准一个量级
     ("commons", "strict"),
     ("late", "strict"),
     ("curated", "loose"),
@@ -218,17 +263,10 @@ def wikipedia_lead_image(name, lang="zh"):
     return name, title
 
 
-def en_wiki_lead(entry):
-    """英文维基条目首图 —— 中文维基没有对应条目时唯一能拿到"编辑挑过的图"的路。
-
-    小国的宗堡、环礁、村落基本只有英文条目，中文维基一片空白，
-    原来这些国家只能掉到 Commons 全文搜索，然后拿回地图、书页扫描件。
-
-    两个必须的守卫（实测踩出来的）：
-    * 解析出的条目标题必须含 must。斐济的 "Garden of the Sleeping Giant"
-      按词面能搜到 "Sleeping Giant (Connecticut)" —— 美国康涅狄格的一座山。
-    * 标题带括号消歧义的一律不要。写了括号就说明这个词的主话题不是它。
-    """
+def en_title(entry):
+    """把英文检索短语解析成真正的英文条目标题。带两个守卫：
+    标题必须含 must（否则斐济的 Garden of the Sleeping Giant 会解析到美国那座山），
+    且不能带括号消歧义（带括号说明这个词的主话题不是它）。"""
     q = entry.get("en") or entry.get("kw") or ""
     must = (entry.get("must") or "").lower()
     try:
@@ -236,19 +274,69 @@ def en_wiki_lead(entry):
             "action": "query", "list": "search", "srsearch": q,
             "srlimit": "3", "format": "json",
         })
-    except Exception as e:
-        return None, "英文维基检索失败：%s" % str(e)[:40]
-
+    except Exception:
+        return None
     for hit in (d.get("query", {}).get("search") or []):
         title = (hit.get("title") or "").strip()
         if not title or "(" in title:
             continue
         if must and must not in title.lower():
             continue
-        img, t = wikipedia_lead_image(title, "en")
-        if img:
-            return img, t
-    return None, "英文维基无合适条目"
+        return title
+    return None
+
+
+ICON_WORDS = ("icon", "logo", "button", "edit-", "ambox", "question book",
+              "commons-", "wiktionary", "wikisource", "symbol", "emblem",
+              "flag of", "coat of arms", "locator", "red pog", "blue pog")
+
+
+def article_images(entry, limit=12):
+    """条目正文里的配图 —— 小国唯一稳定的"像样照片"来源。
+
+    为什么换这条：Commons 全文搜索对基里巴斯只有办公楼、机场、黑白鸟类图版，
+    我连着加了三轮黑名单词，每加一条就冒出下一个词（office → council → medical center），
+    这条路是无底洞。根子不在规则不够，而在**图源不对**：全文搜索不区分
+    "这图是不是在讲这个地方"。
+    维基条目正文里的图是编辑为了讲清这个条目才放进去的，相关性和"是照片"这两件事
+    已经被人筛过一遍了。"""
+    for lang, name in (("zh", (entry.get("zh") or "").strip()), ("en", en_title(entry))):
+        if not name:
+            continue
+        try:
+            d = C.api_json("https://%s.wikipedia.org/w/api.php" % lang, {
+                "action": "query", "prop": "images", "titles": name,
+                "imlimit": "40", "redirects": "1", "format": "json",
+                "formatversion": "2"})
+        except Exception:
+            continue
+        pages = (d.get("query") or {}).get("pages") or []
+        if not pages or pages[0].get("missing"):
+            continue
+        out = []
+        for x in (pages[0].get("images") or []):
+            t = (x.get("title") or "").replace("File:", "")
+            low = t.lower()
+            if not t or C.is_bad_image(t) or any(k in low for k in ICON_WORDS):
+                continue
+            out.append(t)
+        if out:
+            return out[:limit], lang
+    return [], None
+
+
+def en_wiki_lead(entry):
+    """英文维基条目首图 —— 中文维基没有对应条目时的最后一路。
+
+    小国的宗堡、环礁、村落基本只有英文条目，中文维基一片空白，
+    原来这些国家只能掉到 Commons 全文搜索，然后拿回地图、书页扫描件。"""
+    title = en_title(entry)
+    if not title:
+        return None, "英文维基无合适条目"
+    img, t = wikipedia_lead_image(title, "en")
+    if img:
+        return img, t
+    return None, "英文维基条目没有首图"
 
 
 def query_variants(entry):
@@ -295,6 +383,13 @@ def gather_candidates(entry):
             log("      · %s 中文维基首图 → %s（%s）" % (entry.get("zh"), wname[:42], wtitle))
 
     if len(out) < 3:
+        arts, alang = article_images(entry)
+        for n in arts:
+            add(n, "article_img")
+        if arts:
+            log("      · %s 条目配图（%s）→ %d 张" % (entry.get("zh"), alang, len(arts)))
+
+    if len(out) < 3:
         for q in query_variants(entry):
             try:
                 got = search_files(q, limit=12)
@@ -324,6 +419,43 @@ def gather_candidates(entry):
 def is_junk(name):
     low = (name or "").replace("_", " ").lower()
     return any(w in low for w in JUNK_WORDS)
+
+
+def fetch_cats(names):
+    """批量取 Commons 分类。imageinfo 的 iiprop 不返回分类，得单独 prop=categories。"""
+    out = {}
+    for i in range(0, len(names), 40):
+        try:
+            d = C.api_json(COMMONS_API, {
+                "action": "query", "format": "json", "prop": "categories",
+                "cllimit": "60",
+                "titles": "|".join("File:" + n for n in names[i:i + 40]),
+            })
+        except Exception:
+            continue
+        for p in ((d.get("query") or {}).get("pages") or {}).values():
+            key = C.norm_title(p.get("title") or "")
+            out[key] = [c["title"].replace("Category:", "")
+                        for c in (p.get("categories") or [])]
+    return out
+
+
+def bad_kind(name, cats, meta=None):
+    """这张图是"卫星影像/地图/示意图/人物照"吗？返回原因或 None。"""
+    low = (name or "").replace("_", " ")
+    if BAD_NAME_RE.search(low):
+        return "文件名像卫星/科研数据"
+    if BAD_PREFIX_RE.match(low):
+        return "文件名是定位图/地图"
+    for c in cats or ():
+        if BAD_CAT_RE.search(c):
+            return "分类是「%s」" % c[:40]
+    # 原图不到 25 KB，1400px 宽的照片不可能这么小 —— 基本是纯色块、定位图、示意图
+    if meta and 0 < (meta.get("bytes") or 0) < 25000:
+        return "原图仅 %d KB，疑似示意图" % ((meta.get("bytes") or 0) // 1024)
+    if meta and FACILITY_RE.search(meta.get("description") or ""):
+        return "说明是建筑设施（%s）" % (meta.get("description") or "")[:26]
+    return None
 
 
 def must_ok(name, must):
@@ -356,7 +488,7 @@ def series_bonus(name):
     return 0.0
 
 
-def rank_pool(pool, info, must, tier):
+def rank_pool(pool, info, cats, must, tier):
     """按档位给一组候选打分，返回 (通过的, 被淘汰的原因)。"""
     scored, rejects = [], []
     for name, kind in pool:
@@ -367,6 +499,11 @@ def rank_pool(pool, info, must, tier):
             continue
         ext = C.ext_of(meta["remote_url"])
         if ext not in (".jpg", ".jpeg", ".png", ".webp"):
+            continue
+        # 卫星图/地图/示意图一律不要，不管它多"合规"
+        bad = bad_kind(name, cats.get(C.norm_title(name)), meta)
+        if bad:
+            rejects.append("%s（%s）" % (name[:38], bad))
             continue
         # P18 / 首图是编辑挑过的，不再用 must 卡它；must 只约束关键词搜索的结果
         sc, why = score(name, meta, None if kind in CURATED else must, tier)
@@ -399,16 +536,19 @@ def pick_for(entry):
 
     cands = cands[:MAX_CANDIDATES]
     info = C.commons_imageinfo([n for n, _ in cands], width=1400) or {}
+    cats = fetch_cats([n for n, _ in cands])
     must = (entry.get("must") or "").strip() or None
     curated = [c for c in cands if c[1] in CURATED]
     late = [c for c in cands if c[1] == "en_wiki"]
-    searched = [c for c in cands if c[1] not in CURATED and c[1] != "en_wiki"
-                and not is_junk(c[0])]
-    if len(searched) < len(cands) - len(curated) - len(late):
-        log("      · %s 关键词命中里滤掉 %d 张（雕塑/展陈/复原模型）"
-            % (entry.get("zh"), len(cands) - len(curated) - len(late) - len(searched)))
+    article = [c for c in cands if c[1] == "article_img"]
+    rest = [c for c in cands if c[1] not in CURATED and c[1] not in ("en_wiki", "article_img")]
+    searched = [c for c in rest if not is_junk(c[0])]
+    if len(searched) < len(rest):
+        log("      · %s 关键词命中里滤掉 %d 张（雕塑/展陈/建筑设施）"
+            % (entry.get("zh"), len(rest) - len(searched)))
 
-    pools = {"curated": curated, "commons": searched, "late": late}
+    pools = {"curated": curated, "article": article,
+             "commons": searched, "late": late}
     tiers = dict(TIERS)
     rejects = []
     fallback = None
@@ -416,7 +556,7 @@ def pick_for(entry):
         pool = pools[pool_name]
         if not pool:
             continue
-        scored, rej = rank_pool(pool, info, must, tiers[tier_name])
+        scored, rej = rank_pool(pool, info, cats, must, tiers[tier_name])
         if not scored:
             rejects = rej or rejects
             continue
@@ -537,17 +677,12 @@ def pick_and_download(iso, entries, rec, cap=MAX_PER_COUNTRY):
 
 
 def country_cap(iso, conf, n_entries, meta):
-    """每国留几张图：清单数、硬顶 5、人口分档三者取最小。conf["caps"] 可逐个覆盖。
+    """每国留几张图：min(清单条数, 硬顶 5)。conf["caps"] 可逐个覆盖。
 
-    为什么按人口：清单是模型给的，它对着一个人口十万的环礁国也会硬凑 6 条
-    （实测基里巴斯给了"巴纳巴岛"这种只有几百人的小岛）。人口在这里不是
-    "值得看多少"，而是"这个国家能撑起多少条不需要放宽筛选的地标"的代理指标。"""
+    不再按人口折算 —— 见文件头 MAX_PER_COUNTRY 上那段，冰岛 37 万人六处名胜，
+    卢森堡 65 万人只有两处，人口和文化资源不相关。"小国少几张"是质量闸门筛出来的
+    结果，不是预设的规则。"""
     cap = max(1, min(MAX_PER_COUNTRY, n_entries))
-    pop = (meta.get(iso) or {}).get("pop") or 0
-    for lim, c in POP_CAP:
-        if pop and pop < lim:
-            cap = min(cap, c)
-            break
     ov = (conf.get("caps") or {}).get(iso)
     if ov:
         cap = max(1, min(MAX_PER_COUNTRY, int(ov)))

@@ -503,6 +503,7 @@ def commons_imageinfo(files, width=900):
                 "height": h,
                 "aspect": round(float(w) / h, 3) if w and h else 0,
                 "license": strip_html(meta.get("LicenseShortName", {}).get("value")),
+                "bytes": ii.get("size") or 0,
                 "license_url": meta.get("LicenseUrl", {}).get("value"),
                 "artist": strip_html(meta.get("Artist", {}).get("value")),
                 "description": strip_html(meta.get("ImageDescription", {}).get("value")),

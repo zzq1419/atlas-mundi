@@ -588,6 +588,62 @@
     "kw": "Banaba Island Kiribati",
     "must": "banaba"
    }
+  ],
+  "IS": [
+   {
+    "zh": "蓝湖温泉",
+    "en": "Blue Lagoon Iceland",
+    "queries": [
+     "蓝湖温泉"
+    ],
+    "kw": "Blue Lagoon Iceland",
+    "must": "blue lagoon"
+   },
+   {
+    "zh": "黄金瀑布",
+    "en": "Gullfoss waterfall Iceland",
+    "queries": [
+     "黄金瀑布"
+    ],
+    "kw": "Gullfoss waterfall Iceland",
+    "must": "gullfoss"
+   },
+   {
+    "zh": "间歇泉",
+    "en": "Geysir Strokkur Iceland",
+    "queries": [
+     "间歇泉"
+    ],
+    "kw": "Geysir Strokkur Iceland",
+    "must": "geysir"
+   },
+   {
+    "zh": "辛格维利尔国家公园",
+    "en": "Thingvellir National Park Iceland",
+    "queries": [
+     "辛格维利尔国家公园"
+    ],
+    "kw": "Thingvellir National Park Iceland",
+    "must": "thingvellir"
+   },
+   {
+    "zh": "杰古沙龙冰河湖",
+    "en": "Jokulsarlon glacier lagoon Iceland",
+    "queries": [
+     "杰古沙龙冰河湖"
+    ],
+    "kw": "Jokulsarlon glacier lagoon Iceland",
+    "must": "jokulsarlon"
+   },
+   {
+    "zh": "哈尔格林姆斯教堂",
+    "en": "Hallgrimskirkja Reykjavik",
+    "queries": [
+     "哈尔格林姆斯教堂"
+    ],
+    "kw": "Hallgrimskirkja Reykjavik",
+    "must": "hallgrimskirkja"
+   }
   ]
  }
 }
