@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-10-27-J">
+<meta name="build" content="2026-10-28-A">
 <title>寰宇图志 · Atlas Mundi</title>
 <meta name="description" content="寰宇图志：3D 地球上的多模态国家文化图谱。全球 200 多个国家与地区均有基础档案，多模态档案逐国推进。">
 <style>
@@ -651,8 +651,8 @@ body.panel-open #globe-stage{
      一块暖灰胶囊贴上去像外来的控件。真正要改的是**对比**，不是色相。
      所以：底仍是深海军蓝（比 --bg-2 提一档），描边用同一族的 rgba(126,158,198)
      但压到 20%（上一版 34% 才是那道硬线），竖向渐变只差 9 个亮度。 */
-  background:linear-gradient(180deg,rgba(12,18,30,.94) 0%,rgba(6,10,18,.96) 100%);
-  border:1px solid rgba(126,158,198,.16);
+  background:linear-gradient(180deg,rgba(9,13,22,.94) 0%,rgba(4,7,12,.96) 100%);
+  border:1px solid rgba(126,158,198,.13);
   /* 这里原来有 backdrop-filter:blur(10px)。它会在首次合成时新建一个
      带模糊的图层，Chrome 上表现为刷新瞬间这块区域亮一下（就是"闪白"）。
      框里本来就没有需要虚化的内容，去掉最省事。 */
@@ -660,40 +660,38 @@ body.panel-open #globe-stage{
   /* 只有两层外阴影（近距接地 + 远距氛围）和一道极淡的内高光。
      上一版为了"立体"叠了五层，其中两道是纯黑硬环 —— 那就是刺眼的来源。 */
   box-shadow:
-    0 1px 2px rgba(0,0,0,.30),
-    0 9px 26px rgba(0,0,0,.46),
-    0 22px 52px rgba(0,0,0,.20),
-    inset 0 1px 0 rgba(214,232,255,.04);
+    0 1px 2px rgba(0,0,0,.32),
+    0 9px 26px rgba(0,0,0,.44),
+    0 22px 52px rgba(0,0,0,.18);
+  /* 没有任何 inset 亮线：近黑底面上那 1px 的内高光看着就像一道划痕。 */
   transition:border-color .26s ease,background .26s ease,box-shadow .26s ease;
 }
 .search-wrap.open .search-panel{
-  background:linear-gradient(180deg,rgba(15,22,36,.95) 0%,rgba(7,12,21,.97) 100%);
+  background:linear-gradient(180deg,rgba(11,16,26,.95) 0%,rgba(5,9,16,.97) 100%);
 }
 /* hover 必须有反应：之前只有聚焦才变，鼠标扫过去毫无反馈，像块死板子 */
 .search-panel:hover{
-  border-color:rgba(150,185,230,.28);
-  background:linear-gradient(180deg,rgba(18,26,42,.95) 0%,rgba(9,14,25,.97) 100%);
+  border-color:rgba(150,185,230,.24);
+  background:linear-gradient(180deg,rgba(13,19,31,.95) 0%,rgba(6,11,19,.97) 100%);
   box-shadow:
-    0 1px 2px rgba(0,0,0,.32),
-    0 10px 28px rgba(0,0,0,.48),
-    0 24px 56px rgba(0,0,0,.22),
-    inset 0 1px 0 rgba(214,232,255,.075);
+    0 1px 2px rgba(0,0,0,.34),
+    0 10px 28px rgba(0,0,0,.46),
+    0 24px 56px rgba(0,0,0,.20);
 }
 .search-panel:hover .search-icon{stroke:rgba(196,222,252,.88)}
 .search-panel:focus-within{
-  border-color:rgba(160,196,240,.36);
+  border-color:rgba(160,196,240,.30);
   box-shadow:
-    0 0 0 3px rgba(120,165,235,.10),
-    0 1px 2px rgba(0,0,0,.34),
-    0 12px 32px rgba(0,0,0,.5),
-    0 28px 64px rgba(0,0,0,.24),
-    inset 0 1px 0 rgba(214,232,255,.085);
+    0 0 0 2px rgba(120,165,235,.07),
+    0 1px 2px rgba(0,0,0,.36),
+    0 12px 32px rgba(0,0,0,.48),
+    0 28px 64px rgba(0,0,0,.22);
 }
 
 .search-panel .search-icon{
   position:absolute;left:11px;top:50%;transform:translateY(-50%);
   width:13.5px;height:13.5px;pointer-events:none;
-  fill:none;stroke:rgba(158,190,228,.54);stroke-width:1.8;
+  fill:none;stroke:rgba(158,190,228,.48);stroke-width:1.8;
   transition:stroke .26s ease;
   stroke-linecap:round;stroke-linejoin:round;
 }
@@ -706,7 +704,7 @@ body.panel-open #globe-stage{
   background:transparent;border:0;outline:none;
   -webkit-appearance:none;appearance:none;
 }
-#q::placeholder{color:rgba(162,184,210,.34)}
+#q::placeholder{color:rgba(158,180,206,.30)}
 #q::-webkit-search-cancel-button{filter:invert(.42)}
 
 /* 清空按钮：只在有字时出现。原生 ::-webkit-search-cancel-button 只在聚焦时冒出来，
