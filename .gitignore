@@ -46,3 +46,6 @@ shots/
 _check.js
 _shot.py
 _shot_m.py
+
+# 采集运行的日志（每国一行 jsonl + 报告），不入库
+logs/

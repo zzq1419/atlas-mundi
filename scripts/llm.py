@@ -57,6 +57,14 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 LOG_DIR = os.path.join(ROOT, "logs")
 LOG_FILE = os.path.join(LOG_DIR, "llm_calls.jsonl")
 
+# .env（已在 .gitignore）里的 KEY=VALUE 先灌进环境变量，命令行里的真实环境变量优先。
+# 之前这里只有注释说"可以写进 .env"，实际没有任何加载器 —— 写了并不生效。
+try:
+    from envfile import load as _load_env
+except ImportError:                                  # 被当模块导入时
+    from scripts.envfile import load as _load_env
+_load_env()
+
 BASE_URL = os.environ.get("DEEPSEEK_BASE_URL", "https://api.deepseek.com").rstrip("/")
 MODEL = os.environ.get("DEEPSEEK_MODEL", "deepseek-flash")
 # 备选：deepseek-v4-pro（更强、更贵）。抽取类任务用 flash 足够。

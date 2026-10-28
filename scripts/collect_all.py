@@ -58,6 +58,17 @@ except Exception:
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SCRIPTS = os.path.join(ROOT, "scripts")
+
+# 让 .env 里的 key 对子进程可见（子进程继承 os.environ）
+try:
+    from envfile import load as _load_env
+except ImportError:
+    try:
+        from scripts.envfile import load as _load_env
+    except ImportError:
+        _load_env = None
+if _load_env:
+    _load_env()
 PY = sys.executable or "python"
 META = os.path.join(ROOT, "geo", "meta.json")
 IDS = os.path.join(ROOT, "data", "_ids.json")
