@@ -38,6 +38,13 @@ import sys
 import time
 from datetime import datetime
 
+# 控制台可能是 cp936：个别符号打不出来时用 ? 替换，别让整段崩掉
+try:
+    sys.stdout.reconfigure(errors="replace")
+    sys.stderr.reconfigure(errors="replace")
+except Exception:
+    pass
+
 try:
     from envfile import load as load_env, mask as mask_key
 except ImportError:
