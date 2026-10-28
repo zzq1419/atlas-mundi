@@ -318,8 +318,8 @@ def main():
       python scripts/llm_tasks.py --run <ISO> --only all --apply
       python scripts/speech_all.py <ISO>
 * 质量抽查：data/_llm/ 里是模型稿（成文/特征/图注），核完再考虑是否信任。
-* 发布：告诉我，我来处理。223 国的 assets 约 100MB+，不适合走 GitHub 逐个推，
-  得改走 OBS + 分批提交。
+* 发布：跑完告诉我。223 国的 assets 约 60~90MB（压图已删源 jpg），
+  现在能走 git（配好代理）一次推完，不用再逐个文件走 API。
 """)
     return 0 if all(results.values()) else 1
 
