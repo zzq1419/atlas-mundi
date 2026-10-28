@@ -263,6 +263,61 @@ def translate_caption(en_source: str, landmark_zh: str = "") -> str:
     return out[:40] or landmark_zh
 
 
+# ---------------------------------------------------------------- 7 民俗成文
+COMPOSE_SYSTEM = (
+    "你是文化地理编辑。只使用给定材料里的事实，不得引入材料之外的人名、年代、"
+    "事件或数字。材料不够就写短一点，绝不编造。"
+)
+
+
+def compose_history(record: dict) -> dict:
+    """把维基导语与已抽特征写成「历史与民俗」一段（250~350 字中文）。
+
+    中法美三国这一段是人工撰写的；要覆盖 200 多个国家，只能让模型写。
+    风险是编造，所以 prompt 里把"只用给定材料"写成硬约束，
+    并且产出会连同 evidence 一起存进 data/_llm/ 供人工抽查。
+    """
+    summary = (record.get("summary_text") or "").strip()
+    if not summary:
+        raise LLMError("没有摘要文本，无法成文（先跑采集）")
+
+    facets = record.get("custom_facets") or {}
+    fl = []
+    for k, label in (("festivals", "节庆"), ("cuisine", "饮食"), ("religion", "宗教"),
+                     ("architecture", "建筑"), ("heritage", "遗产")):
+        vals = [x.get("v") if isinstance(x, dict) else x for x in (facets.get(k) or [])]
+        vals = [v for v in vals if v]
+        if vals:
+            fl.append("%s：%s" % (label, "、".join(vals[:6])))
+    facet_txt = "\n".join(fl) or "（无）"
+
+    prompt = f"""国家：{record.get('name_zh')}（{record.get('name_en') or ''}）
+首都：{record.get('capital') or '—'}
+大洲：{record.get('continent') or '—'}
+
+【材料一：维基导语】
+{summary[:1200]}
+
+【材料二：已抽取的文化特征】
+{facet_txt}
+
+请写一段「历史与民俗」介绍，要求：
+1. 240~340 字，纯中文，不分点、不加标题，一或两个自然段；
+2. 内容按这个顺序组织：地理与人文底色 → 历史脉络（只写材料里出现的）→ 民俗与日常生活；
+3. **只能使用上面材料里的事实**。材料没提的年代、王朝、人物、数字，一律不写；
+4. 不要写政治评价、不要写战争细节、不要写"该国是重要的……"这类空话；
+5. 语气像一本地理人文读物，不口语、不抒情。
+
+只输出 JSON：{{"text": "……"}}"""
+
+    d = chat_json(prompt, scene="compose", max_tokens=900, system=COMPOSE_SYSTEM)
+    text = str(d.get("text") or "").strip()
+    if len(text) < 120:
+        raise LLMError("成文过短（%d 字），疑似材料不足" % len(text))
+    return {"text": text, "chars": len(text),
+            "source": "llm_compose_from_summary_facets"}
+
+
 # ---------------------------------------------------------------- 5 数据质检
 AUDIT_SYSTEM = (
     "你是数据质检员。你只报告能从给定字段直接判断出的矛盾，"
@@ -473,6 +528,17 @@ def run_country(iso: str, apply: bool = False, only: str = "all") -> dict:
                   encoding="utf-8") as f:
             json.dump(summ, f, ensure_ascii=False, indent=2)
 
+    # --- 民俗成文（用精炼后的摘要 + 已抽特征） ---
+    comp = None
+    if want("compose"):
+        print("  [民俗成文] …")
+        comp = compose_history(rec if not want("facets") else dict(rec, custom_facets=facets))
+        result["compose"] = comp
+        print("     %d 字" % comp["chars"])
+        with open(os.path.join(PREVIEW, "%s.compose.json" % iso.lower()), "w",
+                  encoding="utf-8") as f:
+            json.dump(comp, f, ensure_ascii=False, indent=2)
+
     # --- 图注翻译（逐张翻译，每张一次调用） ---
     caps = []
     if want("captions"):
@@ -553,6 +619,14 @@ def run_country(iso: str, apply: bool = False, only: str = "all") -> dict:
                 im["caption"] = c["llm_zh"]
                 im["caption_zh_source"] = "llm_from_commons_filename"
 
+        if comp:
+            rec["custom_text"] = comp["text"]
+            rec["custom_text_source"] = {
+                "source": comp["source"],
+                "note": "模型基于维基导语 + 抽取特征成文；只在没有人工稿的国家使用",
+                "chars": comp["chars"],
+            }
+
         if qa:
             rec["knowledge_qa"] = qa
 
@@ -608,7 +682,8 @@ def main() -> int:
                     help="跑实体消歧的测试夹具")
     ap.add_argument("--run", help="对单个 ISO 跑四类任务（CN / FR / US / all）")
     ap.add_argument("--only", default="all",
-                    choices=["all", "facets", "summary", "captions", "audit", "qa"],
+                    choices=["all", "facets", "summary", "compose", "captions",
+                             "audit", "qa"],
                     help="只跑某一类，便于单类迭代")
     ap.add_argument("--apply", action="store_true", help="把结果写回正式档案（默认只预览）")
     ap.add_argument("--audit-injection", metavar="ISO", default=None,

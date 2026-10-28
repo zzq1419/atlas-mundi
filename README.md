@@ -65,6 +65,28 @@ atlas-mundi/
 | E | 全量国家基础档案（242 个国家与地区可点、可搜、可定位） | ✅ |
 | F | 多模态档案从 3 国扩到全量 | 🔄 逐国推进 |
 
+## 全量采集（223 个国家/地区）
+
+三国（CN / FR / US）是手工样板；扩到全量靠 `scripts/collect_all.py` 编排，分阶段、可断点续跑、单国失败不中断：
+
+```bash
+python scripts/collect_all.py --plan          # 先看还差多少
+python scripts/collect_all.py --stage ids     # ISO → Wikidata QID（约 10 分钟）
+python scripts/collect_all.py --stage collect # 正文 + 图片 + 语言 + 坐标
+python scripts/collect_all.py --stage llm     # 特征/摘要/成文/图注/质检（需 key）
+python scripts/collect_all.py --stage speech  # 多语种语音（edge-tts）
+python scripts/collect_all.py --all           # 全流程
+```
+
+Windows 用户也可以直接双击 `开始采集.bat`（带菜单）。
+
+细节、耗时、已知限制见 **[docs/全量采集.md](docs/全量采集.md)**；最容易踩的三件事：
+
+1. **别用 SPARQL 查 ISO→QID**，部分代理下它返回 200 + 空结果。`resolve_ids.py` 走
+   `wbsearchentities` + `wbgetentities`，并用 P297 校验，冲突的会进 `data/_ids_unresolved.json`。
+2. **图片是自动挑的**，不如三国的人工地标；重点国家可以补 `data/landmarks.json` 关键词。
+3. **民俗成文是模型稿**，prompt 里写死「只能用给定材料」，产出留在 `data/_llm/` 供抽查。
+
 ## 数据源
 
 | 源 | 提供 |

@@ -58,8 +58,30 @@ ZH_WIKI_API = "https://zh.wikipedia.org/w/api.php"
 NE_50M = ("https://raw.githubusercontent.com/nvkelso/natural-earth-vector/"
           "master/geojson/ne_50m_admin_0_countries.geojson")
 
-# ISO -> QID。首批三国写死；扩量时补这张表，或用 --qid 指定。
+# ISO -> QID。首批三国写死（保底）；全量走 data/_ids.json（scripts/resolve_ids.py 生成），
+# 也可以用 --qid 手工指定。
 ISO_QID = {"CN": "Q148", "FR": "Q142", "US": "Q30"}
+
+
+def _load_json(path, default):
+    try:
+        with open(path, encoding="utf-8") as f:
+            return json.load(f)
+    except Exception:
+        return default
+
+
+# 全量 QID 映射 + 语言代码表（由 scripts/resolve_ids.py 生成，可能不存在）
+IDS = _load_json(os.path.join(ROOT, "data", "_ids.json"), {})
+LANG_CODES = IDS.get("_langs") or {}
+# Natural Earth 的中文简称（"日本"而不是"日本国"）：卡片标题要用短名
+NE_META = _load_json(os.path.join(ROOT, "geo", "meta.json"), {})
+
+
+def lang_code(qid):
+    """语言 QID -> BCP 47 风格代码：先查 resolve_ids 生成的 P218/P219，再退回手写表。"""
+    c = LANG_CODES.get(qid) or {}
+    return c.get("c1") or c.get("c3") or LANG_CODE.get(qid) or qid
 
 # Wikidata 的 zh 标签常给全称，卡片要短名。补在这里，按需扩展。
 SHORT_NAME = {"Q148": ["中国"], "Q142": ["法国"], "Q30": ["美国"]}
@@ -250,10 +272,11 @@ def entity_id(v):
 
 def fetch_wikidata(iso2, forced_qid, notes):
     log("[1/4] Wikidata 实体 …")
-    qid = forced_qid or ISO_QID.get(iso2)
+    qid = (forced_qid or ISO_QID.get(iso2)
+           or (IDS.get(iso2) or {}).get("qid"))
     if not qid:
-        notes.append("没有 %s 的 QID 映射，请用 --qid 指定，或补进 ISO_QID 表" % iso2)
-        log("      ✗ 未配置 QID，跳过")
+        notes.append("没有 %s 的 QID 映射：先跑 python scripts/resolve_ids.py" % iso2)
+        log("      ✗ 未配置 QID，跳过（先跑 resolve_ids.py）")
         return {}
 
     try:
@@ -309,7 +332,7 @@ def fetch_wikidata(iso2, forced_qid, notes):
     if con_ids:
         out["continent"] = lab.get(con_ids[0])
     if lang_ids:
-        raw = [{"code": LANG_CODE.get(q, q), "name_zh": lab.get(q) or q,
+        raw = [{"code": lang_code(q), "name_zh": lab.get(q) or q,
                 "name_local": lab.get(q) or q,
                 "role": "official", "audio_url": None, "audio_source": None,
                 "audio_status": "pending"} for q in lang_ids]
@@ -329,11 +352,14 @@ def fetch_wikidata(iso2, forced_qid, notes):
                          % (len(raw), len(out["languages"]),
                             "、".join(l["name_zh"] for l in out["languages"])))
 
-    # 名称：卡片要常用名（中国 / 法国 / 美国），全称另存
+    # 名称：卡片要常用名（日本 / 埃及），全称另存。
+    # 优先用 Natural Earth 的中文简称（全量都有），再用 SHORT_NAME 兜底。
     nzh = out.get("name_zh")
-    short = (SHORT_NAME.get(qid) or [None])[0]
+    short = (SHORT_NAME.get(qid) or [None])[0] or (NE_META.get(iso2) or {}).get("n")
     if short and nzh and short != nzh:
         out["name_official"] = nzh
+        out["name_zh"] = short
+    elif short:
         out["name_zh"] = short
 
     p18_all = [v for v in claim_values(ent, "P18") if isinstance(v, str)]
