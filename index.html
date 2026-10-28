@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-10-29-A">
+<meta name="build" content="2026-10-29-B">
 <title>寰宇图志 · Atlas Mundi</title>
 <meta name="description" content="寰宇图志：3D 地球上的多模态国家文化图谱。全球 200 多个国家与地区均有基础档案，多模态档案逐国推进。">
 <style>
@@ -440,13 +440,15 @@
   #q{
     width:100%;box-sizing:border-box;
     padding:13px 16px;font-size:14px;font-family:inherit;
-    color:var(--ink);background:rgba(255,255,255,.03);
+    color:var(--ink);background:transparent;
     border:1px solid var(--line);border-radius:10px;outline:none;
     transition:border-color .2s ease,background .2s ease;
     -webkit-appearance:none;appearance:none;
   }
   #q::placeholder{color:var(--ink-faint)}
-  #q:focus{border-color:rgba(148,182,224,.5);background:rgba(255,255,255,.05)}
+  /* 聚焦只改描边，不铺底色。之前这里有一层 rgba(255,255,255,.05)，
+     在近黑面板上就是一块米白蒙版盖住整个搜索框 —— 反馈给多了。 */
+  #q:focus{border-color:rgba(148,182,224,.5);background:transparent}
   #q::-webkit-search-cancel-button{filter:invert(.5)}
 
   .sr-examples{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}
@@ -1200,7 +1202,7 @@ body.panel-open #globe-stage{
         <line x1="16" y1="16" x2="21" y2="21"></line>
       </svg>
       <input type="search" id="q" autocomplete="off" spellcheck="false"
-             placeholder="搜国家、地标，或直接提问"
+             placeholder=""
              aria-label="搜索国家、地标，或直接提问（如：法国人吃什么、埃及有什么宗教）">
       <button class="search-clear" id="search-clear" type="button" aria-label="清空搜索">
         <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -2264,17 +2266,16 @@ body.panel-open #globe-stage{
     });
   }
   if (qInput) {
-    /* 空框未展开时只有 8 个字的宽度，长提示会被截成"搜国家、地标，或直…"。
-       展开时框变长，正好换成两个真实问句 —— 提示"能提问"这件事，
+    /* 没点进去之前不显示任何提示词（框本身够清楚，常驻的灰字只是噪音）。
+       点进去、框展开变长之后才给两个真实问句 —— 提示"能提问"这件事，
        举一个例子比写十个字有用。 */
-    var PH_SHORT = '搜国家、地标，或直接提问';
     var PH_LONG = '试试这么问：法国人吃什么？ 埃及有什么宗教？';
     qInput.addEventListener('focus', function () {
       if (!searchWrap.classList.contains('open')) setSearch(true, false);
       if (!qInput.value) qInput.placeholder = PH_LONG;
     });
     qInput.addEventListener('blur', function () {
-      qInput.placeholder = PH_SHORT;
+      qInput.placeholder = '';
       // 点了下拉列表的话不收起；空输入离开才收起
       setTimeout(function () {
         if (document.activeElement === qInput) return;
