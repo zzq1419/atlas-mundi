@@ -69,7 +69,7 @@ LABEL = {"collect": "3 · 全量采集（Wikidata + 维基 + 图片）",
          "index": "6b · 索引（index.json + 检索）",
          "upload": "7 · 上传 OBS（可选）"}
 # 粗略耗时（分钟/国），只用来在开始时给个预期
-COST = {"collect": 0.35, "landmarks": 0.30, "llm": 0.45, "speech": 0.10,
+COST = {"collect": 0.35, "landmarks": 0.55, "llm": 0.45, "speech": 0.10,
         "images": 0.03, "index": 0.0, "upload": 0.0}
 
 
