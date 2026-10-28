@@ -1621,7 +1621,7 @@ body.panel-open #globe-stage{
      ['语言', (d.languages || []).map(function (l) { return l.name_zh; }).join(' / ') || '—'],
      ['边界', d.geometry
         ? 'Natural Earth 50m · ' + ((d.geometry_stats || {}).vertices || '?') + ' 顶点'
-        : '待采集']
+        : 'Natural Earth 50m · 分片几何']
     ].forEach(function (p) {
       meta.appendChild(el('dt', null, p[0]));
       meta.appendChild(el('dd', null, p[1]));
@@ -1630,16 +1630,24 @@ body.panel-open #globe-stage{
 
     // 边界不能只写"已采集"——用户看不见等于没采。这里用等距圆柱投影画成 SVG 轮廓，
     // 无第三方库、离线可用，也顺带验证了阶段 D 要用的 GeoJSON 是好的。
-    if (d.geometry) {
-      var geoBox = el('div', 'geo-box');
-      geoBox.appendChild(el('div', 'sub-label', '国界轮廓'));
-      var svgHost = el('div', 'geo-svg', '读取边界数据…');
-      geoBox.appendChild(svgHost);
-      right.appendChild(geoBox);
-      /* 轮廓是一大串 path 字符串 + 一次布局，放在面板滑入动画之后再算，
-         否则正好卡在动画第一帧。 */
-      setTimeout(function () { renderOutline(d.geometry, svgHost); }, 220);
-    }
+    /* 轮廓来源分两种：三国档案里带着 geometry 路径；其余国家不单独存 geojson
+       （223 个国家各自一个文件，部署时就是 223 次提交），改从 geo/c*.json
+       分片里取 —— 那份数据本来就为"球面点亮国界"加载过，多半已在内存里。 */
+    var geoBox = el('div', 'geo-box');
+    geoBox.appendChild(el('div', 'sub-label', '国界轮廓'));
+    var svgHost = el('div', 'geo-svg', '读取边界数据…');
+    geoBox.appendChild(svgHost);
+    right.appendChild(geoBox);
+    /* 轮廓是一大串 path 字符串 + 一次布局，放在面板滑入动画之后再算，
+       否则正好卡在动画第一帧。 */
+    setTimeout(function () {
+      if (d.geometry) { renderOutline(d.geometry, svgHost); return; }
+      /* 注意这里在 renderDetail(d) 里，没有 iso 变量 —— 用档案自己的 iso_a2 */
+      loadGeo(d.iso_a2 || '').then(function (gj) {
+        if (gj) drawOutline(gj, svgHost);
+        else svgHost.textContent = '没有这个国家的边界数据';
+      });
+    }, 220);
 
     /* 先把关键词列表设好，paraText 才能把正文里的词标出来 */
     KW_LIST = ((d.custom_facets || {}).keywords || [])
