@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-10-28-B">
+<meta name="build" content="2026-10-28-C">
 <title>寰宇图志 · Atlas Mundi</title>
 <meta name="description" content="寰宇图志：3D 地球上的多模态国家文化图谱。全球 200 多个国家与地区均有基础档案，多模态档案逐国推进。">
 <style>
@@ -1253,22 +1253,43 @@ body.panel-open #globe-stage{
      但 <img> 与 <audio> 作为子资源不受该头影响 —— 这点是实测过的，不是推断。 */
   var OBS_BASE = 'https://atlas-mundi-1419.obs.cn-east-3.myhuaweicloud.com/';
 
+  /* OBS 是镜像，只放了早期几个国家的素材。新采的国家在 OBS 上是 404，
+     每张图都要先 404 一次再回退，白等一轮 RTT。所以按目录记一笔：
+     某个目录第一次 404 之后，这个目录后面就直连相对路径。 */
+  var OBS_MISS = {};
+
+  function assetDir(rel) {
+    var p = String(rel || '').split('/');
+    return p.length > 2 ? p[1] : '';
+  }
+
   function assetSrc(rel) {
     if (!rel) return '';
     if (/^https?:\/\//i.test(rel)) return rel;
+    if (OBS_MISS[assetDir(rel)]) return rel;
     return OBS_BASE + rel.replace(/^\/+/, '');
   }
 
+  /* 同一个 <img> 会被反复换图（缩略图点选）。以前的写法每换一次就挂一个
+     error 监听，监听里各带一份 fellBack —— 换到第二张时，第一个监听看到自己
+     的 fellBack 已为 true，直接判"彻底失败"，把容器打上 blank（CSS 里是
+     display:none），于是从第二张开始整块图永久消失。
+     现在改成每个节点只挂一次监听，回退状态记在节点上按当前图算。 */
   function setAsset(node, rel) {
-    var fellBack = false;
-    node.addEventListener('error', function () {
-      if (!fellBack) {
-        fellBack = true;
-        node.src = rel;                       // 回退到仓库相对路径
-        return;
-      }
-      if (typeof node.__onfail === 'function') node.__onfail();
-    });
+    if (!node.__assetBound) {
+      node.__assetBound = true;
+      node.addEventListener('error', function () {
+        var cur = node.__assetRel;
+        if (cur && node.getAttribute('src') !== cur) {
+          OBS_MISS[assetDir(cur)] = true;
+          node.src = cur;                    // 回退到仓库相对路径
+          return;
+        }
+        if (typeof node.__onfail === 'function') node.__onfail();
+      });
+    }
+    node.__assetRel = rel;
+    if (!rel) { node.removeAttribute('src'); return; }
     node.src = assetSrc(rel);
   }
 
@@ -1569,6 +1590,7 @@ body.panel-open #globe-stage{
         var it = imgs[idx];
         picWrap.classList.remove('loaded');
         picWrap.classList.add('loading');
+        picWrap.classList.remove('blank');   // 上一张失败留下的 blank 要清掉，否则 display:none 一直挂着
         pic.alt = it.caption_zh || it.caption || d.name_zh;
         pic.onload = function () {
           picWrap.classList.remove('loading');
@@ -1583,6 +1605,8 @@ body.panel-open #globe-stage{
           picWrap.classList.add('blank');
         };
         setAsset(pic, it.url);
+        // 换到同一张图时浏览器不会重新触发 load，loaded 就永远加不上，图是透明
+        if (pic.complete && pic.naturalWidth) pic.onload();
         capEl.textContent = it.caption_zh || it.caption || '';
         licEl.textContent = it.license
           ? '授权：' + it.license + (it.author ? ' · ' + it.author : '')
@@ -1731,9 +1755,12 @@ body.panel-open #globe-stage{
           var tr = el('div', 'lang-trans');
           var srcLine = el('div', 'lt-src', l.tts_text);
           tr.appendChild(srcLine);
-          /* 只给拉丁/非中文字符的语音配中文。粤语本身是中文，再"翻译成普通话"
-             就成了同一句话写两遍。 */
-          if (l.tts_text_zh && /[A-Za-z]/.test(l.tts_text)) {
+          /* 给外语配中文翻译。以前用 /[A-Za-z]/ 判断"是不是外语"，只认拉丁字母 ——
+             阿拉伯语、日语、泰语一个拉丁字母都没有，于是中文翻译被整段吞掉，
+             播放器下面只剩一行看不懂的原文。改成按语种代码判断：
+             中文（zh*）和粤语（yue）本身是汉语，不用再翻一遍；其余都配中文。 */
+          var isHan = /^(zh|yue)/i.test(l.code || '');
+          if (l.tts_text_zh && !isHan && l.tts_text_zh !== l.tts_text) {
             tr.appendChild(el('div', 'lt-zh', l.tts_text_zh));
           }
           box.appendChild(tr);

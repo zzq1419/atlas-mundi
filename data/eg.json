@@ -37,6 +37,30 @@
   },
   "landmark_images": [
     {
+      "title": "File:Pyramids of the Giza Necropolis.jpg",
+      "caption_zh": "吉萨金字塔群",
+      "caption": "吉萨金字塔群",
+      "caption_commons": "Pyramids of the Giza Necropolis.",
+      "kw": "Great Pyramids of Giza",
+      "url": "assets/eg/L01.webp",
+      "thumb_url": "assets/eg/L01.thumb.webp",
+      "remote_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/96/Pyramids_of_the_Giza_Necropolis.jpg/1920px-Pyramids_of_the_Giza_Necropolis.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "source": "commons_search",
+      "pick_tier": "relaxed",
+      "author": "KennyOMG",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "license_status": "ok",
+      "load_verified": true,
+      "bytes": 28280,
+      "thumb_bytes": 7204,
+      "size": {
+        "detail": "760x317",
+        "thumb": "400x167"
+      },
+      "encoding": "webp q72/q74 (源 1920x800 401KB JPEG)"
+    },
+    {
       "title": "File:Great Sphinx of Giza May 2015.JPG",
       "caption_zh": "吉萨狮身人面像",
       "caption": "吉萨狮身人面像",
@@ -135,34 +159,9 @@
       "encoding": "webp q72/q74 (源 860x605 155KB JPEG)",
       "caption_zh_manual": "帝王谷",
       "caption_zh_source": "llm_from_commons_filename"
-    },
-    {
-      "title": "File:Pylons and obelisk Luxor temple.JPG",
-      "caption_zh": "卢克索神庙塔门与方尖碑",
-      "caption": "卢克索神庙塔门与方尖碑",
-      "caption_commons": "Pylons and obelisk at Luxor temple.",
-      "kw": "Luxor Temple Egypt",
-      "url": "assets/eg/L06.webp",
-      "thumb_url": "assets/eg/L06.thumb.webp",
-      "remote_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0f/Pylons_and_obelisk_Luxor_temple.JPG/1920px-Pylons_and_obelisk_Luxor_temple.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
-      "source": "wikidata_p18",
-      "author": "Ad Meskens",
-      "license": "CC BY-SA 3.0",
-      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
-      "license_status": "ok",
-      "load_verified": true,
-      "bytes": 34672,
-      "thumb_bytes": 10068,
-      "size": {
-        "detail": "760x431",
-        "thumb": "400x227"
-      },
-      "encoding": "webp q72/q74 (源 1920x1089 494KB JPEG)",
-      "caption_zh_manual": "卢克索神庙",
-      "caption_zh_source": "llm_from_commons_filename"
     }
   ],
-  "image_license": "CC BY-SA 3.0",
+  "image_license": "CC BY-SA 4.0",
   "schema_version": "0.1",
   "collected_at": "2026-10-28T16:21:41+08:00",
   "collector": "scripts/collect.py v0.2",
@@ -174,7 +173,7 @@
     "吉萨金字塔群：1 个候选全部未通过筛选：Pyramids of the Giza Necropolis.jpg（宽高比 2.4 过宽（全景））",
     "地标图改为人工指定清单（5 张，中文图注）"
   ],
-  "image_source_note": "人工按 data/landmarks.json 指定地标，Commons 关键词检索取图；原先自动获得的 1 张已被替换",
+  "image_source_note": "人工按 data/landmarks.json 指定地标，Commons 关键词检索取图；原先自动获得的 5 张已被替换",
   "audio_meta": {},
   "custom_facets": {
     "festivals": [],
