@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-10-28-C">
+<meta name="build" content="2026-10-29-A">
 <title>寰宇图志 · Atlas Mundi</title>
 <meta name="description" content="寰宇图志：3D 地球上的多模态国家文化图谱。全球 200 多个国家与地区均有基础档案，多模态档案逐国推进。">
 <style>
@@ -704,7 +704,15 @@ body.panel-open #globe-stage{
   background:transparent;border:0;outline:none;
   -webkit-appearance:none;appearance:none;
 }
-#q::placeholder{color:rgba(158,180,206,.30)}
+#q::placeholder{color:rgba(180,200,222,.46)}
+/* 自动填充会强行给输入框铺白底（深色页面上的大忌）。这行把它压回去。 */
+#q:-webkit-autofill,
+#q:-webkit-autofill:hover,
+#q:-webkit-autofill:focus{
+  -webkit-text-fill-color:#dfe9f7;
+  -webkit-box-shadow:0 0 0 1000px rgba(20,32,50,.9) inset;
+  transition:background-color 99999s ease-in-out 0s;
+}
 #q::-webkit-search-cancel-button{filter:invert(.42)}
 
 /* 清空按钮：只在有字时出现。原生 ::-webkit-search-cancel-button 只在聚焦时冒出来，
@@ -914,10 +922,12 @@ body.panel-open #globe-stage{
    这些部件不是画出来的，但一样带设计：选区颜色、滚动条、焦点环。
    它们是最便宜的"这页是被建造的"信号，也是最常被漏掉的一层。 */
 ::selection{
-  background:rgba(148,182,224,.30);
-  color:#fdf6e8;
+  /* 原来是无彩的淡蓝底 + 米白字，在近黑的搜索框里读起来就是"一块白斑"。
+     换成和国界金线同源的暖金，文字保持原来的冷白，不跳。 */
+  background:rgba(198,160,88,.32);
+  color:#f2f7ff;
 }
-::-moz-selection{background:rgba(148,182,224,.30);color:#fdf6e8}
+::-moz-selection{background:rgba(198,160,88,.32);color:#f2f7ff}
 
 .dscroll::-webkit-scrollbar,
 #q-res::-webkit-scrollbar{width:10px}
@@ -980,6 +990,10 @@ body.panel-open #globe-stage{
 #labels{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:5}
 .mlabel{
   position:absolute;left:0;top:0;
+  /* 拖地球的时候鼠标会从地名上划过去。地名是 DOM 文本，浏览器默认会当成
+     文本选择来处理：划一下就整片反白，松手还变成可复制的选区，
+     连"双击重置"都被打断。地图上的文字不该是可选中文本。 */
+  -webkit-user-select:none;-moz-user-select:none;user-select:none;
   white-space:nowrap;opacity:0;
   font-size:13px;letter-spacing:.04em;
   color:#fff;
@@ -988,9 +1002,13 @@ body.panel-open #globe-stage{
      注意描边宽度是**相对字号**的：13px 的中文笔画只有 1px 出头，
      描边一旦到 0.8px 就会从里外两侧把笔画吃光，字变成一块灰饼 ——
      所以字号提到 14px，描边压到 0.5px。 */
-  -webkit-text-stroke:.5px rgba(0,0,0,.6);
+  /* 0.5px 的硬描边在雪原上还是太细：西伯利亚、格陵兰那一带白底白字，
+     描边一淡就糊成一片。改用"细描边 + 三层渐隐暗晕" —— 硬描边负责紧贴笔画
+     的那一圈，暗晕负责向外扩出 3px 的过渡，白底和深色海面都能压住。
+     别再加大描边：14px 的中文笔画只有 1px 出头，描边一粗就从里外把字吃成灰饼。 */
+  -webkit-text-stroke:.45px rgba(0,0,0,.62);
   paint-order:stroke fill;
-  text-shadow:0 1px 1px rgba(0,0,0,.45);
+  text-shadow:0 0 1px rgba(0,0,0,.9),0 0 3px rgba(0,0,0,.62),0 0 6px rgba(0,0,0,.38),0 1px 2px rgba(0,0,0,.5);
   /* 这里原来有 transition:opacity .26s。它和"每帧按距离写透明度"打架：
      快速缩放时 300 多个标签各自延迟 0.26 秒才收掉，屏幕上就是一层残影。
      现在每帧直接给值，隐藏即刻生效。 */
@@ -1019,7 +1037,10 @@ body.panel-open #globe-stage{
   pointer-events:auto;cursor:pointer;
   font-size:13.5px;font-weight:500;
   color:#ffffff;
-  text-shadow:0 1px 3px rgba(0,0,0,.95), 0 0 12px rgba(120,170,235,.5);
+  /* 这里原来只有一层"向下的投影"。投影只压字的下方，字的上半部分贴着雪原就没了 ——
+     补上环形暗晕，最后那层淡蓝光晕是原本的设计，留着。 */
+  text-shadow:0 0 1px rgba(0,0,0,.9),0 0 4px rgba(0,0,0,.62),
+              0 1px 3px rgba(0,0,0,.95),0 0 12px rgba(120,170,235,.5);
 }
 .mlabel.mk:hover{color:#cfe6ff}
 
@@ -1160,7 +1181,7 @@ body.panel-open #globe-stage{
 <body>
 <!-- 全屏 3D 舞台。地球是页面主体，不是"页面里的一个区块" ——
      所以这里用 fixed 铺满视口，其余 UI 全部浮在它上面。 -->
-<div id="globe-stage">
+<div id="globe-stage" style="user-select:none;-webkit-user-select:none">
   <div id="labels"></div>
   <div class="globe-msg" id="globe-msg">正在加载地表数据…</div>
 </div>
@@ -1179,8 +1200,8 @@ body.panel-open #globe-stage{
         <line x1="16" y1="16" x2="21" y2="21"></line>
       </svg>
       <input type="search" id="q" autocomplete="off" spellcheck="false"
-             placeholder="搜索国家 / 地标"
-             aria-label="搜索国家、地标、语言、饮食与节庆">
+             placeholder="搜国家、地标，或直接提问"
+             aria-label="搜索国家、地标，或直接提问（如：法国人吃什么、埃及有什么宗教）">
       <button class="search-clear" id="search-clear" type="button" aria-label="清空搜索">
         <svg viewBox="0 0 24 24" aria-hidden="true">
           <line x1="7" y1="7" x2="17" y2="17"></line>
@@ -1433,7 +1454,11 @@ body.panel-open #globe-stage{
      用另一种颜色标，和概念关键词区分开。 */
   /* 只抓"有量级"的数字：把"23 个省、5 个自治区"这种计数也标出来，
      一段里会冒出十来个色块，等于什么都没标。 */
-  var NUM_RE = /\d+(?:\.\d+)?\s*(?:亿|万|%|平方千米|平方公里|千米|公里|年|世纪)/;
+  /* 千分位逗号必须算进数字里：日本摘要里"其中逾3,300万人居"，
+     旧写法 \d+ 从 "3" 起匹配，下一个字符是逗号、对不上单位，于是整条失败；
+     正则引擎往后挪一位从 "300" 起才匹配上，结果标的是 "300万"，前面的 "3," 漏成普通文字。
+     加上 (?:[,，]\d{3})* 之后 "3,300万" 才是一个整体。 */
+  var NUM_RE = /\d+(?:[,，]\d{3})*(?:\.\d+)?\s*(?:亿|万|%|平方千米|平方公里|千米|公里|年|世纪)/;
 
   function markKeywords(text) {
     var src = String(text || '');
@@ -1525,7 +1550,17 @@ body.panel-open #globe-stage{
     if (typeof flyOut === 'function') flyOut();
   }
 
+  /* 点国家是异步取 json。之前没有序号也没有 abort：先点俄罗斯（慢，还在路上），
+     再点印度，印度的图先回来渲染好了，几秒后俄罗斯的响应到站，直接把面板覆盖成俄罗斯 ——
+     用户看到的就是"点了印度，显示的却是上一次点的俄罗斯"。
+     现在每次打开自增序号 + abort 上一个请求，晚到的响应一律丢弃。 */
+  var DETAIL_SEQ = 0;
+  var DETAIL_ABORT = null;
+
   function openDetail(iso, item, quiet) {
+    var seq = ++DETAIL_SEQ;
+    if (DETAIL_ABORT) { try { DETAIL_ABORT.abort(); } catch (e) {} }
+    DETAIL_ABORT = (typeof AbortController === 'function') ? new AbortController() : null;
     Array.prototype.forEach.call(cardsEl.children, function (n) {
       n.classList.toggle('active', n === item);
     });
@@ -1537,13 +1572,18 @@ body.panel-open #globe-stage{
     openPanel();
     if (typeof flyToCountry === 'function') flyToCountry(iso);
 
-    fetch('data/' + iso.toLowerCase() + '.json')
+    fetch('data/' + iso.toLowerCase() + '.json',
+          DETAIL_ABORT ? { signal: DETAIL_ABORT.signal } : undefined)
       .then(function (r) {
         if (!r.ok) throw new Error('HTTP ' + r.status);
         return r.json();
       })
-      .then(function (d) { renderDetail(d, true); })
+      .then(function (d) {
+        if (seq !== DETAIL_SEQ) return;      // 已经切到别的国家了，丢掉
+        renderDetail(d, true);
+      })
       .catch(function (e) {
+        if (seq !== DETAIL_SEQ || (e && e.name === 'AbortError')) return;
         /* 没有完整档案不等于"没有这个国家"。只要 meta 里有它，
            就给一张基础档案（几何 + 地名 + 人口），而不是一句读取失败。 */
         if (LABEL_META && LABEL_META[String(iso).toUpperCase()]) {
@@ -2224,10 +2264,17 @@ body.panel-open #globe-stage{
     });
   }
   if (qInput) {
+    /* 空框未展开时只有 8 个字的宽度，长提示会被截成"搜国家、地标，或直…"。
+       展开时框变长，正好换成两个真实问句 —— 提示"能提问"这件事，
+       举一个例子比写十个字有用。 */
+    var PH_SHORT = '搜国家、地标，或直接提问';
+    var PH_LONG = '试试这么问：法国人吃什么？ 埃及有什么宗教？';
     qInput.addEventListener('focus', function () {
       if (!searchWrap.classList.contains('open')) setSearch(true, false);
+      if (!qInput.value) qInput.placeholder = PH_LONG;
     });
     qInput.addEventListener('blur', function () {
+      qInput.placeholder = PH_SHORT;
       // 点了下拉列表的话不收起；空输入离开才收起
       setTimeout(function () {
         if (document.activeElement === qInput) return;
@@ -3072,7 +3119,11 @@ body.panel-open #globe-stage{
       var limb = Math.min(1, Math.max(0, (dot - dotMin) / 0.16));
       var edge = Math.min(Math.min(rx, w - rx - L.w), Math.min(ry, h - ry - L.h));
       var edgeA = Math.min(1, Math.max(0, edge / 110));
-      var alpha = limb * edgeA * discA;
+      /* 以前是 limb*edgeA*discA 三连乘，越靠近球缘/屏幕边缘越淡，最后只剩一丁点不透明度。
+         实测代价：加拿大、格陵兰这些正好落在雪原上的国名，本来就白字压白雪，
+         再被乘到 0.1 就直接看不见了。改成给"贴边"留一条下限 —— 仍然会淡，
+         但淡到 0.6 就打住，不会淡成不存在。 */
+      var alpha = limb * (0.60 + 0.40 * edgeA * discA);
       if (alpha < 0.08) { hideLabel(L); continue; }
 
       /* 341 个标注每帧无脑写 style 是最贵的一笔开销（首屏卡顿的来源之一）。
@@ -3082,7 +3133,8 @@ body.panel-open #globe-stage{
          will-change 只给当前可见的那几十个，不然 341 个图层会把首屏拖死。 */
       /* 越靠球缘字越小（0.78→1.0）：这是"贴在球面上"的视觉线索之一，
          比单纯淡出更像球面透视。 */
-      var sc = (0.78 + 0.22 * dot).toFixed(3);
+      /* 0.78 的缩放在 13.5px 上只剩 10.5px，雪白底上真的认不出来；收到 0.88 起步 */
+      var sc = (0.88 + 0.12 * dot).toFixed(3);
       var tr = 'translate(-50%,-50%) translate3d(' +
                x.toFixed(2) + 'px,' + y.toFixed(2) + 'px,0) scale(' + sc + ')';
       if (L._t !== tr) { L._t = tr; L.el.style.transform = tr; }
@@ -3669,16 +3721,24 @@ body.panel-open #globe-stage{
          空闲时先抓下来放进 HTTP 缓存 —— 否则"第一次点某个国家"要现取现解析，
          就是那种"有时卡有时不卡"的玄学。 */
       setTimeout(function () {
-        var warm = function () {
-          (idx.countries || []).forEach(function (c) {
-            var iso = String(c.iso || c.iso_a2 || '').toLowerCase();
-            if (!iso) return;
-            fetch('data/' + iso + '.json').catch(function () {});
-            fetch('geo/' + iso + '.geojson').catch(function () {});
-          });
+        /* 两个细节都是实测出来的：
+           * geo/{iso}.geojson 只有中法美三国有独立文件，其余国家一律 404。
+             那十几个无效请求既占连接，又会和用户此刻正在点的那张图抢同一条跨境链路。
+             国界走的是 geo/c0..c7.json 分片，这里不该预取。
+           * forEach 里直接 fetch 会在同一瞬间并发十几条。改成每 140ms 一条，
+             温和铺满 HTTP 缓存，不打断用户操作。 */
+        var list = (idx.countries || []).filter(function (c) {
+          return c.status !== 'placeholder';
+        });
+        var i = 0;
+        var step = function () {
+          if (i >= list.length) return;
+          var iso = String(list[i++].iso_a2 || '').toLowerCase();
+          if (iso) fetch('data/' + iso + '.json').catch(function () {});
+          setTimeout(step, 140);
         };
-        if (window.requestIdleCallback) requestIdleCallback(warm, { timeout: 3000 });
-        else warm();
+        if (window.requestIdleCallback) requestIdleCallback(step, { timeout: 3000 });
+        else step();
       }, 4200);
     })
     .catch(function (e) {
