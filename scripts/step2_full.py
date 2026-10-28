@@ -60,17 +60,20 @@ META = os.path.join(ROOT, "geo", "meta.json")
 IDS = os.path.join(ROOT, "data", "_ids.json")
 LOGDIR = os.path.join(ROOT, "logs")
 
-STAGES = ["collect", "landmarks", "llm", "speech", "images", "index", "upload"]
+STAGES = ["collect", "landmarks", "verify", "llm", "speech", "images", "index", "upload"]
 LABEL = {"collect": "3 · 全量采集（Wikidata + 维基 + 图片）",
          "landmarks": "3b · 地标图（模型候选 + Commons 实搜）",
+         "verify": "3c · 视觉复核（大模型看图，收错图 + 补不足）",
          "llm": "4 · 大模型（特征 / 摘要 / 民俗成文 / 图注 / 质检）",
          "speech": "5 · 多语种语音（Edge TTS）",
          "images": "6a · 压图（WebP + 缩略图）",
          "index": "6b · 索引（index.json + 检索）",
          "upload": "7 · 上传 OBS（可选）"}
 # 粗略耗时（分钟/国），只用来在开始时给个预期
-COST = {"collect": 0.35, "landmarks": 0.55, "llm": 0.45, "speech": 0.10,
-        "images": 0.03, "index": 0.0, "upload": 0.0}
+COST = {"collect": 0.35, "landmarks": 0.55, "verify": 0.75, "llm": 0.45,
+        "speech": 0.10, "images": 0.03, "index": 0.0, "upload": 0.0}
+# 视觉复核对钱有硬闸门：花到这个数就停（默认 3 元，可 --verify-budget 改）
+VERIFY_BUDGET = 3.0
 
 
 def hr(title=""):
@@ -172,6 +175,32 @@ def stage_landmarks(a, isos):
     return fail == 0 or fail < len(todo) // 2
 
 
+def stage_verify(a, isos):
+    """让多模态模型看图，收掉"合规但不对"的图，并把数量不足的补齐。
+
+    为什么单独一段而不塞进 landmarks：两者的失败模式完全不同 ——
+    fill_images 是"搜到没有 / 尺寸对不对"，这里是"画面对不对"。
+    合起来出错时没法判断是哪一步的问题。
+
+    钱有硬闸门：--budget 花完就停，中断后重跑靠 data/_vision_cache.json 接着来，
+    验过的图不会再花钱。
+    """
+    have = [i for i in isos if os.path.exists(
+        os.path.join(ROOT, "data", "%s.json" % i.lower()))]
+    if not have:
+        print("  没有已采集的国家，跳过")
+        return False
+    print("  预算 %.1f 元；验过的图有缓存，重跑不重复花钱" % VERIFY_BUDGET)
+    code, out = ca.run([ca.PY, os.path.join(SCRIPTS, "verify_images.py"),
+                        "--only"] + have +
+                       ["--budget", str(VERIFY_BUDGET), "--max-rounds", "2"],
+                      timeout=14400)
+    tail = [l for l in (out or "").splitlines() if l.strip()][-6:]
+    print("\n".join("  " + l for l in tail))
+    # 预算花完不算法失败 —— 剩下没验的下次接着来
+    return code == 0 or "预算" in (out or "")
+
+
 def report(isos, path):
     """跑完出一个人看的汇总：哪些国家缺哪一块。"""
     rows = []
@@ -235,9 +264,14 @@ def main():
     ap.add_argument("--force", action="store_true", help="已完成也重做")
     ap.add_argument("--skip-collect", action="store_true", help="跳过采集阶段")
     ap.add_argument("--upload", action="store_true", help="最后加一步上传 OBS")
+    ap.add_argument("--verify-budget", type=float, default=3.0,
+                    help="视觉复核最多花多少钱（元，默认 3；0=不限）")
     ap.add_argument("--proxy", default=os.environ.get("HTTPS_PROXY") or None)
     ap.add_argument("--country-timeout", type=int, default=1500)
     a = ap.parse_args()
+
+    global VERIFY_BUDGET
+    VERIFY_BUDGET = a.verify_budget
 
     load_env()
     try:
@@ -282,6 +316,7 @@ def main():
     args = ns(only=a.only, limit=a.limit, min_pop=a.min_pop, force=a.force,
               proxy=a.proxy, country_timeout=a.country_timeout)
     fns = {"collect": ca.stage_collect, "landmarks": stage_landmarks,
+           "verify": stage_verify,
            "llm": ca.stage_llm,
            "speech": ca.stage_speech, "images": ca.stage_images,
            "index": ca.stage_index, "upload": ca.stage_upload}
