@@ -522,17 +522,15 @@ def rank_pool(pool, info, cats, must, tier):
 
 
 
-def pick_for(entry):
-    """在一个地标的候选里挑一张。
+def ranked_picks(entry):
+    """把这个地标所有能用的候选按优先级排好序返回（不只是第一名）。
 
-    返回 ((name, meta, ext, tier, kind), None, False)
-      或 (None, 原因, 是否值得重试)。第三个值用来把"接口挂了"和"确实没有图"
-      分开：前者进 --gaps 重试，后者重试一百次也没用。"""
+    为什么需要整个列表：视觉复核阶段要"这张不行，换下一张再验"，
+    只给第一名就没法往下走了。排序键是 (尝试序, -分数) —— 尝试序就是
+    ATTEMPTS 里池子/档位的先后，所以第一项永远等于原来 pick_for 选的那张。"""
     cands, errs = gather_candidates(entry)
     if not cands:
-        if errs:
-            return None, "检索接口全部失败（%s）" % "；".join(errs[:2]), True
-        return None, "Wikidata / 维基 / Commons 都没有可用图", False
+        return [], errs
 
     cands = cands[:MAX_CANDIDATES]
     info = C.commons_imageinfo([n for n, _ in cands], width=1400) or {}
@@ -550,35 +548,59 @@ def pick_for(entry):
     pools = {"curated": curated, "article": article,
              "commons": searched, "late": late}
     tiers = dict(TIERS)
-    rejects = []
-    fallback = None
-    for pool_name, tier_name in ATTEMPTS:
+    out = []
+    for idx, (pool_name, tier_name) in enumerate(ATTEMPTS):
         pool = pools[pool_name]
         if not pool:
             continue
-        scored, rej = rank_pool(pool, info, cats, must, tiers[tier_name])
-        if not scored:
-            rejects = rej or rejects
+        scored, _rej = rank_pool(pool, info, cats, must, tiers[tier_name])
+        for total, name, meta, ext, kind in scored:
+            out.append({"order": idx, "score": total, "name": name, "meta": meta,
+                        "ext": ext, "kind": kind, "tier": tier_name})
+    out.sort(key=lambda x: (x["order"], -x["score"]))
+    # 同一张图会在多个档位都通过（strict 和 relaxed 各算一次），去重只留最先出现的
+    dedup, seen = [], set()
+    for p in out:
+        if p["name"] in seen:
             continue
-        _, name, meta, ext, kind = scored[0]
+        seen.add(p["name"])
+        dedup.append(p)
+    return dedup, errs
+
+
+def pick_for(entry):
+    """在一个地标的候选里挑一张。
+
+    返回 ((name, meta, ext, tier, kind), None, False)
+      或 (None, 原因, 是否值得重试)。第三个值用来把"接口挂了"和"确实没有图"
+      分开：前者进 --gaps 重试，后者重试一百次也没用。"""
+    picks, errs = ranked_picks(entry)
+    if not picks:
+        if errs:
+            return None, "检索接口全部失败（%s）" % "；".join(errs[:2]), True
+        return None, "Wikidata / 维基 / Commons 都没有可用图", False
+
+    must = (entry.get("must") or "").strip() or None
+    fallback = None
+    for p in picks:
         # 编辑图连专名都对不上，先记下当兜底，继续让实搜图去争 ——
-        # 直接返回的话，commons 那一路永远轮不到（池子是顺序试的，不是合并排序）。
-        if pool_name == "curated" and must and not must_ok(name, must):
+        if p["kind"] in CURATED and must and not must_ok(p["name"], must):
             if fallback is None:
-                fallback = (name, meta, ext, tier_name, kind)
+                fallback = p
             continue
-        if tier_name != "strict" or pool_name != "curated":
-            log("      ! %s 走 %s/%s 档（%d 个候选）"
-                % (entry.get("zh"), pool_name, tier_name, len(scored)))
-        return (name, meta, ext, tier_name, kind), None, False
+        if p["order"] > 0:
+            log("      ! %s 走 %s/%s 档"
+                % (entry.get("zh"), p["kind"], p["tier"]))
+        return (p["name"], p["meta"], p["ext"], p["tier"], p["kind"]), None, False
 
     if fallback:
         log("      ! %s 只剩一张与专名不符的编辑图：%s"
-            % (entry.get("zh"), fallback[0][:40]))
-        return fallback, "只有与专名不符的编辑图（%s）" % fallback[0][:30], False
+            % (entry.get("zh"), fallback["name"][:40]))
+        return ((fallback["name"], fallback["meta"], fallback["ext"],
+                 fallback["tier"], fallback["kind"]),
+                "只有与专名不符的编辑图（%s）" % fallback["name"][:30], False)
 
-    return None, "%d 个候选全部未通过筛选：%s" % (
-        len(cands), "；".join(rejects[:3]) if rejects else "无"), False
+    return None, "候选与专名都不符，已跳过", False
 
 
 def pick_and_download(iso, entries, rec, cap=MAX_PER_COUNTRY):

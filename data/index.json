@@ -232,7 +232,7 @@
       "iso_a2": "IS",
       "name_zh": "冰岛",
       "name_en": "Iceland",
-      "name_local": null,
+      "name_local": "冰岛",
       "continent": "欧洲",
       "capital": "雷克雅未克",
       "centroid": [
@@ -247,13 +247,15 @@
         "coords": true,
         "geometry": true
       },
-      "status": "partial"
+      "status": "partial",
+      "lang_count": 1,
+      "audio_langs": []
     },
     {
       "iso_a2": "KI",
       "name_zh": "基里巴斯",
       "name_en": "Kiribati",
-      "name_local": null,
+      "name_local": "基里巴斯",
       "continent": "太平洋岛国",
       "capital": "南塔拉瓦",
       "centroid": [
@@ -268,7 +270,9 @@
         "coords": true,
         "geometry": true
       },
-      "status": "partial"
+      "status": "partial",
+      "lang_count": 2,
+      "audio_langs": []
     }
   ]
 }

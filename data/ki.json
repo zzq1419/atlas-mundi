@@ -64,28 +64,51 @@
       "encoding": "webp q72/q74 (源 1920x1440 751KB JPEG)"
     },
     {
-      "title": "File:Loading copra at Betio port, Kiribati.JPG",
+      "title": "File:Battle Tarawa.jpg",
       "caption_zh": "贝蒂奥岛",
       "caption": "贝蒂奥岛",
       "caption_commons": "Loading copra at Betio port, Kiribati",
       "kw": "Betio Island Tarawa",
       "url": "assets/ki/L04.webp",
       "thumb_url": "assets/ki/L04.thumb.webp",
-      "remote_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0f/Loading_copra_at_Betio_port%2C_Kiribati.JPG/1920px-Loading_copra_at_Betio_port%2C_Kiribati.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
-      "source": "article_img",
+      "remote_url": "https://upload.wikimedia.org/wikipedia/commons/3/3f/Battle_Tarawa.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+      "source": "wikidata_p18",
       "pick_tier": "strict",
-      "author": "Photo taken by Government of Kiribati employee in the course of their work",
-      "license": "CC BY 3.0",
-      "license_url": "https://creativecommons.org/licenses/by/3.0",
+      "author": "No machine-readable author provided. Roisterer assumed (based on copyright claims).",
+      "license": "CC BY-SA 3.0",
+      "license_url": "http://creativecommons.org/licenses/by-sa/3.0/",
       "license_status": "ok",
       "load_verified": true,
-      "bytes": 29928,
-      "thumb_bytes": 10640,
+      "bytes": 18746,
+      "thumb_bytes": 7610,
       "size": {
-        "detail": "760x570",
-        "thumb": "400x300"
+        "detail": "760x510",
+        "thumb": "400x268"
       },
-      "encoding": "webp q72/q74 (源 1920x1440 451KB JPEG)"
+      "encoding": "webp q72/q74 (源 1766x1184 224KB JPEG)",
+      "verified": "vision"
+    },
+    {
+      "title": "File:Aerial view of Ocean Island (Banaba), Gilbert Islands (Kiribati).jpg",
+      "caption_zh": "巴纳巴岛",
+      "caption": "巴纳巴岛",
+      "kw": "Banaba Island Kiribati",
+      "url": "assets/ki/L01.webp",
+      "thumb_url": "assets/ki/L01.thumb.webp",
+      "remote_url": "https://upload.wikimedia.org/wikipedia/commons/1/18/Aerial_view_of_Ocean_Island_%28Banaba%29%2C_Gilbert_Islands_%28Kiribati%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+      "source": "commons_search",
+      "pick_tier": "strict",
+      "author": "Royal Australian Air Force",
+      "license": "Public domain",
+      "license_url": null,
+      "bytes": 8892,
+      "verified": "vision",
+      "thumb_bytes": 4598,
+      "size": {
+        "detail": "484x441",
+        "thumb": "329x300"
+      },
+      "encoding": "webp q72/q74 (源 484x441 106KB JPEG)"
     }
   ],
   "image_license": "CC BY-SA 3.0",

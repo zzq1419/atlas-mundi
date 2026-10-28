@@ -1,0 +1,27 @@
+{
+ "File:A healthy coral reef has predators, including this Vampire snapper, in the Phoenix Islands Protected Area.jpg": {
+  "ok": true,
+  "why": "珊瑚礁生态细节符合",
+  "at": "2026-10-28 23:39"
+ },
+ "File:Loading copra at Betio port, Kiribati.JPG": {
+  "ok": false,
+  "why": "码头装卸场景",
+  "at": "2026-10-28 23:39"
+ },
+ "File:Battle Tarawa.jpg": {
+  "ok": true,
+  "why": "贝蒂奥岛海岸与遗迹清晰",
+  "at": "2026-10-28 23:39"
+ },
+ "File:Banaba door stop.jpg": {
+  "ok": false,
+  "why": "历史档案图版，非岛屿景观",
+  "at": "2026-10-28 23:40"
+ },
+ "File:Aerial view of Ocean Island (Banaba), Gilbert Islands (Kiribati).jpg": {
+  "ok": true,
+  "why": "航拍岛屿全景，主体清晰",
+  "at": "2026-10-28 23:40"
+ }
+}
