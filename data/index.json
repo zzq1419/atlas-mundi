@@ -1,6 +1,6 @@
 {
   "schema_version": "0.1",
-  "updated_at": "2026-10-25",
+  "updated_at": "2026-10-28",
   "note": "国家/地区清单。前端只读这个文件来渲染入口卡，详情按 iso_a2 拉 /data/{iso}.json。iso_a2 是对外唯一主键。",
   "countries": [
     {
@@ -77,6 +77,132 @@
       "lang_count": 2,
       "audio_langs": [
         "en"
+      ]
+    },
+    {
+      "iso_a2": "BR",
+      "name_zh": "巴西",
+      "name_en": "Brazil",
+      "name_local": "巴西",
+      "continent": "南美洲",
+      "capital": "巴西利亚",
+      "centroid": [
+        -53,
+        -14
+      ],
+      "thumb": "assets/br/L01.thumb.webp",
+      "modalities": {
+        "image": true,
+        "audio": true,
+        "text": true,
+        "coords": true,
+        "geometry": true
+      },
+      "status": "complete",
+      "lang_count": 1,
+      "audio_langs": [
+        "pt"
+      ]
+    },
+    {
+      "iso_a2": "EG",
+      "name_zh": "埃及",
+      "name_en": "Egypt",
+      "name_local": "埃及",
+      "continent": "非洲",
+      "capital": "开罗",
+      "centroid": [
+        29,
+        27
+      ],
+      "thumb": "assets/eg/L02.thumb.webp",
+      "modalities": {
+        "image": true,
+        "audio": true,
+        "text": true,
+        "coords": true,
+        "geometry": true
+      },
+      "status": "complete",
+      "lang_count": 1,
+      "audio_langs": [
+        "ar"
+      ]
+    },
+    {
+      "iso_a2": "JP",
+      "name_zh": "日本",
+      "name_en": "Japan",
+      "name_local": "日本",
+      "continent": "亚洲",
+      "capital": "东京都",
+      "centroid": [
+        136,
+        35
+      ],
+      "thumb": "assets/jp/L01.thumb.webp",
+      "modalities": {
+        "image": true,
+        "audio": true,
+        "text": true,
+        "coords": true,
+        "geometry": true
+      },
+      "status": "complete",
+      "lang_count": 1,
+      "audio_langs": [
+        "ja"
+      ]
+    },
+    {
+      "iso_a2": "KE",
+      "name_zh": "肯尼亚",
+      "name_en": "Kenya",
+      "name_local": "肯尼亚",
+      "continent": "非洲",
+      "capital": "内罗毕",
+      "centroid": [
+        38,
+        0.1
+      ],
+      "thumb": "assets/ke/L01.thumb.webp",
+      "modalities": {
+        "image": true,
+        "audio": true,
+        "text": true,
+        "coords": true,
+        "geometry": true
+      },
+      "status": "complete",
+      "lang_count": 2,
+      "audio_langs": [
+        "sw",
+        "en"
+      ]
+    },
+    {
+      "iso_a2": "NO",
+      "name_zh": "挪威",
+      "name_en": "Norway",
+      "name_local": "挪威",
+      "continent": "欧洲",
+      "capital": "奥斯陆",
+      "centroid": [
+        10.6833,
+        59.9333
+      ],
+      "thumb": "assets/no/L01.thumb.webp",
+      "modalities": {
+        "image": true,
+        "audio": true,
+        "text": true,
+        "coords": true,
+        "geometry": true
+      },
+      "status": "complete",
+      "lang_count": 1,
+      "audio_langs": [
+        "nb"
       ]
     }
   ]

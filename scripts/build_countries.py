@@ -23,6 +23,16 @@ import json
 import os
 import sys
 
+# 控制台可能是 cp936（Windows cmd 默认），打不出的字符用 ? 代替，别让整段崩掉。
+# 之前 collect.py 在连不上某个站时打印一个 ✗ 就 UnicodeEncodeError 退出，
+# 看起来像"采集失败"，其实连抓取都还没开始。
+try:
+    sys.stdout.reconfigure(errors="replace")
+    sys.stderr.reconfigure(errors="replace")
+except Exception:
+    pass
+
+
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 sys.path.insert(0, HERE)
@@ -82,7 +92,23 @@ def main():
     total_bytes = 0
     skipped = []
 
-    for feat in src.get("features", []):
+    # 同一个 ISO 在 NE 里可能有多个要素：AU 就有 Australia / Indian Ocean Ter. /
+    # Ashmore and Cartier 三个，后写的会把先写的覆盖掉 —— 实测 meta["AU"] 变成了
+    # "澳屬印度洋領地"（人口 2387），澳大利亚本身反而没了。规则：同 ISO 留人口最多的。
+    feats = src.get("features", [])
+    best = {}
+    for idx, feat in enumerate(feats):
+        q = feat.get("properties", {}) or {}
+        code = (q.get("ISO_A2") or "").upper()
+        if len(code) != 2:
+            code = (q.get("ISO_A2_EH") or "").upper()
+        if len(code) != 2:
+            continue
+        pop = int(q.get("POP_EST") or 0)
+        if code not in best or pop > best[code][0]:
+            best[code] = (pop, idx)
+
+    for idx, feat in enumerate(feats):
         p = feat.get("properties", {})
         iso = (p.get("ISO_A2") or "").upper()
         if len(iso) != 2:
@@ -90,6 +116,8 @@ def main():
         if len(iso) != 2:
             skipped.append(p.get("NAME"))
             continue
+        if best.get(iso) and best[iso][1] != idx:
+            continue                     # 同 ISO 的非主要素（属地/离岛）跳过
 
         name_zh = p.get("NAME_ZH") or p.get("NAME") or iso
         name_zh = SHORT.get(name_zh, name_zh)

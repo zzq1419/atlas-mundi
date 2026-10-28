@@ -35,6 +35,16 @@ import json
 import os
 import sys
 
+# 控制台可能是 cp936（Windows cmd 默认），打不出的字符用 ? 代替，别让整段崩掉。
+# 之前 collect.py 在连不上某个站时打印一个 ✗ 就 UnicodeEncodeError 退出，
+# 看起来像"采集失败"，其实连抓取都还没开始。
+try:
+    sys.stdout.reconfigure(errors="replace")
+    sys.stderr.reconfigure(errors="replace")
+except Exception:
+    pass
+
+
 try:
     enc = (sys.stdout.encoding or "").lower()
     if enc not in ("utf-8", "utf8", "cp936", "gbk", "gb2312", "cp65001"):
@@ -119,12 +129,20 @@ SPEECH_PROMPT = """你在为一本"国家文化图谱"写语音导览。
 
 国家：{name}（{name_en}）
 首都：{capital}
+代表地标：{spots}
 
-请为下面每一种语言各写**一句 5~6 秒**的口语欢迎语，内容是：欢迎来到这个国家 + 首都是哪里。
+请为下面每一种语言各写**一句 6~8 秒**的欢迎语，内容依次是：
+欢迎来到这个国家 → 首都是哪里 → 提一处代表地标。
+
 要求：
-1. 必须是该语言的**日常口语**，不要书面腔、不要翻译腔；
-2. 只写一句，不要标题、不要解释；
-3. 同时给出这句话的简体中文翻译（供卡片显示）。
+1. 长度目标 8~13 秒：拉丁字母语言 25~40 个词，中日韩 45~70 个字
+   （之前给过"日本へようこそ、首都は東京だよ。"这种三秒就说完的，太敷衍）
+2. 语气像博物馆语音导览：温和、清楚、有画面感；
+   **不要**用「だよ」「哦」「啦」这类亲昵语气词，也不要感叹号堆砌；
+3. 必须是**纯正的该国语言**，不要混入中文词：日语要写「名所」「見どころ」，
+   不要写「地標」这种中文词；其他语言同理；不要书面腔、不要翻译腔；
+4. 只写一句，不要标题、不要解释；
+5. 同时给出这句话的简体中文翻译（供卡片显示）。
 
 语言列表：
 {langs}
@@ -134,7 +152,12 @@ SPEECH_PROMPT = """你在为一本"国家文化图谱"写语音导览。
 键必须是上面给出的语言代码。"""
 
 
-def llm_sentences(rec, langs):
+# edge-tts 输出 24kHz/48kbps 单声道 ≈ 6KB/s，用来粗估时长
+EST_BPS = 6000.0
+MIN_SEC, MAX_SEC = 3.5, 18.0
+
+
+def llm_sentences(rec, langs, extra=None):
     """让大模型写句子。失败返回 {}，由调用方跳过这些语言。"""
     try:
         from llm import chat_json
@@ -142,9 +165,16 @@ def llm_sentences(rec, langs):
         print("  ! 无法导入 llm：%s" % e)
         return {}
     listed = "\n".join("- %s（%s）" % (l.get("code"), l.get("name_zh")) for l in langs)
+    # 地标来自 data/landmarks.json（build_landmarks.py 生成）：有具体地名，
+    # 模型写出来的句子才有画面，不然只会"欢迎来到某某国"，三秒讲完。
+    spots = "、".join((x.get("zh") or "") for x in (rec.get("landmark_images") or [])
+                     if x.get("caption_zh"))[:3] or "—"
     prompt = SPEECH_PROMPT.format(
         name=rec.get("name_zh") or "", name_en=rec.get("name_en") or "",
-        capital=rec.get("capital") or "—", langs=listed)
+        capital=rec.get("capital") or "—", spots=spots, langs=listed)
+    if extra:
+        prompt += ("\n\n【上一版不合格】%s。请重写，其余要求不变，"
+                   "仍然只输出 JSON。" % extra)
     try:
         data = chat_json(prompt, scene="speech", max_tokens=900)
     except Exception as e:
@@ -156,7 +186,7 @@ def llm_sentences(rec, langs):
 def do_country(iso, force=False):
     path = os.path.join(DATA, "%s.json" % iso.lower())
     if not os.path.exists(path):
-        print("  ✗ 没有 data/%s.json，先采集" % iso.lower())
+        print("  [x] 没有 data/%s.json，先采集" % iso.lower())
         return False
     with open(path, encoding="utf-8") as f:
         rec = json.load(f)
@@ -212,6 +242,21 @@ def do_country(iso, force=False):
             continue
         try:
             size = synth(text, voice, out)
+            est = size / EST_BPS
+            # 时长明显不对就重写一次。edge-tts 是 48kbps，≈6KB/s，
+            # 用三国那几条音频校准过；只为"别把三秒的敷衍话端给用户"。
+            if not (MIN_SEC <= est <= MAX_SEC) and not l.get("_retried"):
+                l["_retried"] = True
+                tip = "太长（约 %.0f 秒），压到一半" % est if est > MAX_SEC \
+                    else "太短（约 %.0f 秒），补上半句地标或方位" % est
+                got = llm_sentences(rec, [l], extra=tip)
+                g = got.get(l.get("code")) or {}
+                if g.get("text"):
+                    l["tts_text"] = g["text"].strip()
+                    if g.get("zh"):
+                        l["tts_text_zh"] = g["zh"].strip()
+                    size = synth(l["tts_text"].strip(), voice, out)
+                    print("    · 重写一次（%s）" % tip)
         except Exception as e:
             skipped.append("%s（合成失败：%s）" % (l.get("name_zh"), str(e)[:40]))
             continue
@@ -221,7 +266,7 @@ def do_country(iso, force=False):
         l["audio_voice"] = voice
         l["audio_bytes"] = size
         ok += 1
-        print("    ✓ %-6s → %-6s %.0f KB  %s"
+        print("    [ok] %-6s → %-6s %.0f KB  %s"
               % (l.get("name_zh"), l.get("code"), size / 1024, text[:28]))
 
     if skipped:
@@ -270,7 +315,7 @@ def main():
         try:
             ok += bool(do_country(iso, a.force))
         except Exception as e:
-            print("  ✗ %s: %s" % (type(e).__name__, e))
+            print("  [x] %s: %s" % (type(e).__name__, e))
     print("\n完成 %d / %d" % (ok, len(isos)))
     return 0
 

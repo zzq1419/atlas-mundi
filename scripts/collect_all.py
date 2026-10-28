@@ -45,6 +45,16 @@ import json
 import os
 import subprocess
 import sys
+
+# 控制台可能是 cp936（Windows cmd 默认），打不出的字符用 ? 代替，别让整段崩掉。
+# 之前 collect.py 在连不上某个站时打印一个 ✗ 就 UnicodeEncodeError 退出，
+# 看起来像"采集失败"，其实连抓取都还没开始。
+try:
+    sys.stdout.reconfigure(errors="replace")
+    sys.stderr.reconfigure(errors="replace")
+except Exception:
+    pass
+
 import time
 from datetime import datetime
 
@@ -96,8 +106,13 @@ def run(cmd, timeout=1200):
     path = os.path.join(LOGDIR, "run_%s.log" % name.replace(" ", "_"))
     with open(path, "a", encoding="utf-8") as f:
         f.write("\n$ %s\n" % " ".join(cmd))
+        env = dict(os.environ)
+        # 强制子进程用 UTF-8 输出：否则它按 cp936 输出、这里按 UTF-8 解码，
+        # logs/*.log 会变成一片"锟斤拷"，出事时完全没法查
+        env["PYTHONIOENCODING"] = "utf-8"
+        env["PYTHONUTF8"] = "1"
         try:
-            p = subprocess.run(cmd, cwd=ROOT, timeout=timeout,
+            p = subprocess.run(cmd, cwd=ROOT, timeout=timeout, env=env,
                                stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         except subprocess.TimeoutExpired:
             f.write("!! TIMEOUT %ss\n" % timeout)
@@ -188,7 +203,7 @@ def stage_collect(a, isos):
         else:
             fail += 1
             fails.append(iso)
-            log("  ✗ 失败：%s" % out.strip().splitlines()[-1][:120] if out else "  ✗ 失败")
+            log("  [x] 失败：%s" % out.strip().splitlines()[-1][:120] if out else "  [x] 失败")
         if a.sleep:
             time.sleep(a.sleep)
     log("\n采集完成：成功 %d，失败 %d" % (ok, fail))
@@ -243,7 +258,9 @@ def stage_speech(a, isos):
 
 
 def stage_images(a, isos):
-    code, out = run([PY, os.path.join(SCRIPTS, "optimize_images.py"), "--all"], timeout=7200)
+    # --prune：WebP 写好就删源 jpg。223 国不删的话源图就有 400MB+
+    code, out = run([PY, os.path.join(SCRIPTS, "optimize_images.py"), "--all", "--prune"],
+                    timeout=7200)
     log(out[-800:] if out else "")
     return code == 0
 
@@ -295,11 +312,15 @@ def main():
     ap.add_argument("--plan", action="store_true", help="只统计规模，不执行")
     a = ap.parse_args()
 
-    if a.proxy:
-        os.environ["HTTPS_PROXY"] = a.proxy
-        os.environ["HTTP_PROXY"] = a.proxy
-        os.environ["https_proxy"] = a.proxy
-        os.environ["http_proxy"] = a.proxy
+    # 代理要"探测一次 + 设进环境变量"，子进程继承：
+    # urllib 不读 Windows 系统代理，只认这几条环境变量。
+    try:
+        import netcheck
+        netcheck.setup(a.proxy, verbose=True)
+    except ImportError:
+        if a.proxy:
+            for k in ("HTTP_PROXY", "HTTPS_PROXY", "http_proxy", "https_proxy"):
+                os.environ[k] = a.proxy
 
     isos = target_isos(a)
 
@@ -338,7 +359,7 @@ def main():
 
     log("\n===== 汇总（%.1f 分钟）=====" % ((time.time() - t0) / 60))
     for st in stages:
-        log("  %-8s %s" % (st, "✓" if results.get(st) else "✗"))
+        log("  %-8s %s" % (st, "[ok]" if results.get(st) else "[x]"))
 
     rep = {"at": datetime.now().isoformat(timespec="seconds"),
            "isos": len(isos), "stages": {k: bool(v) for k, v in results.items()}}

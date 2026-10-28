@@ -33,6 +33,16 @@ import json
 import os
 import re
 import sys
+
+# 控制台可能是 cp936（Windows cmd 默认），打不出的字符用 ? 代替，别让整段崩掉。
+# 之前 collect.py 在连不上某个站时打印一个 ✗ 就 UnicodeEncodeError 退出，
+# 看起来像"采集失败"，其实连抓取都还没开始。
+try:
+    sys.stdout.reconfigure(errors="replace")
+    sys.stderr.reconfigure(errors="replace")
+except Exception:
+    pass
+
 import time
 import urllib.error
 import urllib.parse
@@ -49,6 +59,16 @@ except Exception:
 
 UA = "AtlasMundi/0.1 (course project; contact: 2036829270@qq.com)"
 TZ = timezone(timedelta(hours=8))
+# 模块级就把代理准备好：fill_images / speech_all 都是 `import collect` 复用这里的
+# http_get，如果只在 main() 里设代理，那些脚本一 import 就拿到"没代理"的版本
+# —— 表现是 SSL handshake timed out（2026-10-28 实测）。
+try:
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    import netcheck as _netcheck
+    _netcheck.setup_once()
+except Exception:
+    pass
+
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 ENTITY_DATA = "https://www.wikidata.org/wiki/Special:EntityData/%s.json"
@@ -211,19 +231,21 @@ def preflight():
         ("https://www.wikidata.org/w/api.php?action=query&meta=siteinfo&format=json", "Wikidata"),
         ("https://zh.wikipedia.org/w/api.php?action=query&meta=siteinfo&format=json", "中文维基"),
         ("https://commons.wikimedia.org/w/api.php?action=query&meta=siteinfo&format=json", "Commons"),
-        ("https://upload.wikimedia.org/wikipedia/commons/thumb/2/23/"
-         "The_Great_Wall_of_China_at_Jinshanling-edit.jpg/200px-"
-         "The_Great_Wall_of_China_at_Jinshanling-edit.jpg", "upload 图床"),
+        # 探测用 Example.jpg（Commons 上十几年没动过的文件）。
+        # 之前写的是金山岭长城某张图，那个文件名在 Commons 上被改过，
+        # 于是 400 一直报"图床不可达" —— 其实是探测 URL 过期，不是网络问题。
+        ("https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/Example.jpg/"
+         "120px-Example.jpg", "upload 图床"),
     ]
     ok = 0
     for url, label in targets:
         t0 = time.time()
         try:
             n = len(http_get(url, timeout=12, retries=1))
-            log("  ✓ %-11s %5.1fs  %d 字节" % (label, time.time() - t0, n))
+            log("  [ok] %-11s %5.1fs  %d 字节" % (label, time.time() - t0, n))
             ok += 1
         except Exception as e:
-            log("  ✗ %-11s %s" % (label, str(e)[:90]))
+            log("  [x] %-11s %s" % (label, str(e)[:90]))
     log("  体检：%d / %d 可达" % (ok, len(targets)))
     if ok == 0:
         log("  → 全部不可达，八成是代理没开或规则没覆盖维基媒体。\n")
@@ -254,16 +276,27 @@ def fetch_labels(qids):
 
 
 def claim_values(entity, prop):
-    """解包某属性的 mainsnak datavalue 列表"""
-    out = []
-    for st in (entity.get("claims") or {}).get(prop, []):
+    """解包某属性的 mainsnak datavalue 列表。
+
+    必须看 rank：日本的首都 P36 有 9 条（奈良时代的紫香乐宫、平安京、东京…），
+    数组顺序不保证，直接取第一条会得到「紫香乐宫」这种一千三百年前的答案。
+    Wikidata 用 rank=preferred 标出「当前值」，deprecated 则是废止值。
+    所以：preferred 排最前，deprecated 直接丢。
+    """
+    scored = []
+    for i, st in enumerate((entity.get("claims") or {}).get(prop, [])):
+        rank = st.get("rank") or "normal"
+        if rank == "deprecated":
+            continue
         sn = st.get("mainsnak") or {}
         if sn.get("snaktype") != "value":
             continue
         dv = (sn.get("datavalue") or {}).get("value")
-        if dv is not None:
-            out.append(dv)
-    return out
+        if dv is None:
+            continue
+        scored.append((0 if rank == "preferred" else 1, i, dv))
+    scored.sort(key=lambda x: (x[0], x[1]))
+    return [dv for _, _, dv in scored]
 
 
 def entity_id(v):
@@ -276,20 +309,20 @@ def fetch_wikidata(iso2, forced_qid, notes):
            or (IDS.get(iso2) or {}).get("qid"))
     if not qid:
         notes.append("没有 %s 的 QID 映射：先跑 python scripts/resolve_ids.py" % iso2)
-        log("      ✗ 未配置 QID，跳过（先跑 resolve_ids.py）")
+        log("      [x] 未配置 QID，跳过（先跑 resolve_ids.py）")
         return {}
 
     try:
         d = json.loads(http_get(ENTITY_DATA % qid, accept="application/json").decode("utf-8"))
     except Exception as e:
         notes.append("Wikidata 实体拉取失败（%s）：%s" % (qid, str(e)[:100]))
-        log("      ✗ %s 拉取失败：%s" % (qid, str(e)[:110]))
+        log("      [x] %s 拉取失败：%s" % (qid, str(e)[:110]))
         return {}
 
     ent = (d.get("entities") or {}).get(qid)
     if not ent:
         notes.append("Wikidata 实体 %s 返回为空" % qid)
-        log("      ✗ 实体为空")
+        log("      [x] 实体为空")
         return {}
 
     out = {"qid": qid}
@@ -346,6 +379,15 @@ def fetch_wikidata(iso2, forced_qid, notes):
                 continue
             seen.add(l["name_zh"])
             keep.append(l)
+        # 代码没解析出来（仍是 Q12345）的多半不是"语言"本身：手语、语支、
+        # 语言变体都会挂 P37。实测巴西多出"巴西手語"（Q3436689）、
+        # 挪威多出"萨米语支"（smi），都会在卡片里变成一条没有音色的死条目。
+        # 只有在还剩下别的语言时才剔除，避免把小国唯一语言也丢掉。
+        parsed = [l for l in keep if not re.match(r"^Q\d+$", str(l.get("code") or ""))]
+        if parsed and len(parsed) < len(keep):
+            notes.append("语言代码未解析，已剔除：%s"
+                         % "、".join(l["name_zh"] for l in keep if l not in parsed))
+            keep = parsed
         out["languages"] = keep[:2] or raw[:1]
         if len(raw) > len(out["languages"]):
             notes.append("P37 返回 %d 个语言，去重/去上位概念后保留 %d 个：%s"
@@ -376,7 +418,7 @@ def fetch_wikidata(iso2, forced_qid, notes):
 
     if not out["_image_files"]:
         notes.append("Wikidata 无 P18 代表图，回退到维基正文配图")
-    log("      ✓ %s  %s  首都=%s  坐标=%s  语言=%d  P18=%d  P443=%d"
+    log("      [ok] %s  %s  首都=%s  坐标=%s  语言=%d  P18=%d  P443=%d"
         % (qid, out.get("name_zh"), out.get("capital"), out.get("centroid"),
            len(out.get("languages") or []), len(out["_image_files"]), len(out["_audio_files"])))
     return out
@@ -422,10 +464,10 @@ def fetch_summary(title, notes):
     text, real_title = wiki_extract(title, notes)
     if not text:
         notes.append("Wikipedia 未取到正文摘要")
-        log("      ✗ 未取到")
+        log("      [x] 未取到")
         return None
     text = trim_summary(text)
-    log("      ✓ %d 字（标题：%s）" % (len(text), real_title))
+    log("      [ok] %d 字（标题：%s）" % (len(text), real_title))
     if len(text) < 300:
         notes.append("摘要仅 %d 字，低于 300 字下限，需人工或 LLM 补写" % len(text))
     return {"text": text, "title": real_title,
@@ -515,11 +557,11 @@ def fetch_assets(iso2, wd, notes):
         meta = lookup_meta(info, name)
         if not meta or not meta.get("remote_url"):
             notes.append("图片 %s 未取到直链，已跳过" % name)
-            log("      ✗ %s 无直链" % name)
+            log("      [x] %s 无直链" % name)
             continue
         if (meta.get("mime") or "").startswith("image/svg"):
             notes.append("图片 %s 原始格式是 SVG（地图/旗帜/徽章常见），已跳过" % name)
-            log("      ✗ %s 是 SVG，跳过" % name)
+            log("      [x] %s 是 SVG，跳过" % name)
             continue
         ext = ext_of(meta["remote_url"])
         rel = "assets/%s/%02d%s" % (slug, idx, ext)
@@ -527,7 +569,7 @@ def fetch_assets(iso2, wd, notes):
             size = download(meta["remote_url"], os.path.join(adir, "%02d%s" % (idx, ext)))
         except Exception as e:
             notes.append("图片 %s 下载失败：%s" % (name, str(e)[:80]))
-            log("      ✗ %s 下载失败：%s" % (name, str(e)[:60]))
+            log("      [x] %s 下载失败：%s" % (name, str(e)[:60]))
             continue
         lic = meta.get("license")
         if not lic:
@@ -542,7 +584,7 @@ def fetch_assets(iso2, wd, notes):
             "license_status": "ok" if lic else "unknown",
             "load_verified": True, "bytes": size,
         })
-        log("      ✓ %s  %.0f KB  授权=%s" % (rel, size / 1024, lic or "待确认"))
+        log("      [ok] %s  %.0f KB  授权=%s" % (rel, size / 1024, lic or "待确认"))
         log("        来源文件：%s" % name)
 
     cand = [n for n in (wd.get("_audio_files") or []) if is_zh_audio(n)]
@@ -568,7 +610,7 @@ def fetch_assets(iso2, wd, notes):
         audio = {"url": rel, "source": "commons", "origin_title": "File:" + name,
                  "license": meta.get("license"), "license_url": meta.get("license_url"),
                  "author": meta.get("artist"), "bytes": size}
-        log("      ✓ %s  %.0f KB" % (rel, size / 1024))
+        log("      [ok] %s  %.0f KB" % (rel, size / 1024))
 
     if not images:
         notes.append("本次未获得任何可用地标图（连文件直链都没拿到）")
@@ -608,7 +650,7 @@ def fetch_geo(iso2, notes):
     with open(out, "w", encoding="utf-8") as f:
         json.dump(fc, f, ensure_ascii=False)
     geo_name = fc["features"][0]["properties"].get("NAME_ZH")
-    log("      ✓ geo/%s.geojson  %d 顶点%s" % (
+    log("      [ok] geo/%s.geojson  %d 顶点%s" % (
         iso2.lower(), st["vertices"],
         ("  已并入 " + "、".join(st["merged"])) if st["merged"] else ""))
     return "geo/%s.geojson" % iso2.lower(), geo_name
@@ -621,7 +663,18 @@ def main():
     ap.add_argument("--qid", help="手动指定 Wikidata QID")
     ap.add_argument("--geo", action="store_true", help="额外抓 Natural Earth 50m 边界")
     ap.add_argument("--check", action="store_true", help="只做连通性体检")
+    ap.add_argument("--proxy", help="如 http://127.0.0.1:7897（默认自动探测系统代理）")
     args = ap.parse_args()
+
+    # urllib 不读 Windows 系统代理，必须显式探测一次；否则在开了 Clash/V2Ray 的
+    # 机器上，"浏览器能开维基、脚本全失败"是必然结果。
+    try:
+        import netcheck
+        netcheck.setup(args.proxy, verbose=bool(args.proxy) or True)
+    except ImportError:
+        if args.proxy:
+            for k in ("HTTP_PROXY", "HTTPS_PROXY", "http_proxy", "https_proxy"):
+                os.environ[k] = args.proxy
 
     iso2 = args.iso.upper()
     ok = preflight()
@@ -683,6 +736,11 @@ def main():
             rec["geometry"] = geo_rel
             rec["geometry_status"] = "naturalearth_50m"
             rec["geometry_name"] = geo_name
+    else:
+        # 全量采集不落 per-country geojson（223 个文件 = 223 次提交），
+        # 几何统一由 geo/c{0..7}.json 分片提供；这里只标一个状态，
+        # 前端据此渲染国界轮廓，modalities.geometry 也不会误判为缺失。
+        rec["geometry_status"] = "naturalearth_50m_chunked"
 
     for k in ("_image_files", "_audio_files", "_wiki_title"):
         rec.pop(k, None)

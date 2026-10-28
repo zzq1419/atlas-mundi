@@ -1,145 +1,425 @@
 {
-  "note": "人工选定的地标清单。queries 是检索词（只放地标本名，别加'玻璃''（南缘）'这类修饰，否则 Wikidata/中文维基都匹配不上）；en 用于校验取回的图确实是这个东西；must/avoid 只在退到 Commons 关键词搜索时生效。",
-  "schema": 1,
-  "countries": {
-    "CN": [
-      {
-        "zh": "金山岭长城",
-        "en": "great wall",
-        "queries": [
-          "金山岭长城",
-          "长城"
-        ],
-        "kw": "Great Wall of China Jinshanling",
-        "must": "great wall"
-      },
-      {
-        "zh": "故宫太和殿",
-        "en": "supreme harmony",
-        "queries": [
-          "太和殿",
-          "故宫太和殿"
-        ],
-        "kw": "Hall of Supreme Harmony Forbidden City",
-        "must": "supreme harmony"
-      },
-      {
-        "zh": "秦始皇陵兵马俑",
-        "en": "terracotta",
-        "queries": [
-          "秦始皇兵马俑",
-          "兵马俑"
-        ],
-        "kw": "Terracotta Army Pit 1",
-        "must": "terracotta"
-      },
-      {
-        "zh": "布达拉宫",
-        "en": "potala",
-        "queries": [
-          "布达拉宫"
-        ],
-        "kw": "Potala Palace Lhasa",
-        "must": "potala"
-      }
+ "note": "人工选定的地标清单。queries 是检索词（只放地标本名，别加'玻璃''（南缘）'这类修饰，否则 Wikidata/中文维基都匹配不上）；en 用于校验取回的图确实是这个东西；must/avoid 只在退到 Commons 关键词搜索时生效。",
+ "schema": 1,
+ "countries": {
+  "CN": [
+   {
+    "zh": "金山岭长城",
+    "en": "great wall",
+    "queries": [
+     "金山岭长城",
+     "长城"
     ],
-    "FR": [
-      {
-        "zh": "埃菲尔铁塔",
-        "en": "eiffel",
-        "queries": [
-          "埃菲尔铁塔"
-        ],
-        "kw": "Eiffel Tower Champ de Mars",
-        "must": "eiffel",
-        "avoid": [
-          "sous"
-        ]
-      },
-      {
-        "zh": "卢浮宫玻璃金字塔",
-        "en": "louvre",
-        "queries": [
-          "卢浮宫金字塔",
-          "卢浮宫"
-        ],
-        "kw": "Louvre Pyramid courtyard",
-        "must": "louvre",
-        "avoid": [
-          "construction",
-          "1987",
-          "plan"
-        ]
-      },
-      {
-        "zh": "圣米歇尔山",
-        "en": "mont saint|mont-saint",
-        "queries": [
-          "圣米歇尔山"
-        ],
-        "kw": "Mont Saint-Michel island abbey",
-        "must": "mont saint",
-        "avoid": [
-          "cistern",
-          "chaplaincy",
-          "interior"
-        ]
-      },
-      {
-        "zh": "凡尔赛宫镜厅",
-        "en": "mirror",
-        "queries": [
-          "镜厅",
-          "凡尔赛宫镜厅"
-        ],
-        "kw": "Hall of Mirrors Versailles",
-        "must": "mirror",
-        "avoid": [
-          "foudre"
-        ]
-      }
+    "kw": "Great Wall of China Jinshanling",
+    "must": "great wall"
+   },
+   {
+    "zh": "故宫太和殿",
+    "en": "supreme harmony",
+    "queries": [
+     "太和殿",
+     "故宫太和殿"
     ],
-    "US": [
-      {
-        "zh": "自由女神像",
-        "en": "statue of liberty",
-        "queries": [
-          "自由女神像"
-        ],
-        "kw": "Statue of Liberty",
-        "must": "statue of liberty"
-      },
-      {
-        "zh": "大峡谷",
-        "en": "grand canyon",
-        "queries": [
-          "科罗拉多大峡谷",
-          "大峡谷"
-        ],
-        "kw": "Grand Canyon South Rim",
-        "must": "grand canyon",
-        "avoid": [
-          "hazy"
-        ]
-      },
-      {
-        "zh": "金门大桥",
-        "en": "golden gate",
-        "queries": [
-          "金门大桥"
-        ],
-        "kw": "Golden Gate Bridge",
-        "must": "golden gate"
-      },
-      {
-        "zh": "白宫",
-        "en": "white house",
-        "queries": [
-          "白宫"
-        ],
-        "kw": "White House north facade",
-        "must": "white house"
-      }
+    "kw": "Hall of Supreme Harmony Forbidden City",
+    "must": "supreme harmony"
+   },
+   {
+    "zh": "秦始皇陵兵马俑",
+    "en": "terracotta",
+    "queries": [
+     "秦始皇兵马俑",
+     "兵马俑"
+    ],
+    "kw": "Terracotta Army Pit 1",
+    "must": "terracotta"
+   },
+   {
+    "zh": "布达拉宫",
+    "en": "potala",
+    "queries": [
+     "布达拉宫"
+    ],
+    "kw": "Potala Palace Lhasa",
+    "must": "potala"
+   }
+  ],
+  "FR": [
+   {
+    "zh": "埃菲尔铁塔",
+    "en": "eiffel",
+    "queries": [
+     "埃菲尔铁塔"
+    ],
+    "kw": "Eiffel Tower Champ de Mars",
+    "must": "eiffel",
+    "avoid": [
+     "sous"
     ]
-  }
+   },
+   {
+    "zh": "卢浮宫玻璃金字塔",
+    "en": "louvre",
+    "queries": [
+     "卢浮宫金字塔",
+     "卢浮宫"
+    ],
+    "kw": "Louvre Pyramid courtyard",
+    "must": "louvre",
+    "avoid": [
+     "construction",
+     "1987",
+     "plan"
+    ]
+   },
+   {
+    "zh": "圣米歇尔山",
+    "en": "mont saint|mont-saint",
+    "queries": [
+     "圣米歇尔山"
+    ],
+    "kw": "Mont Saint-Michel island abbey",
+    "must": "mont saint",
+    "avoid": [
+     "cistern",
+     "chaplaincy",
+     "interior"
+    ]
+   },
+   {
+    "zh": "凡尔赛宫镜厅",
+    "en": "mirror",
+    "queries": [
+     "镜厅",
+     "凡尔赛宫镜厅"
+    ],
+    "kw": "Hall of Mirrors Versailles",
+    "must": "mirror",
+    "avoid": [
+     "foudre"
+    ]
+   }
+  ],
+  "US": [
+   {
+    "zh": "自由女神像",
+    "en": "statue of liberty",
+    "queries": [
+     "自由女神像"
+    ],
+    "kw": "Statue of Liberty",
+    "must": "statue of liberty"
+   },
+   {
+    "zh": "大峡谷",
+    "en": "grand canyon",
+    "queries": [
+     "科罗拉多大峡谷",
+     "大峡谷"
+    ],
+    "kw": "Grand Canyon South Rim",
+    "must": "grand canyon",
+    "avoid": [
+     "hazy"
+    ]
+   },
+   {
+    "zh": "金门大桥",
+    "en": "golden gate",
+    "queries": [
+     "金门大桥"
+    ],
+    "kw": "Golden Gate Bridge",
+    "must": "golden gate"
+   },
+   {
+    "zh": "白宫",
+    "en": "white house",
+    "queries": [
+     "白宫"
+    ],
+    "kw": "White House north facade",
+    "must": "white house"
+   }
+  ],
+  "JP": [
+   {
+    "zh": "富士山",
+    "en": "Mount Fuji Kawaguchiko",
+    "queries": [
+     "富士山"
+    ],
+    "kw": "Mount Fuji Kawaguchiko",
+    "must": "fuji"
+   },
+   {
+    "zh": "京都伏见稻荷大社",
+    "en": "Fushimi Inari Taisha torii",
+    "queries": [
+     "京都伏见稻荷大社"
+    ],
+    "kw": "Fushimi Inari Taisha torii",
+    "must": "fushimi"
+   },
+   {
+    "zh": "东京晴空塔",
+    "en": "Tokyo Skytree tower",
+    "queries": [
+     "东京晴空塔"
+    ],
+    "kw": "Tokyo Skytree tower",
+    "must": "skytree"
+   },
+   {
+    "zh": "奈良东大寺大佛殿",
+    "en": "Todai-ji Great Buddha Hall",
+    "queries": [
+     "奈良东大寺大佛殿"
+    ],
+    "kw": "Todai-ji Great Buddha Hall",
+    "must": "todaiji"
+   },
+   {
+    "zh": "广岛和平纪念公园",
+    "en": "Hiroshima Peace Memorial Park dome",
+    "queries": [
+     "广岛和平纪念公园"
+    ],
+    "kw": "Hiroshima Peace Memorial Park dome",
+    "must": "hiroshima"
+   },
+   {
+    "zh": "姬路城",
+    "en": "Himeji Castle keep",
+    "queries": [
+     "姬路城"
+    ],
+    "kw": "Himeji Castle keep",
+    "must": "himeji"
+   }
+  ],
+  "EG": [
+   {
+    "zh": "吉萨金字塔群",
+    "en": "Great Pyramids of Giza",
+    "queries": [
+     "吉萨金字塔群"
+    ],
+    "kw": "Great Pyramids of Giza",
+    "must": "giza"
+   },
+   {
+    "zh": "狮身人面像",
+    "en": "Great Sphinx of Giza",
+    "queries": [
+     "狮身人面像"
+    ],
+    "kw": "Great Sphinx of Giza",
+    "must": "sphinx"
+   },
+   {
+    "zh": "阿布辛贝神庙",
+    "en": "Abu Simbel Temple Ramses",
+    "queries": [
+     "阿布辛贝神庙"
+    ],
+    "kw": "Abu Simbel Temple Ramses",
+    "must": "abu simbel"
+   },
+   {
+    "zh": "卡纳克神庙",
+    "en": "Karnak Temple Luxor",
+    "queries": [
+     "卡纳克神庙"
+    ],
+    "kw": "Karnak Temple Luxor",
+    "must": "karnak"
+   },
+   {
+    "zh": "帝王谷",
+    "en": "Valley of the Kings Luxor",
+    "queries": [
+     "帝王谷"
+    ],
+    "kw": "Valley of the Kings Luxor",
+    "must": "valley of the kings"
+   },
+   {
+    "zh": "卢克索神庙",
+    "en": "Luxor Temple Egypt",
+    "queries": [
+     "卢克索神庙"
+    ],
+    "kw": "Luxor Temple Egypt",
+    "must": "luxor temple"
+   }
+  ],
+  "BR": [
+   {
+    "zh": "里约热内卢基督像",
+    "en": "Christ the Redeemer Rio de Janeiro",
+    "queries": [
+     "里约热内卢基督像"
+    ],
+    "kw": "Christ the Redeemer Rio de Janeiro",
+    "must": "redeemer"
+   },
+   {
+    "zh": "伊瓜苏瀑布",
+    "en": "Iguazu Falls Brazil",
+    "queries": [
+     "伊瓜苏瀑布"
+    ],
+    "kw": "Iguazu Falls Brazil",
+    "must": "iguazu"
+   },
+   {
+    "zh": "亚马逊雨林",
+    "en": "Amazon rainforest river Brazil",
+    "queries": [
+     "亚马逊雨林"
+    ],
+    "kw": "Amazon rainforest river Brazil",
+    "must": "amazon"
+   },
+   {
+    "zh": "糖面包山",
+    "en": "Sugarloaf Mountain Rio de Janeiro",
+    "queries": [
+     "糖面包山"
+    ],
+    "kw": "Sugarloaf Mountain Rio de Janeiro",
+    "must": "sugarloaf"
+   },
+   {
+    "zh": "科帕卡巴纳海滩",
+    "en": "Copacabana Beach Rio de Janeiro",
+    "queries": [
+     "科帕卡巴纳海滩"
+    ],
+    "kw": "Copacabana Beach Rio de Janeiro",
+    "must": "copacabana"
+   },
+   {
+    "zh": "萨尔瓦多历史中心",
+    "en": "Pelourinho Salvador Bahia",
+    "queries": [
+     "萨尔瓦多历史中心"
+    ],
+    "kw": "Pelourinho Salvador Bahia",
+    "must": "pelourinho"
+   }
+  ],
+  "NO": [
+   {
+    "zh": "松恩峡湾",
+    "en": "Sognefjord Norway",
+    "queries": [
+     "松恩峡湾"
+    ],
+    "kw": "Sognefjord Norway",
+    "must": "sognefjord"
+   },
+   {
+    "zh": "盖朗厄尔峡湾",
+    "en": "Geirangerfjord Norway",
+    "queries": [
+     "盖朗厄尔峡湾"
+    ],
+    "kw": "Geirangerfjord Norway",
+    "must": "geirangerfjord"
+   },
+   {
+    "zh": "布道石",
+    "en": "Preikestolen Norway",
+    "queries": [
+     "布道石"
+    ],
+    "kw": "Preikestolen Norway",
+    "must": "preikestolen"
+   },
+   {
+    "zh": "罗弗敦群岛",
+    "en": "Lofoten Islands Norway",
+    "queries": [
+     "罗弗敦群岛"
+    ],
+    "kw": "Lofoten Islands Norway",
+    "must": "lofoten"
+   },
+   {
+    "zh": "卑尔根布吕根",
+    "en": "Bryggen Bergen Norway",
+    "queries": [
+     "卑尔根布吕根"
+    ],
+    "kw": "Bryggen Bergen Norway",
+    "must": "bryggen"
+   },
+   {
+    "zh": "尼达罗斯大教堂",
+    "en": "Nidaros Cathedral Trondheim",
+    "queries": [
+     "尼达罗斯大教堂"
+    ],
+    "kw": "Nidaros Cathedral Trondheim",
+    "must": "nidaros"
+   }
+  ],
+  "KE": [
+   {
+    "zh": "马赛马拉国家保护区",
+    "en": "Maasai Mara National Reserve",
+    "queries": [
+     "马赛马拉国家保护区"
+    ],
+    "kw": "Maasai Mara National Reserve",
+    "must": "mara"
+   },
+   {
+    "zh": "乞力马扎罗山景",
+    "en": "Mount Kilimanjaro Amboseli",
+    "queries": [
+     "乞力马扎罗山景"
+    ],
+    "kw": "Mount Kilimanjaro Amboseli",
+    "must": "kilimanjaro"
+   },
+   {
+    "zh": "纳库鲁湖火烈鸟",
+    "en": "Lake Nakuru flamingos",
+    "queries": [
+     "纳库鲁湖火烈鸟"
+    ],
+    "kw": "Lake Nakuru flamingos",
+    "must": "nakuru"
+   },
+   {
+    "zh": "东非大裂谷",
+    "en": "Great Rift Valley Kenya",
+    "queries": [
+     "东非大裂谷"
+    ],
+    "kw": "Great Rift Valley Kenya",
+    "must": "rift"
+   },
+   {
+    "zh": "拉穆老城",
+    "en": "Lamu Old Town",
+    "queries": [
+     "拉穆老城"
+    ],
+    "kw": "Lamu Old Town",
+    "must": "lamu"
+   },
+   {
+    "zh": "耶稣堡",
+    "en": "Fort Jesus Mombasa",
+    "queries": [
+     "耶稣堡"
+    ],
+    "kw": "Fort Jesus Mombasa",
+    "must": "jesus"
+   }
+  ]
+ }
 }

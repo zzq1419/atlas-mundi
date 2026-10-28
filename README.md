@@ -72,7 +72,8 @@ atlas-mundi/
 ```bash
 python scripts/collect_all.py --plan          # 先看还差多少
 python scripts/collect_all.py --stage ids     # ISO → Wikidata QID（约 10 分钟）
-python scripts/collect_all.py --stage collect # 正文 + 图片 + 语言 + 坐标
+python scripts/collect_all.py --stage collect # 正文 + 语言 + 坐标 + P18 代表图
+python scripts/collect_all.py --stage landmarks # 地标图：模型点名 + Commons 实搜
 python scripts/collect_all.py --stage llm     # 特征/摘要/成文/图注/质检（需 key）
 python scripts/collect_all.py --stage speech  # 多语种语音（edge-tts）
 python scripts/collect_all.py --all           # 全流程
@@ -82,8 +83,8 @@ Windows 上不想敲命令，就双击仓库根目录的两个脚本（顺序不
 
 | 文件 | 做什么 | 大概耗时 |
 | --- | --- | --- |
-| `1_第一步_解析试采.bat` | 体检 → 解析 223 个 QID → 试采 5 国 → 自动打开审核页 | 10~25 分钟 |
-| `2_第二步_全量采集.bat` | 采集 → 大模型 → 语音 → 压图 → 索引 | 4~7 小时 |
+| `1_第一步_解析试采.bat` | 体检 → 解析 223 个 QID → 试采 5 国（正文 + 地标图）→ 自动打开审核页 | 15~30 分钟 |
+| `2_第二步_全量采集.bat` | 采集 → 地标图 → 大模型 → 语音 → 压图 → 索引 | 5~8 小时 |
 
 第一步的审核页（`review/试采审核.html`）要人眼看四件事：图片是不是该国的地标、
 图注对不对、摘要够不够、语言有没有识别错。**确认没问题再跑第二步** ——
@@ -93,8 +94,22 @@ Windows 上不想敲命令，就双击仓库根目录的两个脚本（顺序不
 
 1. **别用 SPARQL 查 ISO→QID**，部分代理下它返回 200 + 空结果。`resolve_ids.py` 走
    `wbsearchentities` + `wbgetentities`，并用 P297 校验，冲突的会进 `data/_ids_unresolved.json`。
-2. **图片是自动挑的**，不如三国的人工地标；重点国家可以补 `data/landmarks.json` 关键词。
+2. **图片走"点名 + 实搜"两级**：`collect.py` 只拿得到 Wikidata 的 P18（每国一张，
+   常是卫星影像或定位地图 —— 日本拿到的是"2003 年日本卫星影像"）。真正能看的地标图
+   由 `build_landmarks.py` 让模型列 6 处 → `fill_images.py` 去 Commons 实搜、
+   要求文件名含关键词、宽度 ≥900、非地图/旗帜。模型编出来的地标会因为搜不到而被淘汰。
+   三国的人工清单（`data/landmarks.json` 原有条目）不会被覆盖。
 3. **民俗成文是模型稿**，prompt 里写死「只能用给定材料」，产出留在 `data/_llm/` 供抽查。
+
+### 代理：Python 不读 Windows 系统代理
+
+`urllib` 只认 `HTTP_PROXY / HTTPS_PROXY` 环境变量，而 Clash / v2rayN 改的是
+**系统代理**（注册表）。所以"浏览器能打开维基、脚本全部连接失败"是必然结果，
+和代理有没有开无关。`scripts/netcheck.py` 解决这件事：按
+「--proxy 参数 → 环境变量 → 注册表里的系统代理 → 常见端口 7897/7890/10809…」
+依次探测，**每个候选都真的抓一次维基才算数**（端口开着但节点没连上的情况很常见），
+命中后设进环境变量，子进程自动继承。所有入口（step1/step2/collect/resolve_ids/
+collect_all）都接了。
 
 ## 数据源
 

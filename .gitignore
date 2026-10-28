@@ -49,3 +49,8 @@ _shot_m.py
 
 # 采集运行的日志（每国一行 jsonl + 报告），不入库
 logs/
+
+# 采集过程的本地中间产物
+data/_collect_report.json
+data/_ids_unresolved.json
+_tmp_*.json

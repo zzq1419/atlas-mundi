@@ -21,6 +21,16 @@ import json
 import os
 import sys
 
+# 控制台可能是 cp936（Windows cmd 默认），打不出的字符用 ? 代替，别让整段崩掉。
+# 之前 collect.py 在连不上某个站时打印一个 ✗ 就 UnicodeEncodeError 退出，
+# 看起来像"采集失败"，其实连抓取都还没开始。
+try:
+    sys.stdout.reconfigure(errors="replace")
+    sys.stderr.reconfigure(errors="replace")
+except Exception:
+    pass
+
+
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, "scripts"))
 
@@ -120,7 +130,7 @@ def main():
             with open(path, "w", encoding="utf-8") as f:
                 json.dump(fc, f, ensure_ascii=False)
             size = os.path.getsize(path)
-        print("  ✓ %-3s 多边形 %3d  环 %3d  顶点 %5d  合并 %s%s" % (
+        print("  [ok] %-3s 多边形 %3d  环 %3d  顶点 %5d  合并 %s%s" % (
             iso, st["polygons"], st["rings"], st["vertices"],
             "、".join(st["merged"]) or "无",
             ("  %.0f KB" % (size / 1024)) if size else ""))

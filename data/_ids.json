@@ -1,0 +1,2915 @@
+{
+ "AD": {
+  "lang_qids": [
+   "Q7026"
+  ],
+  "name_zh": "安道尔",
+  "qid": "Q228",
+  "verified": true,
+  "via": "zh"
+ },
+ "AE": {
+  "lang_qids": [
+   "Q13955"
+  ],
+  "name_zh": "阿联酋",
+  "qid": "Q878",
+  "verified": true,
+  "via": "zh"
+ },
+ "AF": {
+  "lang_qids": [
+   "Q58680",
+   "Q178440",
+   "Q33049",
+   "Q161804"
+  ],
+  "name_zh": "阿富汗",
+  "qid": "Q889",
+  "verified": true,
+  "via": "zh"
+ },
+ "AG": {
+  "lang_qids": [
+   "Q1860",
+   "Q1321"
+  ],
+  "name_zh": "安提瓜和巴布达",
+  "qid": "Q781",
+  "verified": true,
+  "via": "zh"
+ },
+ "AL": {
+  "lang_qids": [
+   "Q8748"
+  ],
+  "name_zh": "阿尔巴尼亚",
+  "qid": "Q222",
+  "verified": true,
+  "via": "zh"
+ },
+ "AM": {
+  "lang_qids": [
+   "Q8785"
+  ],
+  "name_zh": "亚美尼亚",
+  "qid": "Q399",
+  "verified": true,
+  "via": "zh"
+ },
+ "AO": {
+  "lang_qids": [
+   "Q5146"
+  ],
+  "name_zh": "安哥拉",
+  "qid": "Q916",
+  "verified": true,
+  "via": "zh"
+ },
+ "AQ": {
+  "name_zh": "南极洲",
+  "qid": "Q51",
+  "verified": true,
+  "via": "zh"
+ },
+ "AR": {
+  "lang_qids": [
+   "Q1321"
+  ],
+  "name_zh": "阿根廷",
+  "qid": "Q414",
+  "verified": true,
+  "via": "zh"
+ },
+ "AS": {
+  "lang_qids": [
+   "Q1860",
+   "Q34011"
+  ],
+  "name_zh": "美属萨摩亚",
+  "qid": "Q16641",
+  "verified": true,
+  "via": "zh"
+ },
+ "AT": {
+  "lang_qids": [
+   "Q188",
+   "Q36668"
+  ],
+  "name_zh": "奥地利",
+  "qid": "Q40",
+  "verified": true,
+  "via": "zh"
+ },
+ "AU": {
+  "name_zh": "澳屬印度洋領地",
+  "qid": "Q408",
+  "verified": false,
+  "via": "manual"
+ },
+ "AW": {
+  "lang_qids": [
+   "Q7411",
+   "Q33856"
+  ],
+  "name_zh": "阿鲁巴",
+  "qid": "Q21203",
+  "verified": true,
+  "via": "zh"
+ },
+ "AX": {
+  "lang_qids": [
+   "Q9027"
+  ],
+  "name_zh": "奥兰",
+  "qid": "Q5689",
+  "verified": true,
+  "via": "zh"
+ },
+ "AZ": {
+  "lang_qids": [
+   "Q9292",
+   "Q55698568"
+  ],
+  "name_zh": "阿塞拜疆",
+  "qid": "Q227",
+  "verified": true,
+  "via": "zh"
+ },
+ "BA": {
+  "lang_qids": [
+   "Q9303",
+   "Q6654",
+   "Q9299"
+  ],
+  "name_zh": "波斯尼亚和黑塞哥维那",
+  "qid": "Q225",
+  "verified": true,
+  "via": "zh"
+ },
+ "BB": {
+  "lang_qids": [
+   "Q1860",
+   "Q2524014"
+  ],
+  "name_zh": "巴巴多斯",
+  "qid": "Q244",
+  "verified": true,
+  "via": "zh"
+ },
+ "BD": {
+  "lang_qids": [
+   "Q9610"
+  ],
+  "name_zh": "孟加拉国",
+  "qid": "Q902",
+  "verified": true,
+  "via": "zh"
+ },
+ "BE": {
+  "lang_qids": [
+   "Q7411",
+   "Q150",
+   "Q188"
+  ],
+  "name_zh": "比利时",
+  "qid": "Q31",
+  "verified": true,
+  "via": "zh"
+ },
+ "BF": {
+  "lang_qids": [
+   "Q36096",
+   "Q32934",
+   "Q32706"
+  ],
+  "name_zh": "布基纳法索",
+  "qid": "Q965",
+  "verified": true,
+  "via": "zh"
+ },
+ "BG": {
+  "lang_qids": [
+   "Q7918"
+  ],
+  "name_zh": "保加利亚",
+  "qid": "Q219",
+  "verified": true,
+  "via": "zh"
+ },
+ "BH": {
+  "lang_qids": [
+   "Q13955"
+  ],
+  "name_zh": "巴林",
+  "qid": "Q398",
+  "verified": true,
+  "via": "zh"
+ },
+ "BI": {
+  "lang_qids": [
+   "Q33583",
+   "Q150",
+   "Q1860"
+  ],
+  "name_zh": "布隆迪",
+  "qid": "Q967",
+  "verified": true,
+  "via": "zh"
+ },
+ "BJ": {
+  "lang_qids": [
+   "Q150"
+  ],
+  "name_zh": "贝宁",
+  "qid": "Q962",
+  "verified": true,
+  "via": "zh"
+ },
+ "BM": {
+  "lang_qids": [
+   "Q1860"
+  ],
+  "name_zh": "百慕大",
+  "qid": "Q23635",
+  "verified": true,
+  "via": "zh"
+ },
+ "BN": {
+  "lang_qids": [
+   "Q9237",
+   "Q7979"
+  ],
+  "name_zh": "文莱",
+  "qid": "Q921",
+  "verified": true,
+  "via": "zh"
+ },
+ "BO": {
+  "lang_qids": [
+   "Q1321",
+   "Q4627",
+   "Q5218",
+   "Q35876"
+  ],
+  "name_zh": "玻利维亚",
+  "qid": "Q750",
+  "verified": true,
+  "via": "zh"
+ },
+ "BR": {
+  "lang_qids": [
+   "Q3436689",
+   "Q5146"
+  ],
+  "name_zh": "巴西",
+  "qid": "Q155",
+  "verified": true,
+  "via": "zh"
+ },
+ "BS": {
+  "lang_qids": [
+   "Q1860"
+  ],
+  "name_zh": "巴哈马",
+  "qid": "Q778",
+  "verified": true,
+  "via": "zh"
+ },
+ "BT": {
+  "lang_qids": [
+   "Q33081"
+  ],
+  "name_zh": "不丹",
+  "qid": "Q917",
+  "verified": true,
+  "via": "zh"
+ },
+ "BW": {
+  "lang_qids": [
+   "Q1860"
+  ],
+  "name_zh": "博茨瓦纳",
+  "qid": "Q963",
+  "verified": true,
+  "via": "zh"
+ },
+ "BY": {
+  "lang_qids": [
+   "Q9091",
+   "Q7737"
+  ],
+  "name_zh": "白俄罗斯",
+  "qid": "Q184",
+  "verified": true,
+  "via": "zh"
+ },
+ "BZ": {
+  "lang_qids": [
+   "Q1860"
+  ],
+  "name_zh": "伯利兹",
+  "qid": "Q242",
+  "verified": true,
+  "via": "zh"
+ },
+ "CA": {
+  "lang_qids": [
+   "Q1860",
+   "Q150"
+  ],
+  "name_zh": "加拿大",
+  "qid": "Q16",
+  "verified": true,
+  "via": "zh"
+ },
+ "CD": {
+  "lang_qids": [
+   "Q150"
+  ],
+  "name_zh": "刚果（金）",
+  "qid": "Q974",
+  "verified": true,
+  "via": "zh"
+ },
+ "CF": {
+  "lang_qids": [
+   "Q150",
+   "Q33954"
+  ],
+  "name_zh": "中非",
+  "qid": "Q929",
+  "verified": true,
+  "via": "zh"
+ },
+ "CG": {
+  "lang_qids": [
+   "Q150"
+  ],
+  "name_zh": "刚果共和国",
+  "qid": "Q971",
+  "verified": true,
+  "via": "zh"
+ },
+ "CH": {
+  "lang_qids": [
+   "Q188",
+   "Q652",
+   "Q150",
+   "Q13199"
+  ],
+  "name_zh": "瑞士",
+  "qid": "Q39",
+  "verified": true,
+  "via": "zh"
+ },
+ "CI": {
+  "lang_qids": [
+   "Q150"
+  ],
+  "name_zh": "科特迪瓦",
+  "qid": "Q1008",
+  "verified": true,
+  "via": "zh"
+ },
+ "CL": {
+  "lang_qids": [
+   "Q1321"
+  ],
+  "name_zh": "智利",
+  "qid": "Q298",
+  "verified": true,
+  "via": "zh"
+ },
+ "CM": {
+  "lang_qids": [
+   "Q150",
+   "Q1860"
+  ],
+  "name_zh": "喀麦隆",
+  "qid": "Q1009",
+  "verified": true,
+  "via": "zh"
+ },
+ "CN": {
+  "lang_qids": [
+   "Q727694",
+   "Q7850",
+   "Q835866",
+   "Q24841726"
+  ],
+  "name_zh": "中国",
+  "qid": "Q148",
+  "verified": true,
+  "via": "zh"
+ },
+ "CO": {
+  "lang_qids": [
+   "Q1321"
+  ],
+  "name_zh": "哥伦比亚",
+  "qid": "Q739",
+  "verified": true,
+  "via": "zh"
+ },
+ "CR": {
+  "lang_qids": [
+   "Q1321"
+  ],
+  "name_zh": "哥斯达黎加",
+  "qid": "Q800",
+  "verified": true,
+  "via": "zh"
+ },
+ "CU": {
+  "lang_qids": [
+   "Q1321"
+  ],
+  "name_zh": "古巴",
+  "qid": "Q241",
+  "verified": true,
+  "via": "zh"
+ },
+ "CV": {
+  "lang_qids": [
+   "Q5146",
+   "Q35963"
+  ],
+  "name_zh": "佛得角",
+  "qid": "Q1011",
+  "verified": true,
+  "via": "zh"
+ },
+ "CW": {
+  "lang_qids": [
+   "Q7411",
+   "Q33856",
+   "Q1860"
+  ],
+  "name_zh": "库拉索",
+  "qid": "Q25279",
+  "verified": true,
+  "via": "zh"
+ },
+ "CY": {
+  "lang_qids": [
+   "Q36510",
+   "Q256"
+  ],
+  "name_zh": "塞浦路斯",
+  "qid": "Q229",
+  "verified": true,
+  "via": "zh"
+ },
+ "CZ": {
+  "lang_qids": [
+   "Q9056"
+  ],
+  "name_zh": "捷克",
+  "qid": "Q213",
+  "verified": true,
+  "via": "zh"
+ },
+ "DE": {
+  "lang_qids": [
+   "Q188"
+  ],
+  "name_zh": "德国",
+  "qid": "Q183",
+  "verified": true,
+  "via": "zh"
+ },
+ "DJ": {
+  "lang_qids": [
+   "Q150",
+   "Q13955"
+  ],
+  "name_zh": "吉布提",
+  "qid": "Q977",
+  "verified": true,
+  "via": "zh"
+ },
+ "DK": {
+  "lang_qids": [
+   "Q9035"
+  ],
+  "name_zh": "丹麦",
+  "qid": "Q35",
+  "verified": true,
+  "via": "zh"
+ },
+ "DM": {
+  "lang_qids": [
+   "Q1860"
+  ],
+  "name_zh": "多米尼克",
+  "qid": "Q784",
+  "verified": true,
+  "via": "zh"
+ },
+ "DO": {
+  "lang_qids": [
+   "Q1321"
+  ],
+  "name_zh": "多米尼加",
+  "qid": "Q786",
+  "verified": true,
+  "via": "zh"
+ },
+ "DZ": {
+  "lang_qids": [
+   "Q13955",
+   "Q61053330"
+  ],
+  "name_zh": "阿尔及利亚",
+  "qid": "Q262",
+  "verified": true,
+  "via": "zh"
+ },
+ "EC": {
+  "lang_qids": [
+   "Q1321",
+   "Q1740805",
+   "Q617291"
+  ],
+  "name_zh": "厄瓜多尔",
+  "qid": "Q736",
+  "verified": true,
+  "via": "zh"
+ },
+ "EE": {
+  "lang_qids": [
+   "Q9072"
+  ],
+  "name_zh": "爱沙尼亚",
+  "qid": "Q191",
+  "verified": true,
+  "via": "zh"
+ },
+ "EG": {
+  "lang_qids": [
+   "Q13955"
+  ],
+  "name_zh": "埃及",
+  "qid": "Q79",
+  "verified": true,
+  "via": "zh"
+ },
+ "EH": {
+  "lang_qids": [
+   "Q13955"
+  ],
+  "name_zh": "西撒哈拉",
+  "qid": "Q6250",
+  "verified": true,
+  "via": "zh"
+ },
+ "ER": {
+  "lang_qids": [
+   "Q34124",
+   "Q13955",
+   "Q1860"
+  ],
+  "name_zh": "厄立特里亚",
+  "qid": "Q986",
+  "verified": true,
+  "via": "zh"
+ },
+ "ES": {
+  "lang_qids": [
+   "Q1321",
+   "Q9307",
+   "Q8752",
+   "Q7026"
+  ],
+  "name_zh": "西班牙",
+  "qid": "Q29",
+  "verified": true,
+  "via": "zh"
+ },
+ "ET": {
+  "lang_qids": [
+   "Q28244"
+  ],
+  "name_zh": "埃塞俄比亚",
+  "qid": "Q115",
+  "verified": true,
+  "via": "en"
+ },
+ "FI": {
+  "lang_qids": [
+   "Q1412",
+   "Q9027"
+  ],
+  "name_zh": "芬兰",
+  "qid": "Q33",
+  "verified": true,
+  "via": "zh"
+ },
+ "FJ": {
+  "lang_qids": [
+   "Q1860",
+   "Q33295",
+   "Q46728"
+  ],
+  "name_zh": "斐济",
+  "qid": "Q712",
+  "verified": true,
+  "via": "zh"
+ },
+ "FK": {
+  "lang_qids": [
+   "Q7979"
+  ],
+  "name_zh": "福克兰群岛",
+  "qid": "Q9648",
+  "verified": true,
+  "via": "zh"
+ },
+ "FM": {
+  "lang_qids": [
+   "Q1860"
+  ],
+  "name_zh": "密克罗尼西亚联邦",
+  "qid": "Q702",
+  "verified": true,
+  "via": "zh"
+ },
+ "FO": {
+  "lang_qids": [
+   "Q25258",
+   "Q9035"
+  ],
+  "name_zh": "法罗群岛",
+  "qid": "Q4628",
+  "verified": true,
+  "via": "zh"
+ },
+ "FR": {
+  "lang_qids": [
+   "Q150"
+  ],
+  "name_zh": "法国",
+  "qid": "Q142",
+  "verified": true,
+  "via": "zh"
+ },
+ "GA": {
+  "lang_qids": [
+   "Q150"
+  ],
+  "name_zh": "加蓬",
+  "qid": "Q1000",
+  "verified": true,
+  "via": "zh"
+ },
+ "GB": {
+  "lang_qids": [
+   "Q1860",
+   "Q9309",
+   "Q9314",
+   "Q14549"
+  ],
+  "name_zh": "英国",
+  "qid": "Q145",
+  "verified": true,
+  "via": "zh"
+ },
+ "GD": {
+  "lang_qids": [
+   "Q1860",
+   "Q4252500"
+  ],
+  "name_zh": "格林纳达",
+  "qid": "Q769",
+  "verified": true,
+  "via": "zh"
+ },
+ "GE": {
+  "lang_qids": [
+   "Q8108",
+   "Q5111"
+  ],
+  "name_zh": "格鲁吉亚",
+  "qid": "Q230",
+  "verified": true,
+  "via": "zh"
+ },
+ "GG": {
+  "lang_qids": [
+   "Q1860",
+   "Q150"
+  ],
+  "name_zh": "根西",
+  "qid": "Q25230",
+  "verified": true,
+  "via": "zh"
+ },
+ "GH": {
+  "lang_qids": [
+   "Q1860"
+  ],
+  "name_zh": "加纳",
+  "qid": "Q117",
+  "verified": true,
+  "via": "zh"
+ },
+ "GL": {
+  "lang_qids": [
+   "Q25355"
+  ],
+  "name_zh": "格陵兰",
+  "qid": "Q223",
+  "verified": true,
+  "via": "zh"
+ },
+ "GM": {
+  "lang_qids": [
+   "Q1860"
+  ],
+  "name_zh": "冈比亚",
+  "qid": "Q1005",
+  "verified": true,
+  "via": "zh"
+ },
+ "GN": {
+  "lang_qids": [
+   "Q150",
+   "Q1339026"
+  ],
+  "name_zh": "几内亚",
+  "qid": "Q1006",
+  "verified": true,
+  "via": "zh"
+ },
+ "GQ": {
+  "lang_qids": [
+   "Q1321",
+   "Q150",
+   "Q5146"
+  ],
+  "name_zh": "赤道几内亚",
+  "qid": "Q983",
+  "verified": true,
+  "via": "zh"
+ },
+ "GR": {
+  "lang_qids": [
+   "Q9129",
+   "Q35392",
+   "Q36510"
+  ],
+  "name_zh": "希腊",
+  "qid": "Q41",
+  "verified": true,
+  "via": "zh"
+ },
+ "GS": {
+  "lang_qids": [
+   "Q1860"
+  ],
+  "name_zh": "南乔治亚和南桑威奇群岛",
+  "qid": "Q35086",
+  "verified": true,
+  "via": "zh"
+ },
+ "GT": {
+  "lang_qids": [
+   "Q1321"
+  ],
+  "name_zh": "危地马拉",
+  "qid": "Q774",
+  "verified": true,
+  "via": "zh"
+ },
+ "GU": {
+  "lang_qids": [
+   "Q1860",
+   "Q33262"
+  ],
+  "name_zh": "关岛",
+  "qid": "Q16635",
+  "verified": true,
+  "via": "zh"
+ },
+ "GW": {
+  "lang_qids": [
+   "Q5146"
+  ],
+  "name_zh": "几内亚比绍",
+  "qid": "Q1007",
+  "verified": true,
+  "via": "zh"
+ },
+ "GY": {
+  "lang_qids": [
+   "Q1860"
+  ],
+  "name_zh": "圭亚那",
+  "qid": "Q734",
+  "verified": true,
+  "via": "zh"
+ },
+ "HK": {
+  "lang_qids": [
+   "Q3110592",
+   "Q1860",
+   "Q9186",
+   "Q727694"
+  ],
+  "name_zh": "中国香港",
+  "qid": "Q8646",
+  "verified": true,
+  "via": "zh"
+ },
+ "HM": {
+  "lang_qids": [
+   "Q1860"
+  ],
+  "name_zh": "赫德岛和麦克唐纳群岛",
+  "qid": "Q131198",
+  "verified": true,
+  "via": "zh"
+ },
+ "HN": {
+  "lang_qids": [
+   "Q1321"
+  ],
+  "name_zh": "洪都拉斯",
+  "qid": "Q783",
+  "verified": true,
+  "via": "zh"
+ },
+ "HR": {
+  "lang_qids": [
+   "Q6654"
+  ],
+  "name_zh": "克罗地亚",
+  "qid": "Q224",
+  "verified": true,
+  "via": "zh"
+ },
+ "HT": {
+  "lang_qids": [
+   "Q150",
+   "Q33491"
+  ],
+  "name_zh": "海地",
+  "qid": "Q790",
+  "verified": true,
+  "via": "zh"
+ },
+ "HU": {
+  "lang_qids": [
+   "Q9067"
+  ],
+  "name_zh": "匈牙利",
+  "qid": "Q28",
+  "verified": true,
+  "via": "zh"
+ },
+ "ID": {
+  "lang_qids": [
+   "Q9240"
+  ],
+  "name_zh": "印度尼西亚",
+  "qid": "Q252",
+  "verified": true,
+  "via": "zh"
+ },
+ "IE": {
+  "lang_qids": [
+   "Q9142",
+   "Q1860"
+  ],
+  "name_zh": "爱尔兰",
+  "qid": "Q27",
+  "verified": true,
+  "via": "zh"
+ },
+ "IL": {
+  "lang_qids": [
+   "Q9288",
+   "Q13955"
+  ],
+  "name_zh": "以色列",
+  "qid": "Q801",
+  "verified": true,
+  "via": "zh"
+ },
+ "IM": {
+  "lang_qids": [
+   "Q1860",
+   "Q12175"
+  ],
+  "name_zh": "马恩岛",
+  "qid": "Q9676",
+  "verified": true,
+  "via": "zh"
+ },
+ "IN": {
+  "lang_qids": [
+   "Q1568",
+   "Q1860"
+  ],
+  "name_zh": "印度",
+  "qid": "Q668",
+  "verified": true,
+  "via": "zh"
+ },
+ "IO": {
+  "lang_qids": [
+   "Q1860"
+  ],
+  "name_zh": "英属印度洋领地",
+  "qid": "Q43448",
+  "verified": true,
+  "via": "zh"
+ },
+ "IQ": {
+  "lang_qids": [
+   "Q13955",
+   "Q36368"
+  ],
+  "name_zh": "伊拉克",
+  "qid": "Q796",
+  "verified": true,
+  "via": "zh"
+ },
+ "IR": {
+  "lang_qids": [
+   "Q9168"
+  ],
+  "name_zh": "伊朗",
+  "qid": "Q794",
+  "verified": true,
+  "via": "zh"
+ },
+ "IS": {
+  "lang_qids": [
+   "Q294"
+  ],
+  "name_zh": "冰岛",
+  "qid": "Q189",
+  "verified": true,
+  "via": "zh"
+ },
+ "IT": {
+  "lang_qids": [
+   "Q652"
+  ],
+  "name_zh": "意大利",
+  "qid": "Q38",
+  "verified": true,
+  "via": "zh"
+ },
+ "JE": {
+  "lang_qids": [
+   "Q1860",
+   "Q2047043",
+   "Q56430"
+  ],
+  "name_zh": "泽西",
+  "qid": "Q785",
+  "verified": true,
+  "via": "zh"
+ },
+ "JM": {
+  "lang_qids": [
+   "Q1860",
+   "Q35939"
+  ],
+  "name_zh": "牙买加",
+  "qid": "Q766",
+  "verified": true,
+  "via": "zh"
+ },
+ "JO": {
+  "lang_qids": [
+   "Q13955"
+  ],
+  "name_zh": "约旦",
+  "qid": "Q810",
+  "verified": true,
+  "via": "zh"
+ },
+ "JP": {
+  "lang_qids": [
+   "Q5287"
+  ],
+  "name_zh": "日本",
+  "qid": "Q17",
+  "verified": true,
+  "via": "zh"
+ },
+ "KE": {
+  "lang_qids": [
+   "Q7838",
+   "Q1860"
+  ],
+  "name_zh": "肯尼亚",
+  "qid": "Q114",
+  "verified": true,
+  "via": "zh"
+ },
+ "KG": {
+  "lang_qids": [
+   "Q7737",
+   "Q9255"
+  ],
+  "name_zh": "吉尔吉斯斯坦",
+  "qid": "Q813",
+  "verified": true,
+  "via": "zh"
+ },
+ "KH": {
+  "lang_qids": [
+   "Q9205"
+  ],
+  "name_zh": "柬埔寨",
+  "qid": "Q424",
+  "verified": true,
+  "via": "zh"
+ },
+ "KI": {
+  "lang_qids": [
+   "Q1860",
+   "Q30898"
+  ],
+  "name_zh": "基里巴斯",
+  "qid": "Q710",
+  "verified": true,
+  "via": "zh"
+ },
+ "KM": {
+  "lang_qids": [
+   "Q33077",
+   "Q13955",
+   "Q150"
+  ],
+  "name_zh": "科摩罗",
+  "qid": "Q970",
+  "verified": true,
+  "via": "zh"
+ },
+ "KN": {
+  "lang_qids": [
+   "Q1860"
+  ],
+  "name_zh": "圣基茨和尼维斯",
+  "qid": "Q763",
+  "verified": true,
+  "via": "zh"
+ },
+ "KP": {
+  "lang_qids": [
+   "Q18784",
+   "Q9176"
+  ],
+  "name_zh": "朝鲜",
+  "qid": "Q423",
+  "verified": true,
+  "via": "zh"
+ },
+ "KR": {
+  "lang_qids": [
+   "Q9176",
+   "Q3073428"
+  ],
+  "name_zh": "韩国",
+  "qid": "Q884",
+  "verified": true,
+  "via": "zh"
+ },
+ "KW": {
+  "lang_qids": [
+   "Q13955"
+  ],
+  "name_zh": "科威特",
+  "qid": "Q817",
+  "verified": true,
+  "via": "zh"
+ },
+ "KY": {
+  "lang_qids": [
+   "Q1860"
+  ],
+  "name_zh": "开曼群岛",
+  "qid": "Q5785",
+  "verified": true,
+  "via": "zh"
+ },
+ "KZ": {
+  "lang_qids": [
+   "Q9252",
+   "Q7737"
+  ],
+  "name_zh": "哈萨克斯坦",
+  "qid": "Q232",
+  "verified": true,
+  "via": "zh"
+ },
+ "LA": {
+  "lang_qids": [
+   "Q9211"
+  ],
+  "name_zh": "老挝",
+  "qid": "Q819",
+  "verified": true,
+  "via": "zh"
+ },
+ "LB": {
+  "lang_qids": [
+   "Q13955",
+   "Q150"
+  ],
+  "name_zh": "黎巴嫩",
+  "qid": "Q822",
+  "verified": true,
+  "via": "zh"
+ },
+ "LC": {
+  "lang_qids": [
+   "Q1860"
+  ],
+  "name_zh": "圣卢西亚",
+  "qid": "Q760",
+  "verified": true,
+  "via": "zh"
+ },
+ "LI": {
+  "lang_qids": [
+   "Q188"
+  ],
+  "name_zh": "列支敦士登",
+  "qid": "Q347",
+  "verified": true,
+  "via": "zh"
+ },
+ "LK": {
+  "lang_qids": [
+   "Q13267",
+   "Q5885"
+  ],
+  "name_zh": "斯里兰卡",
+  "qid": "Q854",
+  "verified": true,
+  "via": "zh"
+ },
+ "LR": {
+  "lang_qids": [
+   "Q1860"
+  ],
+  "name_zh": "利比里亚",
+  "qid": "Q1014",
+  "verified": true,
+  "via": "zh"
+ },
+ "LS": {
+  "lang_qids": [
+   "Q1860",
+   "Q34340"
+  ],
+  "name_zh": "莱索托",
+  "qid": "Q1013",
+  "verified": true,
+  "via": "zh"
+ },
+ "LT": {
+  "lang_qids": [
+   "Q9083"
+  ],
+  "name_zh": "立陶宛",
+  "qid": "Q37",
+  "verified": true,
+  "via": "zh"
+ },
+ "LU": {
+  "lang_qids": [
+   "Q9051",
+   "Q150",
+   "Q188"
+  ],
+  "name_zh": "卢森堡",
+  "qid": "Q32",
+  "verified": true,
+  "via": "zh"
+ },
+ "LV": {
+  "lang_qids": [
+   "Q9078"
+  ],
+  "name_zh": "拉脱维亚",
+  "qid": "Q211",
+  "verified": true,
+  "via": "zh"
+ },
+ "LY": {
+  "lang_qids": [
+   "Q13955",
+   "Q56467"
+  ],
+  "name_zh": "利比亚",
+  "qid": "Q1016",
+  "verified": true,
+  "via": "zh"
+ },
+ "MA": {
+  "lang_qids": [
+   "Q13955",
+   "Q7598268"
+  ],
+  "name_zh": "摩洛哥",
+  "qid": "Q1028",
+  "verified": true,
+  "via": "zh"
+ },
+ "MD": {
+  "lang_qids": [
+   "Q36392",
+   "Q36392",
+   "Q7913"
+  ],
+  "name_zh": "摩尔多瓦",
+  "qid": "Q217",
+  "verified": true,
+  "via": "zh"
+ },
+ "ME": {
+  "lang_qids": [
+   "Q8821",
+   "Q9299",
+   "Q6654",
+   "Q9303"
+  ],
+  "name_zh": "黑山",
+  "qid": "Q236",
+  "verified": true,
+  "via": "zh"
+ },
+ "MG": {
+  "lang_qids": [
+   "Q7930",
+   "Q150"
+  ],
+  "name_zh": "马达加斯加",
+  "qid": "Q1019",
+  "verified": true,
+  "via": "zh"
+ },
+ "MH": {
+  "lang_qids": [
+   "Q1860",
+   "Q36280"
+  ],
+  "name_zh": "马绍尔群岛",
+  "qid": "Q709",
+  "verified": true,
+  "via": "zh"
+ },
+ "MK": {
+  "lang_qids": [
+   "Q9296",
+   "Q8748"
+  ],
+  "name_zh": "北马其顿",
+  "qid": "Q221",
+  "verified": true,
+  "via": "zh"
+ },
+ "ML": {
+  "lang_qids": [
+   "Q33243",
+   "Q12628055",
+   "Q35021",
+   "Q1234776"
+  ],
+  "name_zh": "马里",
+  "qid": "Q912",
+  "verified": true,
+  "via": "zh"
+ },
+ "MM": {
+  "lang_qids": [
+   "Q9228"
+  ],
+  "name_zh": "缅甸",
+  "qid": "Q836",
+  "verified": true,
+  "via": "zh"
+ },
+ "MN": {
+  "lang_qids": [
+   "Q9246"
+  ],
+  "name_zh": "蒙古国",
+  "qid": "Q711",
+  "verified": true,
+  "via": "zh"
+ },
+ "MP": {
+  "lang_qids": [
+   "Q1860",
+   "Q33262",
+   "Q28427"
+  ],
+  "name_zh": "北马里亚纳群岛",
+  "qid": "Q16644",
+  "verified": true,
+  "via": "zh"
+ },
+ "MR": {
+  "lang_qids": [
+   "Q13955",
+   "Q150"
+  ],
+  "name_zh": "毛里塔尼亚",
+  "qid": "Q1025",
+  "verified": true,
+  "via": "zh"
+ },
+ "MS": {
+  "lang_qids": [
+   "Q1860"
+  ],
+  "name_zh": "蒙特塞拉特",
+  "qid": "Q13353",
+  "verified": true,
+  "via": "zh"
+ },
+ "MT": {
+  "lang_qids": [
+   "Q9166",
+   "Q1860"
+  ],
+  "name_zh": "马耳他",
+  "qid": "Q233",
+  "verified": true,
+  "via": "zh"
+ },
+ "MU": {
+  "lang_qids": [
+   "Q1860",
+   "Q150"
+  ],
+  "name_zh": "毛里求斯",
+  "qid": "Q1027",
+  "verified": true,
+  "via": "zh"
+ },
+ "MW": {
+  "lang_qids": [
+   "Q1860",
+   "Q33273",
+   "Q34138"
+  ],
+  "name_zh": "马拉维",
+  "qid": "Q1020",
+  "verified": true,
+  "via": "zh"
+ },
+ "MX": {
+  "lang_qids": [
+   "Q1321",
+   "Q13300",
+   "Q13354"
+  ],
+  "name_zh": "墨西哥",
+  "qid": "Q96",
+  "verified": true,
+  "via": "zh"
+ },
+ "MY": {
+  "lang_qids": [
+   "Q9237"
+  ],
+  "name_zh": "马来西亚",
+  "qid": "Q833",
+  "verified": true,
+  "via": "zh"
+ },
+ "MZ": {
+  "lang_qids": [
+   "Q5146"
+  ],
+  "name_zh": "莫桑比克",
+  "qid": "Q1029",
+  "verified": true,
+  "via": "zh"
+ },
+ "NA": {
+  "lang_qids": [
+   "Q1860"
+  ],
+  "name_zh": "纳米比亚",
+  "qid": "Q1030",
+  "verified": true,
+  "via": "zh"
+ },
+ "NC": {
+  "lang_qids": [
+   "Q150"
+  ],
+  "name_zh": "新喀里多尼亚",
+  "qid": "Q33788",
+  "verified": true,
+  "via": "zh"
+ },
+ "NE": {
+  "lang_qids": [
+   "Q56475"
+  ],
+  "name_zh": "尼日尔",
+  "qid": "Q1032",
+  "verified": true,
+  "via": "zh"
+ },
+ "NG": {
+  "lang_qids": [
+   "Q1860"
+  ],
+  "name_zh": "尼日利亚",
+  "qid": "Q1033",
+  "verified": true,
+  "via": "zh"
+ },
+ "NI": {
+  "lang_qids": [
+   "Q1321"
+  ],
+  "name_zh": "尼加拉瓜",
+  "qid": "Q811",
+  "verified": true,
+  "via": "zh"
+ },
+ "NL": {
+  "lang_qids": [
+   "Q7411",
+   "Q27175",
+   "Q33856",
+   "Q1860"
+  ],
+  "name_zh": "荷兰",
+  "qid": "Q55",
+  "verified": true,
+  "via": "zh"
+ },
+ "NO": {
+  "lang_qids": [
+   "Q25167",
+   "Q56463",
+   "Q25164",
+   "Q9043"
+  ],
+  "name_zh": "挪威",
+  "qid": "Q20",
+  "verified": true,
+  "via": "zh"
+ },
+ "NP": {
+  "lang_qids": [
+   "Q33823"
+  ],
+  "name_zh": "尼泊尔",
+  "qid": "Q837",
+  "verified": true,
+  "via": "zh"
+ },
+ "NU": {
+  "lang_qids": [
+   "Q33790",
+   "Q1860"
+  ],
+  "name_zh": "纽埃",
+  "qid": "Q34020",
+  "verified": true,
+  "via": "zh"
+ },
+ "NZ": {
+  "lang_qids": [
+   "Q36451",
+   "Q36239",
+   "Q1860"
+  ],
+  "name_zh": "新西兰",
+  "qid": "Q664",
+  "verified": true,
+  "via": "zh"
+ },
+ "OM": {
+  "lang_qids": [
+   "Q13955"
+  ],
+  "name_zh": "阿曼",
+  "qid": "Q842",
+  "verified": true,
+  "via": "zh"
+ },
+ "PA": {
+  "lang_qids": [
+   "Q1321"
+  ],
+  "name_zh": "巴拿马",
+  "qid": "Q804",
+  "verified": true,
+  "via": "zh"
+ },
+ "PE": {
+  "lang_qids": [
+   "Q1321",
+   "Q4627",
+   "Q5218"
+  ],
+  "name_zh": "秘鲁",
+  "qid": "Q419",
+  "verified": true,
+  "via": "zh"
+ },
+ "PF": {
+  "lang_qids": [
+   "Q150"
+  ],
+  "name_zh": "法属波利尼西亚",
+  "qid": "Q30971",
+  "verified": true,
+  "via": "zh"
+ },
+ "PG": {
+  "lang_qids": [
+   "Q1860",
+   "Q34159",
+   "Q33617",
+   "Q25044405"
+  ],
+  "name_zh": "巴布亚新几内亚",
+  "qid": "Q691",
+  "verified": true,
+  "via": "zh"
+ },
+ "PH": {
+  "lang_qids": [
+   "Q33298",
+   "Q1860",
+   "Q2530387"
+  ],
+  "name_zh": "菲律宾",
+  "qid": "Q928",
+  "verified": true,
+  "via": "zh"
+ },
+ "PK": {
+  "lang_qids": [
+   "Q1860",
+   "Q1617"
+  ],
+  "name_zh": "巴基斯坦",
+  "qid": "Q843",
+  "verified": true,
+  "via": "zh"
+ },
+ "PL": {
+  "lang_qids": [
+   "Q809",
+   "Q9091",
+   "Q30319",
+   "Q33690"
+  ],
+  "name_zh": "波兰",
+  "qid": "Q36",
+  "verified": true,
+  "via": "zh"
+ },
+ "PM": {
+  "lang_qids": [
+   "Q150"
+  ],
+  "name_zh": "圣皮埃尔和密克隆",
+  "qid": "Q34617",
+  "verified": true,
+  "via": "zh"
+ },
+ "PR": {
+  "lang_qids": [
+   "Q1321",
+   "Q1860"
+  ],
+  "name_zh": "波多黎各",
+  "qid": "Q1183",
+  "verified": true,
+  "via": "zh"
+ },
+ "PS": {
+  "lang_qids": [
+   "Q13955"
+  ],
+  "name_zh": "巴勒斯坦",
+  "qid": "Q219060",
+  "verified": true,
+  "via": "zh"
+ },
+ "PT": {
+  "lang_qids": [
+   "Q5146",
+   "Q13330"
+  ],
+  "name_zh": "葡萄牙",
+  "qid": "Q45",
+  "verified": true,
+  "via": "zh"
+ },
+ "PW": {
+  "lang_qids": [
+   "Q1860",
+   "Q33776",
+   "Q5287"
+  ],
+  "name_zh": "帕劳",
+  "qid": "Q695",
+  "verified": true,
+  "via": "zh"
+ },
+ "PY": {
+  "lang_qids": [
+   "Q1321",
+   "Q35876"
+  ],
+  "name_zh": "巴拉圭",
+  "qid": "Q733",
+  "verified": true,
+  "via": "zh"
+ },
+ "QA": {
+  "lang_qids": [
+   "Q13955"
+  ],
+  "name_zh": "卡塔尔",
+  "qid": "Q846",
+  "verified": true,
+  "via": "zh"
+ },
+ "RO": {
+  "lang_qids": [
+   "Q7913"
+  ],
+  "name_zh": "罗马尼亚",
+  "qid": "Q218",
+  "verified": true,
+  "via": "zh"
+ },
+ "RS": {
+  "lang_qids": [
+   "Q9299"
+  ],
+  "name_zh": "塞尔维亚",
+  "qid": "Q403",
+  "verified": true,
+  "via": "zh"
+ },
+ "RU": {
+  "lang_qids": [
+   "Q7737",
+   "Q27567",
+   "Q27776",
+   "Q1991779"
+  ],
+  "name_zh": "俄罗斯",
+  "qid": "Q159",
+  "verified": true,
+  "via": "zh"
+ },
+ "RW": {
+  "lang_qids": [
+   "Q33573",
+   "Q1860",
+   "Q150",
+   "Q7838"
+  ],
+  "name_zh": "卢旺达",
+  "qid": "Q1037",
+  "verified": true,
+  "via": "zh"
+ },
+ "SA": {
+  "lang_qids": [
+   "Q13955"
+  ],
+  "name_zh": "沙特阿拉伯",
+  "qid": "Q851",
+  "verified": true,
+  "via": "zh"
+ },
+ "SB": {
+  "lang_qids": [
+   "Q1860"
+  ],
+  "name_zh": "所罗门群岛",
+  "qid": "Q685",
+  "verified": true,
+  "via": "zh"
+ },
+ "SC": {
+  "lang_qids": [
+   "Q150",
+   "Q1860",
+   "Q34015"
+  ],
+  "name_zh": "塞舌尔",
+  "qid": "Q1042",
+  "verified": true,
+  "via": "zh"
+ },
+ "SD": {
+  "lang_qids": [
+   "Q13955",
+   "Q1860"
+  ],
+  "name_zh": "苏丹",
+  "qid": "Q1049",
+  "verified": true,
+  "via": "zh"
+ },
+ "SE": {
+  "lang_qids": [
+   "Q9027",
+   "Q56463",
+   "Q1412",
+   "Q13357"
+  ],
+  "name_zh": "瑞典",
+  "qid": "Q34",
+  "verified": true,
+  "via": "zh"
+ },
+ "SG": {
+  "lang_qids": [
+   "Q1860",
+   "Q9237",
+   "Q727694",
+   "Q5885"
+  ],
+  "name_zh": "新加坡",
+  "qid": "Q334",
+  "verified": true,
+  "via": "zh"
+ },
+ "SH": {
+  "lang_qids": [
+   "Q1860"
+  ],
+  "name_zh": "圣赫勒拿",
+  "qid": "Q192184",
+  "verified": true,
+  "via": "zh"
+ },
+ "SI": {
+  "lang_qids": [
+   "Q9063",
+   "Q652",
+   "Q9067"
+  ],
+  "name_zh": "斯洛文尼亚",
+  "qid": "Q215",
+  "verified": true,
+  "via": "zh"
+ },
+ "SK": {
+  "lang_qids": [
+   "Q9058"
+  ],
+  "name_zh": "斯洛伐克",
+  "qid": "Q214",
+  "verified": true,
+  "via": "zh"
+ },
+ "SL": {
+  "lang_qids": [
+   "Q1860",
+   "Q35744"
+  ],
+  "name_zh": "塞拉利昂",
+  "qid": "Q1044",
+  "verified": true,
+  "via": "zh"
+ },
+ "SM": {
+  "lang_qids": [
+   "Q652"
+  ],
+  "name_zh": "圣马力诺",
+  "qid": "Q238",
+  "verified": true,
+  "via": "zh"
+ },
+ "SN": {
+  "lang_qids": [
+   "Q150",
+   "Q34257",
+   "Q35095",
+   "Q35006"
+  ],
+  "name_zh": "塞内加尔",
+  "qid": "Q1041",
+  "verified": true,
+  "via": "zh"
+ },
+ "SO": {
+  "lang_qids": [
+   "Q13275",
+   "Q13955"
+  ],
+  "name_zh": "索马里",
+  "qid": "Q1045",
+  "verified": true,
+  "via": "zh"
+ },
+ "SR": {
+  "lang_qids": [
+   "Q7411"
+  ],
+  "name_zh": "苏里南",
+  "qid": "Q730",
+  "verified": true,
+  "via": "zh"
+ },
+ "SS": {
+  "lang_qids": [
+   "Q1860"
+  ],
+  "name_zh": "南苏丹",
+  "qid": "Q958",
+  "verified": true,
+  "via": "zh"
+ },
+ "ST": {
+  "lang_qids": [
+   "Q5146"
+  ],
+  "name_zh": "圣多美和普林西比",
+  "qid": "Q1039",
+  "verified": true,
+  "via": "zh"
+ },
+ "SV": {
+  "lang_qids": [
+   "Q1321"
+  ],
+  "name_zh": "萨尔瓦多",
+  "qid": "Q792",
+  "verified": true,
+  "via": "zh"
+ },
+ "SY": {
+  "lang_qids": [
+   "Q13955"
+  ],
+  "name_zh": "叙利亚",
+  "qid": "Q858",
+  "verified": true,
+  "via": "zh"
+ },
+ "SZ": {
+  "lang_qids": [
+   "Q1860",
+   "Q34014"
+  ],
+  "name_zh": "斯威士兰",
+  "qid": "Q1050",
+  "verified": true,
+  "via": "zh"
+ },
+ "TC": {
+  "lang_qids": [
+   "Q1860"
+  ],
+  "name_zh": "特克斯和凯科斯群岛",
+  "qid": "Q18221",
+  "verified": true,
+  "via": "zh"
+ },
+ "TD": {
+  "lang_qids": [
+   "Q150",
+   "Q13955"
+  ],
+  "name_zh": "乍得",
+  "qid": "Q657",
+  "verified": true,
+  "via": "zh"
+ },
+ "TF": {
+  "lang_qids": [
+   "Q150"
+  ],
+  "name_zh": "法属南部和南极领地",
+  "qid": "Q129003",
+  "verified": true,
+  "via": "zh"
+ },
+ "TG": {
+  "lang_qids": [
+   "Q150"
+  ],
+  "name_zh": "多哥",
+  "qid": "Q945",
+  "verified": true,
+  "via": "zh"
+ },
+ "TH": {
+  "lang_qids": [
+   "Q9217"
+  ],
+  "name_zh": "泰国",
+  "qid": "Q869",
+  "verified": true,
+  "via": "zh"
+ },
+ "TJ": {
+  "lang_qids": [
+   "Q9260",
+   "Q7737"
+  ],
+  "name_zh": "塔吉克斯坦",
+  "qid": "Q863",
+  "verified": true,
+  "via": "zh"
+ },
+ "TL": {
+  "lang_qids": [
+   "Q5146",
+   "Q34125"
+  ],
+  "name_zh": "东帝汶",
+  "qid": "Q574",
+  "verified": true,
+  "via": "zh"
+ },
+ "TM": {
+  "lang_qids": [
+   "Q9267"
+  ],
+  "name_zh": "土库曼斯坦",
+  "qid": "Q874",
+  "verified": true,
+  "via": "zh"
+ },
+ "TN": {
+  "lang_qids": [
+   "Q13955"
+  ],
+  "name_zh": "突尼斯",
+  "qid": "Q948",
+  "verified": true,
+  "via": "zh"
+ },
+ "TO": {
+  "lang_qids": [
+   "Q34094",
+   "Q1860"
+  ],
+  "name_zh": "汤加",
+  "qid": "Q678",
+  "verified": true,
+  "via": "zh"
+ },
+ "TR": {
+  "lang_qids": [
+   "Q256"
+  ],
+  "name_zh": "土耳其",
+  "qid": "Q43",
+  "verified": true,
+  "via": "zh"
+ },
+ "TT": {
+  "lang_qids": [
+   "Q1860"
+  ],
+  "name_zh": "特立尼达和多巴哥",
+  "qid": "Q754",
+  "verified": true,
+  "via": "zh"
+ },
+ "TW": {
+  "lang_qids": [
+   "Q262828",
+   "Q2391532",
+   "Q36778",
+   "Q35132"
+  ],
+  "name_zh": "中国台湾",
+  "qid": "Q865",
+  "verified": true,
+  "via": "en"
+ },
+ "TZ": {
+  "lang_qids": [
+   "Q7838",
+   "Q1860"
+  ],
+  "name_zh": "坦桑尼亚",
+  "qid": "Q924",
+  "verified": true,
+  "via": "zh"
+ },
+ "UA": {
+  "lang_qids": [
+   "Q8798"
+  ],
+  "name_zh": "乌克兰",
+  "qid": "Q212",
+  "verified": true,
+  "via": "zh"
+ },
+ "UG": {
+  "lang_qids": [
+   "Q1860",
+   "Q7838"
+  ],
+  "name_zh": "乌干达",
+  "qid": "Q1036",
+  "verified": true,
+  "via": "zh"
+ },
+ "US": {
+  "lang_qids": [
+   "Q1860",
+   "Q33569",
+   "Q1321",
+   "Q34011"
+  ],
+  "name_zh": "美国",
+  "qid": "Q30",
+  "verified": true,
+  "via": "zh"
+ },
+ "UY": {
+  "name_zh": "乌拉圭",
+  "qid": "Q77",
+  "verified": true,
+  "via": "zh"
+ },
+ "UZ": {
+  "lang_qids": [
+   "Q9264"
+  ],
+  "name_zh": "乌兹别克斯坦",
+  "qid": "Q265",
+  "verified": true,
+  "via": "zh"
+ },
+ "VC": {
+  "lang_qids": [
+   "Q1860"
+  ],
+  "name_zh": "圣文森特和格林纳丁斯",
+  "qid": "Q757",
+  "verified": true,
+  "via": "zh"
+ },
+ "VE": {
+  "lang_qids": [
+   "Q1321",
+   "Q3322064"
+  ],
+  "name_zh": "委内瑞拉",
+  "qid": "Q717",
+  "verified": true,
+  "via": "zh"
+ },
+ "VI": {
+  "lang_qids": [
+   "Q1860"
+  ],
+  "name_zh": "美属维尔京群岛",
+  "qid": "Q11703",
+  "verified": true,
+  "via": "zh"
+ },
+ "VN": {
+  "lang_qids": [
+   "Q9199"
+  ],
+  "name_zh": "越南",
+  "qid": "Q881",
+  "verified": true,
+  "via": "zh"
+ },
+ "VU": {
+  "lang_qids": [
+   "Q35452",
+   "Q150",
+   "Q1860"
+  ],
+  "name_zh": "瓦努阿图",
+  "qid": "Q686",
+  "verified": true,
+  "via": "zh"
+ },
+ "WF": {
+  "lang_qids": [
+   "Q150",
+   "Q35334",
+   "Q36979"
+  ],
+  "name_zh": "瓦利斯和富图纳",
+  "qid": "Q35555",
+  "verified": true,
+  "via": "zh"
+ },
+ "WS": {
+  "lang_qids": [
+   "Q1860",
+   "Q34011"
+  ],
+  "name_zh": "萨摩亚",
+  "qid": "Q683",
+  "verified": true,
+  "via": "zh"
+ },
+ "XK": {
+  "lang_qids": [
+   "Q8748",
+   "Q9299"
+  ],
+  "name_zh": "科索沃",
+  "qid": "Q1246",
+  "verified": true,
+  "via": "zh"
+ },
+ "YE": {
+  "lang_qids": [
+   "Q13955"
+  ],
+  "name_zh": "也门",
+  "qid": "Q805",
+  "verified": true,
+  "via": "zh"
+ },
+ "ZA": {
+  "lang_qids": [
+   "Q1860",
+   "Q14196",
+   "Q36785",
+   "Q33890"
+  ],
+  "name_zh": "南非",
+  "qid": "Q258",
+  "verified": true,
+  "via": "zh"
+ },
+ "ZM": {
+  "lang_qids": [
+   "Q1860"
+  ],
+  "name_zh": "赞比亚",
+  "qid": "Q953",
+  "verified": true,
+  "via": "zh"
+ },
+ "ZW": {
+  "lang_qids": [
+   "Q1860",
+   "Q34004",
+   "Q35613",
+   "Q33273"
+  ],
+  "name_zh": "津巴布韦",
+  "qid": "Q954",
+  "verified": true,
+  "via": "zh"
+ },
+ "_langs": {
+  "Q12175": {
+   "c1": "gv",
+   "c3": "glv"
+  },
+  "Q1234776": {
+   "c1": "",
+   "c3": ""
+  },
+  "Q12628055": {
+   "c1": "",
+   "c3": ""
+  },
+  "Q13199": {
+   "c1": "rm",
+   "c3": "roh"
+  },
+  "Q1321": {
+   "c1": "es",
+   "c3": "spa"
+  },
+  "Q13267": {
+   "c1": "si",
+   "c3": "sin"
+  },
+  "Q13275": {
+   "c1": "so",
+   "c3": "som"
+  },
+  "Q13300": {
+   "c1": "",
+   "c3": "nah"
+  },
+  "Q13330": {
+   "c1": "",
+   "c3": "mwl"
+  },
+  "Q13354": {
+   "c1": "",
+   "c3": ""
+  },
+  "Q13357": {
+   "c1": "",
+   "c3": ""
+  },
+  "Q1339026": {
+   "c1": "",
+   "c3": ""
+  },
+  "Q13955": {
+   "c1": "ar",
+   "c3": "ara"
+  },
+  "Q1412": {
+   "c1": "fi",
+   "c3": "fin"
+  },
+  "Q14196": {
+   "c1": "af",
+   "c3": "afr"
+  },
+  "Q14549": {
+   "c1": "",
+   "c3": "sco"
+  },
+  "Q150": {
+   "c1": "fr",
+   "c3": "fra"
+  },
+  "Q1568": {
+   "c1": "hi",
+   "c3": "hin"
+  },
+  "Q1617": {
+   "c1": "ur",
+   "c3": "urd"
+  },
+  "Q161804": {
+   "c1": "",
+   "c3": ""
+  },
+  "Q1740805": {
+   "c1": "",
+   "c3": ""
+  },
+  "Q178440": {
+   "c1": "",
+   "c3": ""
+  },
+  "Q1860": {
+   "c1": "en",
+   "c3": "eng"
+  },
+  "Q18784": {
+   "c1": "",
+   "c3": ""
+  },
+  "Q188": {
+   "c1": "de",
+   "c3": "deu"
+  },
+  "Q1991779": {
+   "c1": "",
+   "c3": "alt"
+  },
+  "Q2047043": {
+   "c1": "",
+   "c3": ""
+  },
+  "Q2391532": {
+   "c1": "",
+   "c3": ""
+  },
+  "Q24841726": {
+   "c1": "",
+   "c3": ""
+  },
+  "Q25044405": {
+   "c1": "",
+   "c3": ""
+  },
+  "Q25164": {
+   "c1": "nn",
+   "c3": "nno"
+  },
+  "Q25167": {
+   "c1": "nb",
+   "c3": "nob"
+  },
+  "Q2524014": {
+   "c1": "",
+   "c3": ""
+  },
+  "Q25258": {
+   "c1": "fo",
+   "c3": "fao"
+  },
+  "Q2530387": {
+   "c1": "",
+   "c3": ""
+  },
+  "Q25355": {
+   "c1": "kl",
+   "c3": "kal"
+  },
+  "Q256": {
+   "c1": "tr",
+   "c3": "tur"
+  },
+  "Q262828": {
+   "c1": "",
+   "c3": ""
+  },
+  "Q27175": {
+   "c1": "fy",
+   "c3": "fry"
+  },
+  "Q27567": {
+   "c1": "",
+   "c3": ""
+  },
+  "Q27776": {
+   "c1": "",
+   "c3": "ady"
+  },
+  "Q28244": {
+   "c1": "am",
+   "c3": "amh"
+  },
+  "Q28427": {
+   "c1": "",
+   "c3": ""
+  },
+  "Q294": {
+   "c1": "is",
+   "c3": "isl"
+  },
+  "Q30319": {
+   "c1": "",
+   "c3": ""
+  },
+  "Q3073428": {
+   "c1": "",
+   "c3": ""
+  },
+  "Q30898": {
+   "c1": "",
+   "c3": "gil"
+  },
+  "Q3110592": {
+   "c1": "",
+   "c3": ""
+  },
+  "Q32706": {
+   "c1": "",
+   "c3": "dyu"
+  },
+  "Q32934": {
+   "c1": "",
+   "c3": ""
+  },
+  "Q33049": {
+   "c1": "",
+   "c3": "bal"
+  },
+  "Q33077": {
+   "c1": "",
+   "c3": ""
+  },
+  "Q33081": {
+   "c1": "dz",
+   "c3": "dzo"
+  },
+  "Q3322064": {
+   "c1": "",
+   "c3": ""
+  },
+  "Q33243": {
+   "c1": "bm",
+   "c3": "bam"
+  },
+  "Q33262": {
+   "c1": "ch",
+   "c3": "cha"
+  },
+  "Q33273": {
+   "c1": "ny",
+   "c3": "nya"
+  },
+  "Q33295": {
+   "c1": "fj",
+   "c3": "fij"
+  },
+  "Q33298": {
+   "c1": "",
+   "c3": "fil"
+  },
+  "Q33491": {
+   "c1": "ht",
+   "c3": "hat"
+  },
+  "Q33569": {
+   "c1": "",
+   "c3": "haw"
+  },
+  "Q33573": {
+   "c1": "rw",
+   "c3": "kin"
+  },
+  "Q33583": {
+   "c1": "rn",
+   "c3": "run"
+  },
+  "Q33617": {
+   "c1": "ho",
+   "c3": "hmo"
+  },
+  "Q33690": {
+   "c1": "",
+   "c3": "csb"
+  },
+  "Q33776": {
+   "c1": "",
+   "c3": "pau"
+  },
+  "Q33790": {
+   "c1": "",
+   "c3": "niu"
+  },
+  "Q33823": {
+   "c1": "ne",
+   "c3": "nep"
+  },
+  "Q33856": {
+   "c1": "",
+   "c3": "pap"
+  },
+  "Q33890": {
+   "c1": "",
+   "c3": "nso"
+  },
+  "Q33954": {
+   "c1": "sg",
+   "c3": "sag"
+  },
+  "Q34004": {
+   "c1": "sn",
+   "c3": "sna"
+  },
+  "Q34011": {
+   "c1": "sm",
+   "c3": "smo"
+  },
+  "Q34014": {
+   "c1": "ss",
+   "c3": "ssw"
+  },
+  "Q34015": {
+   "c1": "",
+   "c3": ""
+  },
+  "Q34094": {
+   "c1": "to",
+   "c3": "ton"
+  },
+  "Q34124": {
+   "c1": "ti",
+   "c3": "tir"
+  },
+  "Q34125": {
+   "c1": "",
+   "c3": "tet"
+  },
+  "Q34138": {
+   "c1": "",
+   "c3": "tum"
+  },
+  "Q34159": {
+   "c1": "",
+   "c3": "tpi"
+  },
+  "Q34257": {
+   "c1": "wo",
+   "c3": "wol"
+  },
+  "Q34340": {
+   "c1": "st",
+   "c3": "sot"
+  },
+  "Q3436689": {
+   "c1": "",
+   "c3": ""
+  },
+  "Q35006": {
+   "c1": "",
+   "c3": ""
+  },
+  "Q35021": {
+   "c1": "",
+   "c3": ""
+  },
+  "Q35095": {
+   "c1": "",
+   "c3": ""
+  },
+  "Q35132": {
+   "c1": "",
+   "c3": ""
+  },
+  "Q35334": {
+   "c1": "",
+   "c3": ""
+  },
+  "Q35392": {
+   "c1": "",
+   "c3": ""
+  },
+  "Q35452": {
+   "c1": "bi",
+   "c3": "bis"
+  },
+  "Q35613": {
+   "c1": "nd",
+   "c3": "nde"
+  },
+  "Q35744": {
+   "c1": "",
+   "c3": ""
+  },
+  "Q35876": {
+   "c1": "gn",
+   "c3": "grn"
+  },
+  "Q35939": {
+   "c1": "",
+   "c3": ""
+  },
+  "Q35963": {
+   "c1": "",
+   "c3": ""
+  },
+  "Q36096": {
+   "c1": "",
+   "c3": "mos"
+  },
+  "Q36239": {
+   "c1": "",
+   "c3": ""
+  },
+  "Q36280": {
+   "c1": "mh",
+   "c3": "mah"
+  },
+  "Q36368": {
+   "c1": "ku",
+   "c3": "kur"
+  },
+  "Q36392": {
+   "c1": "mo",
+   "c3": "ron"
+  },
+  "Q36451": {
+   "c1": "mi",
+   "c3": "mri"
+  },
+  "Q36510": {
+   "c1": "el",
+   "c3": "ell"
+  },
+  "Q36668": {
+   "c1": "",
+   "c3": ""
+  },
+  "Q36778": {
+   "c1": "",
+   "c3": ""
+  },
+  "Q36785": {
+   "c1": "nr",
+   "c3": "nbl"
+  },
+  "Q36979": {
+   "c1": "",
+   "c3": ""
+  },
+  "Q4252500": {
+   "c1": "",
+   "c3": ""
+  },
+  "Q4627": {
+   "c1": "ay",
+   "c3": "aym"
+  },
+  "Q46728": {
+   "c1": "",
+   "c3": ""
+  },
+  "Q5111": {
+   "c1": "ab",
+   "c3": "abk"
+  },
+  "Q5146": {
+   "c1": "pt",
+   "c3": "por"
+  },
+  "Q5218": {
+   "c1": "qu",
+   "c3": "que"
+  },
+  "Q5287": {
+   "c1": "ja",
+   "c3": "jpn"
+  },
+  "Q55698568": {
+   "c1": "",
+   "c3": ""
+  },
+  "Q56430": {
+   "c1": "",
+   "c3": ""
+  },
+  "Q56463": {
+   "c1": "",
+   "c3": "smi"
+  },
+  "Q56467": {
+   "c1": "",
+   "c3": ""
+  },
+  "Q56475": {
+   "c1": "ha",
+   "c3": "hau"
+  },
+  "Q58680": {
+   "c1": "ps",
+   "c3": "pus"
+  },
+  "Q5885": {
+   "c1": "ta",
+   "c3": "tam"
+  },
+  "Q61053330": {
+   "c1": "",
+   "c3": ""
+  },
+  "Q617291": {
+   "c1": "",
+   "c3": ""
+  },
+  "Q652": {
+   "c1": "it",
+   "c3": "ita"
+  },
+  "Q6654": {
+   "c1": "hr",
+   "c3": "hrv"
+  },
+  "Q7026": {
+   "c1": "ca",
+   "c3": "cat"
+  },
+  "Q727694": {
+   "c1": "",
+   "c3": "chi"
+  },
+  "Q7411": {
+   "c1": "nl",
+   "c3": "nld"
+  },
+  "Q7598268": {
+   "c1": "",
+   "c3": "zgh"
+  },
+  "Q7737": {
+   "c1": "ru",
+   "c3": "rus"
+  },
+  "Q7838": {
+   "c1": "sw",
+   "c3": "swa"
+  },
+  "Q7850": {
+   "c1": "zh",
+   "c3": "zho"
+  },
+  "Q7913": {
+   "c1": "ro",
+   "c3": "ron"
+  },
+  "Q7918": {
+   "c1": "bg",
+   "c3": "bul"
+  },
+  "Q7930": {
+   "c1": "mg",
+   "c3": "mlg"
+  },
+  "Q7979": {
+   "c1": "",
+   "c3": ""
+  },
+  "Q809": {
+   "c1": "pl",
+   "c3": "pol"
+  },
+  "Q8108": {
+   "c1": "ka",
+   "c3": "kat"
+  },
+  "Q835866": {
+   "c1": "",
+   "c3": ""
+  },
+  "Q8748": {
+   "c1": "sq",
+   "c3": "sqi"
+  },
+  "Q8752": {
+   "c1": "eu",
+   "c3": "eus"
+  },
+  "Q8785": {
+   "c1": "hy",
+   "c3": "hye"
+  },
+  "Q8798": {
+   "c1": "uk",
+   "c3": "ukr"
+  },
+  "Q8821": {
+   "c1": "",
+   "c3": "cnr"
+  },
+  "Q9027": {
+   "c1": "sv",
+   "c3": "swe"
+  },
+  "Q9035": {
+   "c1": "da",
+   "c3": "dan"
+  },
+  "Q9043": {
+   "c1": "no",
+   "c3": "nor"
+  },
+  "Q9051": {
+   "c1": "lb",
+   "c3": "ltz"
+  },
+  "Q9056": {
+   "c1": "cs",
+   "c3": "ces"
+  },
+  "Q9058": {
+   "c1": "sk",
+   "c3": "slk"
+  },
+  "Q9063": {
+   "c1": "sl",
+   "c3": "slv"
+  },
+  "Q9067": {
+   "c1": "hu",
+   "c3": "hun"
+  },
+  "Q9072": {
+   "c1": "et",
+   "c3": "est"
+  },
+  "Q9078": {
+   "c1": "lv",
+   "c3": "lav"
+  },
+  "Q9083": {
+   "c1": "lt",
+   "c3": "lit"
+  },
+  "Q9091": {
+   "c1": "be",
+   "c3": "bel"
+  },
+  "Q9129": {
+   "c1": "el",
+   "c3": "gre"
+  },
+  "Q9142": {
+   "c1": "ga",
+   "c3": "gle"
+  },
+  "Q9166": {
+   "c1": "mt",
+   "c3": "mlt"
+  },
+  "Q9168": {
+   "c1": "fa",
+   "c3": "fas"
+  },
+  "Q9176": {
+   "c1": "ko",
+   "c3": "kor"
+  },
+  "Q9186": {
+   "c1": "",
+   "c3": ""
+  },
+  "Q9199": {
+   "c1": "vi",
+   "c3": "vie"
+  },
+  "Q9205": {
+   "c1": "km",
+   "c3": "khm"
+  },
+  "Q9211": {
+   "c1": "lo",
+   "c3": "lao"
+  },
+  "Q9217": {
+   "c1": "th",
+   "c3": "tha"
+  },
+  "Q9228": {
+   "c1": "my",
+   "c3": "mya"
+  },
+  "Q9237": {
+   "c1": "ms",
+   "c3": "msa"
+  },
+  "Q9240": {
+   "c1": "id",
+   "c3": "ind"
+  },
+  "Q9246": {
+   "c1": "mn",
+   "c3": "mon"
+  },
+  "Q9252": {
+   "c1": "kk",
+   "c3": "kaz"
+  },
+  "Q9255": {
+   "c1": "ky",
+   "c3": "kir"
+  },
+  "Q9260": {
+   "c1": "tg",
+   "c3": "tgk"
+  },
+  "Q9264": {
+   "c1": "uz",
+   "c3": "uzb"
+  },
+  "Q9267": {
+   "c1": "tk",
+   "c3": "tuk"
+  },
+  "Q9288": {
+   "c1": "he",
+   "c3": "heb"
+  },
+  "Q9292": {
+   "c1": "az",
+   "c3": "aze"
+  },
+  "Q9296": {
+   "c1": "mk",
+   "c3": "mkd"
+  },
+  "Q9299": {
+   "c1": "sr",
+   "c3": "srp"
+  },
+  "Q9303": {
+   "c1": "bs",
+   "c3": "bos"
+  },
+  "Q9307": {
+   "c1": "gl",
+   "c3": "glg"
+  },
+  "Q9309": {
+   "c1": "cy",
+   "c3": "cym"
+  },
+  "Q9314": {
+   "c1": "gd",
+   "c3": "gla"
+  },
+  "Q9610": {
+   "c1": "bn",
+   "c3": "ben"
+  }
+ }
+}

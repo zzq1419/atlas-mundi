@@ -20,6 +20,16 @@ import glob
 import json
 import os
 import sys
+
+# 控制台可能是 cp936（Windows cmd 默认），打不出的字符用 ? 代替，别让整段崩掉。
+# 之前 collect.py 在连不上某个站时打印一个 ✗ 就 UnicodeEncodeError 退出，
+# 看起来像"采集失败"，其实连抓取都还没开始。
+try:
+    sys.stdout.reconfigure(errors="replace")
+    sys.stderr.reconfigure(errors="replace")
+except Exception:
+    pass
+
 from datetime import datetime
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -108,7 +118,7 @@ def main() -> int:
     print("  覆盖    %s" % "、".join(isos))
     print("  体积    %.1f KB" % (size / 1024))
     if not qa_n:
-        print("  ⚠ 没有问答对：先跑 python scripts/llm_tasks.py --run all --only qa --apply")
+        print("  [!] 没有问答对：先跑 python scripts/llm_tasks.py --run all --only qa --apply")
         return 1
     return 0
 

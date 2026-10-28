@@ -15,6 +15,16 @@ from __future__ import annotations
 import argparse
 import json
 import sys
+
+# 控制台可能是 cp936（Windows cmd 默认），打不出的字符用 ? 代替，别让整段崩掉。
+# 之前 collect.py 在连不上某个站时打印一个 ✗ 就 UnicodeEncodeError 退出，
+# 看起来像"采集失败"，其实连抓取都还没开始。
+try:
+    sys.stdout.reconfigure(errors="replace")
+    sys.stderr.reconfigure(errors="replace")
+except Exception:
+    pass
+
 import time
 import urllib.error
 import urllib.parse
@@ -84,7 +94,7 @@ def main() -> int:
     for q, want_n, want_country, want_q in EXPECT:
         code, body, ms = call(a.url, q, a.method)
         if code != 200 or not isinstance(body, dict):
-            print("  ✗ %-12s HTTP %s  %s" % (q, code, str(body)[:80]))
+            print("  [x] %-12s HTTP %s  %s" % (q, code, str(body)[:80]))
             continue
         n = body.get("count", 0)
         issues = []
@@ -100,10 +110,10 @@ def main() -> int:
             issues.append("空结果缺 note 说明")
 
         if issues:
-            print("  ✗ %-12s %s  (%d ms)" % (q, "；".join(issues), ms))
+            print("  [x] %-12s %s  (%d ms)" % (q, "；".join(issues), ms))
         else:
             head = "" if n == 0 else "首条「%s」" % (body["results"][0]["q"][:22])
-            print("  ✓ %-12s %d 条 %s  (%d ms)" % (q, n, head, ms))
+            print("  [ok] %-12s %d 条 %s  (%d ms)" % (q, n, head, ms))
             ok += 1
 
     print("\n%d/%d 通过" % (ok, len(EXPECT)))

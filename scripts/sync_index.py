@@ -25,10 +25,13 @@ MOD_KEYS = ("image", "audio", "text", "coords", "geometry")
 def modalities(rec):
     return {
         "image": bool(rec.get("landmark_images")),
-        "audio": bool(rec.get("audio_url")),
+        # 老三国把发音挂在档案级 audio_url；新采的走 languages[].audio_url（TTS）
+        "audio": bool(rec.get("audio_url")) or
+                 any(l.get("audio_url") for l in (rec.get("languages") or [])),
         "text": bool(rec.get("summary_text")),
         "coords": bool(rec.get("centroid")),
-        "geometry": bool(rec.get("geometry")),
+        # geometry 指向单独 geojson；geometry_status=..._chunked 表示几何在 geo/c*.json 分片里
+        "geometry": bool(rec.get("geometry") or rec.get("geometry_status")),
     }
 
 

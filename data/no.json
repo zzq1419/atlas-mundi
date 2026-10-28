@@ -1,0 +1,285 @@
+{
+  "qid": "Q20",
+  "iso_a2": "NO",
+  "iso_a3": "NOR",
+  "name_zh": "挪威",
+  "name_en": "Norway",
+  "capital": "奥斯陆",
+  "continent": "欧洲",
+  "centroid": [
+    10.6833,
+    59.9333
+  ],
+  "centroid_source": "wikidata P625",
+  "languages": [
+    {
+      "code": "nb",
+      "name_zh": "书面挪威语",
+      "name_local": "书面挪威语",
+      "role": "official",
+      "audio_url": "assets/no/audio/nb.mp3",
+      "audio_source": "tts_edge",
+      "audio_status": "ok",
+      "tts_text": "Velkommen til Norge. Hovedstaden heter Oslo, og dit bør du reise for å se det praktfulle Slottet, som troner på en høyde midt i byen.",
+      "tts_text_zh": "欢迎来到挪威。首都名叫奥斯陆，你应该去那里看看宏伟的王宫，它坐落在城市中央的一处高地上。",
+      "audio_voice": "nb-NO-PernilleNeural",
+      "audio_bytes": 52704
+    }
+  ],
+  "summary_text": "挪威（书面挪威语：Norge，新挪威语：Noreg，北萨米语：Norga），全称挪威王国，是一个位于斯堪的纳维亚半岛的北欧国家。挪威地处欧洲大陆西北部，涵盖北极地区的扬马延岛和斯瓦尔巴群岛，此外在南大西洋还拥有布韦岛，并对南极地区的彼得一世岛与毛德皇后地持有主权要求。该国东部与瑞典接壤，东北部分别与芬兰的拉普兰区和俄罗斯的摩尔曼斯克州相邻。挪威国土狭长，拥有绵长的海岸线，其沿岸濒临斯卡格拉克海峡、北大西洋和巴伦支海。挪威的总面积为385,207平方千米（148,729平方英里）。该国人口约560万，首都及最大城市均为奥斯陆。挪威的通用语言包括书面挪威语、新挪威语和北萨米语。挪威王国于公元872年由多个小王国合并而成，迄今已有1154年的历史。",
+  "summary_source": {
+    "source": "llm_refined",
+    "note": "DeepSeek 基于 Wikipedia 导语 + 人工民俗文本重写；口径限定地理与文化，剔除政权更迭与战争史",
+    "chars": 325,
+    "derived_from": "wikipedia_extracts",
+    "url": "https://zh.wikipedia.org/wiki/挪威",
+    "title": "挪威"
+  },
+  "landmark_images": [
+    {
+      "title": "File:Sognefjord, Norway.jpg",
+      "caption_zh": "挪威松恩峡湾",
+      "caption": "挪威松恩峡湾",
+      "caption_commons": "An arm of the Sognefjord, Norway.",
+      "kw": "Sognefjord Norway",
+      "url": "assets/no/L01.webp",
+      "thumb_url": "assets/no/L01.thumb.webp",
+      "remote_url": "https://upload.wikimedia.org/wikipedia/commons/4/47/Sognefjord%2C_Norway.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+      "source": "wikidata_p18",
+      "author": "en:User:Worldtraveller,",
+      "license": "CC BY-SA 3.0",
+      "license_url": "http://creativecommons.org/licenses/by-sa/3.0/",
+      "license_status": "ok",
+      "load_verified": true,
+      "bytes": 38594,
+      "thumb_bytes": 12424,
+      "size": {
+        "detail": "700x473",
+        "thumb": "400x270"
+      },
+      "encoding": "webp q72/q74 (源 700x473 95KB JPEG)",
+      "caption_zh_manual": "松恩峡湾",
+      "caption_zh_source": "llm_from_commons_filename"
+    },
+    {
+      "title": "File:Geirangerfjord waterfall.jpg",
+      "caption_zh": "盖朗厄尔峡湾瀑布",
+      "caption": "盖朗厄尔峡湾瀑布",
+      "caption_commons": "DSC_6361_59_60",
+      "kw": "Geirangerfjord Norway",
+      "url": "assets/no/L02.webp",
+      "thumb_url": "assets/no/L02.thumb.webp",
+      "remote_url": "https://upload.wikimedia.org/wikipedia/commons/c/c3/Geirangerfjord_waterfall.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+      "source": "wikidata_p18",
+      "author": "Vasile Cotovanu from Zürich, Switzerland",
+      "license": "CC BY 2.0",
+      "license_url": "https://creativecommons.org/licenses/by/2.0",
+      "license_status": "ok",
+      "load_verified": true,
+      "bytes": 69904,
+      "thumb_bytes": 20408,
+      "size": {
+        "detail": "760x511",
+        "thumb": "400x269"
+      },
+      "encoding": "webp q72/q74 (源 1024x688 174KB JPEG)",
+      "caption_zh_manual": "盖朗厄尔峡湾",
+      "caption_zh_source": "llm_from_commons_filename"
+    },
+    {
+      "title": "File:Preikestolen - Pulpit Rock.jpg",
+      "caption_zh": "布道石（传道者岩）",
+      "caption": "布道石（传道者岩）",
+      "caption_commons": "The iconic Pulpit Rock rises 600 metres above the Lysefjord in Norway",
+      "kw": "Preikestolen Norway",
+      "url": "assets/no/L03.webp",
+      "thumb_url": "assets/no/L03.thumb.webp",
+      "remote_url": "https://upload.wikimedia.org/wikipedia/commons/e/ee/Preikestolen_-_Pulpit_Rock.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+      "source": "commons_search",
+      "author": "Svein-Magne Tunli",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "license_status": "ok",
+      "load_verified": true,
+      "bytes": 56508,
+      "thumb_bytes": 16266,
+      "size": {
+        "detail": "760x507",
+        "thumb": "400x267"
+      },
+      "encoding": "webp q72/q74 (源 1500x1000 1007KB JPEG)",
+      "caption_zh_manual": "布道石",
+      "caption_zh_source": "llm_from_commons_filename"
+    },
+    {
+      "title": "File:Moskenes Reinebringen lub 2025-07-21 img09 Aussicht.jpg",
+      "caption_zh": "罗弗敦群岛雷讷山观景点",
+      "caption": "罗弗敦群岛雷讷山观景点",
+      "caption_commons": "View from Reinebringen in the municipality of Moskenes, Nordland, Norway. Reineb",
+      "kw": "Lofoten Islands Norway",
+      "url": "assets/no/L04.webp",
+      "thumb_url": "assets/no/L04.thumb.webp",
+      "remote_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/59/Moskenes_Reinebringen_lub_2025-07-21_img09_Aussicht.jpg/1920px-Moskenes_Reinebringen_lub_2025-07-21_img09_Aussicht.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "source": "wikidata_p18",
+      "author": "Lukas Beck",
+      "license": "CC BY 4.0",
+      "license_url": "https://creativecommons.org/licenses/by/4.0",
+      "license_status": "ok",
+      "load_verified": true,
+      "bytes": 37970,
+      "thumb_bytes": 11450,
+      "size": {
+        "detail": "760x507",
+        "thumb": "400x267"
+      },
+      "encoding": "webp q72/q74 (源 1920x1281 529KB JPEG)",
+      "caption_zh_manual": "罗弗敦群岛",
+      "caption_zh_source": "llm_from_commons_filename"
+    },
+    {
+      "title": "File:Bryggen Hanseatic wharf at night Bergen Norway.jpg",
+      "caption_zh": "夜晚的卑尔根布吕根",
+      "caption": "夜晚的卑尔根布吕根",
+      "caption_commons": "Night-time photograph of Bryggen, the historic Hanseatic wharf in Bergen, Vestla",
+      "kw": "Bryggen Bergen Norway",
+      "url": "assets/no/L05.webp",
+      "thumb_url": "assets/no/L05.thumb.webp",
+      "remote_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/39/Bryggen_Hanseatic_wharf_at_night_Bergen_Norway.jpg/1920px-Bryggen_Hanseatic_wharf_at_night_Bergen_Norway.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "source": "commons_search",
+      "author": "Smtunli",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "license_status": "ok",
+      "load_verified": true,
+      "bytes": 58116,
+      "thumb_bytes": 16816,
+      "size": {
+        "detail": "760x507",
+        "thumb": "400x267"
+      },
+      "encoding": "webp q72/q74 (源 1920x1280 695KB JPEG)",
+      "caption_zh_manual": "卑尔根布吕根",
+      "caption_zh_source": "llm_from_commons_filename"
+    }
+  ],
+  "image_license": "CC BY-SA 3.0",
+  "schema_version": "0.1",
+  "collected_at": "2026-10-28T16:23:47+08:00",
+  "collector": "scripts/collect.py v0.2",
+  "needs_review": true,
+  "review_notes": [
+    "P37 返回 4 个语言，去重/去上位概念后保留 2 个：书面挪威语、萨米语支",
+    "P443 发音语种不符已弃用：Lb-Norwegen.ogg、LL-Q7913 (ron)-KlaudiuMihaila-Norvegia.wav、LL-Q652 (ita)-Francyskus-Norvegia.wav（P443 不保证语种，须按文件名筛）",
+    "该实体无对应语种发音，语音改跑 python scripts/tts.py NO",
+    "Commons 无可用发音，语音走构建期 TTS 兜底（待接）",
+    "地标图改为人工指定清单（5 张，中文图注）"
+  ],
+  "image_source_note": "人工按 data/landmarks.json 指定地标，Commons 关键词检索取图；原先自动获得的 3 张已被替换",
+  "audio_meta": {},
+  "custom_facets": {
+    "festivals": [],
+    "cuisine": [],
+    "religion": [],
+    "architecture": [],
+    "heritage": [],
+    "keywords": [
+      {
+        "v": "斯堪的纳维亚半岛",
+        "evidence": "位于斯堪的纳维亚半岛的北欧国家"
+      },
+      {
+        "v": "峡湾海岸线",
+        "evidence": "国土狭长，拥有绵长的海岸线"
+      },
+      {
+        "v": "斯瓦尔巴群岛",
+        "evidence": "涵盖北极地区的扬马延岛和斯瓦尔巴群岛"
+      },
+      {
+        "v": "书面挪威语",
+        "evidence": "书面挪威语：Norge"
+      },
+      {
+        "v": "新挪威语",
+        "evidence": "新挪威语：Noreg"
+      }
+    ],
+    "model": "deepseek-flash"
+  },
+  "summary_text_raw": "挪威（书面挪威语：Norge，新挪威语：Noreg，北萨米语：Norga），全称挪威王国（书面挪威语：Kongeriket Norge，新挪威语：Kongeriket Noreg，北萨米语：Norgga gonagasriika），是一个位于斯堪的纳维亚半岛的北欧国家。挪威地处欧洲大陆西北部，涵盖北极地区的扬马延岛和斯瓦尔巴群岛。此外，挪威在南大西洋还拥有布韦岛，并对南极地区的彼得一世岛与毛德皇后地持有主权要求。该国人口约560万，首都及最大城市均为奥斯陆。\n挪威的总面积为385,207平方千米（148,729平方英里）。该国东部与瑞典接壤，东北部分别与芬兰的拉普兰区和俄罗斯的摩尔曼斯克州相邻。挪威国土狭长，拥有绵长的海岸线，其沿岸濒临斯卡格拉克海峡、北大西洋和巴伦支海。\n挪威王国于公元872年由多个小王国合并而成，迄今已有1154年的历史。挪威于1537年至1814年间是丹麦-挪威联合王国的一部分；后于1814年与瑞典组成共主联邦，直至1905年联邦解体并重新成为独立的主权国家。",
+  "custom_text": "挪威位于斯堪的纳维亚半岛，地处欧洲大陆西北部，国土狭长，拥有绵长的海岸线，沿岸濒临斯卡格拉克海峡、北大西洋和巴伦支海；其疆域还涵盖北极地区的扬马延岛和斯瓦尔巴群岛，并在南大西洋拥有布韦岛，对南极地区的彼得一世岛与毛德皇后地持有主权要求。人口约560万，首都及最大城市为奥斯陆。挪威王国于公元872年由多个小王国合并而成，迄今已有1154年历史；1537年至1814年间为丹麦-挪威联合王国的一部分，1814年与瑞典组成共主联邦，直至1905年联邦解体并重新成为独立的主权国家。关于民俗与日常生活，现有材料未作记载。",
+  "custom_text_source": {
+    "source": "llm_compose_from_summary_facets",
+    "note": "模型基于维基导语 + 抽取特征成文；只在没有人工稿的国家使用",
+    "chars": 257
+  },
+  "knowledge_qa": [
+    {
+      "q": "挪威在哪儿啊？周围都挨着哪些国家？",
+      "a": "挪威位于斯堪的纳维亚半岛，是北欧国家，地处欧洲大陆西北部。东部与瑞典接壤，东北部分别与芬兰的拉普兰区和俄罗斯的摩尔曼斯克州相邻。",
+      "tags": [
+        "挪威位置",
+        "北欧",
+        "邻国"
+      ]
+    },
+    {
+      "q": "挪威面积多大？首都是哪里？",
+      "a": "挪威总面积为385,207平方千米（148,729平方英里），首都及最大城市均为奥斯陆。",
+      "tags": [
+        "挪威面积",
+        "首都",
+        "奥斯陆"
+      ]
+    },
+    {
+      "q": "挪威说什么语言？",
+      "a": "挪威的官方语言包括书面挪威语和萨米语支。",
+      "tags": [
+        "挪威语言",
+        "说什么话",
+        "官方语言"
+      ]
+    },
+    {
+      "q": "挪威有什么值得去看的自然景观？",
+      "a": "挪威有松恩峡湾、盖朗厄尔峡湾、布道石、罗弗敦群岛等著名地标，还有卑尔根布吕根这样的文化景观。",
+      "tags": [
+        "挪威景点",
+        "峡湾",
+        "值得看"
+      ]
+    },
+    {
+      "q": "挪威的历史有多久了？",
+      "a": "挪威王国于公元872年由多个小王国合并而成，迄今已有1154年的历史。",
+      "tags": [
+        "挪威历史",
+        "建国",
+        "多久"
+      ]
+    },
+    {
+      "q": "挪威人口大概多少？",
+      "a": "挪威人口约560万。",
+      "tags": [
+        "挪威人口",
+        "多少人"
+      ]
+    },
+    {
+      "q": "挪威有哪些海外领地或主权要求？",
+      "a": "挪威涵盖北极地区的扬马延岛和斯瓦尔巴群岛，在南大西洋拥有布韦岛，并对南极地区的彼得一世岛与毛德皇后地持有主权要求。",
+      "tags": [
+        "挪威领地",
+        "斯瓦尔巴",
+        "海外"
+      ]
+    }
+  ],
+  "llm_audit": {
+    "issues": [],
+    "overall": "pass"
+  },
+  "geometry_status": "naturalearth_50m_chunked"
+}

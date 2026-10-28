@@ -1,0 +1,304 @@
+{
+  "qid": "Q79",
+  "iso_a2": "EG",
+  "iso_a3": "EGY",
+  "name_zh": "埃及",
+  "name_en": "Egypt",
+  "capital": "开罗",
+  "continent": "非洲",
+  "centroid": [
+    29,
+    27
+  ],
+  "centroid_source": "wikidata P625",
+  "languages": [
+    {
+      "code": "ar",
+      "name_zh": "阿拉伯语",
+      "name_local": "阿拉伯语",
+      "role": "official",
+      "audio_url": "assets/eg/audio/ar.mp3",
+      "audio_source": "tts_edge",
+      "audio_status": "ok",
+      "tts_text": "أهلاً بكم في مصر، حيث يلتقي التاريخ العريق بنهر النيل الخالد؛ تبدأ رحلتكم من العاصمة القاهرة، ولا تنسوا أن تزوروا أهرامات الجيزة الشامخة التي تحرس ذاكرة الحضارة منذ آلاف السنين.",
+      "tts_text_zh": "欢迎来到埃及，在这里悠久的历史与永恒的尼罗河交汇；您的旅程从首都开罗开始，也请不要忘记参观巍然矗立的吉萨金字塔，它们守护着数千年的文明记忆。",
+      "audio_voice": "ar-DZ-AminaNeural",
+      "audio_bytes": 99072
+    }
+  ],
+  "summary_text": "阿拉伯埃及共和国通称埃及，是位于北非的国家，地跨亚非两洲，大部分国土位于北非地区，惟西奈半岛位于西南亚。伊斯兰教为国教，官方语言为阿拉伯语。埃及人大部分信仰伊斯兰教逊尼派，最大的宗教少数派为科普特正教，另外还有基督教其他教派和伊斯兰教什叶派。古埃及曾是文明摇篮，是世界上最早出现文明的地区之一，古埃及经历了早王朝、古王国、中王国、新王国和后王朝时期，共三十王朝。古王国时期埃及人开始大规模建金字塔，中王国时期埃及经济发展、文化昌盛，至新王国埃及国力显著提高，开始对外扩张，成为军事帝国。但到后王朝时期，因内乱和外族入侵，古埃及日渐衰落。公元前525年，埃及沦为波斯帝国的一个行省，在此后的一千多年间，埃及相继被希腊和罗马征服。公元641年阿拉伯人入侵埃及地区，埃及逐渐伊斯兰化。1517年埃及被土耳其人征服，成为奥斯曼帝国的行省，1882年埃及被英军占领后成为英国“保护国”。",
+  "summary_source": {
+    "source": "llm_refined",
+    "note": "DeepSeek 基于 Wikipedia 导语 + 人工民俗文本重写；口径限定地理与文化，剔除政权更迭与战争史",
+    "chars": 388,
+    "derived_from": "wikipedia_extracts",
+    "url": "https://zh.wikipedia.org/wiki/埃及",
+    "title": "埃及"
+  },
+  "landmark_images": [
+    {
+      "title": "File:Great Sphinx of Giza May 2015.JPG",
+      "caption_zh": "吉萨狮身人面像",
+      "caption": "吉萨狮身人面像",
+      "caption_commons": "The Great Sphinx of Giza in May 2015",
+      "kw": "Great Sphinx of Giza",
+      "url": "assets/eg/L02.webp",
+      "thumb_url": "assets/eg/L02.thumb.webp",
+      "remote_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d3/Great_Sphinx_of_Giza_May_2015.JPG/1920px-Great_Sphinx_of_Giza_May_2015.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "source": "wikidata_p18",
+      "author": "MusikAnimal",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "license_status": "ok",
+      "load_verified": true,
+      "bytes": 27712,
+      "thumb_bytes": 8602,
+      "size": {
+        "detail": "760x507",
+        "thumb": "400x267"
+      },
+      "encoding": "webp q72/q74 (源 1920x1280 422KB JPEG)",
+      "caption_zh_manual": "狮身人面像",
+      "caption_zh_source": "llm_from_commons_filename"
+    },
+    {
+      "title": "File:Abu_Simbel_Main_Temple_(2346939149).jpg",
+      "caption_zh": "阿布辛贝神庙主庙",
+      "caption": "阿布辛贝神庙主庙",
+      "caption_commons": "Abu Simbel Main Temple",
+      "kw": "Abu Simbel Temple Ramses",
+      "url": "assets/eg/L03.webp",
+      "thumb_url": "assets/eg/L03.thumb.webp",
+      "remote_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/9b/Abu_Simbel_Main_Temple_%282346939149%29.jpg/1920px-Abu_Simbel_Main_Temple_%282346939149%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "source": "wikipedia_lead",
+      "author": "Francisco Anzola",
+      "license": "CC BY 2.0",
+      "license_url": "https://creativecommons.org/licenses/by/2.0",
+      "license_status": "ok",
+      "load_verified": true,
+      "bytes": 75324,
+      "thumb_bytes": 23534,
+      "size": {
+        "detail": "760x532",
+        "thumb": "400x280"
+      },
+      "encoding": "webp q72/q74 (源 1920x1345 869KB JPEG)",
+      "caption_zh_manual": "阿布辛贝神庙",
+      "caption_zh_source": "llm_from_commons_filename"
+    },
+    {
+      "title": "File:Luxor, Egypt, Karnak.jpg",
+      "caption_zh": "埃及卡纳克神庙",
+      "caption": "埃及卡纳克神庙",
+      "caption_commons": "The Karnak Temple. The Great Hypostyle Hall, Precinct of Amun-Re. The structure ",
+      "kw": "Karnak Temple Luxor",
+      "url": "assets/eg/L04.webp",
+      "thumb_url": "assets/eg/L04.thumb.webp",
+      "remote_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/85/Luxor%2C_Egypt%2C_Karnak.jpg/1920px-Luxor%2C_Egypt%2C_Karnak.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "source": "wikidata_p18",
+      "author": "Vyacheslav Argenberg",
+      "license": "CC BY 4.0",
+      "license_url": "https://creativecommons.org/licenses/by/4.0",
+      "license_status": "ok",
+      "load_verified": true,
+      "bytes": 30402,
+      "thumb_bytes": 9794,
+      "size": {
+        "detail": "760x507",
+        "thumb": "400x267"
+      },
+      "encoding": "webp q72/q74 (源 1920x1280 502KB JPEG)",
+      "caption_zh_manual": "卡纳克神庙",
+      "caption_zh_source": "llm_from_commons_filename"
+    },
+    {
+      "title": "File:Luxor, Tal der Könige (1995, 860x605).jpg",
+      "caption_zh": "帝王谷全景",
+      "caption": "帝王谷全景",
+      "caption_commons": "Luxor (Egypt): Valley of the Kings",
+      "kw": "Valley of the Kings Luxor",
+      "url": "assets/eg/L05.webp",
+      "thumb_url": "assets/eg/L05.thumb.webp",
+      "remote_url": "https://upload.wikimedia.org/wikipedia/commons/0/0c/Luxor%2C_Tal_der_K%C3%B6nige_%281995%2C_860x605%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+      "source": "wikidata_p18",
+      "author": "Fotograf/Photographer: Peter J. Bubenik (1995)",
+      "license": "CC BY-SA 2.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/2.0",
+      "license_status": "ok",
+      "load_verified": true,
+      "bytes": 75318,
+      "thumb_bytes": 26520,
+      "size": {
+        "detail": "760x535",
+        "thumb": "400x281"
+      },
+      "encoding": "webp q72/q74 (源 860x605 155KB JPEG)",
+      "caption_zh_manual": "帝王谷",
+      "caption_zh_source": "llm_from_commons_filename"
+    },
+    {
+      "title": "File:Pylons and obelisk Luxor temple.JPG",
+      "caption_zh": "卢克索神庙塔门与方尖碑",
+      "caption": "卢克索神庙塔门与方尖碑",
+      "caption_commons": "Pylons and obelisk at Luxor temple.",
+      "kw": "Luxor Temple Egypt",
+      "url": "assets/eg/L06.webp",
+      "thumb_url": "assets/eg/L06.thumb.webp",
+      "remote_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0f/Pylons_and_obelisk_Luxor_temple.JPG/1920px-Pylons_and_obelisk_Luxor_temple.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "source": "wikidata_p18",
+      "author": "Ad Meskens",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "license_status": "ok",
+      "load_verified": true,
+      "bytes": 34672,
+      "thumb_bytes": 10068,
+      "size": {
+        "detail": "760x431",
+        "thumb": "400x227"
+      },
+      "encoding": "webp q72/q74 (源 1920x1089 494KB JPEG)",
+      "caption_zh_manual": "卢克索神庙",
+      "caption_zh_source": "llm_from_commons_filename"
+    }
+  ],
+  "image_license": "CC BY-SA 3.0",
+  "schema_version": "0.1",
+  "collected_at": "2026-10-28T16:21:41+08:00",
+  "collector": "scripts/collect.py v0.2",
+  "needs_review": true,
+  "review_notes": [
+    "P443 发音语种不符已弃用：LL-Q7913 (ron)-KlaudiuMihaila-Egipt.wav、LL-Q9610 (ben)-Tahmid-মিশর.wav、LL-Q22809485 (apc)-Hassan Hassoon-مصر.wav（P443 不保证语种，须按文件名筛）",
+    "该实体无对应语种发音，语音改跑 python scripts/tts.py EG",
+    "Commons 无可用发音，语音走构建期 TTS 兜底（待接）",
+    "吉萨金字塔群：1 个候选全部未通过筛选：Pyramids of the Giza Necropolis.jpg（宽高比 2.4 过宽（全景））",
+    "地标图改为人工指定清单（5 张，中文图注）"
+  ],
+  "image_source_note": "人工按 data/landmarks.json 指定地标，Commons 关键词检索取图；原先自动获得的 1 张已被替换",
+  "audio_meta": {},
+  "custom_facets": {
+    "festivals": [],
+    "cuisine": [],
+    "religion": [
+      {
+        "v": "伊斯兰教",
+        "evidence": "伊斯兰教为国教"
+      },
+      {
+        "v": "逊尼派",
+        "evidence": "大部分信仰伊斯兰教逊尼派"
+      },
+      {
+        "v": "科普特正教",
+        "evidence": "最大的宗教少数派为科普特正教"
+      },
+      {
+        "v": "什叶派",
+        "evidence": "伊斯兰教什叶派"
+      }
+    ],
+    "architecture": [
+      {
+        "v": "金字塔",
+        "evidence": "大规模建金字塔"
+      }
+    ],
+    "heritage": [],
+    "keywords": [
+      {
+        "v": "金字塔",
+        "evidence": "大规模建金字塔"
+      },
+      {
+        "v": "西奈半岛",
+        "evidence": "西奈半岛位于西南亚"
+      },
+      {
+        "v": "阿拉伯语",
+        "evidence": "官方语言为阿拉伯语"
+      },
+      {
+        "v": "古埃及文明",
+        "evidence": "古埃及曾是文明摇篮"
+      }
+    ],
+    "model": "deepseek-flash"
+  },
+  "summary_text_raw": "阿拉伯埃及共和国（埃及阿拉伯语：جمهورية مصر العربية，罗马化：Jumhūriyyat Miṣr al-ʻArabiyyah），通称埃及（مصر，Miṣr），是位于北非的国家。地跨亚非两洲，大部分国土位于北非地区，惟西奈半岛位于西南亚。伊斯兰教为国教。埃及人大部分信仰伊斯兰教逊尼派，最大的宗教少数派为科普特正教。另外还有基督教其他教派和伊斯兰教什叶派。官方语言为阿拉伯语。\n古埃及曾是文明摇篮，是世界上最早出现文明的地区之一，古埃及经历了早王朝、古王国、中王国、新王国和后王朝时期，共三十王朝。古王国时期埃及人开始大规模建金字塔。中王国时期埃及经济发展、文化昌盛。至新王国埃及国力显著提高，开始对外扩张，成为军事帝国。但到后王朝时期，因内乱和外族入侵，古埃及日渐衰落。公元前525年，埃及沦为波斯帝国的一个行省。在此后的一千多年间，埃及相继被希腊和罗马征服。公元641年阿拉伯人入侵埃及地区，埃及逐渐伊斯兰化。1517年埃及被土耳其人征服，成为奥斯曼帝国的行省。1882年埃及被英军占领后成为英国“保护国”。",
+  "custom_text": "埃及地跨亚非两洲，大部分国土位于北非，西奈半岛则位于西南亚，官方语言为阿拉伯语，伊斯兰教为国教。古埃及曾是文明摇篮，是世界上最早出现文明的地区之一，历经早王朝、古王国、中王国、新王国和后王朝时期，共三十王朝；古王国时期埃及人开始大规模建金字塔，中王国时期经济发展、文化昌盛，至新王国国力显著提高并对外扩张，成为军事帝国，后王朝时期因内乱和外族入侵日渐衰落。公元前525年埃及沦为波斯帝国的一个行省，此后一千多年间相继被希腊和罗马征服；公元641年阿拉伯人入侵埃及地区，埃及逐渐伊斯兰化；1517年被土耳其人征服，成为奥斯曼帝国的行省；1882年被英军占领后成为英国“保护国”。在民俗与日常生活方面，埃及人大部分信仰伊斯兰教逊尼派，最大的宗教少数派为科普特正教，另有基督教其他教派和伊斯兰教什叶派，宗教构成深刻影响着当地的社会生活与节庆传统。",
+  "custom_text_source": {
+    "source": "llm_compose_from_summary_facets",
+    "note": "模型基于维基导语 + 抽取特征成文；只在没有人工稿的国家使用",
+    "chars": 370
+  },
+  "knowledge_qa": [
+    {
+      "q": "埃及在哪个洲啊？",
+      "a": "埃及位于北非，地跨亚非两洲，大部分国土在北非，西奈半岛在西南亚。",
+      "tags": [
+        "非洲",
+        "北非",
+        "地理位置"
+      ]
+    },
+    {
+      "q": "埃及的首都是哪里？",
+      "a": "开罗。",
+      "tags": [
+        "首都",
+        "开罗"
+      ]
+    },
+    {
+      "q": "埃及人平时说什么语言？",
+      "a": "官方语言是阿拉伯语。",
+      "tags": [
+        "语言",
+        "阿拉伯语",
+        "说什么话"
+      ]
+    },
+    {
+      "q": "埃及有什么宗教？",
+      "a": "伊斯兰教为国教，大部分埃及人信仰伊斯兰教逊尼派，最大的宗教少数派是科普特正教，还有基督教其他教派和伊斯兰教什叶派。",
+      "tags": [
+        "宗教",
+        "伊斯兰教",
+        "信仰"
+      ]
+    },
+    {
+      "q": "埃及有哪些值得看的神庙和古迹？",
+      "a": "有狮身人面像、阿布辛贝神庙、卡纳克神庙、帝王谷和卢克索神庙。",
+      "tags": [
+        "地标",
+        "神庙",
+        "金字塔",
+        "古迹"
+      ]
+    },
+    {
+      "q": "古埃及文明有什么历史？",
+      "a": "古埃及是文明摇篮之一，经历早王朝、古王国、中王国、新王国和后王朝共三十王朝。古王国时期开始大规模建金字塔，中王国经济文化昌盛，新王国对外扩张成军事帝国，后王朝因内乱和外族入侵衰落。",
+      "tags": [
+        "历史",
+        "古埃及",
+        "文明"
+      ]
+    },
+    {
+      "q": "埃及后来被哪些国家征服过？",
+      "a": "公元前525年沦为波斯帝国行省，此后一千多年相继被希腊和罗马征服。公元641年阿拉伯人入侵，逐渐伊斯兰化。1517年被土耳其人征服成为奥斯曼帝国行省，1882年被英军占领后成为英国“保护国”。",
+      "tags": [
+        "历史",
+        "征服",
+        "殖民"
+      ]
+    }
+  ],
+  "llm_audit": {
+    "issues": [],
+    "overall": "pass"
+  },
+  "geometry_status": "naturalearth_50m_chunked"
+}

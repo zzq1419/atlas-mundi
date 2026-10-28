@@ -38,6 +38,16 @@ import argparse
 import json
 import os
 import sys
+
+# 控制台可能是 cp936（Windows cmd 默认），打不出的字符用 ? 代替，别让整段崩掉。
+# 之前 collect.py 在连不上某个站时打印一个 ✗ 就 UnicodeEncodeError 退出，
+# 看起来像"采集失败"，其实连抓取都还没开始。
+try:
+    sys.stdout.reconfigure(errors="replace")
+    sys.stderr.reconfigure(errors="replace")
+except Exception:
+    pass
+
 import time
 import urllib.error
 import urllib.parse
@@ -268,7 +278,15 @@ def main():
     ap.add_argument("--sleep", type=float, default=0.35, help="每个国家之间的间隔秒数")
     a = ap.parse_args()
 
-    set_proxy(a.proxy or os.environ.get("HTTPS_PROXY") or os.environ.get("HTTP_PROXY"))
+    # 显式 --proxy 优先；否则自动探测（环境变量 → Windows 系统代理 → 常见端口），
+    # 每个候选都要真的抓一次维基才算数
+    proxy = a.proxy
+    try:
+        import netcheck
+        proxy, _src = netcheck.setup(a.proxy, verbose=True)
+    except ImportError:
+        proxy = a.proxy or os.environ.get("HTTPS_PROXY") or os.environ.get("HTTP_PROXY")
+    set_proxy(proxy)
 
     meta = load(META, {})
     ids = load(IDS, {})
@@ -329,7 +347,7 @@ def main():
         else:
             fail += 1
             unresolved[iso] = via
-            print("[%d/%d] %-3s %-8s ✗ %s" % (n, len(todo), iso, m.get("n", ""), via))
+            print("[%d/%d] %-3s %-8s [x] %s" % (n, len(todo), iso, m.get("n", ""), via))
         if n % 10 == 0:
             save(IDS, ids)
             save(UNRESOLVED, unresolved)

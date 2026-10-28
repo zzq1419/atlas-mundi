@@ -140,7 +140,7 @@ def main():
             print("[%s-%02d] %s" % (iso, n, zh), flush=True)
             best = gather(entry, args.per)
             if not best:
-                print("        ✗ 没有可用候选")
+                print("        [x] 没有可用候选")
                 manifest[iso].append({"n": n, "zh": zh, "candidates": []})
                 continue
             item = {"n": n, "zh": zh, "candidates": []}
@@ -151,7 +151,7 @@ def main():
                 try:
                     size = C.download(meta["remote_url"], dest)
                 except Exception as e:
-                    print("        ✗ 下载失败 %s（%s）" % (c["file"][:40], str(e)[:40]))
+                    print("        [x] 下载失败 %s（%s）" % (c["file"][:40], str(e)[:40]))
                     continue
                 print("        %d. %.2f分 %6.0fKB %s  [%s]" % (
                     k, sc, size / 1024, c["file"][:46], c["source"][:20]))

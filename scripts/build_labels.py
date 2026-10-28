@@ -193,7 +193,25 @@ def main() -> int:
 
     countries = []
     pops = {}
-    for feat in data["features"]:
+
+    # 同 ISO 多要素（AU = Australia / Indian Ocean Ter. / Ashmore）只留人口最多的，
+    # 否则球上会同时冒出"澳大利亚"和"澳屬印度洋領地"两个名字，位置还都在澳洲附近。
+    best = {}
+    for idx, feat in enumerate(data["features"]):
+        q = feat.get("properties") or {}
+        code = (q.get("ISO_A2") or "").upper()
+        if len(code) != 2:
+            code = (q.get("ISO_A2_EH") or "").upper()
+        if len(code) != 2:
+            continue
+        try:
+            pop = int(q.get("POP_EST") or 0)
+        except (TypeError, ValueError):
+            pop = 0
+        if code not in best or pop > best[code][0]:
+            best[code] = (pop, idx)
+
+    for idx, feat in enumerate(data["features"]):
         p = feat["properties"]
         lon, lat = p.get("LABEL_X"), p.get("LABEL_Y")
         if lon is None or lat is None:
@@ -205,6 +223,8 @@ def main() -> int:
         iso = (p.get("ISO_A2") or "").upper()
         if len(iso) != 2:
             iso = (p.get("ISO_A2_EH") or "").upper()
+        if best.get(iso) and best[iso][1] != idx:
+            continue                     # 同 ISO 的非主要素，跳过
         name = SHORT.get(name, name)
         # 人口（NE 的 POP_EST）：只用于卡片决定"要不要给地区语言"——
         # 小国只列官方语言，地区语言纯属噪音。

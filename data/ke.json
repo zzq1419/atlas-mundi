@@ -1,0 +1,306 @@
+{
+  "qid": "Q114",
+  "iso_a2": "KE",
+  "iso_a3": "KEN",
+  "name_zh": "肯尼亚",
+  "name_en": "Kenya",
+  "capital": "内罗毕",
+  "continent": "非洲",
+  "centroid": [
+    38,
+    0.1
+  ],
+  "centroid_source": "wikidata P625",
+  "languages": [
+    {
+      "code": "sw",
+      "name_zh": "斯瓦希里语",
+      "name_local": "斯瓦希里语",
+      "role": "official",
+      "audio_url": "assets/ke/audio/sw.mp3",
+      "audio_source": "tts_edge",
+      "audio_status": "ok",
+      "tts_text": "Karibu nchini Kenya, ambapo jua huwaka juu ya savana pana na wanyama hupita kwa utulivu; mji mkuu wake ni Nairobi, na kando ya jiji hilo mlima wa Kilimanjaro huinuka kama mlinzi wa ukumbusho wa ardhi hii.",
+      "tts_text_zh": "欢迎来到肯尼亚，阳光照耀着辽阔的草原，动物们安静地穿行其间；它的首都是内罗毕，而在这座城市不远处，乞力马扎罗山如守护者般矗立，见证着这片土地。",
+      "audio_voice": "sw-KE-ZuriNeural",
+      "audio_bytes": 80496
+    },
+    {
+      "code": "en",
+      "name_zh": "英语",
+      "name_local": "英语",
+      "role": "official",
+      "audio_url": "assets/ke/audio/en.mp3",
+      "audio_source": "tts_edge",
+      "audio_status": "ok",
+      "tts_text": "Welcome to Kenya, where the sun warms the wide savanna and wildlife moves in quiet rhythm; its capital is Nairobi, and near the city the great Mount Kilimanjaro rises like a guardian over the land.",
+      "tts_text_zh": "欢迎来到肯尼亚，阳光温暖着辽阔的草原，野生动物以安静的节奏穿行；它的首都是内罗毕，城市附近巍峨的乞力马扎罗山如守护者般矗立在这片土地上。",
+      "audio_voice": "en-US-AriaNeural",
+      "audio_bytes": 73584
+    }
+  ],
+  "summary_text": "肯尼亚共和国通称肯尼亚，位于东非，濒临印度洋，与索马里、埃塞俄比亚、南苏丹、乌干达、坦桑尼亚接壤，面积约58万平方公里。东非大裂谷将肯尼亚分为两半，恰好与横贯全国的赤道相交叉，肯尼亚因此获得了“东非十字架”的称号。全国分为47个县市，首都为内罗毕。肯尼亚人口约5242.8万，一共有42个民族，分成班图、尼罗和库施特三大语系，官方语言是英语和斯瓦希里语。肯尼亚曾是英国殖民地，1963年12月12日从英国独立。肯尼亚是人类发源地之一，境内曾出土约250万年前的人类头盖骨化石。肯尼亚是撒哈拉以南非洲经济基础较好的国家之一，农业、服务业和工业是国民经济三大支柱，受基础设施投资及私人消费增长的影响，肯尼亚2015年国内生产总值为614.1亿美元，经济增长率达5.6%。肯尼亚是联合国、非洲联盟、不结盟运动、七十七国集团和东非共同体成员国，联合国人居署及联合国环境署总部设置在肯尼亚首都内罗毕。",
+  "summary_source": {
+    "source": "llm_refined",
+    "note": "DeepSeek 基于 Wikipedia 导语 + 人工民俗文本重写；口径限定地理与文化，剔除政权更迭与战争史",
+    "chars": 395,
+    "derived_from": "wikipedia_extracts",
+    "url": "https://zh.wikipedia.org/wiki/肯尼亚",
+    "title": "肯尼亚"
+  },
+  "landmark_images": [
+    {
+      "title": "File:Mara River Massai Mara.jpg",
+      "caption_zh": "马赛马拉国家保护区的马拉河",
+      "caption": "马赛马拉国家保护区的马拉河",
+      "caption_commons": "The Mara River in Kenya.",
+      "kw": "Maasai Mara National Reserve",
+      "url": "assets/ke/L01.webp",
+      "thumb_url": "assets/ke/L01.thumb.webp",
+      "remote_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a4/Mara_River_Massai_Mara.jpg/1920px-Mara_River_Massai_Mara.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "source": "wikidata_p18",
+      "author": "Morris Pügner",
+      "license": "Public domain",
+      "license_url": null,
+      "license_status": "ok",
+      "load_verified": true,
+      "bytes": 65548,
+      "thumb_bytes": 21788,
+      "size": {
+        "detail": "760x570",
+        "thumb": "400x300"
+      },
+      "encoding": "webp q72/q74 (源 1920x1440 747KB JPEG)",
+      "caption_zh_manual": "马赛马拉国家保护区",
+      "caption_zh_source": "llm_from_commons_filename"
+    },
+    {
+      "title": "File:Nakuru Lake Flamingo.JPG",
+      "caption_zh": "纳库鲁湖火烈鸟",
+      "caption": "纳库鲁湖火烈鸟",
+      "caption_commons": "There is a sea of Millions of Flamingos at lake Nakuru. Its one of the best scen",
+      "kw": "Lake Nakuru flamingos",
+      "url": "assets/ke/L03.webp",
+      "thumb_url": "assets/ke/L03.thumb.webp",
+      "remote_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/09/Nakuru_Lake_Flamingo.JPG/1920px-Nakuru_Lake_Flamingo.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "source": "commons_search",
+      "author": "User: (WT-shared) B.virdi at wts wikivoyage",
+      "license": "Public domain",
+      "license_url": null,
+      "license_status": "ok",
+      "load_verified": true,
+      "bytes": 40990,
+      "thumb_bytes": 14018,
+      "size": {
+        "detail": "760x509",
+        "thumb": "400x268"
+      },
+      "encoding": "webp q72/q74 (源 1920x1285 366KB JPEG)",
+      "caption_zh_manual": "纳库鲁湖火烈鸟",
+      "caption_zh_source": "llm_from_commons_filename"
+    },
+    {
+      "title": "File:Great Rift Valley, Tanzania.jpg",
+      "caption_zh": "坦桑尼亚东非大裂谷",
+      "caption": "坦桑尼亚东非大裂谷",
+      "caption_commons": "Where geologically, Africa and Europe pulled away from each other millions of ye",
+      "kw": "Great Rift Valley Kenya",
+      "url": "assets/ke/L04.webp",
+      "thumb_url": "assets/ke/L04.thumb.webp",
+      "remote_url": "https://upload.wikimedia.org/wikipedia/commons/b/bc/Great_Rift_Valley%2C_Tanzania.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+      "source": "wikidata_p18",
+      "author": "Sachi Gahan from San Francisco, USA",
+      "license": "CC BY-SA 2.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/2.0",
+      "license_status": "ok",
+      "load_verified": true,
+      "bytes": 36486,
+      "thumb_bytes": 10944,
+      "size": {
+        "detail": "760x509",
+        "thumb": "400x268"
+      },
+      "encoding": "webp q72/q74 (源 1600x1071 296KB JPEG)",
+      "caption_zh_manual": "东非大裂谷",
+      "caption_zh_source": "llm_from_commons_filename"
+    },
+    {
+      "title": "File:Lamu old town street.jpg",
+      "caption_zh": "拉穆老城街道",
+      "caption": "拉穆老城街道",
+      "caption_commons": "Lamu old town street is the business street in Lamu old town",
+      "kw": "Lamu Old Town",
+      "url": "assets/ke/L05.webp",
+      "thumb_url": "assets/ke/L05.thumb.webp",
+      "remote_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/80/Lamu_old_town_street.jpg/1920px-Lamu_old_town_street.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "source": "commons_search",
+      "author": "Mzein04",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "license_status": "ok",
+      "load_verified": true,
+      "bytes": 43812,
+      "thumb_bytes": 13974,
+      "size": {
+        "detail": "760x507",
+        "thumb": "400x267"
+      },
+      "encoding": "webp q72/q74 (源 1920x1280 572KB JPEG)",
+      "caption_zh_manual": "拉穆老城",
+      "caption_zh_source": "llm_from_commons_filename"
+    },
+    {
+      "title": "File:Fort JesusMombasa.jpg",
+      "caption_zh": "耶稣堡",
+      "caption": "耶稣堡",
+      "caption_commons": "Vlasništvo (poklon suradnice Branke France)",
+      "kw": "Fort Jesus Mombasa",
+      "url": "assets/ke/L06.webp",
+      "thumb_url": "assets/ke/L06.thumb.webp",
+      "remote_url": "https://upload.wikimedia.org/wikipedia/commons/1/1e/Fort_JesusMombasa.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+      "source": "wikidata_p18",
+      "author": "The original uploader was Zeljko at Croatian Wikipedia.",
+      "license": "CC BY-SA 3.0",
+      "license_url": "http://creativecommons.org/licenses/by-sa/3.0/",
+      "license_status": "ok",
+      "load_verified": true,
+      "bytes": 14822,
+      "thumb_bytes": 13214,
+      "size": {
+        "detail": "425x319",
+        "thumb": "400x300"
+      },
+      "encoding": "webp q72/q74 (源 425x319 25KB JPEG)",
+      "caption_zh_manual": "耶稣堡",
+      "caption_zh_source": "llm_from_commons_filename"
+    }
+  ],
+  "image_license": "Public domain",
+  "schema_version": "0.1",
+  "collected_at": "2026-10-28T16:24:47+08:00",
+  "collector": "scripts/collect.py v0.2",
+  "needs_review": true,
+  "review_notes": [
+    "P443 发音语种不符已弃用：Kenya pronunciation.ogg、Lb-Kenia.ogg、LL-Q7913 (ron)-KlaudiuMihaila-Kenya.wav（P443 不保证语种，须按文件名筛）",
+    "该实体无对应语种发音，语音改跑 python scripts/tts.py KE",
+    "Commons 无可用发音，语音走构建期 TTS 兜底（待接）",
+    "乞力马扎罗山景：Wikidata 与 Commons 都没找到可用图，已跳过",
+    "地标图改为人工指定清单（5 张，中文图注）",
+    "LLM 质检[warn] summary_head：官方语言只列英语，与languages字段的斯瓦希里语+英语矛盾 → 补充斯瓦希里语为官方语言"
+  ],
+  "image_source_note": "人工按 data/landmarks.json 指定地标，Commons 关键词检索取图；原先自动获得的 3 张已被替换",
+  "audio_meta": {},
+  "custom_facets": {
+    "festivals": [],
+    "cuisine": [],
+    "religion": [],
+    "architecture": [],
+    "heritage": [],
+    "keywords": [
+      {
+        "v": "东非大裂谷",
+        "evidence": "东非大裂谷将肯尼亚分为两半"
+      },
+      {
+        "v": "赤道",
+        "evidence": "横贯全国的赤道相交叉"
+      },
+      {
+        "v": "东非十字架",
+        "evidence": "获得了“东非十字架”的称号"
+      },
+      {
+        "v": "斯瓦希里语",
+        "evidence": "官方语言是英语和斯瓦希里语"
+      },
+      {
+        "v": "人类发源地",
+        "evidence": "肯尼亚是人类发源地之一"
+      }
+    ],
+    "model": "deepseek-flash"
+  },
+  "summary_text_raw": "肯尼亚共和国（斯瓦希里语：Jamhuri ya Kenya；英语：Republic of Kenya），通称肯尼亚（Kenya），是位于东非，濒临印度洋，与索马里、埃塞俄比亚、南苏丹、乌干达、坦桑尼亚接壤，面积约58万平方公里。肯尼亚人口约5242.8万，一共有42个民族，分成班图、尼罗和库施特三大语系，官方语言是英语和斯瓦希里语。全国分为47个县市，首都为内罗毕。\n肯尼亚曾是英国殖民地，1963年12月12日从英国独立。东非大裂谷将肯尼亚分为两半，恰好与横贯全国的赤道相交叉，肯尼亚因此获得了“东非十字架”的称号。肯尼亚是撒哈拉以南非洲经济基础较好的国家之一，农业、服务业和工业是国民经济三大支柱，受基础设施投资及私人消费增长的影响，肯尼亚2015年国内生产总值为614.1亿美元，经济增长率达5.6%。\n肯尼亚是联合国、非洲联盟、不结盟运动、七十七国集团和东非共同体成员国。联合国人居署及联合国环境署（又名联合国环境规划署）总部设置在肯尼亚首都内罗毕。\n\n\n== 历史 ==\n\n肯尼亚是人类发源地之一，境内曾出土约250万年前的人类头盖骨化石。",
+  "custom_text": "肯尼亚位于东非，濒临印度洋，与索马里、埃塞俄比亚、南苏丹、乌干达、坦桑尼亚接壤，面积约58万平方公里，人口约5242.8万，全国分为47个县市，首都为内罗毕。东非大裂谷将肯尼亚分为两半，恰好与横贯全国的赤道相交叉，肯尼亚因此获得“东非十字架”的称号。肯尼亚一共有42个民族，分成班图、尼罗和库施特三大语系，官方语言是英语和斯瓦希里语。肯尼亚是人类发源地之一，境内曾出土约250万年前的人类头盖骨化石。肯尼亚曾是英国殖民地，1963年12月12日从英国独立。农业、服务业和工业是国民经济三大支柱。联合国人居署及联合国环境署总部设置在内罗毕。",
+  "custom_text_source": {
+    "source": "llm_compose_from_summary_facets",
+    "note": "模型基于维基导语 + 抽取特征成文；只在没有人工稿的国家使用",
+    "chars": 269
+  },
+  "knowledge_qa": [
+    {
+      "q": "肯尼亚在哪儿啊？周围都有哪些国家？",
+      "a": "肯尼亚位于东非，濒临印度洋，与索马里、埃塞俄比亚、南苏丹、乌干达、坦桑尼亚接壤。",
+      "tags": [
+        "东非",
+        "位置",
+        "邻国"
+      ]
+    },
+    {
+      "q": "肯尼亚面积多大？人口多少？",
+      "a": "肯尼亚面积约58万平方公里，人口约5242.8万。",
+      "tags": [
+        "面积",
+        "人口",
+        "多大"
+      ]
+    },
+    {
+      "q": "肯尼亚的首都是哪里？",
+      "a": "首都为内罗毕。",
+      "tags": [
+        "首都",
+        "内罗毕"
+      ]
+    },
+    {
+      "q": "肯尼亚人说什么语言？",
+      "a": "官方语言是英语和斯瓦希里语。",
+      "tags": [
+        "语言",
+        "说什么话",
+        "官方语言"
+      ]
+    },
+    {
+      "q": "肯尼亚有什么值得看的地标或景观？",
+      "a": "有马赛马拉国家保护区、纳库鲁湖火烈鸟、东非大裂谷、拉穆老城和耶稣堡。",
+      "tags": [
+        "地标",
+        "景点",
+        "看什么"
+      ]
+    },
+    {
+      "q": "肯尼亚为什么叫“东非十字架”？",
+      "a": "东非大裂谷将肯尼亚分为两半，恰好与横贯全国的赤道相交叉，因此获得了“东非十字架”的称号。",
+      "tags": [
+        "东非十字架",
+        "大裂谷",
+        "赤道"
+      ]
+    },
+    {
+      "q": "肯尼亚有什么好吃的或特产？",
+      "a": "肯尼亚是撒哈拉以南非洲经济基础较好的国家之一，农业、服务业和工业是国民经济三大支柱。",
+      "tags": [
+        "吃什么",
+        "特产",
+        "农业"
+      ]
+    }
+  ],
+  "llm_audit": {
+    "issues": [
+      {
+        "field": "summary_head",
+        "severity": "warn",
+        "why": "官方语言只列英语，与languages字段的斯瓦希里语+英语矛盾",
+        "suggest": "补充斯瓦希里语为官方语言"
+      }
+    ],
+    "overall": "warn"
+  },
+  "geometry_status": "naturalearth_50m_chunked"
+}

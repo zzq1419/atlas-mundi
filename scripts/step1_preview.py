@@ -198,6 +198,19 @@ def step_collect(a, isos) -> bool:
     return code == 0
 
 
+# --------------------------------------------------------------- 2b 地标图
+def step_landmarks(a, isos) -> bool:
+    hr("2b · 地标图：模型写候选 + Commons 实搜验证")
+
+    print("  ① 让模型给每国列 6 处地标 → data/landmarks.json")
+    code1 = subprocess.call([PY, os.path.join(SCRIPTS, "build_landmarks.py"),
+                             "--only"] + isos, cwd=ROOT)
+    print("\n  ② 按清单去 Commons 搜图（文件名要含关键词、宽度 ≥900、非地图/旗帜）")
+    code2 = subprocess.call([PY, os.path.join(SCRIPTS, "fill_images.py")] + isos,
+                            cwd=ROOT)
+    return code1 == 0 and code2 == 0
+
+
 # --------------------------------------------------------------- 3 审核
 def inspect(iso):
     """读出采集结果，算一版质量指标 + 问题清单。"""
@@ -217,6 +230,7 @@ def inspect(iso):
         problems.append("摘要只有 %d 字" % len(summ))
     if len(imgs) < 3:
         problems.append("只有 %d 张图" % len(imgs))
+    # 采集阶段的图通常没有中文图注（P18 自动图），有图注说明是地标清单那套
     no_cap = [x for x in imgs if not (x.get("caption_zh") or "").strip()]
     if no_cap:
         problems.append("%d 张图缺图注" % len(no_cap))
@@ -232,8 +246,14 @@ def inspect(iso):
     cen = rec.get("centroid") or []
     if len(cen) != 2:
         problems.append("缺坐标")
+    # 老三国用 sources 数组；新采的档案用 summary_source（{source,url,title,chars}）。
+    # 只查一种会全部误报"缺维基来源"。
+    ss = rec.get("summary_source") or {}
     srcs = [str(x.get("source") or "") for x in (rec.get("sources") or [])]
-    if not any("wikipedia" in s_ for s_ in srcs):
+    srcs.append(str(ss.get("source") or ""))
+    srcs.append(str(ss.get("derived_from") or ""))
+    has_wiki = any("wikipedia" in s_ for s_ in srcs) or bool(ss.get("url"))
+    if not has_wiki:
         problems.append("缺维基来源")
     if not rec.get("qid"):
         problems.append("缺 QID")
@@ -389,9 +409,16 @@ def main():
     a = ap.parse_args()
 
     load_env()
-    if a.proxy:
-        for k in ("HTTP_PROXY", "HTTPS_PROXY", "http_proxy", "https_proxy"):
-            os.environ[k] = a.proxy
+    # 自动探测代理：urllib 不读 Windows 系统代理，这是"五国全失败"的一半原因
+    try:
+        from netcheck import setup as net_setup
+        proxy, proxy_src = net_setup(a.proxy, verbose=True)
+    except ImportError:
+        proxy, proxy_src = a.proxy, ""
+        if a.proxy:
+            for k in ("HTTP_PROXY", "HTTPS_PROXY", "http_proxy", "https_proxy"):
+                os.environ[k] = a.proxy
+    a.proxy = proxy                    # 传给子进程用同一个
 
     print("寰宇图志 · 全量采集 第一步")
     print("仓库：%s" % ROOT)
@@ -420,6 +447,9 @@ def main():
     if not a.skip_collect:
         if not step_collect(a, isos):
             print("\n[WARN] 试采没全过，看上面的失败清单；审核页照样会生成。")
+        # 采集只拿得到 Wikidata 的 P18（一张，常常是卫星图/定位图），
+        # 真正能看的地标图得靠这一步补
+        step_landmarks(a, isos)
 
     rows = [inspect(i) for i in isos]
     step_review(rows)

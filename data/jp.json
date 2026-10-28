@@ -1,0 +1,296 @@
+{
+  "qid": "Q17",
+  "iso_a2": "JP",
+  "iso_a3": "JPN",
+  "name_zh": "日本",
+  "name_en": "Japan",
+  "capital": "东京都",
+  "continent": "亚洲",
+  "centroid": [
+    136,
+    35
+  ],
+  "centroid_source": "wikidata P625",
+  "languages": [
+    {
+      "code": "ja",
+      "name_zh": "日语",
+      "name_local": "日语",
+      "role": "official",
+      "audio_url": "assets/jp/audio/ja.mp3",
+      "audio_source": "tts_edge",
+      "audio_status": "ok",
+      "tts_text": "日本へようこそ。首都は東京で、浅草の雷門や皇居など、歴史と現代が重なる名所が数多く残っています。どうぞごゆっくりお楽しみください。",
+      "tts_text_zh": "欢迎来到日本。首都是东京，浅草的雷门与皇居等历史与现代交织的名胜众多。请慢慢欣赏。",
+      "audio_voice": "ja-JP-NanamiNeural",
+      "audio_bytes": 85824
+    }
+  ],
+  "summary_text": "日本国通称日本，是位于东亚的岛屿国家，国土全境以北海道、本州、四国、九州等4个本岛为基础的14,125座岛屿组成，周围被太平洋及鄂霍次克海、日本海、东海等陆缘海环抱，西邻朝鲜半岛及俄属远东，西南则以琉球群岛与台湾、中国大陆隔海相望，总面积约37.8万平方公里。日本全国以八大地方为基础划分为47个都道府县，其中75%属山地丘陵地带。总人口约1.2亿，其中逾3,300万人居住在首都东京及周边数县构成的首都圈，人口规模居于世界各大都市圈前列。传统认为日本建国日为公元前660年2月11日，其皇室号称“万世一系”未曾更迭；4世纪左右日本出现首个统一政权，其后由大化革新确立以天皇为首的政治体制，效法中国隋唐的制度与文化，融入汉字文化圈的习俗与价值观，并本土化发展出自有的文化习俗，对日本造成了深远影响。",
+  "summary_source": {
+    "source": "llm_refined",
+    "note": "DeepSeek 基于 Wikipedia 导语 + 人工民俗文本重写；口径限定地理与文化，剔除政权更迭与战争史",
+    "chars": 349,
+    "derived_from": "wikipedia_extracts",
+    "url": "https://zh.wikipedia.org/wiki/日本",
+    "title": "日本"
+  },
+  "landmark_images": [
+    {
+      "title": "File:Kodaki fuji frm shojinko refurb.jpg",
+      "caption_zh": "从精进湖远眺富士山",
+      "caption": "从精进湖远眺富士山",
+      "caption_commons": "Mount Fuji from Lake Shōji (Shōji-ko)",
+      "kw": "Mount Fuji Kawaguchiko",
+      "url": "assets/jp/L01.webp",
+      "thumb_url": "assets/jp/L01.thumb.webp",
+      "remote_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c1/Kodaki_fuji_frm_shojinko_refurb.jpg/1920px-Kodaki_fuji_frm_shojinko_refurb.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "source": "wikidata_p18",
+      "author": "名古屋太郎, (edited by Hannes_24)",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "license_status": "ok",
+      "load_verified": true,
+      "bytes": 36828,
+      "thumb_bytes": 10048,
+      "size": {
+        "detail": "760x509",
+        "thumb": "400x268"
+      },
+      "encoding": "webp q72/q74 (源 1920x1285 464KB JPEG)",
+      "caption_zh_manual": "富士山",
+      "caption_zh_source": "llm_from_commons_filename"
+    },
+    {
+      "title": "File:Torii, Fushimi Inari-Taisha.jpg",
+      "caption_zh": "京都伏见稻荷大社鸟居",
+      "caption": "京都伏见稻荷大社鸟居",
+      "caption_commons": "Red Torii, Fushimi Inari-taisha, Kyōto",
+      "kw": "Fushimi Inari Taisha torii",
+      "url": "assets/jp/L02.webp",
+      "thumb_url": "assets/jp/L02.thumb.webp",
+      "remote_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/42/Torii%2C_Fushimi_Inari-Taisha.jpg/1920px-Torii%2C_Fushimi_Inari-Taisha.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "source": "commons_search",
+      "author": "Marco Almbauer",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "license_status": "ok",
+      "load_verified": true,
+      "bytes": 24676,
+      "thumb_bytes": 9082,
+      "size": {
+        "detail": "760x537",
+        "thumb": "400x283"
+      },
+      "encoding": "webp q72/q74 (源 1920x1357 443KB JPEG)",
+      "caption_zh_manual": "京都伏见稻荷大社",
+      "caption_zh_source": "llm_from_commons_filename"
+    },
+    {
+      "title": "File:Tokyo Skytree 2023.jpg",
+      "caption_zh": "东京晴空塔",
+      "caption": "东京晴空塔",
+      "caption_commons": "Tokyo Skytree in November 2023",
+      "kw": "Tokyo Skytree tower",
+      "url": "assets/jp/L03.webp",
+      "thumb_url": "assets/jp/L03.thumb.webp",
+      "remote_url": "https://upload.wikimedia.org/wikipedia/commons/6/64/Tokyo_Skytree_2023.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+      "source": "wikidata_p18",
+      "author": "Akonnchiroll",
+      "license": "CC0",
+      "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+      "license_status": "ok",
+      "load_verified": true,
+      "bytes": 79668,
+      "thumb_bytes": 5376,
+      "size": {
+        "detail": "760x1351",
+        "thumb": "169x300"
+      },
+      "encoding": "webp q72/q74 (源 1799x3199 1484KB JPEG)",
+      "caption_zh_manual": "东京晴空塔",
+      "caption_zh_source": "llm_from_commons_filename"
+    },
+    {
+      "title": "File:20181111 Hiroshima Memorial Cenotaph-1.jpg",
+      "caption_zh": "广岛和平纪念公园慰灵碑",
+      "caption": "广岛和平纪念公园慰灵碑",
+      "caption_commons": "The Memorial Cenotaph at the Hiroshima Peace Memorial Park.",
+      "kw": "Hiroshima Peace Memorial Park dome",
+      "url": "assets/jp/L05.webp",
+      "thumb_url": "assets/jp/L05.thumb.webp",
+      "remote_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b2/20181111_Hiroshima_Memorial_Cenotaph-1.jpg/1920px-20181111_Hiroshima_Memorial_Cenotaph-1.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "source": "wikidata_p18",
+      "author": "Balon Greyjoy",
+      "license": "CC0",
+      "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+      "license_status": "ok",
+      "load_verified": true,
+      "bytes": 60350,
+      "thumb_bytes": 16482,
+      "size": {
+        "detail": "760x507",
+        "thumb": "400x267"
+      },
+      "encoding": "webp q72/q74 (源 1920x1280 779KB JPEG)",
+      "caption_zh_manual": "广岛和平纪念公园",
+      "caption_zh_source": "llm_from_commons_filename"
+    },
+    {
+      "title": "File:Himeji castle in may 2015.jpg",
+      "caption_zh": "五月姬路城",
+      "caption": "五月姬路城",
+      "caption_commons": "Himeji castle in may 2015 after the five year renovation of the roof and walls.",
+      "kw": "Himeji Castle keep",
+      "url": "assets/jp/L06.webp",
+      "thumb_url": "assets/jp/L06.thumb.webp",
+      "remote_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c1/Himeji_castle_in_may_2015.jpg/1920px-Himeji_castle_in_may_2015.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "source": "wikidata_p18",
+      "author": "Nikos Kitsakis",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "license_status": "ok",
+      "load_verified": true,
+      "bytes": 67836,
+      "thumb_bytes": 19014,
+      "size": {
+        "detail": "760x507",
+        "thumb": "400x267"
+      },
+      "encoding": "webp q72/q74 (源 1920x1280 756KB JPEG)",
+      "caption_zh_manual": "姬路城",
+      "caption_zh_source": "llm_from_commons_filename"
+    }
+  ],
+  "image_license": "CC BY-SA 3.0",
+  "schema_version": "0.1",
+  "collected_at": "2026-10-28T16:13:15+08:00",
+  "collector": "scripts/collect.py v0.2",
+  "needs_review": true,
+  "review_notes": [
+    "P443 发音语种不符已弃用：Jer-Japon.ogg、Hu-japán.ogg、Ka-iaponia.ogg（P443 不保证语种，须按文件名筛）",
+    "该实体无对应语种发音，语音改跑 python scripts/tts.py JP",
+    "Commons 无可用发音，语音走构建期 TTS 兜底（待接）",
+    "奈良东大寺大佛殿：20 个候选全部未通过筛选：The Great Buddha Hall of Tōdai-ji, Nara,（文件名不含「todaiji」）；20190121 Tōdai-ji Great Buddha Hall-1.jp（文件名不含「todaiji」）；20190121 Tōdai-ji Great Buddha Hall-2.jp（文件名不含「todaiji」）",
+    "奈良东大寺大佛殿：20 个候选全部未通过筛选：The Great Buddha Hall of Tōdai-ji, Nara,（文件名不含「todaiji」）；20190121 Tōdai-ji Great Buddha Hall-1.jp（文件名不含「todaiji」）；20190121 Tōdai-ji Great Buddha Hall-2.jp（文件名不含「todaiji」）",
+    "地标图改为人工指定清单（5 张，中文图注）"
+  ],
+  "image_source_note": "人工按 data/landmarks.json 指定地标，Commons 关键词检索取图；原先自动获得的 4 张已被替换",
+  "audio_meta": {},
+  "custom_facets": {
+    "festivals": [
+      {
+        "v": "建国日",
+        "evidence": "日本建国日为公元前660年2月11日"
+      }
+    ],
+    "cuisine": [],
+    "religion": [],
+    "architecture": [],
+    "heritage": [],
+    "keywords": [
+      {
+        "v": "北海道",
+        "evidence": "以北海道、本州、四国、九州等4个本岛"
+      },
+      {
+        "v": "本州",
+        "evidence": "以北海道、本州、四国、九州等4个本岛"
+      },
+      {
+        "v": "四国",
+        "evidence": "以北海道、本州、四国、九州等4个本岛"
+      },
+      {
+        "v": "九州",
+        "evidence": "以北海道、本州、四国、九州等4个本岛"
+      },
+      {
+        "v": "琉球群岛",
+        "evidence": "西南则以琉球群岛与台湾"
+      },
+      {
+        "v": "汉字文化圈",
+        "evidence": "融入汉字文化圈的习俗与价值观"
+      }
+    ],
+    "model": "deepseek-flash"
+  },
+  "summary_text_raw": "日本国（日语：日本国〔日本國〕／にっぽんこく、にほんこく，罗马化：nippon koku, nihon koku），通称日本，是位于东亚的岛屿国家。国土全境以北海道、本州、四国、九州等4个本岛为基础的14,125座岛屿组成，周围被太平洋及鄂霍次克海、日本海、东海等陆缘海环抱；东北与存有主权争议的千岛群岛邻接、西邻朝鲜半岛及俄属远东、西南则以琉球群岛与台湾、中国大陆隔海相望。日本全国以八大地方为基础划分为47个都道府县，总面积约37.8万平方公里，其中75%属山地丘陵地带。总人口约1.2亿，其中逾3,300万人居住在首都东京及周边数县构成的首都圈，人口规模居于世界各大都市圈前列。政治上施行单一制及议会制君主立宪制，君主天皇为国家及国民团结的象征，实际的政治权力则由国会与首相所领导的内阁掌理。\n传统认为日本建国日为公元前660年2月11日，其皇室号称“万世一系”未曾更迭。4世纪左右，日本出现首个统一政权，其后由大化革新确立以天皇为首的政治体制，效法中国隋唐的制度与文化，融入汉字文化圈的习俗与价值观，并本土化发展出自有的文化习俗，对日本造成了深远影响。",
+  "custom_text": "日本是位于东亚的岛屿国家，国土全境以北海道、本州、四国、九州等4个本岛为基础的14,125座岛屿组成，周围被太平洋及鄂霍次克海、日本海、东海等陆缘海环抱，东北与存有主权争议的千岛群岛邻接，西邻朝鲜半岛及俄属远东，西南则以琉球群岛与台湾、中国大陆隔海相望。全国以八大地方为基础划分为47个都道府县，总面积约37.8万平方公里，其中75%属山地丘陵地带；总人口约1.2亿，其中逾3,300万人居住在首都东京及周边数县构成的首都圈。传统认为日本建国日为公元前660年2月11日，其皇室号称“万世一系”未曾更迭；4世纪左右出现首个统一政权，其后由大化革新确立以天皇为首的政治体制，效法中国隋唐的制度与文化，融入汉字文化圈的习俗与价值观，并本土化发展出自有的文化习俗。民俗方面，建国日作为节庆延续于日常生活之中，与上述地理与人文底色相映。",
+  "custom_text_source": {
+    "source": "llm_compose_from_summary_facets",
+    "note": "模型基于维基导语 + 抽取特征成文；只在没有人工稿的国家使用",
+    "chars": 364
+  },
+  "knowledge_qa": [
+    {
+      "q": "日本在哪儿啊？周围都是什么？",
+      "a": "日本是位于东亚的岛屿国家，周围被太平洋及鄂霍次克海、日本海、东海等陆缘海环抱；东北与千岛群岛邻接，西邻朝鲜半岛及俄属远东，西南与台湾、中国大陆隔海相望。",
+      "tags": [
+        "日本位置",
+        "东亚",
+        "周围海域"
+      ]
+    },
+    {
+      "q": "日本面积多大？人口多少？",
+      "a": "日本总面积约37.8万平方公里，其中75%属山地丘陵地带；总人口约1.2亿，逾3,300万人居住在首都东京及周边数县构成的首都圈。",
+      "tags": [
+        "日本面积",
+        "人口",
+        "山地"
+      ]
+    },
+    {
+      "q": "日本的首都是哪里？",
+      "a": "首都为东京都，东京及周边数县构成的首都圈人口逾3,300万，人口规模居于世界各大都市圈前列。",
+      "tags": [
+        "首都",
+        "东京",
+        "首都圈"
+      ]
+    },
+    {
+      "q": "日本说什么话？",
+      "a": "日本的官方语言是日语。",
+      "tags": [
+        "语言",
+        "日语",
+        "说什么话"
+      ]
+    },
+    {
+      "q": "日本有什么传统节日或习俗？",
+      "a": "传统认为日本建国日为公元前660年2月11日，其皇室号称“万世一系”未曾更迭；4世纪左右出现首个统一政权，后效法中国隋唐制度与文化，融入汉字文化圈习俗并本土化发展。",
+      "tags": [
+        "节日",
+        "传统习俗",
+        "建国日"
+      ]
+    },
+    {
+      "q": "日本有什么值得看的地标或景观？",
+      "a": "有富士山、京都伏见稻荷大社、东京晴空塔、广岛和平纪念公园、姬路城等。",
+      "tags": [
+        "地标",
+        "富士山",
+        "景点"
+      ]
+    },
+    {
+      "q": "日本有哪些岛？",
+      "a": "国土全境以北海道、本州、四国、九州等4个本岛为基础的14,125座岛屿组成。",
+      "tags": [
+        "岛屿",
+        "本州",
+        "北海道"
+      ]
+    }
+  ],
+  "llm_audit": {
+    "issues": [],
+    "overall": "pass"
+  },
+  "geometry_status": "naturalearth_50m_chunked"
+}

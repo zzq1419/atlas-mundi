@@ -27,6 +27,16 @@ import json
 import os
 import sys
 
+# 控制台可能是 cp936（Windows cmd 默认），打不出的字符用 ? 代替，别让整段崩掉。
+# 之前 collect.py 在连不上某个站时打印一个 ✗ 就 UnicodeEncodeError 退出，
+# 看起来像"采集失败"，其实连抓取都还没开始。
+try:
+    sys.stdout.reconfigure(errors="replace")
+    sys.stderr.reconfigure(errors="replace")
+except Exception:
+    pass
+
+
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from llm import LLMError, chat, chat_json  # noqa: E402
 
@@ -551,7 +561,7 @@ def run_country(iso: str, apply: bool = False, only: str = "all") -> dict:
             try:
                 new = translate_caption(src, zh or rec.get("name_zh") or "")
             except LLMError as e:
-                print("     ✗ %s：%s" % (src[:30], str(e)[:50]))
+                print("     [x] %s：%s" % (src[:30], str(e)[:50]))
                 continue
             caps.append({"file": im.get("url"), "landmark_zh": zh, "en": src, "llm_zh": new})
             same = (new.replace(" ", "") == zh.replace(" ", ""))
@@ -596,11 +606,17 @@ def run_country(iso: str, apply: bool = False, only: str = "all") -> dict:
         if "summary" in result:
             rec.setdefault("summary_text_raw", rec.get("summary_text"))
             rec["summary_text"] = summ["text"]
+            # 保留上一版来源里的 url / title：这是"这段话是从哪来的"的唯一线索，
+            # 覆盖掉之后就只剩"llm_refined"，回溯不到条目（实测 2026-10-28 丢过一次）。
+            prev_src = rec.get("summary_source") or {}
             rec["summary_source"] = {
                 "source": "llm_refined",
                 "note": "DeepSeek 基于 Wikipedia 导语 + 人工民俗文本重写；"
                         "口径限定地理与文化，剔除政权更迭与战争史",
                 "chars": summ["chars"],
+                "derived_from": prev_src.get("source") or None,
+                "url": prev_src.get("url") or None,
+                "title": prev_src.get("title") or None,
             }
             if summ["chars"] < 300:
                 notes = rec.setdefault("review_notes", [])
@@ -672,7 +688,7 @@ def audit_injection_test(iso: str = "cn") -> int:
 
     hit = len(a["issues"])
     ok = hit >= 3 and a["overall"] in ("warn", "fail")
-    print("\n%s（要求 ≥3 条且结论非 pass）" % ("✓ 质检有效" if ok else "✗ 质检过于宽松"))
+    print("\n%s（要求 ≥3 条且结论非 pass）" % ("[ok] 质检有效" if ok else "[x] 质检过于宽松"))
     return 0 if ok else 1
 
 
@@ -701,7 +717,7 @@ def main() -> int:
             try:
                 allres.append(run_country(iso, apply=a.apply, only=a.only))
             except LLMError as e:
-                print("  ✗ 失败：", e)
+                print("  [x] 失败：", e)
                 return 1
         print("\n完成 %d 国。预览已写 data/_llm/%s" % (len(allres),
                                                  "（并已写回档案）" if a.apply else ""))
@@ -716,11 +732,11 @@ def main() -> int:
         try:
             r = disambiguate(case["target"], case["candidates"])
         except LLMError as e:
-            print("  ✗ 调用失败：", e)
+            print("  [x] 调用失败：", e)
             continue
         hit = r["pick"] == case["expect"]
         ok += hit
-        print("  选中 : %s（期望 %s）%s" % (r["pick"], case["expect"], "✓" if hit else "✗"))
+        print("  选中 : %s（期望 %s）%s" % (r["pick"], case["expect"], "[ok]" if hit else "[x]"))
         print("  置信 : %.2f" % r["confidence"])
         print("  依据 : %s" % r["reason"])
         for x in r["reject"]:

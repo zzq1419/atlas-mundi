@@ -12,7 +12,7 @@
 `--all` 会把 ids 和 upload 也带上：ids 已经跑过（重复解析等于白等十分钟），
 upload 需要 OBS 密钥且现在不该自动往线上推。所以这里只跑 4 个阶段，
 并且每阶段结束打印"这一阶段用了多久 / 失败几个"，而不是最后一次性汇总 ——
-跑三小时回来只看一行"✗"是很难受的。
+跑三小时回来只看一行"[x]"是很难受的。
 
 断点续跑
 --------
@@ -60,16 +60,17 @@ META = os.path.join(ROOT, "geo", "meta.json")
 IDS = os.path.join(ROOT, "data", "_ids.json")
 LOGDIR = os.path.join(ROOT, "logs")
 
-STAGES = ["collect", "llm", "speech", "images", "index", "upload"]
+STAGES = ["collect", "landmarks", "llm", "speech", "images", "index", "upload"]
 LABEL = {"collect": "3 · 全量采集（Wikidata + 维基 + 图片）",
+         "landmarks": "3b · 地标图（模型候选 + Commons 实搜）",
          "llm": "4 · 大模型（特征 / 摘要 / 民俗成文 / 图注 / 质检）",
          "speech": "5 · 多语种语音（Edge TTS）",
          "images": "6a · 压图（WebP + 缩略图）",
          "index": "6b · 索引（index.json + 检索）",
          "upload": "7 · 上传 OBS（可选）"}
 # 粗略耗时（分钟/国），只用来在开始时给个预期
-COST = {"collect": 0.35, "llm": 0.45, "speech": 0.10, "images": 0.03,
-        "index": 0.0, "upload": 0.0}
+COST = {"collect": 0.35, "landmarks": 0.30, "llm": 0.45, "speech": 0.10,
+        "images": 0.03, "index": 0.0, "upload": 0.0}
 
 
 def hr(title=""):
@@ -130,6 +131,47 @@ def preflight(isos, stages):
     return ok
 
 
+def stage_landmarks(a, isos):
+    """地标图：模型写候选 → Commons 实搜 → 写回带中文图注的 landmark_images。
+
+    为什么不是 collect 的一部分：collect 只能拿 Wikidata 的 P18（每国一张，
+    经常是卫星影像/定位地图）。能看的地标图要靠"点名 + 搜索 + 过滤"，
+    两件事的失败原因完全不同，合成一步会没法定位问题。
+    """
+    have = [i for i in isos if os.path.exists(
+        os.path.join(ROOT, "data", "%s.json" % i.lower()))]
+    if not have:
+        print("  没有已采集的国家，跳过")
+        return False
+
+    print("  ① 生成地标清单（已有的跳过）")
+    code1, out1 = ca.run([ca.PY, os.path.join(SCRIPTS, "build_landmarks.py"),
+                          "--only"] + have, timeout=7200)
+    print(" " * 2 + "\n  ".join((out1 or "").strip().splitlines()[-4:]))
+
+    # ② 只给"还没有中文图注"的国家抓图（避免每次重跑都重新下载几百张）
+    todo = []
+    for i in have:
+        rec = read_json(os.path.join(ROOT, "data", "%s.json" % i.lower()), {})
+        imgs = rec.get("landmark_images") or []
+        if not imgs or not any((x.get("caption_zh") or "").strip() for x in imgs):
+            todo.append(i)
+    print("  ② 抓图 %d 个（已有中文图注的 %d 个跳过）" % (len(todo), len(have) - len(todo)))
+    if not todo:
+        return code1 == 0
+    code2 = fail = 0
+    for n, i in enumerate(todo, 1):
+        code, out = ca.run([ca.PY, os.path.join(SCRIPTS, "fill_images.py"), i], timeout=900)
+        ok = code == 0 and "已写回" in (out or "")
+        if not ok:
+            fail += 1
+        ca.note(i, "landmarks", ok, "" if ok else (out or "")[-300:])
+        if n % 10 == 0:
+            print("    … %d/%d（失败 %d）" % (n, len(todo), fail))
+    print("  抓图完成：%d 个成功，%d 个没拿到" % (len(todo) - fail, fail))
+    return fail == 0 or fail < len(todo) // 2
+
+
 def report(isos, path):
     """跑完出一个人看的汇总：哪些国家缺哪一块。"""
     rows = []
@@ -148,6 +190,8 @@ def report(isos, path):
             miss.append("摘要短")
         if len(imgs) < 3:
             miss.append("图少")
+        elif not any((x.get("caption_zh") or "").strip() for x in imgs):
+            miss.append("图无中文注")
         if not facets:
             miss.append("无特征")
         if text < 120:
@@ -196,9 +240,15 @@ def main():
     a = ap.parse_args()
 
     load_env()
-    if a.proxy:
-        for k in ("HTTP_PROXY", "HTTPS_PROXY", "http_proxy", "https_proxy"):
-            os.environ[k] = a.proxy
+    try:
+        from netcheck import setup as net_setup
+        proxy, proxy_src = net_setup(a.proxy, verbose=True)
+    except ImportError:
+        proxy = a.proxy
+        if a.proxy:
+            for k in ("HTTP_PROXY", "HTTPS_PROXY", "http_proxy", "https_proxy"):
+                os.environ[k] = a.proxy
+    a.proxy = proxy
 
     meta = read_json(META, {})
     if not meta:
@@ -231,7 +281,8 @@ def main():
 
     args = ns(only=a.only, limit=a.limit, min_pop=a.min_pop, force=a.force,
               proxy=a.proxy, country_timeout=a.country_timeout)
-    fns = {"collect": ca.stage_collect, "llm": ca.stage_llm,
+    fns = {"collect": ca.stage_collect, "landmarks": stage_landmarks,
+           "llm": ca.stage_llm,
            "speech": ca.stage_speech, "images": ca.stage_images,
            "index": ca.stage_index, "upload": ca.stage_upload}
 

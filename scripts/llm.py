@@ -39,6 +39,16 @@ import json
 import os
 import random
 import sys
+
+# 控制台可能是 cp936（Windows cmd 默认），打不出的字符用 ? 代替，别让整段崩掉。
+# 之前 collect.py 在连不上某个站时打印一个 ✗ 就 UnicodeEncodeError 退出，
+# 看起来像"采集失败"，其实连抓取都还没开始。
+try:
+    sys.stdout.reconfigure(errors="replace")
+    sys.stderr.reconfigure(errors="replace")
+except Exception:
+    pass
+
 import time
 import urllib.error
 import urllib.request
@@ -228,30 +238,30 @@ def selftest() -> int:
         t0 = time.time()
         out = chat("用一句不超过 20 字的中文回答：中国的首都是哪里？",
                    scene="selftest", max_tokens=64, note="连通性")
-        print("  ① 纯文本   : ✓ %dms  %r" % (int((time.time() - t0) * 1000), out[:40]))
+        print("  ① 纯文本   : [ok] %dms  %r" % (int((time.time() - t0) * 1000), out[:40]))
         ok += 1
     except LLMError as e:
-        print("  ① 纯文本   : ✗", e)
+        print("  ① 纯文本   : [x]", e)
         return 1
 
     try:
         d = chat_json('把下面信息抽取成 json，键为 capital 与 continent：'
                       '中国位于亚洲，首都是北京。', scene="selftest", max_tokens=128,
                       note="JSON 模式")
-        print("  ② JSON 模式: ✓", d)
+        print("  ② JSON 模式: [ok]", d)
         ok += 1
     except LLMError as e:
-        print("  ② JSON 模式: ✗", e)
+        print("  ② JSON 模式: [x]", e)
 
     try:
         # 中文图注翻译这类短任务，验证小 token 也能收住
         out = chat("把 'West facade of the Cour Carrée, Louvre Palace, Paris' "
                    "翻译成中文专有名词，只输出译名。", scene="selftest",
                    max_tokens=64, note="翻译")
-        print("  ③ 翻译     : ✓", out[:50])
+        print("  ③ 翻译     : [ok]", out[:50])
         ok += 1
     except LLMError as e:
-        print("  ③ 翻译     : ✗", e)
+        print("  ③ 翻译     : [x]", e)
 
     print("\n%d/3 通过。日志已写入 %s" % (ok, os.path.relpath(LOG_FILE, ROOT)))
     return 0 if ok == 3 else 1

@@ -99,7 +99,7 @@ def main():
                 "picked_from":  info.get("source"),
                 "origin_size": "%sx%s" % (info.get("width"), info.get("height")),
             })
-            print("  ✓ %s ← %s  %s" % (dst_rel, fn, info["origin"][:44]))
+            print("  [ok] %s ← %s  %s" % (dst_rel, fn, info["origin"][:44]))
 
         if not images:
             print("  ! %s 一张都没落，跳过" % iso)

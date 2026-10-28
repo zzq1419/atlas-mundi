@@ -2037,8 +2037,12 @@ body.panel-open #globe-stage{
         openDetail(d.iso, cardOf(d.iso), false);
         setSearch(false);              // 选中即收起，视线回到地球
         if (qInput) qInput.blur();
-        /* 基础档案没有正文可定位，别白滚一次 */
-        if (d.kind !== 'country') locateInPanel(q);
+        /* 只有"搜的是内容"才需要滚到命中段落。
+           搜国家名（"日本"）时整份档案就是在讲它，滚过去只会把主图顶出可视区 ——
+           实测点开日本，主图和缩略图都被滚到了负坐标。 */
+        var qq = String(q || '').trim();
+        var isNameOnly = !qq || qq === d.name || qq.toLowerCase() === String(d.iso || '').toLowerCase();
+        if (d.kind !== 'country' && !isNameOnly) locateInPanel(q);
       });
       qRes.appendChild(item);
     });

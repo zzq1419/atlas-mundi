@@ -24,6 +24,16 @@ import mimetypes
 import os
 import sys
 
+# 控制台可能是 cp936（Windows cmd 默认），打不出的字符用 ? 代替，别让整段崩掉。
+# 之前 collect.py 在连不上某个站时打印一个 ✗ 就 UnicodeEncodeError 退出，
+# 看起来像"采集失败"，其实连抓取都还没开始。
+try:
+    sys.stdout.reconfigure(errors="replace")
+    sys.stderr.reconfigure(errors="replace")
+except Exception:
+    pass
+
+
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # 扩展名 -> Content-Type（显式写死，不依赖系统 mimetypes）
@@ -169,7 +179,7 @@ def main() -> int:
             if resp.status >= 300:
                 fail += 1
                 failed.append((obj_key, resp.status, str(resp.errorMessage)[:80]))
-                print("  ✗ %-44s %s %s" % (obj_key, resp.status, resp.errorMessage))
+                print("  [x] %-44s %s %s" % (obj_key, resp.status, resp.errorMessage))
             else:
                 ok += 1
                 if i % 10 == 0 or i == len(files):
@@ -177,7 +187,7 @@ def main() -> int:
         except Exception as e:
             fail += 1
             failed.append((obj_key, "EXC", str(e)[:100]))
-            print("  ✗ %-44s %s" % (obj_key, str(e)[:70]))
+            print("  [x] %-44s %s" % (obj_key, str(e)[:70]))
 
     # 静态网站域名（需在控制台开启「静态网站托管」后生效）
     host = "%s.obs-website.%s.myhuaweicloud.com" % (a.bucket, a.region)

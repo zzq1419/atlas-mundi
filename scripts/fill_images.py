@@ -28,6 +28,16 @@ import importlib.util
 import json
 import os
 import sys
+
+# 控制台可能是 cp936（Windows cmd 默认），打不出的字符用 ? 代替，别让整段崩掉。
+# 之前 collect.py 在连不上某个站时打印一个 ✗ 就 UnicodeEncodeError 退出，
+# 看起来像"采集失败"，其实连抓取都还没开始。
+try:
+    sys.stdout.reconfigure(errors="replace")
+    sys.stderr.reconfigure(errors="replace")
+except Exception:
+    pass
+
 import urllib.parse
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -163,7 +173,12 @@ def pick_and_download(iso, entries, rec):
     os.makedirs(adir, exist_ok=True)
     picked, notes = [], []
 
-    for i, e in enumerate(entries[:MAX_PER_COUNTRY], 1):
+    # 遍历全部候选（不是只取前 N 个）：前面某处地标搜不到时，后面的补上。
+    # 之前 entries[:5] 是硬截断，日本第 5 处（东大寺）被筛掉后，第 6 处（姬路城）
+    # 根本没机会尝试，最后只拿到 4 张。
+    for i, e in enumerate(entries, 1):
+        if len(picked) >= MAX_PER_COUNTRY:
+            break
         kw, zh = e.get("kw"), e.get("zh")
         must = e.get("must")
 
@@ -186,7 +201,7 @@ def pick_and_download(iso, entries, rec):
 
         if not cand:
             notes.append("%s：Wikidata 与 Commons 都没找到可用图，已跳过" % zh)
-            log("      ✗ %s 搜不到" % zh)
+            log("      [x] %s 搜不到" % zh)
             continue
 
         info = C.commons_imageinfo(cand, width=1400)
@@ -211,7 +226,7 @@ def pick_and_download(iso, entries, rec):
         if not scored:
             notes.append("%s：%d 个候选全部未通过筛选：%s"
                          % (zh, len(rejects), "；".join(rejects[:3]) if rejects else "无"))
-            log("      ✗ %s 候选全被筛掉" % zh)
+            log("      [x] %s 候选全被筛掉" % zh)
             continue
 
         scored.sort(key=lambda x: -x[0])
@@ -223,7 +238,7 @@ def pick_and_download(iso, entries, rec):
                               os.path.join(adir, "L%02d%s" % (i, ext)))
         except Exception as ex:
             notes.append("%s：下载失败（%s）" % (zh, str(ex)[:60]))
-            log("      ✗ %s 下载失败" % zh)
+            log("      [x] %s 下载失败" % zh)
             continue
 
         lic = meta.get("license")
@@ -247,7 +262,7 @@ def pick_and_download(iso, entries, rec):
             "load_verified": True,
             "bytes": size,
         })
-        log("      ✓ %-4s %-22s %.0f KB  %s" % (
+        log("      [ok] %-4s %-22s %.0f KB  %s" % (
             rel.split("/")[-1], zh, size / 1024, name[:52]))
 
     return picked, notes

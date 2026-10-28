@@ -24,6 +24,16 @@ import json
 import os
 import sys
 
+# 控制台可能是 cp936（Windows cmd 默认），打不出的字符用 ? 代替，别让整段崩掉。
+# 之前 collect.py 在连不上某个站时打印一个 ✗ 就 UnicodeEncodeError 退出，
+# 看起来像"采集失败"，其实连抓取都还没开始。
+try:
+    sys.stdout.reconfigure(errors="replace")
+    sys.stderr.reconfigure(errors="replace")
+except Exception:
+    pass
+
+
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 DETAIL_W, DETAIL_Q = 760, 72
@@ -86,17 +96,31 @@ def optimize(iso):
         im_meta["encoding"] = "webp q%d/q%d (源 %dx%d %.0fKB JPEG)" % (
             DETAIL_Q, THUMB_Q, img.width, img.height, orig / 1024)
         changed = True
-        print("  ✓ %s  %.0f KB → 详情 %dKB + 缩略 %dKB  (省 %.0f%%)" % (
+        # 源图现在没用了（详情页读 webp）：留着 223 国要多出几百 MB
+        if PRUNE["on"] and os.path.exists(src):
+            try:
+                os.remove(src)
+            except OSError:
+                pass
+        print("  [ok] %s  %.0f KB → 详情 %dKB + 缩略 %dKB  (省 %.0f%%)" % (
             src_rel, orig / 1024, s1 / 1024, s2 / 1024,
             100 - (s1 + s2) * 100 / orig))
 
     if not changed:
         print("  - 无需处理")
+        # 已经压过了也要清孤儿（换过地标图之后，采集那批 P18 图就没人引用了）
+        if PRUNE["on"]:
+            _prune_orphans(iso, rec)
         return
 
     with open(data_path, "w", encoding="utf-8") as f:
         json.dump(rec, f, ensure_ascii=False, indent=2)
         f.write("\n")
+
+    # 采集阶段自动拿的 P18 图（01.jpg 之类）在换成地标图后就成了孤儿文件：
+    # 223 国每个都留 200~400KB，白占仓库。这里把没被任何字段引用的图删掉。
+    if PRUNE["on"]:
+        _prune_orphans(iso, rec)
 
     idx_path = os.path.join(ROOT, "data", "index.json")
     if os.path.exists(idx_path):
@@ -108,14 +132,52 @@ def optimize(iso):
         with open(idx_path, "w", encoding="utf-8") as f:
             json.dump(idx, f, ensure_ascii=False, indent=2)
             f.write("\n")
-        print("  ✓ data/index.json 缩略图已同步")
+        print("  [ok] data/index.json 缩略图已同步")
+
+
+# --prune 的开关。压图成功后源文件就没用了：详情页读的是 webp，
+# 但留着的话 223 国 × 5 张 × 0.4MB ≈ 450MB，仓库和 Pages 都扛不住。
+PRUNE = {"on": False}
+
+
+def _prune_orphans(iso, rec):
+    """删掉 assets/{iso}/ 里已经没被引用的图片文件。"""
+    adir = os.path.join(ROOT, "assets", iso.lower())
+    if not os.path.isdir(adir):
+        return
+    refs = set()
+    for im in rec.get("landmark_images") or []:
+        for k in ("url", "thumb_url"):
+            v = im.get(k)
+            if isinstance(v, str) and v:
+                refs.add(os.path.basename(v))
+    for l in rec.get("languages") or []:
+        v = l.get("audio_url")
+        if isinstance(v, str) and v:
+            refs.add(os.path.basename(v))
+    killed = 0
+    for fn in os.listdir(adir):
+        if not fn.lower().endswith((".jpg", ".jpeg", ".png", ".gif", ".svg")):
+            continue
+        if fn in refs:
+            continue
+        try:
+            os.remove(os.path.join(adir, fn))
+            killed += 1
+        except OSError:
+            pass
+    if killed:
+        print("  [prune] 清掉未引用的图 %d 个" % killed)
 
 
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("isos", nargs="*", help="ISO 码，如 CN FR US")
     ap.add_argument("--all", action="store_true", help="处理 data/ 下全部档案")
+    ap.add_argument("--prune", action="store_true",
+                    help="WebP 写好之后删掉源 jpg/png（223 国能省下几百 MB）")
     args = ap.parse_args()
+    PRUNE["on"] = bool(args.prune)
 
     isos = [x.upper() for x in args.isos]
     if args.all:

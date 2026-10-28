@@ -27,6 +27,16 @@ import json
 import os
 import sys
 
+# 控制台可能是 cp936（Windows cmd 默认），打不出的字符用 ? 代替，别让整段崩掉。
+# 之前 collect.py 在连不上某个站时打印一个 ✗ 就 UnicodeEncodeError 退出，
+# 看起来像"采集失败"，其实连抓取都还没开始。
+try:
+    sys.stdout.reconfigure(errors="replace")
+    sys.stderr.reconfigure(errors="replace")
+except Exception:
+    pass
+
+
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 try:
@@ -188,7 +198,7 @@ def main():
                 size, desc = synth_sapi(text, dest)
                 voice = desc
             except Exception as e:
-                print("  ✗ %-6s SAPI 也失败：%s" % (code, e))
+                print("  [x] %-6s SAPI 也失败：%s" % (code, e))
                 failed.append(code)
                 continue
         elif use_engine == "fail":
@@ -202,7 +212,7 @@ def main():
         l["audio_bytes"] = size
         l["audio_status"] = "ok"
         done.append((code, rel, size, use_engine))
-        print("  ✓ %-6s %-22s %6.1f KB  [%s]  %s" % (code, rel, size / 1024, use_engine, text[:24]))
+        print("  [ok] %-6s %-22s %6.1f KB  [%s]  %s" % (code, rel, size / 1024, use_engine, text[:24]))
 
     if not done:
         print("!! 没有任何语音生成成功")
