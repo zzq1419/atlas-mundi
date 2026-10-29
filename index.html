@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-10-29-H">
+<meta name="build" content="2026-10-29-I">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <title>寰宇图志 · Atlas Mundi</title>
@@ -1282,29 +1282,10 @@ body.panel-open #globe-stage{
   <div class="globe-msg" id="globe-msg">正在加载地表数据…</div>
 </div>
 
-<!-- 2D 平面地图：等距圆柱底图 + 国界线画布。
-     3D 与 2D 之间用"地球缩下去 / 平面涨上来"的交叉过渡，不是硬切。 -->
-<div id="map2d" aria-hidden="true">
-  <canvas class="map2d-canvas" width="6144" height="1024"></canvas>
-  <div class="map2d-loading">正在载入平面地图…</div>
-</div>
-
-<!-- 视图切换：单独放左侧垂直居中，和左下角工具栏分开 —— 它切的是"以什么方式看世界"，
-     不是图层开关，混在一起会让人以为它也是个叠加层。 -->
-<button id="btn-view" class="view-btn" type="button"
-        aria-label="切换到平面地图" data-tip="切换到平面地图">
-  <svg viewBox="0 0 24 24" aria-hidden="true">
-    <rect x="2.6" y="5.4" width="18.8" height="13.2" rx="2"/>
-    <path d="M2.6 12h18.8M9 5.4v13.2M15 5.4v13.2"/>
-  </svg>
-</button>
-<button id="btn-paper" class="view-btn paper" type="button"
-        aria-label="切换白底线稿" data-tip="白底线稿" hidden>
-  <svg viewBox="0 0 24 24" aria-hidden="true">
-    <path d="M4 4.6h16v14.8H4z"/>
-    <path d="M8.4 4.6v14.8M15.2 4.6v14.8M4 9.6h16M4 14.6h16" opacity=".5"/>
-  </svg>
-</button>
+<!-- 平面地图（2D）暂时下线。代码和样式都留着，只要把下面这段 HTML 加回来、
+     再让 bindMap2D 正常初始化，就能原样恢复 —— 见 index.html 里的 bindMap2D。
+     撤下来的原因：问题还没收敛（拖拽手感、分片资源、白底线稿的边界），
+     与其留一个半成品入口，不如先回到只有地球的状态。 -->
 
 <!-- 顶部悬浮栏：品牌 + 搜索 -->
 <header id="topbar">
@@ -2735,19 +2716,23 @@ body.panel-open #globe-stage{
     g.textAlign = 'center';
     g.textBaseline = 'middle';
 
-    /* ---- 经线：赤道处按文字宽度断开，度数正好塞进断口 ----
-       固定 40px 的断口塞不下 "120°W"（约 100px），字会压在线上一半，
-       看起来就像线从数字中间穿过去。这里先量字宽再断。 */
+    /* ---- 经线：在北纬 40° 处断开，度数写进断口 ----
+       为什么不是赤道：赤道是一条连续实线，数字摆在那里会被它从中间穿过去。
+       40° 这一带是空的 —— 30° 和 66.5° 之间没有任何纬线，
+       南半球同理（用 40°N 统一，所有经线的数字连成一条横向的带，好认）。
+       断口宽度按文字实测：固定 40px 塞不下 "120°W"（约 100px）。 */
+    var LAB_LAT = 40;
     g.lineWidth = 2.2;
     g.strokeStyle = LINE;
     for (lon = -180; lon < 180; lon += 30) {
       x = X(lon);
       var lab = lon === 0 ? '0°' : Math.abs(lon) + '°' + (lon > 0 ? 'E' : 'W');
       var gap = g.measureText(lab).width / 2 + 12;
-      g.beginPath(); g.moveTo(x, 0); g.lineTo(x, Y(0) - gap); g.stroke();
-      g.beginPath(); g.moveTo(x, Y(0) + gap); g.lineTo(x, H); g.stroke();
+      var ly = Y(LAB_LAT);
+      g.beginPath(); g.moveTo(x, 0); g.lineTo(x, ly - gap); g.stroke();
+      g.beginPath(); g.moveTo(x, ly + gap); g.lineTo(x, H); g.stroke();
       g.fillStyle = TEXT;
-      g.fillText(lab, x, Y(0));
+      g.fillText(lab, x, ly);
     }
 
     /* ---- 纬线：在 ±90° 经线处断开，左右各标一个 ---- */
@@ -4420,20 +4405,8 @@ body.panel-open #globe-stage{
         var list = (idx.countries || []).filter(function (c) {
           return c.status !== 'placeholder';
         });
-        /* 平面地图的资源先备好。按体积从小到大排：
-           低清底图 14KB → 国界 143KB(gzip) → 高清底图 431KB。
-           用户在这十几秒里随时可能点那个 2D 按钮，预先下好就能秒开；
-           没下完也没关系，loadBase/loadBounds 会自己接着要。 */
-        ['assets/tex/world-2d-low.webp',
-         'geo/flat.json',
-         'assets/tex/world-2d.webp'].forEach(function (u, k) {
-          setTimeout(function () {
-            // 图片用 Image 而不是 fetch：图片缓存和 fetch 缓存是两套索引，
-            // 用 Image 预取，后面 new Image().src 同一地址才是真命中
-            if (/\.webp$/.test(u)) { var im = new Image(); im.src = u; }
-            else fetch(u).catch(function () {});
-          }, k * 260);
-        });
+        /* 平面地图下线后，它那三份资源（14KB + 143KB + 431KB）不再预取 ——
+           这条链路只有 18KB/s，白下 600KB 会直接拖慢用户此刻真正要看的东西。 */
 
         var i = 0;
         var step = function () {
