@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-10-29-K">
+<meta name="build" content="2026-10-29-L">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <title>寰宇图志 · Atlas Mundi</title>
@@ -2792,12 +2792,72 @@ body.panel-open #globe-stage{
     return { lon: lon, lat: lat };
   }
 
+  /* 全量国界索引（223 国 / 1201 环，来自 geo/flat.json）。
+
+     这里原来只在 geo/globe.json 的 **3 个国家**（CN/FR/US）里找 bbox，
+     还放宽了 2°。于是点德国国土时，德国整块都落在法国那个大包围盒里，
+     函数返回法国 —— 用户看到的就是"点德国跳出法国"。
+     点国名反而是对的：那条路走标签自己的 iso，根本不经过这里。
+
+     现在改成：bbox 粗筛 → 按面积升序 → 射线法。小国优先，
+     大国包住小国时（南非/斯威士兰、法国/德国）不会再把邻国吞掉。 */
+  var FLAT_BOXES = null, FLAT_TRIED = false;
+
+  function loadFlatBoxes() {
+    if (FLAT_BOXES || FLAT_TRIED) return;
+    FLAT_TRIED = true;
+    fetch('geo/flat.json')
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .catch(function () { return null; })
+      .then(function (d) {
+        if (!d || !d.countries) return;
+        var sc = d.scale || 1, out = [];
+        d.countries.forEach(function (c) {
+          var box = { iso: c.iso, x0: 999, y0: 999, x1: -999, y1: -999, rings: [] };
+          (c.rings || []).forEach(function (raw) {
+            var ring = new Array(raw.length), i, p;
+            for (i = 0; i < raw.length; i++) {
+              p = [raw[i][0] / sc, raw[i][1] / sc];
+              ring[i] = p;
+              if (p[0] < box.x0) box.x0 = p[0];
+              if (p[1] < box.y0) box.y0 = p[1];
+              if (p[0] > box.x1) box.x1 = p[0];
+              if (p[1] > box.y1) box.y1 = p[1];
+            }
+            if (ring.length > 2) box.rings.push(ring);
+          });
+          if (!box.rings.length) return;
+          box.area = Math.max(0.01, (box.x1 - box.x0) * (box.y1 - box.y0));
+          out.push(box);
+        });
+        FLAT_BOXES = out;
+      });
+  }
+
   function countryAt(lon, lat) {
+    if (FLAT_BOXES && FLAT_BOXES.length) {
+      var cand = [], k, c, r;
+      for (k = 0; k < FLAT_BOXES.length; k++) {
+        var f = FLAT_BOXES[k];
+        // 粗筛也放宽一点：球面点击有像素级误差，但 0.6° 已经够
+        if (lon >= f.x0 - 0.6 && lon <= f.x1 + 0.6 &&
+            lat >= f.y0 - 0.6 && lat <= f.y1 + 0.6) cand.push(f);
+      }
+      cand.sort(function (a, b) { return a.area - b.area; });
+      for (c = 0; c < cand.length; c++) {
+        for (r = 0; r < cand[c].rings.length; r++) {
+          if (pointInRing(lon, lat, cand[c].rings[r])) {
+            return { iso: cand[c].iso, bbox: [cand[c].x0, cand[c].y0, cand[c].x1, cand[c].y1] };
+          }
+        }
+      }
+      return null;      // 确认落在海里，不再退回 bbox 乱猜
+    }
+    // 索引还在路上（首屏头一秒），先用三国的旧逻辑兜着
     var list = globe.data.countries || [];
     for (var i = 0; i < list.length; i++) {
       var b = list[i].bbox;
       if (!b) continue;
-      // bbox 放宽 2°，球面上点击有像素级误差
       if (lon >= b[0] - 2 && lon <= b[2] + 2 && lat >= b[1] - 2 && lat <= b[3] + 2) {
         return list[i];
       }
@@ -3917,6 +3977,10 @@ body.panel-open #globe-stage{
       })
       .then(buildLabels)
       .catch(function () { /* 静默降级：没有地名，球还在 */ });
+
+    /* 全量国界索引，给"点国土"用。几百 KB，不挡首屏 —— 目录里的地图
+       早就在跑，用户点到国土时它基本已经好了。 */
+    loadFlatBoxes();
 
     setActive(null);        // 初始不点亮任何国界
   }
