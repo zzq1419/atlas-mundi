@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-10-29-M">
+<meta name="build" content="2026-10-29-N">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <title>寰宇图志 · Atlas Mundi</title>
@@ -2866,6 +2866,14 @@ body.panel-open #globe-stage{
     });
     return best ? { iso: best.iso, bbox: null } : null;
   }
+
+  /* 排查用：控制台里 __hitTest(10.5, 51) 直接看得某经纬度判给哪个国家。
+     地球是三维的，"点屏幕中心"未必落在想点的地方，靠这个才能把
+     判定逻辑和点击位置分开验证。 */
+  window.__hitTest = function (lon, lat) {
+    var c = countryAt(lon, lat);
+    return { iso: c && c.iso, ready: !!(FLAT_BOXES && FLAT_BOXES.length) };
+  };
 
   function setActive(iso) {
     globe.active = iso;
