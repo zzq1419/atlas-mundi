@@ -21,5 +21,15 @@
    "reason": "1 个候选全部未通过筛选：Banaba.png（分类是「NASA World Wind」）",
    "retryable": false
   }
- ]
+ ],
+ "CN": [
+  {
+   "zh": "桂林漓江（兴坪）",
+   "kw": "RMB20 Li River Xingping",
+   "reason": "Wikidata / 维基 / Commons 都没有可用图",
+   "retryable": false
+  }
+ ],
+ "FR": [],
+ "US": []
 }

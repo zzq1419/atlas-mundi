@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-10-29-E">
+<meta name="build" content="2026-10-29-F">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <title>寰宇图志 · Atlas Mundi</title>
@@ -1090,6 +1090,14 @@ body.panel-open #globe-stage{
   transition:opacity .42s ease;cursor:grab;
 }
 #map2d.on{opacity:1;pointer-events:auto}
+.map2d-loading{
+  position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  color:rgba(200,220,242,.72);font-size:13px;letter-spacing:.08em;
+  padding:10px 18px;border-radius:20px;
+  background:rgba(8,14,24,.72);border:1px solid rgba(126,158,198,.22);
+  opacity:0;transition:opacity .25s ease;pointer-events:none;
+}
+.map2d-loading.on{opacity:1}
 #map2d.dragging{cursor:grabbing}
 .map2d-canvas{
   position:absolute;left:0;top:0;
@@ -1108,8 +1116,14 @@ body.panel-open #globe-stage{
 
 /* 浅底上的顶栏文字要转深色，否则品牌名是一块白字浮在米白上 */
 #map2d.paper ~ #topbar .brand-cn{color:#26313f;text-shadow:0 1px 0 rgba(255,255,255,.6)}
-/* 白点阵在米白底上等于消失，反相成深点 */
-#map2d.paper ~ #topbar .brand-logo{filter:invert(1) brightness(.45)}
+/* 白点阵在米白底上直接消失。试过 invert(1) 反相成黑点 —— 不行：
+   原图 128px、真正的点只有 1573 个像素，缩到 26px 后每个点都落在
+   抗锯齿的半透明边缘上，反相完是一坨灰雾。
+   改成给圆点阵垫一个深色圆底，白点保持原样，读起来像一枚图章。 */
+#map2d.paper ~ #topbar .brand-logo{
+  filter:none;border-radius:50%;
+  background:radial-gradient(circle at 50% 50%,#2b3746 0 46%,rgba(43,55,70,0) 47%);
+}
 #map2d.paper ~ #topbar #search-panel{
   background:linear-gradient(180deg,rgba(255,255,255,.92),rgba(244,240,232,.95));
   border-color:rgba(60,78,100,.22);
@@ -1272,6 +1286,7 @@ body.panel-open #globe-stage{
      3D 与 2D 之间用"地球缩下去 / 平面涨上来"的交叉过渡，不是硬切。 -->
 <div id="map2d" aria-hidden="true">
   <canvas class="map2d-canvas" width="6144" height="1024"></canvas>
+  <div class="map2d-loading">正在载入平面地图…</div>
 </div>
 
 <!-- 视图切换：单独放左侧垂直居中，和左下角工具栏分开 —— 它切的是"以什么方式看世界"，
@@ -2720,22 +2735,34 @@ body.panel-open #globe-stage{
     g.textAlign = 'center';
     g.textBaseline = 'middle';
 
-    /* ---- 经线：赤道处断开 40px，度数写在断口 ---- */
+    /* ---- 经线：赤道处按文字宽度断开，度数正好塞进断口 ----
+       固定 40px 的断口塞不下 "120°W"（约 100px），字会压在线上一半，
+       看起来就像线从数字中间穿过去。这里先量字宽再断。 */
     g.lineWidth = 2.2;
     g.strokeStyle = LINE;
     for (lon = -180; lon < 180; lon += 30) {
       x = X(lon);
-      g.beginPath(); g.moveTo(x, 0); g.lineTo(x, Y(0) - 40); g.stroke();
-      g.beginPath(); g.moveTo(x, Y(0) + 40); g.lineTo(x, H); g.stroke();
+      var lab = lon === 0 ? '0°' : Math.abs(lon) + '°' + (lon > 0 ? 'E' : 'W');
+      var gap = g.measureText(lab).width / 2 + 12;
+      g.beginPath(); g.moveTo(x, 0); g.lineTo(x, Y(0) - gap); g.stroke();
+      g.beginPath(); g.moveTo(x, Y(0) + gap); g.lineTo(x, H); g.stroke();
       g.fillStyle = TEXT;
-      g.fillText(lon === 0 ? '0°' : Math.abs(lon) + '°' + (lon > 0 ? 'E' : 'W'), x, Y(0));
+      g.fillText(lab, x, Y(0));
     }
 
     /* ---- 纬线：在 ±90° 经线处断开，左右各标一个 ---- */
     function latLine(t, dashed, major) {
       y = Y(t);
-      var gap = dashed ? 66 : 58;
-      var xs = [X(-90), X(90)];
+      var lab = t === 0 ? '0°'
+        : (Math.abs(t) % 1 === 0 ? Math.abs(t) : Math.abs(t).toFixed(1)) +
+          '°' + (t > 0 ? 'N' : 'S');
+      var gap = g.measureText(lab).width / 2 + 12;
+      /* 断点放在 ±135° 而不是 ±90°。
+         经线是在赤道处断开写度数的，如果纬线也在 ±90° 断，赤道和 90°W/90°E
+         这两条经线的交点就会同时出现两个标注，糊成一团（"90°W" 里的 0 被
+         "0°" 盖住，就是用户报的"西经 0 度的 0 被遮住"）。
+         135 不是 30 的倍数，那里没有经线，两边仍然对称。 */
+      var xs = [X(-135), X(135)];
       g.save();
       g.lineWidth = major ? 3.4 : (dashed ? 2.0 : 2.2);
       g.strokeStyle = major ? MAJOR : LINE;
@@ -2749,9 +2776,6 @@ body.panel-open #globe-stage{
       g.restore();
 
       g.fillStyle = TEXT;
-      var lab = t === 0 ? '0°'
-        : (Math.abs(t) % 1 === 0 ? Math.abs(t) : Math.abs(t).toFixed(1)) +
-          '°' + (t > 0 ? 'N' : 'S');
       for (var k = 0; k < xs.length; k++) g.fillText(lab, xs[k], y);
     }
 
@@ -2761,6 +2785,11 @@ body.panel-open #globe-stage{
     [23.5, -23.5, 66.5, -66.5].forEach(function (t) { latLine(t, true, false); });
 
     var tex = new THREE.CanvasTexture(cv);
+    /* 必须声明 sRGB。canvas 里的颜色本来就是按 sRGB 写的，
+       不声明的话 three 当成线性值再转一次，整体被提亮 ——
+       暖金 rgba(226,190,120) 就这么变成了接近白色，用户看到的"白线"就是它。 */
+    if (THREE.SRGBColorSpace) tex.colorSpace = THREE.SRGBColorSpace;
+    else if (THREE.sRGBEncoding) tex.encoding = THREE.sRGBEncoding;
     tex.anisotropy = 4;
     var mat = new THREE.MeshBasicMaterial({
       map: tex, transparent: true, depthWrite: false, side: THREE.FrontSide
@@ -4047,81 +4076,70 @@ body.panel-open #globe-stage{
     var W = cv.width, H = cv.height;   // 6144 × 1024（三份）
     var ONE = W / 3;                   // 一份的宽度
     var ringsAll = null, boxes = [], baseImg = null;
-    var loading = null, painted = false;
+    var loading = null, painted = false, boundsDone = false, imgDone = false;
     var is2D = false, paper = false;
+    var loadMsg = wrap.querySelector('.map2d-loading');
 
     // 视口参数：baseH = 铺满屏幕的高度；zoom = 缩放倍数；offX = 横向平移
     var baseH = 0, zoom = 1, offX = 0;
 
-    function geoRings(all) {
-      var out = [];
-      Object.keys(all || {}).forEach(function (iso) {
-        (((all[iso] || {}).features) || []).forEach(function (f) {
-          var g = f.geometry || {};
-          var polys = g.type === 'Polygon' ? [g.coordinates]
-            : (g.type === 'MultiPolygon' ? g.coordinates : []);
-          polys.forEach(function (poly) {
-            poly.forEach(function (ring) {
-              if (ring && ring.length > 2) out.push({ iso: iso, ring: ring });
-            });
-          });
-        });
-      });
-      return out;
+    /* 两份资源分开加载，谁先到先画谁。
+       之前是 Promise.all 等 8 个分片 + 1.25MB 底图一起回来才画第一笔，
+       线上实测要 20 秒以上，这 20 秒里整个屏幕是纯黑的 —— 用户以为坏了。
+       现在底图（431KB）先出，国界线（gzip 后 143KB）随后叠上。 */
+    function loadBase() {
+      if (imgDone) return;
+      var im = new Image();
+      im.onload = function () {
+        baseImg = im; imgDone = true;
+        if (is2D) paint();
+      };
+      im.onerror = function () { imgDone = true; paint(); };
+      im.src = 'assets/tex/world-2d.webp';
     }
 
-    function loadAll() {
-      if (loading) return loading;
-      var jobs = [];
-      for (var b = 0; b < 8; b++) {
-        jobs.push(fetch('geo/c' + b + '.json')
-          .then(function (r) { return r.ok ? r.json() : null; })
-          .catch(function () { return null; }));
-      }
-      var imgJob = new Promise(function (res) {
-        var im = new Image();
-        im.onload = function () { baseImg = im; res(im); };
-        im.onerror = function () { res(null); };
-        im.src = 'assets/tex/earth-day.webp';
-      });
-      loading = Promise.all(jobs.concat([imgJob])).then(function (list) {
-        list = list.slice(0, 8);
-        var rs = [];
-        // 每个国家一个 bbox：点击判定用"包含该点且面积最小的那个"，
-        // 这样大国包住小国时（南非包斯威士兰）不会总选中大国。
-        var bx = {};
-        list.forEach(function (all) {
-          geoRings(all).forEach(function (r) {
-            rs.push(r);
-            var box = bx[r.iso] || { x0: 999, y0: 999, x1: -999, y1: -999, rings: [] };
-            box.rings.push(r.ring);
-            for (var i = 0; i < r.ring.length; i++) {
-              var p = r.ring[i];
-              if (!p) continue;
-              if (p[0] < box.x0) box.x0 = p[0];
-              if (p[1] < box.y0) box.y0 = p[1];
-              if (p[0] > box.x1) box.x1 = p[0];
-              if (p[1] > box.y1) box.y1 = p[1];
-            }
-            bx[r.iso] = box;
+    function loadBounds() {
+      if (boundsDone) return;
+      boundsDone = true;              // 只请求一次，失败也不重试
+      fetch('geo/flat.json')
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .catch(function () { return null; })
+        .then(function (data) {
+          ringsAll = [];
+          if (!data || !data.countries) { if (is2D) paint(); return; }
+          var sc = data.scale || 1;
+          var bx = {};
+          data.countries.forEach(function (c) {
+            var box = { x0: 999, y0: 999, x1: -999, y1: -999, rings: [] };
+            c.rings.forEach(function (raw) {
+              // 存的是 0.1° 单位的整数，这里一次性还原成浮点，
+              // 后面绘制和命中判定都不用再除
+              var ring = new Array(raw.length);
+              for (var i = 0; i < raw.length; i++) {
+                ring[i] = [raw[i][0] / sc, raw[i][1] / sc];
+                var p = ring[i];
+                if (p[0] < box.x0) box.x0 = p[0];
+                if (p[1] < box.y0) box.y0 = p[1];
+                if (p[0] > box.x1) box.x1 = p[0];
+                if (p[1] > box.y1) box.y1 = p[1];
+              }
+              ringsAll.push({ iso: c.iso, ring: ring });
+              box.rings.push(ring);
+            });
+            bx[c.iso] = box;
           });
+          boxes = Object.keys(bx).map(function (iso) {
+            var b0 = bx[iso];
+            b0.iso = iso;
+            b0.area = Math.max(0.01, (b0.x1 - b0.x0) * (b0.y1 - b0.y0));
+            return b0;
+          });
+          if (is2D) paint();
         });
-        boxes = Object.keys(bx).map(function (iso) {
-          var b0 = bx[iso];
-          b0.iso = iso;
-          b0.area = Math.max(0.01, (b0.x1 - b0.x0) * (b0.y1 - b0.y0));
-          return b0;
-        });
-        ringsAll = rs;
-        return rs;
-      });
-      return loading;
     }
 
     function drawOne(g, dx) {
       var i;
-      // 底图：paint() 会对三份各调一次 drawOne，这里只画自己那一份
-      if (!paper && baseImg) g.drawImage(baseImg, dx, 0, ONE, H);
       // 国界：白底色稿用蓝线，卫星底图上用暖白
       if (paper) {
         g.strokeStyle = 'rgba(38,86,148,.85)';
@@ -4137,8 +4155,9 @@ body.panel-open #globe-stage{
       }
       g.lineJoin = 'round';
       var prevX = null;
-      for (var k = 0; k < ringsAll.length; k++) {
-        var ring = ringsAll[k].ring;
+      var rings = ringsAll || [];
+      for (var k = 0; k < rings.length; k++) {
+        var ring = rings[k].ring;
         g.beginPath();
         prevX = null;
         for (i = 0; i < ring.length; i++) {
@@ -4158,16 +4177,24 @@ body.panel-open #globe-stage{
       g.shadowBlur = 0;
     }
 
+    /* 重绘。底图和国界谁到了就画谁 —— 不再等两份都齐。
+       paper 模式下底图不画，但米白底可以先铺上，用户至少看到一张空白地图
+       而不是黑洞。 */
     function paint() {
-      if (!ringsAll) return;
+      if (!ringsAll && !baseImg && !paper) return;
       var g = cv.getContext('2d');
       g.clearRect(0, 0, W, H);
       if (paper) {
         g.fillStyle = '#f6f2e9';
         g.fillRect(0, 0, W, H);
+      } else if (baseImg) {
+        for (var i = 0; i < 3; i++) g.drawImage(baseImg, i * ONE, 0, ONE, H);
       }
-      for (var i = 0; i < 3; i++) drawOne(g, i * ONE);
+      for (var j = 0; j < 3; j++) drawOne(g, j * ONE);
       painted = true;
+      if (loadMsg) {
+        loadMsg.classList.toggle('on', !(ringsAll && (paper || baseImg)));
+      }
     }
 
     /* 布局：画布高度铺满视口，宽度随之 ×2；offX 决定横向位置。
@@ -4184,11 +4211,19 @@ body.panel-open #globe-stage{
       cv.style.left = Math.round(offX) + 'px';
     }
 
+    /* 平移边界：循环折返，而不是硬夹住。
+       画布里是同一张世界图首尾相接的三份，所以把 offX 整体挪一整份，
+       屏幕上的内容**一模一样** —— 挪的时候用户看不出来，也就不会有
+       "拖到头撞墙/露黑边"这回事。
+       允许区间：offX ∈ [VW - 3·ONE, 0]，保证三份里总有一份能盖满视口。 */
     function clampOff() {
-      var cssW = baseH * 2 * 3 * zoom;
-      var min = window.innerWidth - cssW;
-      if (offX < min) offX = min;
+      var ONEcss = baseH * 2 * zoom;
+      var min = window.innerWidth - ONEcss * 3;
+      var guard = 0;
+      while (offX > 0 && guard++ < 8) offX -= ONEcss;
+      while (offX < min && guard++ < 8) offX += ONEcss;
       if (offX > 0) offX = 0;
+      if (offX < min) offX = min;
     }
 
     function set2D(on) {
@@ -4209,8 +4244,9 @@ body.panel-open #globe-stage{
         if (labelsEl) labelsEl.style.opacity = '0';
         btnPaper.hidden = false;
         layout(true);
-        if (!painted) loadAll().then(paint);
-        else paint();
+        loadBase();
+        loadBounds();
+        paint();
       } else {
         wrap.classList.remove('on');
         wrap.setAttribute('aria-hidden', 'true');
