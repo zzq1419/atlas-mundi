@@ -1108,7 +1108,8 @@ body.panel-open #globe-stage{
 
 /* 浅底上的顶栏文字要转深色，否则品牌名是一块白字浮在米白上 */
 #map2d.paper ~ #topbar .brand-cn{color:#26313f;text-shadow:0 1px 0 rgba(255,255,255,.6)}
-#map2d.paper ~ #topbar .brand-logo{filter:none}
+/* 白点阵在米白底上等于消失，反相成深点 */
+#map2d.paper ~ #topbar .brand-logo{filter:invert(1) brightness(.45)}
 #map2d.paper ~ #topbar #search-panel{
   background:linear-gradient(180deg,rgba(255,255,255,.92),rgba(244,240,232,.95));
   border-color:rgba(60,78,100,.22);
