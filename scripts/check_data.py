@@ -35,11 +35,15 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, "scripts"))
 
 import geo_rules  # noqa: E402
+import sync_index  # noqa: E402
 
 DATA = os.path.join(ROOT, "data")
+# audio_url / geometry 不在这张表里：前者在新档案中挂在 languages[].audio_url，
+# 后者多数国家只有 geometry_status（几何在 geo/c*.json 分片）。把它们当必填会让
+# 每一份新档案都报错 —— 这条以前就一直红着，等于门禁失效。
 FIELDS = ["qid", "iso_a2", "iso_a3", "name_zh", "name_en", "capital", "continent",
           "centroid", "languages", "landmark_images", "image_license",
-          "summary_text", "custom_text", "audio_url", "geometry"]
+          "summary_text", "custom_text"]
 
 problems, warnings = [], []
 
@@ -135,13 +139,8 @@ def check_index(countries):
         if iso not in listed:
             warn("%s 有档案但没进 index.json" % iso)
             continue
-        want = {
-            "image": bool(rec.get("landmark_images")),
-            "audio": bool(rec.get("audio_url")),
-            "text": bool(rec.get("summary_text")),
-            "coords": bool(rec.get("centroid")),
-            "geometry": bool(rec.get("geometry")),
-        }
+        # 口径必须和 sync_index.py 完全一致，否则「跑 sync_index 修一下」永远修不好
+        want = sync_index.modalities(rec)
         got = listed[iso].get("modalities") or {}
         diff = {k: (got.get(k), v) for k, v in want.items() if got.get(k) != v}
         if diff:

@@ -3,9 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-10-29-Q">
+<meta name="build" content="2026-10-29-R">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
+<!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
+     点开第一个国家时才现握手，光这一项就要多等 200~400ms，
+     用户体感就是"点了没反应，图过一会儿才冒出来"。 -->
+<link rel="preconnect" href="https://atlas-mundi-1419.obs.cn-east-3.myhuaweicloud.com" crossorigin>
+<link rel="dns-prefetch" href="//atlas-mundi-1419.obs.cn-east-3.myhuaweicloud.com">
 <title>寰宇图志 · Atlas Mundi</title>
 <meta name="description" content="寰宇图志：3D 地球上的多模态国家文化图谱。全球 200 多个国家与地区均有基础档案，多模态档案逐国推进。">
 <style>
@@ -531,12 +536,19 @@
 
   /* 国界轮廓 */
   .geo-box{margin-top:4px}
+  /* 高度必须固定。轮廓是 220ms 后异步画进来的，它的高度取决于国土长宽比
+     （智利 4:1 竖长、俄罗斯 2:1 横长）；不占位的话，等它出现时
+     会把下面「历史 / 民俗」正文整体往下顶一截 —— 用户看到的就是
+     "文字先冒出来，然后被挤下去"。先占好位置，里面居中骨架，来了就地替换。 */
   .geo-svg{
     border:1px solid var(--line);border-radius:10px;
     background:linear-gradient(160deg,#0c1220,#090e1a);
-    padding:4px;font-size:12px;color:var(--ink-faint);
+    padding:6px;font-size:12px;color:var(--ink-faint);
+    height:clamp(112px,15vh,158px);
+    display:flex;align-items:center;justify-content:center;
+    position:relative;overflow:hidden;
   }
-  .geo-svg svg{display:block;width:100%;height:auto}
+  .geo-svg svg{display:block;width:100%;height:100%;max-height:100%}
 
   /* 多图切换 */
   .thumbstrip{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
@@ -1645,16 +1657,13 @@ body.panel-open #globe-stage{
       m.classList.add('gone');
       setTimeout(function () { if (m.parentNode) m.remove(); }, 700);
     }
-    /* 球稳定五秒后，趁空闲把国境线和经纬网先建好。
-       这两样第一次现做都要几十到上百毫秒，用户点下去会僵一下。 */
+    /* 球稳定后就预热重资源（经纬网、全量国境线）。
+       以前是「3 秒后 + requestIdleCallback(timeout 6s)」—— 这两条都太慢：
+       用户在 3~9 秒之间点按钮，等于每次都现建一次，卡顿就"偶发"。
+       现在改为两个固定时间点，各自只做一件事，不依赖浏览器愿不愿意给空闲帧。 */
     setTimeout(function () {
-      if (!globe.warmHeavyLayers) return;
-      if (window.requestIdleCallback) {
-        requestIdleCallback(globe.warmHeavyLayers, { timeout: 6000 });
-      } else {
-        globe.warmHeavyLayers();
-      }
-    }, 3000);
+      if (globe.warmHeavyLayers) globe.warmHeavyLayers();
+    }, 1500);
   }
 
   function fail(msg) {
@@ -1768,6 +1777,22 @@ body.panel-open #globe-stage{
     });
   })();
 
+  /* 把档案里的文化正文拆成「历史 / 民俗」两节。
+     优先用显式字段（新采集的都写 history_text + custom_text）；
+     老档案只有合并的 custom_text，按空行拆一次 —— 那是当初 prompt 里写死的
+     两段结构（第一段历史、第二段民俗），拆出来和显式字段等价。 */
+  function culturalParts(d) {
+    var h = String(d.history_text || '').trim();
+    var f = String(d.custom_text || '').trim();
+    if (h) return { history: h, folk: f };
+    var ps = f.split(/\n{2,}/).map(function (x) { return x.trim(); })
+              .filter(function (x) { return x.length > 0; });
+    if (ps.length >= 2) {
+      return { history: ps[0], folk: ps.slice(1).join('\n\n') };
+    }
+    return { history: '', folk: f };
+  }
+
   function renderDetail(d, quiet) {
     dTitle.textContent = d.name_zh;
     dSub.textContent = d.name_en + ' · ' + d.iso_a2 + ' / ' + d.iso_a3 + ' · ' + d.qid;
@@ -1785,9 +1810,11 @@ body.panel-open #globe-stage{
       var licEl = el('div', 'cap dim', '');
       var strip = imgs.length > 1 ? el('div', 'thumbstrip') : null;
       var items = [];
+      var picSeq = 0;
 
       function showPic(idx) {
         var it = imgs[idx];
+        var seq = ++picSeq;
         picWrap.classList.remove('loaded');
         picWrap.classList.add('loading');
         picWrap.classList.remove('blank');   // 上一张失败留下的 blank 要清掉，否则 display:none 一直挂着
@@ -1795,6 +1822,7 @@ body.panel-open #globe-stage{
         pic.onload = function () {
           picWrap.classList.remove('loading');
           picWrap.classList.add('loaded');
+          picWrap.classList.remove('blank');
           // 竖构图（如埃菲尔铁塔 1400x2591）用 cover 会把塔顶塔基裁掉，
           // 改 contain 装下整张，两侧用底色补。横构图仍用 cover 铺满。
           var portrait = pic.naturalHeight > pic.naturalWidth * 1.15;
@@ -1804,7 +1832,22 @@ body.panel-open #globe-stage{
           picWrap.classList.remove('loading');
           picWrap.classList.add('blank');
         };
-        setAsset(pic, it.url);
+        /* 先挂缩略图，主图后台预载完再替换。
+           OBS 上主图 50~150KB、缩略图 10~35KB，第一次访问还要付一次 TLS；
+           直接等主图就是"点开先空一块，过一会儿才出图"。
+           拇指图构图与主图完全一样，只是分辨率低 —— 视觉上变成"很快有图，
+           随后变清晰"，没有空白期。 */
+        if (it.thumb_url) setAsset(pic, it.thumb_url);
+        else setAsset(pic, it.url);
+        if (it.thumb_url && it.url) {
+          var big = new Image();
+          big.onload = function () {
+            if (seq !== picSeq) return;                 // 已经切到别的图了
+            if (pic.getAttribute('src') === big.src) return;
+            setAsset(pic, it.url);
+          };
+          big.src = assetSrc(it.url);
+        }
         // 换到同一张图时浏览器不会重新触发 load，loaded 就永远加不上，图是透明
         if (pic.complete && pic.naturalWidth) pic.onload();
         capEl.textContent = it.caption_zh || it.caption || '';
@@ -1882,9 +1925,18 @@ body.panel-open #globe-stage{
     var txt = el('div', 'dtext');
     var sumTxt = trimDup(d.summary_text, d.custom_text);
     if (sumTxt) txt.appendChild(paraText(sumTxt, 2));
-    if (d.custom_text) {
-      txt.appendChild(el('div', 'sub-label', '历史与民俗'));
-      txt.appendChild(paraText(d.custom_text, 2));
+    /* 历史与民俗分两节 —— 两者主题不同（发生过什么 / 今天怎么生活），
+       揉在一段里读起来像一篇不分类的散文。新数据直接给 history_text 字段；
+       旧数据只有一整段 custom_text，就按空行拆（第一段是历史，这是当时
+       prompt 的固定结构），拆不开就整段落在「民俗」下面，不硬标标题。 */
+    var parts = culturalParts(d);
+    if (parts.history) {
+      txt.appendChild(el('div', 'sub-label', '历史'));
+      txt.appendChild(paraText(parts.history, 2));
+    }
+    if (parts.folk) {
+      txt.appendChild(el('div', 'sub-label', '民俗'));
+      txt.appendChild(paraText(parts.folk, 2));
     }
     right.appendChild(txt);
 
@@ -2597,8 +2649,8 @@ body.panel-open #globe-stage{
     state: 'idle', ready: false, data: null,
     scene: null, camera: null, renderer: null,
     tilt: null, spin: null, sphere: null,
-    groups: {},           // iso -> LineSegments
-    matOn: null, matOff: null,
+    groups: {},           // iso -> LineSegments（内置三家的轮廓，其它按需进 borderCache）
+    matOn: null, matLit: null, matAll: null,
     active: null,
     autoSpin: true,
     inView: false,
@@ -2893,16 +2945,13 @@ body.panel-open #globe-stage{
   };
 
   function setActive(iso) {
-    globe.active = iso;
-    /* 内置几何只有三家（完整档案）。其余国家点开时，按需把它自己的
-       国界画到球上 —— 否则"点了日本，球上什么都没变"，等于告诉用户
-       这个国家不在库里。 */
-    if (globe.showBorder) globe.showBorder(iso);
-    Object.keys(globe.groups).forEach(function (k) {
-      var on = (k === iso);
-      globe.groups[k].visible = on;
-      if (on) globe.groups[k].material = globe.matOn;
-    });
+    globe.active = iso || null;
+    /* 点开某国 = 拼上一块：轮廓亮金，且关面板后不熄（lightBorder 内部处理）。
+       传 null 只表示"当前不再看谁"，把最亮那条降一档，仍然留着 —— 以前这里
+       会 setActive(null) 顺手把金线一起撤掉，于是"退出后国境线还亮着"和
+       "退出后全黑了"两种相反的现象在不同路径下都出现过。 */
+    if (iso && globe.lightBorder) globe.lightBorder(iso);
+    else if (globe.dimCurrent) globe.dimCurrent();
     Array.prototype.forEach.call(
       document.querySelectorAll('.dock-item'),
       function (n) { n.classList.toggle('active', n.dataset.iso === iso); }
@@ -3603,21 +3652,35 @@ body.panel-open #globe-stage{
     ];
     globe.grid = null;
 
-    /* 已采集完整档案的国家国界：这是数据标记，贴图之上也要保留 */
+    /* 国界线一共三档材质，颜色统一是同一支金（0xffd98a），只靠透明度分层：
+       - matOn   当前正在看的这一国（最亮）
+       - matLit  点过、留着没熄的（"拼图"已经拼上的那几块）
+       - matAll  「显示全部国境线」铺满全屏的那一层（最淡）
+       以前全量边界用的是米白 0xf3ead8，和选中的金线是两种颜色，
+       屏幕上同时出现时看着像两套系统；现在统一一支金，只分浓淡。 */
     globe.matOn = new THREE.LineBasicMaterial({
-      color: 0xffd98a, transparent: true, opacity: 1
+      color: 0xffd98a, transparent: true, opacity: 1, depthWrite: false
     });
-    globe.matOff = new THREE.LineBasicMaterial({
-      color: 0xe8c078, transparent: true, opacity: 0.5
+    globe.matLit = new THREE.LineBasicMaterial({
+      color: 0xffd98a, transparent: true, opacity: 0.62, depthWrite: false
+    });
+    globe.matAll = new THREE.LineBasicMaterial({
+      color: 0xffd98a, transparent: true, opacity: 0.40, depthWrite: false
     });
     /* 国界默认隐藏。满屏金线会把照片级的地球拉回"数据可视化"的观感，
-       而且哪块是哪国并不需要常驻提示。选中某国时才把它的轮廓点亮。 */
+       而且哪块是哪国并不需要常驻提示。点过的国家会把轮廓留在球上 —— 见 lightBorder。 */
     (data.countries || []).forEach(function (c) {
-      var line = ringsToLines(c.rings, 1.004, globe.matOn);
+      var line = ringsToLines(c.rings, 1.008, globe.matLit);
       line.visible = false;
       spin.add(line);
       globe.groups[c.iso] = line;
     });
+
+    /* 经纬网在这里就先建、先渲染两帧。
+       这是本页最贵的一次性开销（4096×2048 画布 + 32MB 纹理 + mip 链 + shader 编译，
+       集显实测 300ms 上下）。放在"球还在加载、屏幕上只有加载环"的时候做，
+       用户对这 300ms 的预期本来就是等待；等球出来再做，就是一次无来由的卡顿。 */
+    setTimeout(function () { prepareGrid(true); }, 0);
 
     /* 贴图异步替换 */
     loadEarthTextures(function (dayTex, nightTex, day8) {
@@ -3680,69 +3743,149 @@ body.panel-open #globe-stage{
       if (subEl3) subEl3.textContent = '拖动旋转 · 滚轮缩放 · 点击地名开档';
     }, renderer);
 
-    /* 临时国界：点开某个"只有基础档案"的国家时，在球面画一圈亮线。
-       只保留一条，换国家就替换、关面板就清掉。 */
-    var tempBorder = null;
-    globe.showBorder = function (iso) {
-      if (tempBorder) {
-        spin.remove(tempBorder);
-        if (tempBorder.geometry) tempBorder.geometry.dispose();
-        tempBorder = null;
-      }
-      if (!iso || globe.groups[iso]) return;   // 内置三国由 setActive 管
-      loadGeo(iso).then(function (gj) {
-        /* 异步回来时用户可能已经点了别国（或关了面板），要再确认一次 */
-        if (!gj || globe.active !== iso) return;
-        var rings = [];
-        (gj.features || []).forEach(function (f) {
-          var g = f.geometry || {};
-          var polys = g.type === 'Polygon' ? [g.coordinates]
-            : (g.type === 'MultiPolygon' ? g.coordinates : []);
-          polys.forEach(function (poly) {
-            poly.forEach(function (ring) { if (ring && ring.length > 2) rings.push(ring); });
-          });
+    /* 点亮一国国界 —— 这就是"拼图"的那一块。
+       规则（用户定的玩法）：
+         1. 点开哪国，就把那国轮廓留成金色，关掉面板也不熄 —— 拼上的块不撤；
+         2. 当前正在看的那条更亮（matOn），其余已拼的略暗（matLit）；
+         3. 只有"关闭全部国境线"会清盘：所有线一起熄灭。
+       内置三家（中法美）的线在建球时就建好了，其余国家按需从 geo 分片里取，
+       取到后缓存起来 —— 同一国第二次点不再走网络，也不再建几何。 */
+    var borderCache = {};      // iso -> Line（含内置三国）
+    var pendingLit = {};       // iso -> [cb]，正在加载的
+    var curLit = null;         // 当前最亮的那条
+    globe.wantLit = {};        // iso -> true，表示"用户点过、应该亮着"
+
+    function applyLit(iso, line) {
+      if (!line) return;
+      line.visible = true;
+      line.material = globe.matOn;
+      if (curLit && curLit !== line) curLit.material = globe.matLit;
+      curLit = line;
+      globe.active = iso;
+    }
+
+    function lineFromGeo(gj) {
+      var rings = [];
+      (gj.features || []).forEach(function (f) {
+        var g = f.geometry || {};
+        var polys = g.type === 'Polygon' ? [g.coordinates]
+          : (g.type === 'MultiPolygon' ? g.coordinates : []);
+        polys.forEach(function (poly) {
+          poly.forEach(function (ring) { if (ring && ring.length > 2) rings.push(ring); });
         });
-        if (!rings.length) return;
-        tempBorder = ringsToLines(rings, 1.004, globe.matOn);
-        spin.add(tempBorder);
+      });
+      if (!rings.length) return null;
+      /* 半径 1.008：必须比全量国境线（1.006）更靠外，否则两线重合时
+         外层那条会盖住这条，"当前选中"就亮不起来了（深度缓冲按视线方向取近的）。 */
+      return ringsToLines(rings, 1.008, globe.matLit);
+    }
+
+    globe.lightBorder = function (iso, cb) {
+      if (!iso) { if (cb) cb(); return; }
+      iso = String(iso).toUpperCase();
+      globe.wantLit[iso] = true;
+
+      var cached = borderCache[iso] || globe.groups[iso];
+      if (cached) { applyLit(iso, cached); if (cb) cb(); return; }
+      if (pendingLit[iso]) { if (cb) pendingLit[iso].push(cb); return; }
+
+      pendingLit[iso] = cb ? [cb] : [];
+      loadGeo(iso).then(function (gj) {
+        var waits = pendingLit[iso] || [];
+        delete pendingLit[iso];
+        /* 异步回来时用户可能已经关面板、或点了"关闭全部国境线"（清盘） */
+        if (gj && globe.wantLit[iso]) {
+          var line = lineFromGeo(gj);
+          if (line) {
+            borderCache[iso] = line;
+            spin.add(line);
+            applyLit(iso, line);
+          }
+        }
+        waits.forEach(function (f) { try { f(); } catch (e) {} });
       });
     };
 
+    /* 关面板：当前这条降成"已拼"，不熄灭。 */
+    globe.dimCurrent = function () {
+      if (curLit) curLit.material = globe.matLit;
+      curLit = null;
+      globe.active = null;
+    };
+
+    /* 清盘：全量国境线关掉时调用，连同已拼的块一起熄灭。 */
+    globe.clearLit = function () {
+      Object.keys(borderCache).forEach(function (k) { borderCache[k].visible = false; });
+      Object.keys(globe.groups).forEach(function (k) { globe.groups[k].visible = false; });
+      globe.wantLit = {};
+      pendingLit = {};
+      curLit = null;
+      globe.active = null;
+      Array.prototype.forEach.call(
+        document.querySelectorAll('.dock-item'),
+        function (n) { n.classList.remove('active'); }
+      );
+    };
+
     /* 空闲预热：这两样第一次使用都要现做（国境线合并 1201 个环、
-       经纬网画 4096×2048 的贴图），用户点下去会僵一下。
-       球稳定几秒后趁 idle 先建好，之后开关只切 visible —— 秒开。
-       建好先设 visible=false，不改变当前画面。 */
+       经纬网画 4096×2048 的贴图 + 编译 shader），用户点下去会僵一下。
+       球稳定后趁空闲先把它们建好，之后开关只切 visible —— 秒开。
+       建好先设 visible=false，不改变当前画面。
+
+       注意：预热**不走** toggleAllBorders。开关语义里"关掉全量国境线"等于清盘，
+       预热打开再关掉就会把用户已经拼上的金线一起清掉。 */
     function warmHeavyLayers() {
       if (!globe.spin) return;
-      /* 只在"还没建过、也没人在等"的时候预热。
-         否则预热的 toggle 会把用户刚打开的国境线又切掉 —— 这属于
-         "程序自己动了用户设置的状态"。 */
-      if (allBorders || allBusy) {
-        // 已经建好或正在建，跳过；只补经纬网
-      } else globe.toggleAllBorders(function () {
-        if (!allBorders) return;
-        allBorders.visible = false;
-        // 按钮状态同步回来（预热不该把开关点亮）
-        var b = document.getElementById('btn-borders');
-        if (b) { b.classList.remove('on'); b.setAttribute('data-tip', '显示全部国境线'); }
-      });
-      // 经纬网：同理，先建好放着
+      if (!globe.grid && typeof buildGraticule === 'function') prepareGrid(true);
+      /* 全量国境线错开 700ms 再开始：8 个分片是网络请求，回来的建线那一下
+         也有几十毫秒，不要和经纬网的绘制挤在同一帧。 */
       setTimeout(function () {
-        if (!globe.grid && globe.spin && typeof buildGraticule === 'function') {
-          globe.grid = buildGraticule(1.0018);
-          globe.grid.visible = false;
-          globe.spin.add(globe.grid);
-        }
-      }, 1200);
+        if (!allBorders && !allBusy) buildAllBorders(false);   // 只建、不显示、不动按钮
+      }, 700);
     }
     globe.warmHeavyLayers = warmHeavyLayers;
 
-    /* 排查用：看当前高亮了谁、临时国界还在不在。 */
+    /* 经纬网：建好 → 真正渲染两帧（上传纹理 + 编译 shader）→ 隐藏。
+       只 initTexture / compile 是不够的 —— 实测 shader 编译能做掉，
+       但 4096×2048 的 CanvasTexture 的 mip 链仍要等到第一次真实 draw call
+       才生成，那一帧在软件渲染下能到 1 秒，在独显上也有几十毫秒。
+       所以这里把网格缩到球心（0.001 倍，连一个像素都占不到），
+       挂上去渲染两帧，等纹理和 program 都进了显存再还原、再隐藏。
+       预热期掉这两帧，用户看到的是自转中的地球，不会注意到。 */
+    function prepareGrid(silent) {
+      if (globe.grid) return globe.grid;
+      if (!globe.spin) return null;
+      var g = buildGraticule(1.0018);
+      if (silent) g.scale.setScalar(0.001);
+      g.visible = true;
+      globe.spin.add(g);
+      globe.grid = g;
+      try {
+        if (globe.renderer) {
+          if (g.material.map && globe.renderer.initTexture) {
+            globe.renderer.initTexture(g.material.map);
+          }
+          if (globe.renderer.compile) globe.renderer.compile(scene, camera);
+        }
+      } catch (e) { /* 老版本 three：留给首次绘制，最多卡一次 */ }
+      if (silent) {
+        requestAnimationFrame(function () {
+          requestAnimationFrame(function () {
+            if (globe.grid !== g) return;      // 期间用户点了按钮
+            g.scale.setScalar(1);
+            g.visible = false;
+          });
+        });
+      }
+      return g;
+    }
+
+    /* 排查用：看当前拼上了几块、全量线在不在。 */
     window.__sb = function () {
       return {
         active: globe.active || null,
-        tempBorder: !!tempBorder,
-        litGroups: Object.keys(globe.groups).filter(function (k) { return globe.groups[k].visible; }),
+        lit: Object.keys(borderCache).filter(function (k) { return borderCache[k].visible; }),
+        litBuiltin: Object.keys(globe.groups).filter(function (k) { return globe.groups[k].visible; }),
         gridBuilt: !!globe.grid,
         gridVisible: !!(globe.grid && globe.grid.visible),
         bordersBuilt: !!allBorders,
@@ -3754,28 +3897,21 @@ body.panel-open #globe-stage{
     /* 全部国境线：一次把 8 个分片里所有国家的轮廓合并成一个 LineSegments。
        240 个国家各建一个对象会有 240 次 draw call，合成一条整线只有 1 次。
        分片总共 1.1MB，切开关时若已加载过就走浏览器缓存，不会重新解析。 */
-    var allBorders = null, allBusy = false;
+    var allBorders = null, allBusy = false, allWant = false;
     /* 加载期间用户又点了：把回调排上，加载完一次性通知。
        以前是 `if (allBusy) return;` —— 直接返回、cb 不调、按钮的 busy 类
        永远摘不掉，之后所有点击都被 `if (classList.contains('busy')) return`
        挡在外面。用户点两下就变成"按钮没反应"，而屏幕上线的状态跟他以为的
        完全对不上 —— 这就是"偶发"的来源。 */
     var allWait = [];
-    globe.toggleAllBorders = function (cb) {
-      /* 建好一次就留着，开关只切 visible。
-         以前关掉就 dispose，下次打开又得重新合并 1201 个环 —— 用户手感就是
-         "第一次点卡一下、第二次又卡一下"。这个对象只有一条 draw call，
-         留着占不了多少内存。 */
-      if (allBorders) {
-        allBorders.visible = !allBorders.visible;
-        if (cb) cb(allBorders.visible);
-        return;
-      }
-      var want = true;         // 本次点开
-      if (allBusy) {
-        if (cb) allWait.push(cb);
-        return;
-      }
+
+    function flushAll(v) {
+      allWait.splice(0).forEach(function (f) { try { f(v); } catch (e) {} });
+    }
+
+    function buildAllBorders(show) {
+      allWant = !!show;
+      if (allBusy) return;              // 在路上的那次会按最新 allWant 收尾
       allBusy = true;
       var jobs = [];
       for (var b = 0; b < 8; b++) {
@@ -3801,21 +3937,36 @@ body.panel-open #globe-stage{
             });
           });
         });
-        if (!rings.length) { if (cb) cb(false); return; }
-        /* 半径 1.006：球半径是 1，差值必须比深度缓冲的精度大一档，
-           否则线会陷进球面被剔掉（1.0045 实测就完全看不见）。
-           颜色给亮青白、透明度给足 —— 深蓝海洋上的淡蓝细线等于没画。 */
-        /* 冷蓝线压在深蓝海洋上根本分不出来，用户原话"根本看不清楚"。
-           换成暖白的月牙色，压深蓝底、压棕绿陆地都读得出来。
-           不用金色：金色是"当前选中"的语义，全量边界用金会喧宾夺主。 */
-        allBorders = ringsToLines(rings, 1.006, new THREE.LineBasicMaterial({
-          color: 0xf3ead8, transparent: true, opacity: 0.52, depthWrite: false
-        }));
-        allBorders.visible = want;
-        spin.add(allBorders);
-        if (cb) cb(want);
-        allWait.splice(0).forEach(function (f) { try { f(want); } catch (e) {} });
+        if (!rings.length) { flushAll(false); return; }
+        if (!allBorders) {
+          /* 半径 1.006：球半径是 1，差值必须比深度缓冲的精度大一档，
+             否则线会陷进球面被剔掉（1.0045 实测就完全看不见）。
+             颜色与选中的金线同一支（matAll = 0.40 透明度），只分浓淡。
+             点亮的那几国画在 1.008，永远压在这层上面。 */
+          allBorders = ringsToLines(rings, 1.006, globe.matAll);
+          allBorders.visible = false;
+          spin.add(allBorders);
+        }
+        allBorders.visible = allWant;
+        flushAll(allWant);
       });
+    }
+
+    globe.toggleAllBorders = function (cb) {
+      if (cb) allWait.push(cb);
+      /* 建好一次就留着，开关只切 visible。
+         以前关掉就 dispose，下次打开又得重新合并 1201 个环 —— 用户手感就是
+         "第一次点卡一下、第二次又卡一下"。这个对象只有一条 draw call，
+         留着占不了多少内存。 */
+      if (allBorders) {
+        allBorders.visible = !allBorders.visible;
+        /* 关掉全量国境线 = 清盘：连已拼上的金线一起熄灭。
+           这是用户定的玩法 —— 点过的国家会一直亮着，只有这里能一次抹掉。 */
+        if (!allBorders.visible) globe.clearLit();
+        flushAll(allBorders.visible);
+        return;
+      }
+      buildAllBorders(true);
     };
 
     globe.scene = scene;
@@ -4151,17 +4302,17 @@ body.panel-open #globe-stage{
     var bgd = document.getElementById('btn-grid');
     if (bgd) {
       bgd.addEventListener('click', function () {
-        if (!globe.grid) {
-          // 第一次点才画：4096×2048 的画布 + 上万个字的描边，一次性几十毫秒，
-          // 放进首屏就会让"地球多久出来"变难看。
+        var built = !!globe.grid;
+        if (!built) {
+          // 预热还没跑到（用户点得太快）才会走到这里。不置 busy：
+          // 建线本来就是同步的，加了 loading 态反而多一次多余的样式切换。
           if (!globe.spin) return;
-          bgd.classList.add('busy');
-          globe.grid = buildGraticule(1.0018);
-          globe.grid.visible = false;
-          globe.spin.add(globe.grid);
-          bgd.classList.remove('busy');
+          prepareGrid();
         }
-        var on = !globe.grid.visible;
+        if (!globe.grid) return;
+        /* 刚建好时 visible 已经是 true（要让渲染器把它画一遍），
+           这里不能取反 —— 否则第一次点"显示经纬线"会变成刚开就关。 */
+        var on = built ? !globe.grid.visible : true;
         globe.grid.visible = on;
         bgd.classList.toggle('on', on);
         bgd.setAttribute('data-tip', on ? '隐藏经纬线' : '显示经纬线');

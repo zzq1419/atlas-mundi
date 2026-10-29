@@ -213,7 +213,8 @@ def report(isos, path):
         langs = rec.get("languages") or []
         audio = sum(1 for l in langs if l.get("audio_url"))
         facets = 1 if rec.get("custom_facets") else 0
-        text = len(rec.get("custom_text") or "")
+        # 成文分「历史」「民俗」两段存放，统计要合并；旧档案只有 custom_text
+        text = len(rec.get("history_text") or "") + len(rec.get("custom_text") or "")
         miss = []
         if len(rec.get("summary_text") or "") < 160:
             miss.append("摘要短")
@@ -223,7 +224,7 @@ def report(isos, path):
             miss.append("图无中文注")
         if not facets:
             miss.append("无特征")
-        if text < 120:
+        if text < 180:
             miss.append("无成文")
         if not audio:
             miss.append("无语音")

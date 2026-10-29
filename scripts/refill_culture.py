@@ -90,9 +90,13 @@ def main():
             fail += 1
             continue
 
-        rec["custom_text"] = out["text"]
+        rec["history_text"] = out.get("history") or ""
+        rec["custom_text"] = out.get("folk") or out["text"]
         rec["custom_text_source"] = {
             "source": out.get("source"),
+            "tier": out.get("tier"),
+            "chars": {"history": len(rec["history_text"]),
+                      "folk": len(rec["custom_text"])},
             "sections": out.get("excerpt_sections") or [],
         }
         with open(path, "w", encoding="utf-8") as f:

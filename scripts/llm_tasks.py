@@ -319,16 +319,44 @@ COMPOSE_SYSTEM = (
 )
 
 
-def compose_history(record: dict) -> dict:
-    """把维基导语与已抽特征写成「历史与民俗」一段（250~350 字中文）。
+# 五常 vs 其他：两档篇幅。
+#
+# 为什么要分档：一个 20 万人口的岛国，维基「历史」「文化」章节加起来也就
+# 几百字。强行写 600 字，多出来的部分只能是模型自己的常识 —— 那正是"看着像
+# 真的、查不到出处"的东西。反过来，中法美英俄的材料动辄上万字，写 200 字
+# 是在浪费素材。所以按国家分档，小国短、大国长，模型编造的空间也随之变小。
+#
+# 顺带把成本压下来：小国材料截断更狠、输出上限更低，单国几分钱里再省一截。
+BIG_FIVE = {"CN", "US", "GB", "FR", "RU"}
 
-    中法美三国这一段是人工撰写的；要覆盖 200 多个国家，只能让模型写。
-    风险是编造，所以 prompt 里把"只用给定材料"写成硬约束，
-    并且产出会连同 evidence 一起存进 data/_llm/ 供人工抽查。
+#                历史字数区间   民俗字数区间   摘要截断  文化章节/节  历史章节  max_tokens
+TIERS = {
+    "major": ((300, 380), (250, 320), 1200, 900, 1400, 1200),
+    "minor": ((110, 150), (95, 135), 700, 460, 520, 640),
+}
+
+
+def compose_tier(record: dict) -> str:
+    iso = str(record.get("iso_a2") or "").upper()
+    return "major" if iso in BIG_FIVE else "minor"
+
+
+def compose_history(record: dict) -> dict:
+    """把维基材料写成「历史」「民俗」两段（分开输出，不揉成一段）。
+
+    为什么分两段：历史讲"发生过什么"，民俗讲"今天怎么生活"，主题不同、
+    时态不同、读法也不同。揉在一段里读起来像一篇不分类的散文 —— 而且
+    前端要分节显示，数据层先分开，页面就不用靠空行猜段落含义。
+
+    风险仍是编造，所以 prompt 把"只用给定材料"写成硬约束，产出连同
+    素材章节名一起存进 data/_llm/ 供人工抽查。
     """
     summary = (record.get("summary_text") or "").strip()
     if not summary:
         raise LLMError("没有摘要文本，无法成文（先跑采集）")
+
+    tier = compose_tier(record)
+    (hmin, hmax), (fmin, fmax), sum_cap, ex_cap, hist_cap, max_tok = TIERS[tier]
 
     facets = record.get("custom_facets") or {}
     fl = []
@@ -350,10 +378,10 @@ def compose_history(record: dict) -> dict:
     folk = [b for b in ex if not any(k in (b.get("section") or "") for k in HIST_KEYS)]
     hist = [b for b in ex if any(k in (b.get("section") or "") for k in HIST_KEYS)]
 
-    ex_txt = "".join("### %s\n%s\n" % (b.get("section"), (b.get("text") or "")[:900])
+    ex_txt = "".join("### %s\n%s\n" % (b.get("section"), (b.get("text") or "")[:ex_cap])
                      for b in folk).strip()
     ex_txt = ex_txt or "（无 —— 该国维基没有文化类章节）"
-    hist_txt = "".join((b.get("text") or "")[:1000] for b in hist).strip()
+    hist_txt = "".join((b.get("text") or "")[:hist_cap] for b in hist).strip()
     hist_txt = hist_txt or "（无 —— 该国维基没有历史章节）"
 
     # 按 ISO 稳定抽一个场景锚点：同一国每次一致（可复现），不同国错开
@@ -367,7 +395,7 @@ def compose_history(record: dict) -> dict:
 大洲：{record.get('continent') or '—'}
 
 【材料一：维基导语】
-{summary[:1200]}
+{summary[:sum_cap]}
 
 【材料二：已抽取的文化特征】
 {facet_txt}
@@ -378,52 +406,89 @@ def compose_history(record: dict) -> dict:
 【材料四：维基百科「历史」章节原文】
 {hist_txt}
 
-请写一段「历史与民俗」，400~500 字，两个自然段。
+请写两段，分开输出：
 
-**第一段：历史脉络。** 按时间顺序点出 3~5 个转折（起源、统一、王朝更替、
-殖民与独立、战争、转型）。年代、人名、事件**只能来自【材料四】**，
-不许自己补。材料四没写历史时，这一段就据【材料一】写一句概况，不要编造。
+**history（历史脉络）**：{hmin}~{hmax} 字，一个自然段。按时间顺序点出 3~5 个转折
+（起源、统一、王朝更替、殖民与独立、战争、转型）。年代、人名、事件**只能来自
+【材料四】**，不许自己补。材料四没写历史时，据【材料一】写一句定位与由来，
+不要编造；宁可短，不要凑。
 
-**第二段：民俗与日常。** 优先用【材料三】：凡是材料三写到的食物、节日、
-仪式、称呼、手艺，一律按它的说法写 —— 那是查得到的依据，写错了是抄错，
-不是编造。材料三没覆盖、但该国广为人知的民俗可以写，**但不许出现具体
-年份、人数、产量、排名**这类查不到的数字。
+**folk（民俗与日常）**：{fmin}~{fmax} 字，一个自然段。优先用【材料三】：凡是
+材料三写到的食物、节日、仪式、称呼、手艺，一律按它的说法写 —— 那是查得到的依据，
+写错了是抄错，不是编造。材料三没覆盖、但该国广为人知的民俗可以写，**但不许出现
+具体年份、人数、产量、排名**这类查不到的数字。
 
-**语气**：像一本写得好的地理人文读物 —— 有信息密度、有具体细节，
-陈述句为主。两头都不要：
+**语气**：像一本写得好的地理人文读物 —— 有信息密度、有具体细节，陈述句为主。两头都不要：
 * 不要口语腔："XX 人过日子"、"谁家"、"老爷子"、"一锅炖"、"绕不开"；
 * 不要公文腔："该国"、"呈现出"、"具有重要意义"、"发挥着重要作用"。
 
-开头直接从事实或场景切入，**第一句不要出现国名**。
+两段的开头都直接从事实或场景切入，**第一句不要出现国名**。
 
-自检：读完第一段，能不能说出这个国家大概经历过什么？说不出就是没写历史。
+自检：
+1. 读完 history，能不能说出这个国家大概经历过什么？说不出就是没写历史。
+2. 把 folk 里的国名换掉，如果整段还成立，说明写的是概况不是民俗 —— 重写。
 
-只输出 JSON：{{"text": "……"}}"""
+只输出 JSON：{{"history": "……", "folk": "……"}}"""
 
-    d = chat_json(prompt, scene="compose", max_tokens=900, system=COMPOSE_SYSTEM)
-    text = str(d.get("text") or "").strip()
+    d = chat_json(prompt, scene="compose", max_tokens=max_tok, system=COMPOSE_SYSTEM)
+    hist_t = str(d.get("history") or "").strip()
+    folk_t = str(d.get("folk") or "").strip()
+    # 兼容模型只按旧格式回了 text 的情况：按空行拆两段
+    if not hist_t and not folk_t:
+        legacy = str(d.get("text") or "").strip()
+        chunks = [x.strip() for x in legacy.split("\n\n") if x.strip()]
+        if len(chunks) >= 2:
+            hist_t, folk_t = chunks[0], "\n\n".join(chunks[1:])
+        else:
+            folk_t = legacy
 
     # 开头检测：命中黑名单就带着"上一版哪里不合格"重写，最多两次。
     # 单次成本约 0.005 元，两次封顶，不会因为重写把账单翻上去。
     for attempt in range(2):
-        head = text[:16]
+        head = folk_t[:16]
         hit = next((w for w in BAN_HEAD if w in head), None)
         if not hit:
             break
         retry = prompt + (
-            "\n\n【上一版不合格】你写的开头是：「%s……」\n"
+            "\n\n【上一版不合格】你写的民俗开头是：「%s……」\n"
             "其中「%s」是被明确禁止的模板 —— 这类开头在别的国家稿子里已经出现过多次。\n"
-            "请整段重写：第一句不许出现任何时间词（清晨/早上/天还没亮/清早/拂晓），"
+            "请只重写 folk，保持 history 不变，重新输出完整 JSON。"
+            "第一句不许出现任何时间词（清晨/早上/天还没亮/清早/拂晓），"
             "不许出现早餐、面包房、早点摊、早市；直接从「%s」这一个场景的中间切入。"
             % (head, hit, anchor))
-        d = chat_json(retry, scene="compose", max_tokens=900, system=COMPOSE_SYSTEM)
-        text = str(d.get("text") or "").strip()
-        if len(text) < 120:
+        d = chat_json(retry, scene="compose", max_tokens=max_tok, system=COMPOSE_SYSTEM)
+        nh = str(d.get("history") or "").strip()
+        nf = str(d.get("folk") or "").strip()
+        if nf and len(nf) >= 60:
+            folk_t = nf
+            if nh:
+                hist_t = nh
+        else:
             break
 
-    if len(text) < 120:
+    # 长度闸门。中文模型对"写 X 字"的执行力很差，实测要 150 字能写到 225。
+    # 小国档本来就为省钱和控编造，超 20% 就压一次（只压一次，不进入循环）。
+    if len(hist_t) > hmax * 1.2 or len(folk_t) > fmax * 1.2:
+        tight = prompt + (
+            "\n\n【上一版超长】你写的 history %d 字（上限 %d）、folk %d 字（上限 %d）。\n"
+            "请压缩重写，两段都压到上限以内：\n"
+            "* history 只留最关键的两三个转折，删掉细节修饰；\n"
+            "* folk 只留最有辨识度的两三个习俗，删掉并列举例；\n"
+            "* 不新增任何信息，把注意力放在句子的紧致上（不要出现“此外”“同时”"
+            "“以及”这类堆叠）。"
+            % (len(hist_t), hmax, len(folk_t), fmax))
+        d = chat_json(tight, scene="compose", max_tokens=max_tok, system=COMPOSE_SYSTEM)
+        nh = str(d.get("history") or "").strip()
+        nf = str(d.get("folk") or "").strip()
+        if nh and nf and len(nh) + len(nf) < len(hist_t) + len(folk_t):
+            hist_t, folk_t = nh, nf
+
+    text = (hist_t + "\n\n" + folk_t).strip()
+    if len(text) < 90:
         raise LLMError("成文过短（%d 字），疑似材料不足" % len(text))
-    return {"text": text, "chars": len(text),
+    return {"history": hist_t, "folk": folk_t, "text": text,
+            "chars": len(hist_t) + len(folk_t),
+            "tier": tier,
             "source": "llm_compose_from_summary_facets",
             "excerpt_sections": [b.get("section") for b in ex]}
 
@@ -736,11 +801,14 @@ def run_country(iso: str, apply: bool = False, only: str = "all") -> dict:
                 im["caption_zh_source"] = "llm_from_commons_filename"
 
         if comp:
-            rec["custom_text"] = comp["text"]
+            rec["history_text"] = comp.get("history") or ""
+            rec["custom_text"] = comp.get("folk") or comp["text"]
             rec["custom_text_source"] = {
                 "source": comp["source"],
+                "tier": comp.get("tier"),
                 "note": "模型基于维基导语 + 抽取特征成文；只在没有人工稿的国家使用",
-                "chars": comp["chars"],
+                "chars": {"history": len(rec["history_text"]),
+                          "folk": len(rec["custom_text"])},
             }
 
         if qa:

@@ -223,7 +223,8 @@ def stage_llm(a, isos):
     for n, iso in enumerate(todo, 1):
         if not a.force:
             rec = read_json(os.path.join(ROOT, "data", "%s.json" % iso.lower()), {})
-            if rec.get("custom_facets") and rec.get("custom_text"):
+            # 两段都要在：只有 custom_text 的是旧版合并稿，还得补 history_text
+            if rec.get("custom_facets") and rec.get("custom_text") and rec.get("history_text"):
                 continue
         log("[%d/%d] %s" % (n, len(todo), iso))
         cmd = [PY, os.path.join(SCRIPTS, "llm_tasks.py"), "--run", iso,

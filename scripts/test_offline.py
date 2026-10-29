@@ -172,7 +172,11 @@ SCORE_CASES = [
      {"width": 1200, "height": 1600, "aspect": 0.75}, "statue of liberty", True),
 ]
 for _name, _meta, _must, _want in SCORE_CASES:
-    chk(("收 " if _want else "拒 ") + _name[:32], F.score(_name, _meta, _must)[0] is not None, _want)
+    # score() 现在按档位放宽阈值（strict/relaxed/loose）。这里的用例都按最严的
+    # strict 判 —— 能过 strict 的必然能过后面两档，测试才有意义。
+    _tier = dict(F.TIERS)["strict"]
+    chk(("收 " if _want else "拒 ") + _name[:32],
+        F.score(_name, _meta, _must, _tier)[0] is not None, _want)
 
 print("\n%d / %d 通过" % (sum(results), len(results)))
 if notes:
