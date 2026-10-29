@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-10-29-L">
+<meta name="build" content="2026-10-29-M">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <title>寰宇图志 · Atlas Mundi</title>
@@ -2853,16 +2853,18 @@ body.panel-open #globe-stage{
       }
       return null;      // 确认落在海里，不再退回 bbox 乱猜
     }
-    // 索引还在路上（首屏头一秒），先用三国的旧逻辑兜着
-    var list = globe.data.countries || [];
-    for (var i = 0; i < list.length; i++) {
-      var b = list[i].bbox;
-      if (!b) continue;
-      if (lon >= b[0] - 2 && lon <= b[2] + 2 && lat >= b[1] - 2 && lat <= b[3] + 2) {
-        return list[i];
-      }
-    }
-    return null;
+    /* 索引还在路上时（这条链路 13 秒才到），不要退回三国的 bbox ——
+       那正是"点德国跳法国"的来源。改成找最近的国名标签：
+       标签位置本来就标在国土内部，误差远小于包围盒。 */
+    var best = null, bd = 64;      // 64 平方度，约 8°
+    var cosL = Math.cos(lat * Math.PI / 180);
+    (globe.labels || []).forEach(function (L) {
+      if (!L.iso || !L.lon) return;          // 洲名、洋名没有 iso，跳过
+      var dx = (lon - L.lon) * cosL, dy = lat - L.lat;
+      var d2 = dx * dx + dy * dy;
+      if (d2 < bd) { bd = d2; best = L; }
+    });
+    return best ? { iso: best.iso, bbox: null } : null;
   }
 
   function setActive(iso) {
@@ -3978,15 +3980,14 @@ body.panel-open #globe-stage{
       .then(buildLabels)
       .catch(function () { /* 静默降级：没有地名，球还在 */ });
 
-    /* 全量国界索引，给"点国土"用。几百 KB，不挡首屏 —— 目录里的地图
-       早就在跑，用户点到国土时它基本已经好了。 */
-    loadFlatBoxes();
-
     setActive(null);        // 初始不点亮任何国界
   }
 
   function startGlobe() {
     if (globe.state !== 'idle') return;
+    /* 全量国界索引立刻开始下：这条链路只有 18KB/s，143KB 要八秒。
+       放在 labels.json 之后才开始的话，白白晚五秒才拿到。 */
+    loadFlatBoxes();
     if (!window.WebGLRenderingContext) {
       globeMsg('当前浏览器不支持 WebGL，3D 地球无法显示。国界轮廓在各国详情页内仍可查看。', true);
       globe.state = 'failed';
