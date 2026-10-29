@@ -100,29 +100,31 @@
       "caption_zh_source": "llm_from_commons_filename"
     },
     {
-      "title": "File:Great Rift Valley, Tanzania.jpg",
-      "caption_zh": "坦桑尼亚东非大裂谷",
-      "caption": "坦桑尼亚东非大裂谷",
+      "title": "File:Rift Valley escapment.jpg",
+      "caption_zh": "东非大裂谷",
+      "caption": "东非大裂谷",
       "caption_commons": "Where geologically, Africa and Europe pulled away from each other millions of ye",
       "kw": "Great Rift Valley Kenya",
       "url": "assets/ke/L04.webp",
       "thumb_url": "assets/ke/L04.thumb.webp",
-      "remote_url": "https://upload.wikimedia.org/wikipedia/commons/b/bc/Great_Rift_Valley%2C_Tanzania.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+      "remote_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a1/Rift_Valley_escapment.jpg/1920px-Rift_Valley_escapment.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "source": "wikidata_p18",
-      "author": "Sachi Gahan from San Francisco, USA",
-      "license": "CC BY-SA 2.0",
-      "license_url": "https://creativecommons.org/licenses/by-sa/2.0",
+      "author": "Ndunguwanjoroge",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
       "license_status": "ok",
       "load_verified": true,
-      "bytes": 36486,
-      "thumb_bytes": 10944,
+      "bytes": 38952,
+      "thumb_bytes": 10138,
       "size": {
-        "detail": "760x509",
-        "thumb": "400x268"
+        "detail": "760x428",
+        "thumb": "400x225"
       },
-      "encoding": "webp q72/q74 (源 1600x1071 296KB JPEG)",
+      "encoding": "webp q72/q74 (源 1920x1080 625KB JPEG)",
       "caption_zh_manual": "东非大裂谷",
-      "caption_zh_source": "llm_from_commons_filename"
+      "caption_zh_source": "llm_from_commons_filename",
+      "pick_tier": "strict",
+      "verified": "vision"
     },
     {
       "title": "File:Lamu old town street.jpg",

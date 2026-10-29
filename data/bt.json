@@ -101,6 +101,50 @@
         "thumb": "400x267"
       },
       "encoding": "webp q72/q74 (源 1920x1280 845KB JPEG)"
+    },
+    {
+      "title": "File:Buddha Dordenma statue, Thimphu 06.jpg",
+      "caption_zh": "廷布大佛",
+      "caption": "廷布大佛",
+      "kw": "Buddha Dordenma Thimphu",
+      "url": "assets/bt/L04.webp",
+      "thumb_url": "assets/bt/L04.thumb.webp",
+      "remote_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/86/Buddha_Dordenma_statue%2C_Thimphu_06.jpg/1920px-Buddha_Dordenma_statue%2C_Thimphu_06.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "source": "commons_search",
+      "pick_tier": "strict",
+      "author": "Bernard Gagnon",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "bytes": 122486,
+      "verified": "vision",
+      "thumb_bytes": 29700,
+      "size": {
+        "detail": "760x507",
+        "thumb": "400x267"
+      },
+      "encoding": "webp q72/q74 (源 1920x1280 1249KB JPEG)"
+    },
+    {
+      "title": "File:Dochula.JPG",
+      "caption_zh": "多楚拉山口",
+      "caption": "多楚拉山口",
+      "kw": "Dochula Pass Bhutan",
+      "url": "assets/bt/L05.webp",
+      "thumb_url": "assets/bt/L05.thumb.webp",
+      "remote_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/27/Dochula.JPG/1920px-Dochula.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "source": "article_img",
+      "pick_tier": "strict",
+      "author": "Sujithkr",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "bytes": 93880,
+      "verified": "vision",
+      "thumb_bytes": 29142,
+      "size": {
+        "detail": "760x565",
+        "thumb": "400x297"
+      },
+      "encoding": "webp q72/q74 (源 1920x1427 985KB JPEG)"
     }
   ],
   "image_license": "CC BY 2.5",

@@ -43,13 +43,13 @@
     "must": "potala"
    },
    {
-    "zh": "桂林漓江（兴坪）",
-    "en": "RMB20 Li River Xingping",
+    "zh": "乐山大佛",
+    "en": "Leshan Giant Buddha",
     "queries": [
-     "桂林漓江（兴坪）"
+     "乐山大佛"
     ],
-    "kw": "RMB20 Li River Xingping",
-    "must": "rmb20"
+    "kw": "Leshan Giant Buddha",
+    "must": "leshan"
    },
    {
     "zh": "张家界武陵源",

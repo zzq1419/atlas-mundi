@@ -310,7 +310,11 @@ def refill(iso, rec, conf, tried, cache, budget, cap):
                     os.remove(pth)          # 换掉的旧 webp 直接删，别留孤儿
                 except OSError:
                     pass
+        # 换图时图注回到清单里的规范名。实测踩到：肯尼亚的"东非大裂谷"早期
+        # 被写成"坦桑尼亚东非大裂谷"（图确实是坦桑尼亚那段），复核换成了
+        # 肯尼亚境内那张，但图注没跟着改 —— 图和字各说各的，比错图更糟。
         it.update({"title": "File:" + nxt["name"], "url": rel, "thumb_url": rel,
+                   "caption_zh": zh, "caption": zh,
                    "source": nxt["kind"], "pick_tier": nxt["tier"],
                    "remote_url": nxt["meta"]["remote_url"],
                    "author": nxt["meta"].get("artist"),

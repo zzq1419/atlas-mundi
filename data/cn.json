@@ -144,25 +144,19 @@
       "caption_zh_source": "llm_from_commons_filename"
     },
     {
-      "title": "File:RMB20dollarbackscene.jpg",
-      "caption_zh": "桂林漓江（兴坪）",
-      "caption": "桂林漓江（兴坪）",
-      "caption_commons": "Twenty yuan note scenery",
-      "kw": "RMB20 Li River Xingping",
+      "title": "File:Leshan Giant Buddha.jpg",
+      "caption_zh": "乐山大佛",
+      "caption": "乐山大佛",
+      "caption_commons": "Leshan Giant Buddha, Sichuan",
+      "kw": "Leshan Giant Buddha",
       "url": "assets/cn/L05.webp",
       "thumb_url": "assets/cn/L05.thumb.webp",
-      "remote_url": "https://upload.wikimedia.org/wikipedia/commons/0/02/RMB20dollarbackscene.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+      "remote_url": "https://upload.wikimedia.org/wikipedia/commons/3/3c/Leshan_Giant_Buddha.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
       "source": "commons_search",
-      "author": "Emitchan",
-      "license": "CC BY-SA 3.0",
-      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
-      "bytes": 78566,
-      "thumb_bytes": 3978,
-      "size": {
-        "detail": "760x404",
-        "thumb": "400x213"
-      },
-      "encoding": "webp q72/q74 (源 1415x753 77KB JPEG)"
+      "author": "Bernt Rostad from Oslo, Norway; Modified by Rbmk",
+      "license": "CC BY 2.0",
+      "license_url": "https://creativecommons.org/licenses/by/2.0",
+      "bytes": 103110
     }
   ],
   "image_license": "CC0",
