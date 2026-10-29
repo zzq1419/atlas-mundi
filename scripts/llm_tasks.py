@@ -340,6 +340,15 @@ def compose_history(record: dict) -> dict:
             fl.append("%s：%s" % (label, "、".join(vals[:6])))
     facet_txt = "\n".join(fl) or "（无）"
 
+    # 材料三：维基「文化/饮食/节日」章节原文。
+    # 这是"有理有据"的关键 —— 导语里一个民俗细节都没有，
+    # 没有这几段，模型写民俗只能靠自己的先验。
+    ex = record.get("culture_excerpts") or []
+    ex_txt = ""
+    for blk in ex:
+        ex_txt += "### %s\n%s\n" % (blk.get("section"), (blk.get("text") or "")[:900])
+    ex_txt = ex_txt.strip() or "（无 —— 该国维基没有文化类章节，只能写广为人知的部分）"
+
     # 按 ISO 稳定抽一个场景锚点：同一国每次一致（可复现），不同国错开
     import hashlib
     _key = str(record.get('iso_a2') or record.get('name_zh') or '')
@@ -356,6 +365,9 @@ def compose_history(record: dict) -> dict:
 【材料二：已抽取的文化特征】
 {facet_txt}
 
+【材料三：维基百科「文化 / 饮食 / 节日」章节原文】
+{ex_txt}
+
 请写一段「民俗与日常」，要求：
 
 1. 240~340 字，纯中文，不分点、不加标题，一或两个自然段。
@@ -366,8 +378,8 @@ def compose_history(record: dict) -> dict:
 4. 上面【材料二】里提到的节庆/食物/习俗优先写；材料没提到的，
    可以写该国广为人知的民俗（德国就写啤酒节与面包，卢旺达就写
     Umuganura 丰收节这类），**但不许写具体年份、人数、产量、排名**。
-5. 宁可短一点、具体一点，也不要为了凑字数回到国土地理上。
-6. 语气像一位在当地住过一阵的人在讲见闻：具体、可感、不抒情、不总结陈词。
+6. 宁可短一点、具体一点，也不要为了凑字数回到国土地理上。
+7. 语气像一位在当地住过一阵的人在讲见闻：具体、可感、不抒情、不总结陈词。
 7. **开头不能是概括句**。具体禁止这些句式（实测模型会反复用）：
    "XX 人过日子……"、"在 XX，日子是……"、"XX 人的一天从……开始"、"XX 人离不开……"。
    也不要反复用"绕不开"这个词。
@@ -405,7 +417,8 @@ def compose_history(record: dict) -> dict:
     if len(text) < 120:
         raise LLMError("成文过短（%d 字），疑似材料不足" % len(text))
     return {"text": text, "chars": len(text),
-            "source": "llm_compose_from_summary_facets"}
+            "source": "llm_compose_from_summary_facets",
+            "excerpt_sections": [b.get("section") for b in ex]}
 
 
 # ---------------------------------------------------------------- 5 数据质检

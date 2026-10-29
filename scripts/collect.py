@@ -475,6 +475,132 @@ def fetch_summary(title, notes):
             "chars": len(text)}
 
 
+# 民俗成文要用的章节名。中文维基里这些字段名不稳定（有的叫「文化」，
+# 有的拆成「饮食」「节日」「宗教」），所以用包含匹配而不是精确匹配。
+# 分两档：下面是"真民俗"，上面是"凑数用的背景"。
+# 不加权重的话，德国会先抓「宗教/语言/教育」—— 那三节讲的是信徒比例、
+# 德语有几个官方语言身份、义务教育几年，跟"怎么过日子"关系不大，
+# 而真正想看的「文化」有 7159 字，排在第四位勉强挤进来。
+FOOD_SECTIONS = ("饮食", "食俗", "美食", "料理", "节日", "节庆", "习俗", "风俗",
+                 "文化", "手工艺", "服饰",
+                 # 「生活」这一节很多国家有（埃及就把婚丧节庆日常都放在这里），
+                 # 不收的话埃及只能抓到人口/宗教/语言，民俗素材几乎为零。
+                 "生活", "民生", "日常")
+# 「音乐」「文学」「艺术」不算民俗档：德国这两节全是作曲家名单和作家年表，
+# 塞进去只会把 prompt 撑大、把模型往"某某大师"上带。
+SIDE_SECTIONS = ("宗教", "信仰", "语言", "教育", "体育", "建筑", "人口",
+                 "音乐", "艺术", "文学")
+
+_TAG_RE = re.compile(r"<[^>]+>")
+_WS_RE = re.compile(r"[ \t\u00a0]+")
+
+
+def _strip_html(html):
+    """维基章节 HTML → 纯文本。只保留段落，其他（表格、图注、脚注）全丢。"""
+    html = re.sub(r"<sup[^>]*>.*?</sup>", "", html, flags=re.S)
+    html = re.sub(r"<style.*?</style>", "", html, flags=re.S)
+    html = re.sub(r"<table.*?</table>", "", html, flags=re.S)
+    parts = re.findall(r"<p[^>]*>(.*?)</p>", html, flags=re.S)
+    out = []
+    for seg in parts:
+        t = _TAG_RE.sub("", seg)
+        t = _WS_RE.sub(" ", t).strip()
+        t = t.replace("[编辑]", "").strip()
+        if len(t) >= 30:
+            out.append(t)
+    return "\n".join(out)
+
+
+# 章节里挑段落的依据。「文化」这一节往往从文学、哲学、音乐一路写到饮食习俗，
+# 前两段通常是"德国被称为诗人与思想家之国"这类总述 —— 跟"怎么过日子"无关。
+# 按这些词给段落打分，保证饮食/节庆/日常那几段能选进来。
+FOLK_WORDS = ("饮食", "食物", "菜", "料理", "节", "习俗", "风俗", "传统",
+              "婚", "葬", "家庭", "日常", "仪式", "服饰", "服装", "手工艺",
+              "舞蹈", "日常", "待客", "礼仪", "称呼", "农", "渔", "牧")
+
+
+def _pick_relevant(text, keep_max=6):
+    """从章节正文里挑出跟"民俗日常"最相关的几段。
+
+    保留前两段（章节总述，交代背景），其余按民俗词命中数排序补进来。
+    不这么做的话，德国「文化」第一节 1200 字全在讲文学和哲学。
+    """
+    paras = [p.strip() for p in (text or "").split("\n") if len(p.strip()) >= 30]
+    if not paras:
+        return ""
+    keep = set(range(min(2, len(paras))))
+    scored = sorted(((sum(1 for k in FOLK_WORDS if k in p), i)
+                     for i, p in enumerate(paras)), reverse=True)
+    for sc, i in scored:
+        if sc <= 0 or len(keep) >= keep_max:
+            break
+        keep.add(i)
+    return "\n".join(paras[i] for i in sorted(keep))
+
+
+def fetch_culture_excerpts(title, notes, limit=4):
+    """抓「文化 / 饮食 / 节日 / 宗教 / 习俗」几节的原文，作为民俗成文的依据。
+
+    为什么必须有这一步：维基**导语**只讲地理位置、面积、人口、政体，
+    一个字都不提民俗。模型手里没有民俗素材，"民俗"那一段就只能靠它自己的
+    先验 —— 猜对了是运气，猜错了就是编造。有了这几段原文，模型只做摘编
+    串联，每个细节都能在来源里找到，才能叫"有理有据"。
+    """
+    if not title:
+        return []
+    try:
+        d = api_json(ZH_WIKI_API, {"action": "parse", "page": title,
+                                   "prop": "sections", "format": "json",
+                                   "redirects": "1", "variant": "zh-cn"})
+    except Exception as e:
+        notes.append("文化章节列表取失败：%s" % str(e)[:60])
+        return []
+    secs = ((d.get("parse") or {}).get("sections") or [])
+
+    def rank(line):
+        if any(k in line for k in FOOD_SECTIONS):
+            return 0          # 真民俗，先取
+        if any(k in line for k in SIDE_SECTIONS):
+            return 1          # 背景，补位用
+        return 9
+
+    ordered = sorted(secs, key=lambda x: rank((x.get("line") or "").strip()))
+    picked = []
+    for sec in ordered:
+        line = (sec.get("line") or "").strip()
+        if not line or rank(line) > 1:
+            continue
+        try:
+            p = api_json(ZH_WIKI_API, {"action": "parse", "page": title,
+                                       "prop": "text", "section": sec.get("index"),
+                                       "format": "json", "redirects": "1",
+                                       "variant": "zh-cn"})
+            html = ((p.get("parse") or {}).get("text") or {}).get("*") or ""
+        except Exception:
+            continue
+        txt = _strip_html(html)
+        if len(txt) >= 40:
+            # 每节截 1200 字、总量不超过 3600 —— 太多会把 prompt 撑大，
+            # 模型反而抓不住重点，而且每国都多花钱。
+            # 注意 chars 要记**实际取了多少**，不是原文多少 ——
+            # 记原文字数的话，德国「文化」一节 7159 字就一次把预算吃光，
+            # 后面所有章节都被 break 掉，最后只剩一节。
+            budget = 3600 - sum(x["chars"] for x in picked)
+            if budget < 200:
+                break
+            focused = _pick_relevant(txt) or txt
+            take = min(1200, budget)
+            picked.append({"section": line, "text": focused[:take], "chars": take})
+        if len(picked) >= limit:
+            break
+    if picked:
+        log("      [ok] 民俗素材 %d 节（%s）"
+            % (len(picked), "、".join(x["section"] for x in picked)))
+    else:
+        log("      [!] 维基没有可用的民俗章节")
+    return picked
+
+
 # ---------------------------------------------------------------- 3. Commons
 def commons_imageinfo(files, width=900):
     out = {}
@@ -714,6 +840,10 @@ def main():
         rec["summary_text"] = summ["text"]
         rec["summary_source"] = {"source": "wikipedia_extracts", "url": summ["url"],
                                  "title": summ["title"], "chars": summ["chars"]}
+
+    cul = fetch_culture_excerpts(wd.get("_wiki_title") or rec.get("name_zh"), notes)
+    if cul:
+        rec["culture_excerpts"] = cul
 
     images, audio = fetch_assets(iso2, wd, notes)
     if images:
