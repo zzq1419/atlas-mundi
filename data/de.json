@@ -1,0 +1,319 @@
+{
+  "qid": "Q183",
+  "iso_a2": "DE",
+  "iso_a3": "DEU",
+  "name_zh": "德国",
+  "name_en": "Germany",
+  "capital": "柏林",
+  "continent": "欧洲",
+  "centroid": [
+    10,
+    51
+  ],
+  "centroid_source": "wikidata P625",
+  "languages": [
+    {
+      "code": "de",
+      "name_zh": "德语",
+      "name_local": "德语",
+      "role": "official",
+      "audio_url": "assets/de/audio/de.mp3",
+      "audio_source": "tts_edge",
+      "audio_status": "ok",
+      "tts_text": "Willkommen in Deutschland. Die Hauptstadt ist Berlin, und zu den bekanntesten Sehenswürdigkeiten zählt das Brandenburger Tor, das mit seinen klassizistischen Säulen bis heute das Stadtbild prägt.",
+      "tts_text_zh": "欢迎来到德国。首都是柏林，最著名的地标之一是勃兰登堡门，它那古典主义的立柱至今仍塑造着这座城市的面貌。",
+      "audio_voice": "de-AT-IngridNeural",
+      "audio_bytes": 73296
+    }
+  ],
+  "summary_text": "德国（德语：Deutschland），正式全称为德意志联邦共和国，是位于西欧的联邦共和国，国土面积35.7万平方公里，南北长876公里，东西宽640公里。德国从北部的北海与波罗的海延伸至南部的阿尔卑斯山，气候温和，季节分明。全国由16个联邦州组成，首都暨最大城为柏林。德国人口约8,322万，为欧盟人口最多的成员国，是世界上人口第19多的国家，也是世界第二大移民国家，仅次于美国。其官方语言德语是欧盟境内使用人数最多的母语。德国文化的丰富层次和对世界的影响表现在建筑、美术、音乐、哲学、电影等方面，文化遗产以老城为代表，亦有国家公园和自然公园共计上百处。50万年前的旧石器时代中期，海德堡人及其后代尼安德特人生活在今德国中部；自古典时代以来，各日耳曼部族开始定居于今德国北部地区，1世纪时罗马人对“日耳曼尼亚”已有相关记载；10世纪起，德意志地区组成神圣罗马帝国的核心部分，16世纪时德意志北部地区成为宗教改革的起源地。",
+  "summary_source": {
+    "source": "llm_refined",
+    "note": "DeepSeek 基于 Wikipedia 导语 + 人工民俗文本重写；口径限定地理与文化，剔除政权更迭与战争史",
+    "chars": 410,
+    "derived_from": "wikipedia_extracts",
+    "url": "https://zh.wikipedia.org/wiki/%E5%BE%B7%E5%9B%BD",
+    "title": "德国"
+  },
+  "landmark_images": [
+    {
+      "title": "File:Neuschwanstein Castle 2024-02.jpg",
+      "caption_zh": "新天鹅堡",
+      "caption": "新天鹅堡",
+      "caption_commons": "Neuschwanstein Castle at Schwangau, Bavaria, Germany.",
+      "kw": "Neuschwanstein Castle Germany",
+      "url": "assets/de/L01.webp",
+      "thumb_url": "assets/de/L01.thumb.webp",
+      "remote_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/3c/Neuschwanstein_Castle_2024-02.jpg/1920px-Neuschwanstein_Castle_2024-02.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "source": "wikidata_p18",
+      "pick_tier": "strict",
+      "author": "Wilfredor",
+      "license": "CC0",
+      "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+      "license_status": "ok",
+      "load_verified": true,
+      "bytes": 55584,
+      "caption_zh_manual": "新天鹅堡",
+      "caption_zh_source": "llm_from_commons_filename",
+      "thumb_bytes": 15488,
+      "size": {
+        "detail": "760x517",
+        "thumb": "400x272"
+      },
+      "encoding": "webp q72/q74 (源 1920x1307 714KB JPEG)"
+    },
+    {
+      "title": "File:Cologne Cathedral Window Detail.jpg",
+      "caption_zh": "科隆大教堂窗户细节",
+      "caption": "科隆大教堂窗户细节",
+      "caption_commons": "",
+      "kw": "Cologne Cathedral Germany",
+      "url": "assets/de/L02.webp",
+      "thumb_url": "assets/de/L02.thumb.webp",
+      "remote_url": "https://upload.wikimedia.org/wikipedia/commons/5/5a/Cologne_Cathedral_Window_Detail.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+      "source": "article_img",
+      "pick_tier": "strict",
+      "author": null,
+      "license": "CC BY-SA 2.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/2.0",
+      "license_status": "ok",
+      "load_verified": true,
+      "bytes": 151624,
+      "caption_zh_manual": "科隆大教堂",
+      "caption_zh_source": "llm_from_commons_filename",
+      "thumb_bytes": 11104,
+      "size": {
+        "detail": "760x1196",
+        "thumb": "191x300"
+      },
+      "encoding": "webp q72/q74 (源 1920x3021 1818KB JPEG)"
+    },
+    {
+      "title": "File:Brandenburger Tor morgens.jpg",
+      "caption_zh": "清晨的勃兰登堡门",
+      "caption": "清晨的勃兰登堡门",
+      "caption_commons": "The Brandenburg Gate in Berlin, Germany",
+      "kw": "Brandenburg Gate Berlin",
+      "url": "assets/de/L03.webp",
+      "thumb_url": "assets/de/L03.thumb.webp",
+      "remote_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b1/Brandenburger_Tor_morgens.jpg/1920px-Brandenburger_Tor_morgens.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "source": "wikidata_p18",
+      "pick_tier": "strict",
+      "author": "Thomas Wolf, www.foto-tw.de",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "license_status": "ok",
+      "load_verified": true,
+      "bytes": 31586,
+      "caption_zh_manual": "勃兰登堡门",
+      "caption_zh_source": "llm_from_commons_filename",
+      "thumb_bytes": 9942,
+      "size": {
+        "detail": "760x508",
+        "thumb": "400x267"
+      },
+      "encoding": "webp q72/q74 (源 1920x1283 488KB JPEG)"
+    },
+    {
+      "title": "File:Crosses of Berliner Fernsehturm cropped.jpg",
+      "caption_zh": "柏林电视塔十字架局部",
+      "caption": "柏林电视塔十字架局部",
+      "caption_commons": "Crosses of Berliner Dom and Berliner Fernsehturm On the spherpe is (The Pope's R",
+      "kw": "Berlin TV Tower Fernsehturm",
+      "url": "assets/de/L04.webp",
+      "thumb_url": "assets/de/L04.thumb.webp",
+      "remote_url": "https://upload.wikimedia.org/wikipedia/commons/6/6e/Crosses_of_Berliner_Fernsehturm_cropped.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+      "source": "article_img",
+      "pick_tier": "strict",
+      "author": "Tobi85",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "license_status": "ok",
+      "load_verified": true,
+      "bytes": 23368,
+      "caption_zh_manual": "柏林电视塔",
+      "caption_zh_source": "llm_from_commons_filename",
+      "thumb_bytes": 6152,
+      "size": {
+        "detail": "488x761",
+        "thumb": "192x300"
+      },
+      "encoding": "webp q72/q74 (源 488x761 472KB JPEG)"
+    },
+    {
+      "title": "File:Heidelberg-Schloß.JPG",
+      "caption_zh": "海德堡城堡",
+      "caption": "海德堡城堡",
+      "caption_commons": "Heidelberg castle, total view from NNW",
+      "kw": "Heidelberg Castle Germany",
+      "url": "assets/de/L05.webp",
+      "thumb_url": "assets/de/L05.thumb.webp",
+      "remote_url": "https://upload.wikimedia.org/wikipedia/commons/8/8c/Heidelberg-Schlo%C3%9F.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+      "source": "wikidata_p18",
+      "pick_tier": "strict",
+      "author": "Pumuckel42 (Reinhard Wolf) at de:Wikipedia",
+      "license": "CC BY-SA 3.0",
+      "license_url": "http://creativecommons.org/licenses/by-sa/3.0/",
+      "license_status": "ok",
+      "load_verified": true,
+      "bytes": 126710,
+      "caption_zh_manual": "海德堡城堡",
+      "caption_zh_source": "llm_from_commons_filename",
+      "thumb_bytes": 34972,
+      "size": {
+        "detail": "760x571",
+        "thumb": "400x300"
+      },
+      "encoding": "webp q72/q74 (源 1222x918 386KB JPEG)"
+    }
+  ],
+  "image_license": "CC0",
+  "geometry_status": "naturalearth_50m_chunked",
+  "schema_version": "0.1",
+  "collected_at": "2026-10-29T16:46:44+08:00",
+  "collector": "scripts/collect.py v0.2",
+  "needs_review": true,
+  "review_notes": [
+    "P443 发音语种不符已弃用：Deutschland Pronunciation.ogg、LL-Q188 (deu)-Natschoba-Deutschland.wav、LL-Q188 (deu)-ENERGY ENCHANTED-Deutschland.wav（P443 不保证语种，须按文件名筛）",
+    "该实体无对应语种发音，语音改跑 python scripts/tts.py DE",
+    "Commons 无可用发音，语音走构建期 TTS 兜底（待接）",
+    "地标图改为人工指定清单（5 张，中文图注）",
+    "LLM 质检[error] summary_head：摘要称德国位于西欧，与 continent 字段“欧洲”及地理常识不符 → 改为“位于中欧”"
+  ],
+  "image_source_note": "人工按 data/landmarks.json 指定地标，Commons 关键词检索取图；原先自动获得的 1 张已被替换",
+  "custom_facets": {
+    "festivals": [],
+    "cuisine": [],
+    "religion": [
+      {
+        "v": "宗教改革",
+        "evidence": "宗教改革的起源地"
+      }
+    ],
+    "architecture": [
+      {
+        "v": "老城",
+        "evidence": "文化遗产以老城为代表"
+      }
+    ],
+    "heritage": [
+      {
+        "v": "老城",
+        "evidence": "文化遗产以老城为代表"
+      },
+      {
+        "v": "国家公园",
+        "evidence": "亦有国家公园和自然公园共计上百处"
+      }
+    ],
+    "keywords": [
+      {
+        "v": "北海与波罗的海",
+        "evidence": "从北部的北海与波罗的海延伸"
+      },
+      {
+        "v": "阿尔卑斯山",
+        "evidence": "延伸至南部的阿尔卑斯山"
+      },
+      {
+        "v": "德语",
+        "evidence": "其官方语言德语"
+      },
+      {
+        "v": "老城",
+        "evidence": "文化遗产以老城为代表"
+      },
+      {
+        "v": "国家公园",
+        "evidence": "亦有国家公园和自然公园"
+      }
+    ],
+    "model": "deepseek-flash"
+  },
+  "summary_text_raw": "德国（德语：Deutschland），正式全称为德意志联邦共和国（Bundesrepublik Deutschland，发音：[ˈbʊndəsʁepuˌbliːk ˈdɔʏtʃlant] ），是位于西欧的联邦共和国，由16个联邦州组成，首都暨最大城为柏林。国土面积35.7万平方公里，南北长876公里，东西宽640公里，从北部的北海与波罗的海延伸至南部的阿尔卑斯山，气候温和，季节分明。德国人口约8,322万，为欧盟人口最多的成员国，是世界上人口第19多的国家，也是世界第二大移民国家，仅次于美国。其官方语言德语是欧盟境内使用人数最多的母语。德国文化的丰富层次和对世界的影响表现在其建筑、美术、音乐、哲学、电影等，文化遗产以老城为代表，亦有国家公园和自然公园共计上百处。\n50万年前的旧石器时代中期，海德堡人及其后代尼安德特人生活在今德国中部。自古典时代以来，各日耳曼部族开始定居于今德国北部地区，1世纪时罗马人对“日耳曼尼亚”已有相关记载。4到7世纪，日耳曼部族逐渐向欧洲南部扩张。10世纪起，德意志地区组成神圣罗马帝国的核心部分。16世纪时，德意志北部地区成为宗教改革的起源地。",
+  "custom_text": "德国人过日子，绕不开面包和啤酒，但更绕不开规矩。清晨面包房刚开门，柜台里摆着黑麦的、全麦的、撒罂粟籽的，硬皮软心，切开来气孔粗大，配冷切肠和奶酪就是一顿冷晚餐——他们叫“Abendbrot”，晚上不动火，面包切片摆一桌，谁想吃什么自己拿。秋天啤酒节一到，南边的人穿上皮裤和紧身胸衣，长桌上举一升杯，乐队奏着铜管，陌生人碰杯也得看着对方眼睛说一句“Prost”，不看眼睛被当成没礼貌。圣诞前一个月，老城广场支起木棚市集，热红酒在锅里冒气，姜饼和烤杏仁的甜味混着松枝，人们捧着杯子慢慢逛，手里攥着给孩子的木雕小玩意。周日商店关门，街上安静，人们散步、骑自行车、在自家花园里修枝，邻居见面点头说“Guten Tag”，约人办事得提前，临时上门算失礼。手艺还在：木匠、陶匠、钟表匠的作坊散在小城里，学徒出师要游历几年才回来。宗教改革留下的新教底子，让不少家庭周日仍去教堂，唱诗班的老人穿着深色外套，散场后站在门口聊天气。",
+  "custom_text_source": {
+    "source": "llm_compose_from_summary_facets",
+    "note": "模型基于维基导语 + 抽取特征成文；只在没有人工稿的国家使用",
+    "chars": 406
+  },
+  "knowledge_qa": [
+    {
+      "q": "德国在哪个洲？首都是哪？",
+      "a": "德国位于西欧，是一个联邦共和国，首都是柏林，同时也是该国最大的城市。",
+      "tags": [
+        "德国",
+        "欧洲",
+        "首都",
+        "柏林"
+      ]
+    },
+    {
+      "q": "德国有多大？人口多少？",
+      "a": "德国国土面积35.7万平方公里，南北长876公里，东西宽640公里，人口约8,322万，是欧盟人口最多的成员国。",
+      "tags": [
+        "面积",
+        "人口",
+        "德国"
+      ]
+    },
+    {
+      "q": "德国人说什么语言？",
+      "a": "德国的官方语言是德语，德语也是欧盟境内使用人数最多的母语。",
+      "tags": [
+        "语言",
+        "德语",
+        "说什么话"
+      ]
+    },
+    {
+      "q": "德国有什么值得一看的地标？",
+      "a": "德国有众多著名地标，包括新天鹅堡、科隆大教堂、勃兰登堡门、柏林电视塔和海德堡城堡等。",
+      "tags": [
+        "地标",
+        "建筑",
+        "景点",
+        "德国"
+      ]
+    },
+    {
+      "q": "德国文化有什么特色？",
+      "a": "德国文化丰富，在建筑、美术、音乐、哲学、电影等方面影响世界，文化遗产以老城为代表，还有上百处国家公园和自然公园。",
+      "tags": [
+        "文化",
+        "特色",
+        "德国"
+      ]
+    },
+    {
+      "q": "德国有什么好吃的或特产？",
+      "a": "抱歉，提供的资料中没有关于德国饮食或特产的信息。",
+      "tags": [
+        "饮食",
+        "特产",
+        "吃什么"
+      ]
+    },
+    {
+      "q": "德国有什么传统节日或习俗？",
+      "a": "抱歉，提供的资料中没有关于德国节日或传统习俗的信息。",
+      "tags": [
+        "节日",
+        "习俗",
+        "传统"
+      ]
+    }
+  ],
+  "llm_audit": {
+    "issues": [
+      {
+        "field": "summary_head",
+        "severity": "error",
+        "why": "摘要称德国位于西欧，与 continent 字段“欧洲”及地理常识不符",
+        "suggest": "改为“位于中欧”"
+      }
+    ],
+    "overall": "warn"
+  },
+  "audio_meta": {}
+}

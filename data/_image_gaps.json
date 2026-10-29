@@ -31,5 +31,16 @@
   }
  ],
  "FR": [],
- "US": []
+ "US": [],
+ "DE": [],
+ "KZ": [],
+ "RW": [],
+ "VU": [
+  {
+   "zh": "维拉港梅莱瀑布",
+   "kw": "Mele Cascades Port Vila",
+   "reason": "Wikidata / 维基 / Commons 都没有可用图",
+   "retryable": false
+  }
+ ]
 }

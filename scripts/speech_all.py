@@ -202,6 +202,17 @@ def do_country(iso, force=False):
     all_langs = [l for l in (rec.get("languages") or []) if l.get("role") == "official"]
     if not all_langs:
         all_langs = (rec.get("languages") or [])[:1]
+
+    # 先挑出 edge-tts 真有音色的语言，再按人口截断 —— 顺序反了会出事：
+    # 瓦努阿图官方语言是 [比斯拉马语, 法语]，人口 30 万，原来先 [:1]
+    # 只留下比斯拉马语，而它没有音色，整国语音直接归零 —— 排在后面的
+    # 法语本来是可以念的。
+    speakable = [l for l in all_langs if pick_voice(l.get("code"))]
+    if not speakable:
+        # 官方语言全没音色，退到该国出现过的所有语言里再找一遍
+        speakable = [l for l in (rec.get("languages") or []) if pick_voice(l.get("code"))]
+    if speakable:
+        all_langs = speakable
     if pop and pop < SMALL_POP:
         all_langs = all_langs[:1]
     else:

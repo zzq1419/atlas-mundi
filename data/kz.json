@@ -1,0 +1,337 @@
+{
+  "qid": "Q232",
+  "iso_a2": "KZ",
+  "iso_a3": "KAZ",
+  "name_zh": "哈萨克斯坦",
+  "name_en": "Kazakhstan",
+  "capital": "阿斯塔纳",
+  "continent": "欧洲",
+  "centroid": [
+    68,
+    48
+  ],
+  "centroid_source": "wikidata P625",
+  "languages": [
+    {
+      "code": "kk",
+      "name_zh": "哈萨克语",
+      "name_local": "哈萨克语",
+      "role": "official",
+      "audio_url": "assets/kz/audio/kk.mp3",
+      "audio_source": "tts_edge",
+      "audio_status": "ok",
+      "tts_text": "Қазақстанға қош келдіңіз, бұл елдің астанасы — Астана қаласы, ал ең танымал көрікті жерлерінің бірі — Бәйтерек мұнарасы.",
+      "tts_text_zh": "欢迎来到哈萨克斯坦，这个国家的首都是阿斯塔纳，而最著名的地标之一是巴伊杰列克塔。",
+      "audio_voice": "kk-KZ-AigulNeural",
+      "audio_bytes": 64080
+    },
+    {
+      "code": "ru",
+      "name_zh": "俄语",
+      "name_local": "俄语",
+      "role": "official",
+      "audio_url": "assets/kz/audio/ru.mp3",
+      "audio_source": "tts_edge",
+      "audio_status": "ok",
+      "tts_text": "Добро пожаловать в Казахстан: столица этой страны — Астана, а одна из самых известных достопримечательностей — башня Байтерек.",
+      "tts_text_zh": "欢迎来到哈萨克斯坦：这个国家的首都是阿斯塔纳，而最著名的地标之一是巴伊杰列克塔。",
+      "audio_voice": "ru-RU-SvetlanaNeural",
+      "audio_bytes": 51552
+    }
+  ],
+  "summary_text": "哈萨克斯坦共和国通称哈萨克斯坦，是地跨欧亚两洲的国家，主要位于中亚北部，在乌拉尔河以西的一小部分领土位于东欧。哈萨克斯坦国土面积为2,727,300平方公里，是世界上最大的内陆国家，也是世界第九大国。该国西南濒临里海，在里海有2,964公里的海岸线；北部、西部与俄罗斯接壤，东南部与中国接壤，南部与乌兹别克斯坦、吉尔吉斯斯坦、土库曼斯坦接壤。哈萨克斯坦政府在官方将自己定位为一个民主制的世俗化国家，并且是个实行单一制的宪政共和国。哈萨克经济在中亚居主导地位，占中亚区域生产总值的60%，以石油、天然气工业为主，另有丰富的矿产资源。",
+  "summary_source": {
+    "source": "llm_refined",
+    "note": "DeepSeek 基于 Wikipedia 导语 + 人工民俗文本重写；口径限定地理与文化，剔除政权更迭与战争史",
+    "chars": 265,
+    "derived_from": "wikipedia_extracts",
+    "url": "https://zh.wikipedia.org/wiki/%E5%93%88%E8%90%A8%E5%85%8B%E6%96%AF%E5%9D%A6",
+    "title": "哈萨克斯坦"
+  },
+  "landmark_images": [
+    {
+      "title": "File:Petroglyphs in Tamgaly, Kazakhstan 01.jpg",
+      "caption_zh": "泰姆格里岩刻",
+      "caption": "泰姆格里岩刻",
+      "caption_commons": "Petroglyphs in Tamgaly, Unesco World Heritage Site, Kazakhstan",
+      "kw": "Tamgaly Petroglyphs Kazakhstan",
+      "url": "assets/kz/L01.webp",
+      "thumb_url": "assets/kz/L01.thumb.webp",
+      "remote_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/61/Petroglyphs_in_Tamgaly%2C_Kazakhstan_01.jpg/1920px-Petroglyphs_in_Tamgaly%2C_Kazakhstan_01.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "source": "commons_search",
+      "pick_tier": "strict",
+      "author": "Ninaras",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "license_status": "ok",
+      "load_verified": true,
+      "bytes": 96028,
+      "caption_zh_manual": "泰姆格里岩刻",
+      "caption_zh_source": "llm_from_commons_filename",
+      "thumb_bytes": 29442,
+      "size": {
+        "detail": "760x507",
+        "thumb": "400x267"
+      },
+      "encoding": "webp q72/q74 (源 1920x1280 743KB JPEG)"
+    },
+    {
+      "title": "File:Mausoleum of Khoja Ahmed Yasawi in Hazrat-e Turkestan, Kazakhstan.jpg",
+      "caption_zh": "哈萨克斯坦霍贾·艾哈迈德·亚萨维陵墓",
+      "caption": "哈萨克斯坦霍贾·艾哈迈德·亚萨维陵墓",
+      "caption_commons": "Mausoleum to Khoja Ahmad Yasawi (UNESCO World heritage site), Hazrat-e Turkestan",
+      "kw": "Mausoleum of Khoja Ahmed Yasawi Turkestan",
+      "url": "assets/kz/L02.webp",
+      "thumb_url": "assets/kz/L02.thumb.webp",
+      "remote_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/6c/Mausoleum_of_Khoja_Ahmed_Yasawi_in_Hazrat-e_Turkestan%2C_Kazakhstan.jpg/1920px-Mausoleum_of_Khoja_Ahmed_Yasawi_in_Hazrat-e_Turkestan%2C_Kazakhstan.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "source": "article_img",
+      "pick_tier": "strict",
+      "author": "Petar Milošević",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "license_status": "ok",
+      "load_verified": true,
+      "bytes": 54564,
+      "caption_zh_manual": "霍贾·艾哈迈德·亚萨维陵墓",
+      "caption_zh_source": "llm_from_commons_filename",
+      "thumb_bytes": 15078,
+      "size": {
+        "detail": "760x486",
+        "thumb": "400x256"
+      },
+      "encoding": "webp q72/q74 (源 1920x1227 669KB JPEG)"
+    },
+    {
+      "title": "File:Charyn Canyon, Kazakhstan 03.jpg",
+      "caption_zh": "哈萨克斯坦恰伦峡谷",
+      "caption": "哈萨克斯坦恰伦峡谷",
+      "caption_commons": "Charyn Canyon, Kazakhstan",
+      "kw": "Charyn Canyon Kazakhstan",
+      "url": "assets/kz/L03.webp",
+      "thumb_url": "assets/kz/L03.thumb.webp",
+      "remote_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b0/Charyn_Canyon%2C_Kazakhstan_03.jpg/1920px-Charyn_Canyon%2C_Kazakhstan_03.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "source": "article_img",
+      "pick_tier": "strict",
+      "author": "Bgag",
+      "license": "CC0",
+      "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+      "license_status": "ok",
+      "load_verified": true,
+      "bytes": 64332,
+      "caption_zh_manual": "恰伦峡谷",
+      "caption_zh_source": "llm_from_commons_filename",
+      "thumb_bytes": 17294,
+      "size": {
+        "detail": "760x487",
+        "thumb": "400x256"
+      },
+      "encoding": "webp q72/q74 (源 1920x1231 765KB JPEG)"
+    },
+    {
+      "title": "File:IMG 9366-Kaindy.jpg",
+      "caption_zh": "康堤湖",
+      "caption": "康堤湖",
+      "caption_commons": "Kaindy lake in south-east of Kazakhstan. The mountain lakes like this form after",
+      "kw": "Lake Kaindy Kazakhstan",
+      "url": "assets/kz/L04.webp",
+      "thumb_url": "assets/kz/L04.thumb.webp",
+      "remote_url": "https://upload.wikimedia.org/wikipedia/commons/2/26/Kaindy_lake_south-east_Kazakhstan.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+      "source": "article_img",
+      "pick_tier": "strict",
+      "author": "Jonas Satkauskas",
+      "license": "Attribution",
+      "license_url": null,
+      "license_status": "ok",
+      "load_verified": true,
+      "bytes": 82144,
+      "caption_zh_manual": "康堤湖",
+      "caption_zh_source": "llm_from_commons_filename",
+      "thumb_bytes": 26194,
+      "size": {
+        "detail": "760x570",
+        "thumb": "400x300"
+      },
+      "encoding": "webp q72/q74 (源 1600x1200 1280KB JPEG)"
+    },
+    {
+      "title": "File:Baikonur (14320417325).jpg",
+      "caption_zh": "拜科努尔航天发射场",
+      "caption": "拜科努尔航天发射场",
+      "caption_commons": "Mock-up of the Mir space station at Gagarin Cosmonaut Training Center",
+      "kw": "Baikonur Cosmodrome Kazakhstan",
+      "url": "assets/kz/L05.webp",
+      "thumb_url": "assets/kz/L05.thumb.webp",
+      "remote_url": "https://upload.wikimedia.org/wikipedia/commons/c/c9/Gagarin_Cosmonaut_Training_Center_%2814320417325%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+      "source": "article_img",
+      "pick_tier": "strict",
+      "author": "Christopher Michel",
+      "license": "CC BY 2.0",
+      "license_url": "https://creativecommons.org/licenses/by/2.0",
+      "license_status": "ok",
+      "load_verified": true,
+      "bytes": 48366,
+      "caption_zh_manual": "拜科努尔航天发射场",
+      "caption_zh_source": "llm_from_commons_filename",
+      "thumb_bytes": 18670,
+      "size": {
+        "detail": "760x507",
+        "thumb": "400x267"
+      },
+      "encoding": "webp q72/q74 (源 1600x1068 288KB JPEG)"
+    }
+  ],
+  "image_license": "CC BY-SA 4.0",
+  "geometry_status": "naturalearth_50m_chunked",
+  "schema_version": "0.1",
+  "collected_at": "2026-10-29T16:47:05+08:00",
+  "collector": "scripts/collect.py v0.2",
+  "needs_review": true,
+  "review_notes": [
+    "P443 发音语种不符已弃用：Kk-kazakhstan.ogg、LL-Q7913 (ron)-KlaudiuMihaila-Kazahstan.wav、Lb-Kasachstan.ogg（P443 不保证语种，须按文件名筛）",
+    "该实体无对应语种发音，语音改跑 python scripts/tts.py KZ",
+    "Commons 无可用发音，语音走构建期 TTS 兜底（待接）",
+    "地标图改为人工指定清单（5 张，中文图注）",
+    "摘要 265 字，低于 300 字要求：剔除政治史后素材不足。补齐办法是采集阶段增取 Wikipedia 的「地理」章节",
+    "LLM 质检[error] continent：哈萨克斯坦属亚洲，且坐标(68E,48N)在亚洲 → 改为亚洲",
+    "LLM 质检[warn] languages：俄语在哈为官方使用语言但非国家官方语言 → role改为official/secondary或注明",
+    "LLM 质检[error] image_captions：康堤湖在斯里兰卡，非哈萨克斯坦 → 删除或替换为哈国地标"
+  ],
+  "image_source_note": "人工按 data/landmarks.json 指定地标，Commons 关键词检索取图；原先自动获得的 3 张已被替换",
+  "custom_facets": {
+    "festivals": [],
+    "cuisine": [],
+    "religion": [
+      {
+        "v": "世俗化国家",
+        "evidence": "民主制的世俗化国家"
+      }
+    ],
+    "architecture": [],
+    "heritage": [],
+    "keywords": [
+      {
+        "v": "内陆国家",
+        "evidence": "世界上最大的内陆国家"
+      },
+      {
+        "v": "乌拉尔河",
+        "evidence": "乌拉尔河以西的一小部分领土"
+      },
+      {
+        "v": "里海",
+        "evidence": "西南濒临里海"
+      },
+      {
+        "v": "石油天然气",
+        "evidence": "以石油、天然气工业为主"
+      },
+      {
+        "v": "矿产资源",
+        "evidence": "丰富的矿产资源"
+      }
+    ],
+    "model": "deepseek-flash"
+  },
+  "summary_text_raw": "哈萨克斯坦共和国（哈萨克语：Қазақстан Республикасы／Qazaqstan Respublikasy／قازاقستان رەسپۋبليكاسى；俄语：Республика Казахстан），通称哈萨克斯坦（哈萨克语：Қазақстан／Qazaqstan／قازاقستان；俄语：Казахстан），为跨洲国家，地跨欧亚两洲，主要位于中亚北部，在乌拉尔河以西的一小部分领土位于东欧。哈萨克斯坦国土面积2,727,300平方公里，为世界上最大的内陆国家，世界第九大国。哈萨克经济在中亚居主导地位，占中亚区域生产总值的60%，以石油、天然气工业为主，另有丰富的矿产资源。\n哈萨克斯坦政府在官方将自己定位为一个民主制的世俗化国家，并且是个实行单一制的宪政共和国。哈萨克斯坦的北部、西部与俄罗斯接壤，东南部与中国，南部与乌兹别克斯坦、吉尔吉斯斯坦、土库曼斯坦接壤。西南濒临里海，在里海有2,964公里的海岸线。",
+  "custom_text": "哈萨克斯坦是跨洲国家，地跨欧亚两洲，主要位于中亚北部，在乌拉尔河以西的一小部分领土位于东欧。国土面积2,727,300平方公里，为世界上最大的内陆国家，世界第九大国。北部、西部与俄罗斯接壤，东南部与中国，南部与乌兹别克斯坦、吉尔吉斯斯坦、土库曼斯坦接壤，西南濒临里海，在里海有2,964公里的海岸线。哈萨克斯坦政府在官方将自己定位为一个民主制的世俗化国家，并且是个实行单一制的宪政共和国。哈萨克经济在中亚居主导地位，占中亚区域生产总值的60%，以石油、天然气工业为主，另有丰富的矿产资源。就日常生活而言，世俗化的国家定位构成当地社会文化的基本底色，宗教在国家定位中不占支配地位，人们的日常起居与公共生活围绕这一世俗框架展开。",
+  "custom_text_source": {
+    "source": "llm_compose_from_summary_facets",
+    "note": "模型基于维基导语 + 抽取特征成文；只在没有人工稿的国家使用",
+    "chars": 312
+  },
+  "knowledge_qa": [
+    {
+      "q": "哈萨克斯坦在哪儿啊？周围都挨着哪些地方？",
+      "a": "哈萨克斯坦是跨洲国家，地跨欧亚两洲，主要位于中亚北部，乌拉尔河以西一小部分领土在东欧。北部、西部与俄罗斯接壤，东南部与中国，南部与乌兹别克斯坦、吉尔吉斯斯坦、土库曼斯坦接壤，西南濒临里海。",
+      "tags": [
+        "在哪儿",
+        "邻国",
+        "地理位置",
+        "中亚"
+      ]
+    },
+    {
+      "q": "哈萨克斯坦面积有多大？",
+      "a": "国土面积2,727,300平方公里，是世界上最大的内陆国家，也是世界第九大国。",
+      "tags": [
+        "面积",
+        "多大",
+        "内陆国",
+        "世界第几"
+      ]
+    },
+    {
+      "q": "哈萨克斯坦的首都是哪里？",
+      "a": "首都是阿斯塔纳。",
+      "tags": [
+        "首都",
+        "阿斯塔纳",
+        "城市"
+      ]
+    },
+    {
+      "q": "哈萨克斯坦人说什么语言？",
+      "a": "官方语言是哈萨克语和俄语。",
+      "tags": [
+        "语言",
+        "说什么话",
+        "哈萨克语",
+        "俄语"
+      ]
+    },
+    {
+      "q": "哈萨克斯坦有什么值得一看的地标或景观？",
+      "a": "有泰姆格里岩刻、霍贾·艾哈迈德·亚萨维陵墓、恰伦峡谷、康堤湖和拜科努尔航天发射场。",
+      "tags": [
+        "地标",
+        "景点",
+        "看什么",
+        "旅游"
+      ]
+    },
+    {
+      "q": "哈萨克斯坦的经济主要靠什么？",
+      "a": "哈萨克经济在中亚居主导地位，占中亚区域生产总值的60%，以石油、天然气工业为主，另有丰富的矿产资源。",
+      "tags": [
+        "经济",
+        "石油",
+        "天然气",
+        "矿产"
+      ]
+    },
+    {
+      "q": "哈萨克斯坦是个什么样的国家？",
+      "a": "哈萨克斯坦共和国通称哈萨克斯坦，政府在官方将自己定位为一个民主制的世俗化国家，并且是个实行单一制的宪政共和国。",
+      "tags": [
+        "国家体制",
+        "政治",
+        "世俗化",
+        "共和国"
+      ]
+    }
+  ],
+  "llm_audit": {
+    "issues": [
+      {
+        "field": "continent",
+        "severity": "error",
+        "why": "哈萨克斯坦属亚洲，且坐标(68E,48N)在亚洲",
+        "suggest": "改为亚洲"
+      },
+      {
+        "field": "languages",
+        "severity": "warn",
+        "why": "俄语在哈为官方使用语言但非国家官方语言",
+        "suggest": "role改为official/secondary或注明"
+      },
+      {
+        "field": "image_captions",
+        "severity": "error",
+        "why": "康堤湖在斯里兰卡，非哈萨克斯坦",
+        "suggest": "删除或替换为哈国地标"
+      }
+    ],
+    "overall": "fail"
+  },
+  "audio_meta": {}
+}

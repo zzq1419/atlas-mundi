@@ -698,6 +698,230 @@
     "kw": "Hallgrimskirkja Reykjavik",
     "must": "hallgrimskirkja"
    }
+  ],
+  "DE": [
+   {
+    "zh": "新天鹅堡",
+    "en": "Neuschwanstein Castle Germany",
+    "queries": [
+     "新天鹅堡"
+    ],
+    "kw": "Neuschwanstein Castle Germany",
+    "must": "neuschwanstein"
+   },
+   {
+    "zh": "科隆大教堂",
+    "en": "Cologne Cathedral Germany",
+    "queries": [
+     "科隆大教堂"
+    ],
+    "kw": "Cologne Cathedral Germany",
+    "must": "cologne"
+   },
+   {
+    "zh": "勃兰登堡门",
+    "en": "Brandenburg Gate Berlin",
+    "queries": [
+     "勃兰登堡门"
+    ],
+    "kw": "Brandenburg Gate Berlin",
+    "must": "brandenburg"
+   },
+   {
+    "zh": "柏林电视塔",
+    "en": "Berlin TV Tower Fernsehturm",
+    "queries": [
+     "柏林电视塔"
+    ],
+    "kw": "Berlin TV Tower Fernsehturm",
+    "must": "fernsehturm"
+   },
+   {
+    "zh": "海德堡城堡",
+    "en": "Heidelberg Castle Germany",
+    "queries": [
+     "海德堡城堡"
+    ],
+    "kw": "Heidelberg Castle Germany",
+    "must": "heidelberg"
+   },
+   {
+    "zh": "楚格峰",
+    "en": "Zugspitze Germany Alps",
+    "queries": [
+     "楚格峰"
+    ],
+    "kw": "Zugspitze Germany Alps",
+    "must": "zugspitze"
+   }
+  ],
+  "KZ": [
+   {
+    "zh": "泰姆格里岩刻",
+    "en": "Tamgaly Petroglyphs Kazakhstan",
+    "queries": [
+     "泰姆格里岩刻"
+    ],
+    "kw": "Tamgaly Petroglyphs Kazakhstan",
+    "must": "tamgaly"
+   },
+   {
+    "zh": "霍贾·艾哈迈德·亚萨维陵墓",
+    "en": "Mausoleum of Khoja Ahmed Yasawi Turkestan",
+    "queries": [
+     "霍贾·艾哈迈德·亚萨维陵墓"
+    ],
+    "kw": "Mausoleum of Khoja Ahmed Yasawi Turkestan",
+    "must": "yasawi"
+   },
+   {
+    "zh": "恰伦峡谷",
+    "en": "Charyn Canyon Kazakhstan",
+    "queries": [
+     "恰伦峡谷"
+    ],
+    "kw": "Charyn Canyon Kazakhstan",
+    "must": "charyn"
+   },
+   {
+    "zh": "康堤湖",
+    "en": "Lake Kaindy Kazakhstan",
+    "queries": [
+     "康堤湖"
+    ],
+    "kw": "Lake Kaindy Kazakhstan",
+    "must": "kaindy"
+   },
+   {
+    "zh": "拜科努尔航天发射场",
+    "en": "Baikonur Cosmodrome Kazakhstan",
+    "queries": [
+     "拜科努尔航天发射场"
+    ],
+    "kw": "Baikonur Cosmodrome Kazakhstan",
+    "must": "baikonur"
+   },
+   {
+    "zh": "阿斯塔纳巴伊杰列克塔",
+    "en": "Baiterek Tower Astana Kazakhstan",
+    "queries": [
+     "阿斯塔纳巴伊杰列克塔"
+    ],
+    "kw": "Baiterek Tower Astana Kazakhstan",
+    "must": "baiterek"
+   }
+  ],
+  "RW": [
+   {
+    "zh": "火山国家公园",
+    "en": "Volcanoes National Park Rwanda",
+    "queries": [
+     "火山国家公园"
+    ],
+    "kw": "Volcanoes National Park Rwanda",
+    "must": "volcanoes"
+   },
+   {
+    "zh": "基加利大屠杀纪念馆",
+    "en": "Kigali Genocide Memorial",
+    "queries": [
+     "基加利大屠杀纪念馆"
+    ],
+    "kw": "Kigali Genocide Memorial",
+    "must": "genocide"
+   },
+   {
+    "zh": "纽格威森林",
+    "en": "Nyungwe Forest National Park",
+    "queries": [
+     "纽格威森林"
+    ],
+    "kw": "Nyungwe Forest National Park",
+    "must": "nyungwe"
+   },
+   {
+    "zh": "基伍湖",
+    "en": "Lake Kivu Rwanda",
+    "queries": [
+     "基伍湖"
+    ],
+    "kw": "Lake Kivu Rwanda",
+    "must": "kivu"
+   },
+   {
+    "zh": "阿卡盖拉国家公园",
+    "en": "Akagera National Park",
+    "queries": [
+     "阿卡盖拉国家公园"
+    ],
+    "kw": "Akagera National Park",
+    "must": "akagera"
+   },
+   {
+    "zh": "国王宫博物馆",
+    "en": "King's Palace Museum Nyanza",
+    "queries": [
+     "国王宫博物馆"
+    ],
+    "kw": "King's Palace Museum Nyanza",
+    "must": "nyanza"
+   }
+  ],
+  "VU": [
+   {
+    "zh": "塔纳岛亚苏尔火山",
+    "en": "Mount Yasur Tanna Island",
+    "queries": [
+     "塔纳岛亚苏尔火山"
+    ],
+    "kw": "Mount Yasur Tanna Island",
+    "must": "yasur"
+   },
+   {
+    "zh": "桑托岛香槟海滩",
+    "en": "Champagne Beach Espiritu Santo",
+    "queries": [
+     "桑托岛香槟海滩"
+    ],
+    "kw": "Champagne Beach Espiritu Santo",
+    "must": "champagne"
+   },
+   {
+    "zh": "维拉港梅莱瀑布",
+    "en": "Mele Cascades Port Vila",
+    "queries": [
+     "维拉港梅莱瀑布"
+    ],
+    "kw": "Mele Cascades Port Vila",
+    "must": "mele"
+   },
+   {
+    "zh": "埃法特岛蓝洞",
+    "en": "Efate Blue Hole Vanuatu",
+    "queries": [
+     "埃法特岛蓝洞"
+    ],
+    "kw": "Efate Blue Hole Vanuatu",
+    "must": "blue hole"
+   },
+   {
+    "zh": "塔纳岛黑沙滩",
+    "en": "Black Sand Beach Tanna",
+    "queries": [
+     "塔纳岛黑沙滩"
+    ],
+    "kw": "Black Sand Beach Tanna",
+    "must": "black sand"
+   },
+   {
+    "zh": "五旬节岛陆跃",
+    "en": "Pentecost Island land diving",
+    "queries": [
+     "五旬节岛陆跃"
+    ],
+    "kw": "Pentecost Island land diving",
+    "must": "pentecost"
+   }
   ]
  }
 }

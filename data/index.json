@@ -1,6 +1,6 @@
 {
   "schema_version": "0.1",
-  "updated_at": "2026-10-28",
+  "updated_at": "2026-10-29",
   "note": "国家/地区清单。前端只读这个文件来渲染入口卡，详情按 iso_a2 拉 /data/{iso}.json。iso_a2 是对外唯一主键。",
   "countries": [
     {
@@ -242,14 +242,16 @@
       "thumb": "assets/is/L01.thumb.webp",
       "modalities": {
         "image": true,
-        "audio": false,
+        "audio": true,
         "text": true,
         "coords": true,
         "geometry": true
       },
-      "status": "partial",
+      "status": "complete",
       "lang_count": 1,
-      "audio_langs": []
+      "audio_langs": [
+        "is"
+      ]
     },
     {
       "iso_a2": "KI",
@@ -265,14 +267,117 @@
       "thumb": "assets/ki/L03.thumb.webp",
       "modalities": {
         "image": true,
-        "audio": false,
+        "audio": true,
         "text": true,
         "coords": true,
         "geometry": true
       },
-      "status": "partial",
+      "status": "complete",
       "lang_count": 2,
-      "audio_langs": []
+      "audio_langs": [
+        "en"
+      ]
+    },
+    {
+      "iso_a2": "DE",
+      "name_zh": "德国",
+      "name_en": "Germany",
+      "name_local": "德国",
+      "continent": "欧洲",
+      "capital": "柏林",
+      "centroid": [
+        10,
+        51
+      ],
+      "thumb": "assets/de/L01.thumb.webp",
+      "modalities": {
+        "image": true,
+        "audio": true,
+        "text": true,
+        "coords": true,
+        "geometry": true
+      },
+      "status": "complete",
+      "lang_count": 1,
+      "audio_langs": [
+        "de"
+      ]
+    },
+    {
+      "iso_a2": "KZ",
+      "name_zh": "哈萨克斯坦",
+      "name_en": "Kazakhstan",
+      "name_local": "哈萨克斯坦",
+      "continent": "欧洲",
+      "capital": "阿斯塔纳",
+      "centroid": [
+        68,
+        48
+      ],
+      "thumb": "assets/kz/L01.thumb.webp",
+      "modalities": {
+        "image": true,
+        "audio": true,
+        "text": true,
+        "coords": true,
+        "geometry": true
+      },
+      "status": "complete",
+      "lang_count": 2,
+      "audio_langs": [
+        "kk",
+        "ru"
+      ]
+    },
+    {
+      "iso_a2": "RW",
+      "name_zh": "卢旺达",
+      "name_en": "Rwanda",
+      "name_local": "卢旺达",
+      "continent": "非洲",
+      "capital": "基加利",
+      "centroid": [
+        30,
+        -2
+      ],
+      "thumb": "assets/rw/L01.thumb.webp",
+      "modalities": {
+        "image": true,
+        "audio": true,
+        "text": true,
+        "coords": true,
+        "geometry": true
+      },
+      "status": "complete",
+      "lang_count": 2,
+      "audio_langs": [
+        "en"
+      ]
+    },
+    {
+      "iso_a2": "VU",
+      "name_zh": "瓦努阿图",
+      "name_en": "Vanuatu",
+      "name_local": "瓦努阿图",
+      "continent": "太平洋岛国",
+      "capital": "维拉港",
+      "centroid": [
+        168.0167,
+        -16.6333
+      ],
+      "thumb": "assets/vu/L01.thumb.webp",
+      "modalities": {
+        "image": true,
+        "audio": true,
+        "text": true,
+        "coords": true,
+        "geometry": true
+      },
+      "status": "complete",
+      "lang_count": 2,
+      "audio_langs": [
+        "fr"
+      ]
     }
   ]
 }

@@ -1,0 +1,324 @@
+{
+  "qid": "Q1037",
+  "iso_a2": "RW",
+  "iso_a3": "RWA",
+  "name_zh": "卢旺达",
+  "name_en": "Rwanda",
+  "capital": "基加利",
+  "continent": "非洲",
+  "centroid": [
+    30,
+    -2
+  ],
+  "centroid_source": "wikidata P625",
+  "languages": [
+    {
+      "code": "rw",
+      "name_zh": "卢旺达语",
+      "name_local": "卢旺达语",
+      "role": "official",
+      "audio_url": null,
+      "audio_source": null,
+      "audio_status": "pending"
+    },
+    {
+      "code": "en",
+      "name_zh": "英语",
+      "name_local": "英语",
+      "role": "official",
+      "audio_url": "assets/rw/audio/en.mp3",
+      "audio_source": "tts_edge",
+      "audio_status": "ok",
+      "tts_text": "Welcome to Rwanda, a warm-hearted land of rolling hills; its capital is Kigali, and one memorable landmark is Nyungwe National Park, where ancient rainforest shelters chimpanzees and rich birdlife.",
+      "tts_text_zh": "欢迎来到卢旺达，这片心地温暖、山峦起伏的土地；首都是基加利，而一处令人难忘的地标是纽格威国家公园，古老的雨林里栖息着黑猩猩和丰富的鸟类。",
+      "audio_voice": "en-US-AriaNeural",
+      "audio_bytes": 79056
+    }
+  ],
+  "summary_text": "卢旺达共和国通称卢旺达，是东非主权国家，坐落在赤道以南，与乌干达、坦桑尼亚、布隆迪和刚果民主共和国接壤。卢旺达地处大湖地区，海拔较高，地理上以西部的山区和东部的热带草原为主，全国各地分布有多个湖泊。该国属温带到亚热带气候，每年有两个雨季和两个旱季。卢旺达的人口主要居住在农村地区，以年轻人为主。卢旺达人主要分为三个族群：胡图族、图西族和特瓦族，其中特瓦族是该国生活在森林中的最早居民俾格米人的后代。基督教是该国第一大宗教，主要语言是卢旺达语，与法语和英语并列为该国的官方语言。",
+  "summary_source": {
+    "source": "llm_refined",
+    "note": "DeepSeek 基于 Wikipedia 导语 + 人工民俗文本重写；口径限定地理与文化，剔除政权更迭与战争史",
+    "chars": 238,
+    "derived_from": "wikipedia_extracts",
+    "url": "https://zh.wikipedia.org/wiki/%E5%8D%A2%E6%97%BA%E8%BE%BE",
+    "title": "卢旺达"
+  },
+  "landmark_images": [
+    {
+      "title": "File:Mountain gorilla from Susa Group in Karisimbi thicket of Volcanoes National Park in Rwanda. Emmanuel Kwizera.jpg",
+      "caption_zh": "火山国家公园苏萨群山地大猩猩",
+      "caption": "火山国家公园苏萨群山地大猩猩",
+      "caption_commons": "Mountain gorilla from Susa Group in Karisimbi thicket of Volcanoes National Park",
+      "kw": "Volcanoes National Park Rwanda",
+      "url": "assets/rw/L01.webp",
+      "thumb_url": "assets/rw/L01.thumb.webp",
+      "remote_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/de/Mountain_gorilla_from_Susa_Group_in_Karisimbi_thicket_of_Volcanoes_National_Park_in_Rwanda._Emmanuel_Kwizera.jpg/1920px-Mountain_gorilla_from_Susa_Group_in_Karisimbi_thicket_of_Volcanoes_National_Park_in_Rwanda._Emmanuel_Kwizera.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "source": "article_img",
+      "pick_tier": "strict",
+      "author": "Emmanuelkwizera",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "license_status": "ok",
+      "load_verified": true,
+      "bytes": 56788,
+      "caption_zh_manual": "火山国家公园",
+      "caption_zh_source": "llm_from_commons_filename",
+      "thumb_bytes": 17888,
+      "size": {
+        "detail": "760x507",
+        "thumb": "400x267"
+      },
+      "encoding": "webp q72/q74 (源 1920x1280 642KB JPEG)"
+    },
+    {
+      "title": "File:Nyamata Genocide Memorial Church - Flickr - Dave Proffer (11).jpg",
+      "caption_zh": "基加利大屠杀纪念馆内的尼亚马塔教堂",
+      "caption": "基加利大屠杀纪念馆内的尼亚马塔教堂",
+      "caption_commons": "Nyamata Genocide Memorial Church",
+      "kw": "Kigali Genocide Memorial",
+      "url": "assets/rw/L02.webp",
+      "thumb_url": "assets/rw/L02.thumb.webp",
+      "remote_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/48/Nyamata_Genocide_Memorial_Church_-_Flickr_-_Dave_Proffer_%2811%29.jpg/1920px-Nyamata_Genocide_Memorial_Church_-_Flickr_-_Dave_Proffer_%2811%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "source": "wikidata_p18",
+      "pick_tier": "strict",
+      "author": "Dave Proffer",
+      "license": "CC BY 2.0",
+      "license_url": "https://creativecommons.org/licenses/by/2.0",
+      "license_status": "ok",
+      "load_verified": true,
+      "bytes": 71658,
+      "caption_zh_manual": "基加利大屠杀纪念馆",
+      "caption_zh_source": "llm_from_commons_filename",
+      "thumb_bytes": 18950,
+      "size": {
+        "detail": "760x509",
+        "thumb": "400x268"
+      },
+      "encoding": "webp q72/q74 (源 1920x1285 784KB JPEG)"
+    },
+    {
+      "title": "File:Multi-male unit of Rwenzori colobus in Nyungwe .jpg",
+      "caption_zh": "纽格威森林中的多雄鲁文佐里疣猴群",
+      "caption": "纽格威森林中的多雄鲁文佐里疣猴群",
+      "caption_commons": "A multi-male unit of Angolan colobus in a multilevel society",
+      "kw": "Nyungwe Forest National Park",
+      "url": "assets/rw/L03.webp",
+      "thumb_url": "assets/rw/L03.thumb.webp",
+      "remote_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/14/Multi-male_unit_of_Rwenzori_colobus_in_Nyungwe_.jpg/1920px-Multi-male_unit_of_Rwenzori_colobus_in_Nyungwe_.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "source": "article_img",
+      "pick_tier": "strict",
+      "author": "AlexMiller12345",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "license_status": "ok",
+      "load_verified": true,
+      "bytes": 114474,
+      "caption_zh_manual": "纽格威森林",
+      "caption_zh_source": "llm_from_commons_filename",
+      "thumb_bytes": 37484,
+      "size": {
+        "detail": "760x570",
+        "thumb": "400x300"
+      },
+      "encoding": "webp q72/q74 (源 1920x1440 920KB JPEG)"
+    },
+    {
+      "title": "File:Lake Kivu in rwanda.jpg",
+      "caption_zh": "卢旺达的基伍湖",
+      "caption": "卢旺达的基伍湖",
+      "caption_commons": "In Rwanda many lakes located in eastern province but among them large one locate",
+      "kw": "Lake Kivu Rwanda",
+      "url": "assets/rw/L04.webp",
+      "thumb_url": "assets/rw/L04.thumb.webp",
+      "remote_url": "https://upload.wikimedia.org/wikipedia/commons/8/86/Lake_Kivu_in_rwanda.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+      "source": "commons_search",
+      "pick_tier": "strict",
+      "author": "Alain Vick",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "license_status": "ok",
+      "load_verified": true,
+      "bytes": 31060,
+      "caption_zh_manual": "基伍湖",
+      "caption_zh_source": "llm_from_commons_filename",
+      "thumb_bytes": 12070,
+      "size": {
+        "detail": "760x533",
+        "thumb": "400x280"
+      },
+      "encoding": "webp q72/q74 (源 1024x718 92KB JPEG)"
+    },
+    {
+      "title": "File:Elephants in Akagera National Park (01).jpg",
+      "caption_zh": "阿卡盖拉国家公园中的大象",
+      "caption": "阿卡盖拉国家公园中的大象",
+      "caption_commons": "Big elephant in Akagera National Park",
+      "kw": "Akagera National Park",
+      "url": "assets/rw/L05.webp",
+      "thumb_url": "assets/rw/L05.thumb.webp",
+      "remote_url": "https://upload.wikimedia.org/wikipedia/commons/a/a5/Elephants_in_Akagera_National_Park_%2801%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+      "source": "article_img",
+      "pick_tier": "strict",
+      "author": "Laeliza23",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "license_status": "ok",
+      "load_verified": true,
+      "bytes": 57044,
+      "caption_zh_manual": "阿卡盖拉国家公园",
+      "caption_zh_source": "llm_from_commons_filename",
+      "thumb_bytes": 18558,
+      "size": {
+        "detail": "760x507",
+        "thumb": "400x267"
+      },
+      "encoding": "webp q72/q74 (源 1024x683 99KB JPEG)"
+    }
+  ],
+  "image_license": "CC BY-SA 4.0",
+  "geometry_status": "naturalearth_50m_chunked",
+  "schema_version": "0.1",
+  "collected_at": "2026-10-29T16:47:20+08:00",
+  "collector": "scripts/collect.py v0.2",
+  "needs_review": true,
+  "review_notes": [
+    "P37 返回 4 个语言，去重/去上位概念后保留 2 个：卢旺达语、英语",
+    "P443 发音语种不符已弃用：LL-Q7026 (cat)-Millars-Ruanda.wav、Lb-Ruanda.ogg、LL-Q7913 (ron)-KlaudiuMihaila-Rwanda.wav（P443 不保证语种，须按文件名筛）",
+    "该实体无对应语种发音，语音改跑 python scripts/tts.py RW",
+    "Commons 无可用发音，语音走构建期 TTS 兜底（待接）",
+    "地标图改为人工指定清单（5 张，中文图注）",
+    "摘要 238 字，低于 300 字要求：剔除政治史后素材不足。补齐办法是采集阶段增取 Wikipedia 的「地理」章节",
+    "语音跳过 卢旺达语（无句子）"
+  ],
+  "image_source_note": "人工按 data/landmarks.json 指定地标，Commons 关键词检索取图；原先自动获得的 1 张已被替换",
+  "custom_facets": {
+    "festivals": [],
+    "cuisine": [],
+    "religion": [
+      {
+        "v": "基督教",
+        "evidence": "基督教是该国第一大宗教"
+      }
+    ],
+    "architecture": [],
+    "heritage": [],
+    "keywords": [
+      {
+        "v": "大湖地区",
+        "evidence": "卢旺达地处大湖地区"
+      },
+      {
+        "v": "山区",
+        "evidence": "西部的山区"
+      },
+      {
+        "v": "热带草原",
+        "evidence": "东部的热带草原"
+      },
+      {
+        "v": "湖泊",
+        "evidence": "全国各地分布有多个湖泊"
+      },
+      {
+        "v": "卢旺达语",
+        "evidence": "主要语言是卢旺达语"
+      }
+    ],
+    "model": "deepseek-flash"
+  },
+  "summary_text_raw": "卢旺达共和国（卢旺达语：Repubulika y'u Rwanda，法语：République du Rwanda，英语：Republic of Rwanda，斯瓦希里语：Jamhuri ya Rwanda），通称卢旺达，是东非主权国家，坐落在赤道以南，与乌干达、坦桑尼亚、布隆迪和刚果民主共和国接壤。卢旺达地处大湖地区，海拔较高，地理上以西部的山区和东部的热带草原为主，全国各地分布有多个湖泊。该国属温带到亚热带气候，每年有两个雨季和两个旱季。\n卢旺达的人口主要居住在农村地区，以年轻人为主，密度在非洲国家中位居后列。卢旺达人主要分为三个族群：胡图族、图西族和特瓦族。其中特瓦族是该国生活在森林中的最早居民俾格米人的后代，而在胡图族和图西族的起源上学术界尚未有一致结论，一些学者认为他们是由以前的种族社会衍生，另一部分学者则认为他们分别是从不同的种族和部落迁移过来。基督教是该国第一大宗教，主要语言是卢旺达语，与法语和英语并列为该国的官方语言。卢旺达实行总统制政府，现任总统是卢旺达爱国阵线的保罗·卡加梅，于2000年上任。",
+  "custom_text": "卢旺达人一年里最看重的是收成之后的 Umuganura，也就是丰收节。那天家家把新收的豆子、高粱、香蕉端出来，先敬长辈和客人，再自己吃，村里人聚在一起分食，谁家收成差也不会被落下。平日饭桌上最常见的是豆子炖香蕉、木薯粉团成的 ugali，配上一小碟青菜；有客来，主人会端出香蕉酒，倒进葫芦瓢里轮着喝，先递给最年长的人。见面握手时习惯用左手托住右前臂，表示郑重；接过东西也用双手。周日街上安静，人们穿得整齐去教堂，唱诗的声音从铁皮屋顶下飘出来。妇女编草席、编篮子，花纹一圈一圈地绕，赶集时顶在头上带去换盐和肥皂。孩子出生、婚嫁、亲人下葬，都要请邻里来帮忙，谁家办事，院子里就支起大锅，邻居自带柴火和豆子来搭手。",
+  "custom_text_source": {
+    "source": "llm_compose_from_summary_facets",
+    "note": "模型基于维基导语 + 抽取特征成文；只在没有人工稿的国家使用",
+    "chars": 304
+  },
+  "knowledge_qa": [
+    {
+      "q": "卢旺达在哪儿啊？周围都是哪些国家？",
+      "a": "卢旺达是东非主权国家，坐落在赤道以南，与乌干达、坦桑尼亚、布隆迪和刚果民主共和国接壤。",
+      "tags": [
+        "非洲",
+        "东非",
+        "位置",
+        "邻国"
+      ]
+    },
+    {
+      "q": "卢旺达的首都是哪里？",
+      "a": "首都基加利。",
+      "tags": [
+        "首都",
+        "基加利",
+        "城市"
+      ]
+    },
+    {
+      "q": "卢旺达说什么语言？",
+      "a": "主要语言是卢旺达语，与英语并列为官方语言。",
+      "tags": [
+        "语言",
+        "卢旺达语",
+        "英语",
+        "官方语言"
+      ]
+    },
+    {
+      "q": "卢旺达有什么值得去的地方？",
+      "a": "有火山国家公园、基加利大屠杀纪念馆、纽格威森林、基伍湖和阿卡盖拉国家公园。",
+      "tags": [
+        "景点",
+        "地标",
+        "旅游",
+        "国家公园"
+      ]
+    },
+    {
+      "q": "卢旺达的地形和气候怎么样？",
+      "a": "地理上以西部的山区和东部的热带草原为主，全国各地分布有多个湖泊。属温带到亚热带气候，每年有两个雨季和两个旱季。",
+      "tags": [
+        "地形",
+        "气候",
+        "山区",
+        "草原"
+      ]
+    },
+    {
+      "q": "卢旺达人口主要住在哪里？",
+      "a": "人口主要居住在农村地区，以年轻人为主，密度在非洲国家中位居后列。",
+      "tags": [
+        "人口",
+        "农村",
+        "年轻人"
+      ]
+    },
+    {
+      "q": "卢旺达有哪些民族？",
+      "a": "主要分为三个族群：胡图族、图西族和特瓦族。特瓦族是该国生活在森林中的最早居民俾格米人的后代。",
+      "tags": [
+        "民族",
+        "胡图族",
+        "图西族",
+        "特瓦族"
+      ]
+    },
+    {
+      "q": "卢旺达的总统是谁？",
+      "a": "现任总统是卢旺达爱国阵线的保罗·卡加梅，于2000年上任。",
+      "tags": [
+        "总统",
+        "卡加梅",
+        "政治"
+      ]
+    }
+  ],
+  "llm_audit": {
+    "issues": [],
+    "overall": "pass"
+  },
+  "review_short": [
+    "语音：卢旺达语（无句子）"
+  ],
+  "audio_meta": {}
+}

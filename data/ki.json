@@ -17,9 +17,13 @@
       "name_zh": "英语",
       "name_local": "英语",
       "role": "official",
-      "audio_url": null,
-      "audio_source": null,
-      "audio_status": "pending"
+      "audio_url": "assets/ki/audio/en.mp3",
+      "audio_source": "tts_edge",
+      "audio_status": "ok",
+      "tts_text": "Welcome to Kiribati, a nation scattered across the vast Pacific; its capital is South Tarawa, and among its landmarks you can visit the historic World War II relics and the wide lagoon shores that shape daily life here.",
+      "tts_text_zh": "欢迎来到基里巴斯，这个散落在辽阔太平洋上的国家；首都是南塔拉瓦，在这里的代表地标中，您可以参观二战历史遗迹，以及塑造当地日常生活的宽阔潟湖海岸。",
+      "audio_voice": "en-US-AriaNeural",
+      "audio_bytes": 82368
     },
     {
       "code": "gil",
@@ -127,5 +131,12 @@
     "阿拜昂环礁：5 个候选全部未通过筛选：Abaiang Council Office.jpg（说明是建筑设施（Abaiang Island Council Off））；Bingham-needle.jpg（文件名不含「abaiang」）；Flugplatz Abaiang Gebaeude.jpg（说明是建筑设施（Airport building Abaiang A））",
     "地标图改为人工指定清单（4 张，中文图注）"
   ],
-  "image_source_note": "人工按 data/landmarks.json 指定地标，Commons 关键词检索取图；原先自动获得的 0 张已被替换"
+  "image_source_note": "人工按 data/landmarks.json 指定地标，Commons 关键词检索取图；原先自动获得的 0 张已被替换",
+  "custom_text": "在基里巴斯，日子是跟着潮水和椰子树走的。清晨男人划着独木舟出海，女人在礁盘上捡贝、挖蛤，孩子光脚在珊瑚砂上跑。主食是椰肉、芋头、面包果和鱼，鱼常是生拌的，用酸橙汁和椰奶一浇，就着刚摘的椰子喝。待客有讲究：客人进门先递上一颗嫩椰子，喝不完不能走。村里盖房子、修独木舟，邻里都来搭手，主人管一顿饭，没人提工钱。跳舞是绕不开的事，节日里男女排成行，腰上系着椰叶裙，拍手、跺脚、齐声唱，动作整齐得像一个人。教堂礼拜日最郑重，女人穿白色长裙、戴花冠，男人穿衬衫西裤，路上安安静静，没人出海。人走了，坟就修在自家院子里，铺上珊瑚石，家人每天经过都看一眼。手艺上，编椰叶席子、用贝壳做鱼钩、拿露兜树叶编提篮，都是老人手把手教的。",
+  "custom_text_source": {
+    "source": "llm_compose_from_summary_facets",
+    "note": "模型基于维基导语 + 抽取特征成文；只在没有人工稿的国家使用",
+    "chars": 307
+  },
+  "audio_meta": {}
 }
