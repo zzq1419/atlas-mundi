@@ -613,18 +613,39 @@ def pick_and_download(iso, entries, rec, cap=MAX_PER_COUNTRY):
 
     # 已经抓好并落盘的图直接沿用。批量跑到一半重跑、或者只想补某一处地标时，
     # 不要把所有图重新下一遍（重下还会换掉已经人工确认过的那几张）。
-    kept = {}
-    for it in rec.get("landmark_images") or []:
-        k = (it.get("kw") or "").strip().lower()
-        if k and it.get("url") and os.path.exists(os.path.join(ROOT, it["url"])):
-            kept[k] = it
+    #
+    # 认领键踩过两次坑：一开始按 kw 匹配，可中法美那批是人工稿，kw 全是 null，
+    # 于是"补第五张"把整国四张重下了一遍，凡尔赛镜厅变成了某酒吧的镜子、
+    # 白宫变成了拆除施工现场。后来想按 caption_zh 精确匹配，也不行 ——
+    # 人工图注带修饰（"秦始皇陵兵马俑一号坑全景" vs 清单里的"秦始皇陵兵马俑"）。
+    # 现在是：先精确，再双向包含。
+    kept = [it for it in (rec.get("landmark_images") or [])
+            if it.get("url") and os.path.exists(os.path.join(ROOT, it["url"]))]
+    taken = set()
+
+    def take_kept(zh):
+        z = (zh or "").strip()
+        if not z:
+            return None
+        for i, it in enumerate(kept):
+            if i not in taken and (it.get("caption_zh") or "").strip() == z:
+                taken.add(i)
+                return it
+        for i, it in enumerate(kept):
+            if i in taken:
+                continue
+            c = (it.get("caption_zh") or "").strip()
+            if c and (z in c or c in z):
+                taken.add(i)
+                return it
+        return None
 
     for i, e in enumerate(entries, 1):
         if len(picked) >= cap:
             break
         kw, zh = e.get("kw"), e.get("zh")
 
-        old = kept.get((kw or "").strip().lower())
+        old = take_kept(zh)
         if old:
             picked.append(old)
             used.add(old.get("title"))

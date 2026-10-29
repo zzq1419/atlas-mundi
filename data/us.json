@@ -141,6 +141,30 @@
       "encoding": "webp q72/q74 (源 1614x1196 573KB JPEG)",
       "caption_zh_manual": "白宫",
       "caption_zh_source": "llm_from_commons_filename"
+    },
+    {
+      "title": "File:Bridalveil Falls from Valley View Yosemite CA 2023-07-13 18-05-30 1.webm",
+      "caption_zh": "优胜美地山谷",
+      "caption": "优胜美地山谷",
+      "caption_commons": "Bridalveil Falls as seen from the Yosemite Valley View turnout on Northside Driv",
+      "kw": "Yosemite Valley",
+      "url": "assets/us/L05.webp",
+      "thumb_url": "assets/us/L05.thumb.webp",
+      "remote_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/4b/Bridalveil_Falls_from_Valley_View_Yosemite_CA_2023-07-13_18-05-30_1.webm/1920px--Bridalveil_Falls_from_Valley_View_Yosemite_CA_2023-07-13_18-05-30_1.webm.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo",
+      "source": "article_img",
+      "pick_tier": "strict",
+      "author": "G. Edward Johnson",
+      "license": "CC BY 4.0",
+      "license_url": "https://creativecommons.org/licenses/by/4.0",
+      "license_status": "ok",
+      "load_verified": true,
+      "bytes": 35970,
+      "thumb_bytes": 10906,
+      "size": {
+        "detail": "760x428",
+        "thumb": "400x225"
+      },
+      "encoding": "webp q72/q74 (源 1920x1080 427KB JPEG)"
     }
   ],
   "image_license": "CC BY-SA 4.0",
@@ -157,7 +181,7 @@
     "该实体无对应语种发音，语音改跑 python scripts/tts.py US",
     "Commons 无可用发音，语音走构建期 TTS 兜底（待接）",
     "以下语言未生成语音（无合适音色，不用邻近语种硬读）：haw",
-    "地标图由人工从候选中挑选（4 张，中文图注）"
+    "地标图改为人工指定清单（5 张，中文图注）"
   ],
   "name_official": "美國",
   "geometry": "geo/us.geojson",

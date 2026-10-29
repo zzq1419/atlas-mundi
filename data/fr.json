@@ -132,6 +132,30 @@
       "encoding": "webp q72/q74 (源 1920x2114 1406KB JPEG)",
       "caption_zh_manual": "凡尔赛宫镜厅（穹顶）",
       "caption_zh_source": "llm_from_commons_filename"
+    },
+    {
+      "title": "File:Notre-Dame de Paris 2013-07-24.jpg",
+      "caption_zh": "巴黎圣母院",
+      "caption": "巴黎圣母院",
+      "caption_commons": "Cathedral Notre Dame de Paris, West view, Paris, France",
+      "kw": "Notre-Dame de Paris cathedral",
+      "url": "assets/fr/L05.webp",
+      "thumb_url": "assets/fr/L05.thumb.webp",
+      "remote_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/af/Notre-Dame_de_Paris_2013-07-24.jpg/1920px-Notre-Dame_de_Paris_2013-07-24.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "source": "wikidata_p18",
+      "pick_tier": "strict",
+      "author": "P e z i",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "license_status": "ok",
+      "load_verified": true,
+      "bytes": 128506,
+      "thumb_bytes": 13148,
+      "size": {
+        "detail": "760x1026",
+        "thumb": "222x300"
+      },
+      "encoding": "webp q72/q74 (源 1920x2592 1416KB JPEG)"
     }
   ],
   "image_license": "Public domain",
@@ -147,9 +171,9 @@
     "P443 发音语种不符已弃用：Hu-francia.ogg、Th-france.ogg、Jer-France.ogg（P443 不保证语种，须按文件名筛）",
     "Commons 无可用发音，语音走构建期 TTS 兜底（待接）",
     "边界已采集（Natural Earth 50m，817 顶点）",
-    "地标图由人工从候选中挑选（4 张，中文图注）",
     "凡尔赛宫镜厅用的是穹顶壁画照（候选池里只有油画与穹顶，缺镜面长廊主视角），后续可用 Galerie des Glaces 再取",
-    "摘要 292 字，低于 300 字要求：剔除政治史后素材不足。补齐办法是采集阶段增取 Wikipedia 的「地理」章节（prop=extracts&section）"
+    "摘要 292 字，低于 300 字要求：剔除政治史后素材不足。补齐办法是采集阶段增取 Wikipedia 的「地理」章节（prop=extracts&section）",
+    "地标图改为人工指定清单（5 张，中文图注）"
   ],
   "name_official": "法國",
   "geometry": "geo/fr.geojson",

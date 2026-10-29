@@ -142,6 +142,30 @@
       "encoding": "webp q72/q74 (源 1920x1285 687KB JPEG)",
       "caption_zh_manual": "布达拉宫",
       "caption_zh_source": "llm_from_commons_filename"
+    },
+    {
+      "title": "File:Li River.jpg",
+      "caption_zh": "桂林漓江山水",
+      "caption": "桂林漓江山水",
+      "caption_commons": "Locals playing in the Guilin section of the Li River in Guanxi Province, China.",
+      "kw": "Li River Guilin karst",
+      "url": "assets/cn/L05.webp",
+      "thumb_url": "assets/cn/L05.thumb.webp",
+      "remote_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b9/Li_River.jpg/1920px-Li_River.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "source": "article_img",
+      "pick_tier": "strict",
+      "author": "Haha169",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "license_status": "ok",
+      "load_verified": true,
+      "bytes": 44536,
+      "thumb_bytes": 11782,
+      "size": {
+        "detail": "760x428",
+        "thumb": "400x225"
+      },
+      "encoding": "webp q72/q74 (源 1920x1080 569KB JPEG)"
     }
   ],
   "image_license": "CC0",
@@ -220,9 +244,9 @@
     "P443 发音语种不符（Lb-China.ogg 为卢森堡语），已改用本地 TTS；P443 需按文件名做语种过滤",
     "粤语缺少可用音源：Commons 未取到，本机仅有普通话音色（Huihui），待补 zh-HK 音源或人工录制",
     "name_official 与 name_zh 并存，卡片显示常用名，全称保留在 JSON",
-    "地标图由人工从候选中挑选（4 张，中文图注）",
     "边界已含中国台湾、中国香港、中国澳门（Natural Earth 原为独立要素）；示意轮廓非标准地图",
-    "摘要 268 字，低于 300 字要求：剔除政治史后素材不足。补齐办法是采集阶段增取 Wikipedia 的「地理」章节（prop=extracts&section）"
+    "摘要 268 字，低于 300 字要求：剔除政治史后素材不足。补齐办法是采集阶段增取 Wikipedia 的「地理」章节（prop=extracts&section）",
+    "地标图改为人工指定清单（5 张，中文图注）"
   ],
   "collected_at": "2026-10-25T22:36:16+08:00",
   "summary_source": {

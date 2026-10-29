@@ -41,6 +41,24 @@
     ],
     "kw": "Potala Palace Lhasa",
     "must": "potala"
+   },
+   {
+    "zh": "桂林漓江山水",
+    "en": "Li River Guilin karst",
+    "queries": [
+     "桂林漓江山水"
+    ],
+    "kw": "Li River Guilin karst",
+    "must": "li river"
+   },
+   {
+    "zh": "张家界武陵源",
+    "en": "Zhangjiajie Wulingyuan",
+    "queries": [
+     "张家界武陵源"
+    ],
+    "kw": "Zhangjiajie Wulingyuan",
+    "must": "zhangjiajie"
    }
   ],
   "FR": [
@@ -97,6 +115,24 @@
     "avoid": [
      "foudre"
     ]
+   },
+   {
+    "zh": "巴黎圣母院",
+    "en": "Notre-Dame de Paris cathedral",
+    "queries": [
+     "巴黎圣母院"
+    ],
+    "kw": "Notre-Dame de Paris cathedral",
+    "must": "notre"
+   },
+   {
+    "zh": "勃朗峰",
+    "en": "Mont Blanc Chamonix",
+    "queries": [
+     "勃朗峰"
+    ],
+    "kw": "Mont Blanc Chamonix",
+    "must": "mont blanc"
    }
   ],
   "US": [
@@ -139,6 +175,24 @@
     ],
     "kw": "White House north facade",
     "must": "white house"
+   },
+   {
+    "zh": "优胜美地山谷",
+    "en": "Yosemite Valley",
+    "queries": [
+     "优胜美地山谷"
+    ],
+    "kw": "Yosemite Valley",
+    "must": "yosemite"
+   },
+   {
+    "zh": "曼哈顿天际线",
+    "en": "Manhattan skyline New York",
+    "queries": [
+     "曼哈顿天际线"
+    ],
+    "kw": "Manhattan skyline New York",
+    "must": "manhattan"
    }
   ],
   "JP": [

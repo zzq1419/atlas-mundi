@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-10-29-C">
-<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
-<link rel="apple-touch-icon" href="assets/favicon.svg">
+<meta name="build" content="2026-10-29-D">
+<link rel="icon" type="image/png" href="assets/favicon.png">
+<link rel="apple-touch-icon" href="assets/favicon.png">
 <title>寰宇图志 · Atlas Mundi</title>
 <meta name="description" content="寰宇图志：3D 地球上的多模态国家文化图谱。全球 200 多个国家与地区均有基础档案，多模态档案逐国推进。">
 <style>
@@ -597,7 +597,7 @@ body{
   position:fixed;inset:0;z-index:0;
   transform-origin:50% 50%;
   will-change:transform;
-  transition:transform 1.05s cubic-bezier(.22,.61,.36,1);
+  transition:transform 1.05s cubic-bezier(.22,.61,.36,1),opacity .42s ease;
 }
 #globe-stage canvas{
   display:block;width:100%;height:100%;cursor:grab;
@@ -625,7 +625,7 @@ body.panel-open #globe-stage{
 
 .brand{display:flex;align-items:center;gap:9px;flex:0 0 auto}
 .brand-logo{
-  width:26px;height:26px;flex:0 0 auto;display:block;
+  width:28px;height:28px;flex:0 0 auto;display:block;
   /* 地球是白点阵，压在深空背景上不加滤镜也够亮；这里只补一点极淡的外发光，
      让它和右侧文字在视觉重量上配平。 */
   filter:drop-shadow(0 0 6px rgba(150,190,240,.22));
@@ -1079,6 +1079,76 @@ body.panel-open #globe-stage{
 .tool-btn.on{border-color:rgba(150,185,230,.62);background:rgba(28,44,68,.9)}
 .tool-btn.on svg{stroke:rgba(214,232,255,.98)}
 
+/* ============ 2D 平面地图 ============
+   等距圆柱投影。容器锁 2:1 —— 底图和 canvas 必须严格同框，
+   任何一边用了 object-fit 错位都会让国境线和海岸线对不上。 */
+#map2d{
+  position:fixed;inset:0;z-index:6;background:#05070c;
+  opacity:0;pointer-events:none;
+  transition:opacity .42s ease;
+}
+#map2d.on{opacity:1;pointer-events:auto}
+.map2d-stage{
+  position:absolute;left:50%;top:50%;
+  width:min(100vw,200vh);aspect-ratio:2/1;
+  transform:translate(-50%,-50%) scale(1.05);
+  transition:transform .52s cubic-bezier(.2,.9,.3,1);
+}
+#map2d.on .map2d-stage{transform:translate(-50%,-50%) scale(1)}
+.map2d-base,.map2d-lines{
+  position:absolute;inset:0;width:100%;height:100%;display:block;
+}
+/* 白底线稿：底图直接撤掉，让 canvas 上的白底 + 深色边界独立成图 */
+#map2d.paper{background:#efe9dd}
+#map2d.paper .map2d-base{opacity:0}
+#map2d.paper .map2d-lines{opacity:1}
+
+/* 进了 2D，左下那排工具（中国 / 国境线 / 经纬线 / 昼夜）全是 3D 概念，
+   留着只会点出错觉。整排淡出。 */
+#tools{transition:opacity .3s ease}
+#map2d.on ~ #tools{opacity:0;pointer-events:none}
+
+/* 浅底上的顶栏文字要转深色，否则品牌名是一块白字浮在米白上 */
+#map2d.paper ~ #topbar .brand-cn{color:#26313f;text-shadow:0 1px 0 rgba(255,255,255,.6)}
+#map2d.paper ~ #topbar .brand-logo{filter:none}
+#map2d.paper ~ #topbar #search-panel{
+  background:linear-gradient(180deg,rgba(255,255,255,.92),rgba(244,240,232,.95));
+  border-color:rgba(60,78,100,.22);
+  box-shadow:0 1px 2px rgba(40,50,70,.10),0 8px 22px rgba(40,50,70,.10);
+}
+#map2d.paper ~ #topbar #q{color:#1f2b3a}
+#map2d.paper ~ #topbar #q::placeholder{color:rgba(60,78,100,.42)}
+#map2d.paper ~ #topbar .search-icon{stroke:rgba(60,78,100,.6)}
+
+/* 视图切换按钮：左侧垂直居中，比左下角的工具按钮大一号、圆角方形，
+   和那排圆形开关刻意不同，因为它不是"图层开关"而是"换一种看法"。 */
+.view-btn{
+  position:fixed;left:20px;top:50%;z-index:26;
+  width:44px;height:44px;padding:0;
+  display:flex;align-items:center;justify-content:center;
+  border-radius:13px;cursor:pointer;
+  background:linear-gradient(160deg,rgba(16,25,40,.94),rgba(6,10,18,.96));
+  border:1px solid rgba(126,158,198,.30);
+  box-shadow:0 6px 22px rgba(0,0,0,.45);
+  transform:translateY(-50%);
+  transition:border-color .2s ease,background .2s ease,transform .2s ease;
+}
+.view-btn svg{
+  width:19px;height:19px;fill:none;stroke:rgba(178,206,238,.82);
+  stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;
+  transition:stroke .2s ease;
+}
+.view-btn:hover{
+  border-color:rgba(170,204,244,.62);
+  background:linear-gradient(160deg,rgba(26,40,62,.96),rgba(10,16,28,.97));
+}
+.view-btn:hover svg{stroke:rgba(222,238,255,.98)}
+.view-btn.on{border-color:rgba(214,178,110,.72);background:linear-gradient(160deg,rgba(44,38,24,.95),rgba(16,14,10,.97))}
+.view-btn.on svg{stroke:rgba(244,214,150,.98)}
+/* 白底线稿按钮：排在视图按钮下面一档，只在 2D 状态出现 */
+.view-btn.paper{top:calc(50% + 54px);width:38px;height:38px;border-radius:11px}
+.view-btn.paper svg{width:16px;height:16px}
+
 /* ============ 正文里的关键词高亮 ============
    用下划线式的高亮条而不是背景块：一整段里出现十几次背景块会像荧光笔乱涂。 */
 /* 概念关键词与数字/年代共用一套"细下划线"样式，只靠颜色区分。
@@ -1121,6 +1191,9 @@ body.panel-open #globe-stage{
   transition:opacity .14s ease,transform .14s ease;
 }
 .tip.on{opacity:1;transform:translate(-50%,0) scale(1)}
+/* 右侧对齐：横向从右边缘长出来，纵向垂直居中 */
+.tip.side-right{transform:translate(0,-50%) scale(.96);transform-origin:0 50%}
+.tip.side-right.on{transform:translate(0,-50%) scale(1)}
 
 /* ============ 提示（加载完成后短暂出现） ============ */
 .toast{
@@ -1196,11 +1269,37 @@ body.panel-open #globe-stage{
   <div class="globe-msg" id="globe-msg">正在加载地表数据…</div>
 </div>
 
+<!-- 2D 平面地图：等距圆柱底图 + 国界线画布。
+     3D 与 2D 之间用"地球缩下去 / 平面涨上来"的交叉过渡，不是硬切。 -->
+<div id="map2d" aria-hidden="true">
+  <div class="map2d-stage">
+    <img class="map2d-base" src="assets/tex/earth-day.webp" alt="">
+    <canvas class="map2d-lines" width="2048" height="1024"></canvas>
+  </div>
+</div>
+
+<!-- 视图切换：单独放左侧垂直居中，和左下角工具栏分开 —— 它切的是"以什么方式看世界"，
+     不是图层开关，混在一起会让人以为它也是个叠加层。 -->
+<button id="btn-view" class="view-btn" type="button"
+        aria-label="切换到平面地图" data-tip="切换到平面地图">
+  <svg viewBox="0 0 24 24" aria-hidden="true">
+    <rect x="2.6" y="5.4" width="18.8" height="13.2" rx="2"/>
+    <path d="M2.6 12h18.8M9 5.4v13.2M15 5.4v13.2"/>
+  </svg>
+</button>
+<button id="btn-paper" class="view-btn paper" type="button"
+        aria-label="切换白底线稿" data-tip="白底线稿" hidden>
+  <svg viewBox="0 0 24 24" aria-hidden="true">
+    <path d="M4 4.6h16v14.8H4z"/>
+    <path d="M8.4 4.6v14.8M15.2 4.6v14.8M4 9.6h16M4 14.6h16" opacity=".5"/>
+  </svg>
+</button>
+
 <!-- 顶部悬浮栏：品牌 + 搜索 -->
 <header id="topbar">
   <div class="brand">
     <!-- 点阵球：球面均匀采点正交投影，边缘自然密成一圈。见 scripts/make_logo.py -->
-    <img class="brand-logo" src="assets/logo.svg" alt="" width="26" height="26">
+    <img class="brand-logo" src="assets/logo.png" alt="" width="28" height="28">
     <span class="brand-cn">寰宇图志</span>
   </div>
   <!-- 搜索：默认就是一个短输入框，点一下（或聚焦）展开变长。
@@ -2256,6 +2355,16 @@ body.panel-open #globe-stage{
       var r = el.getBoundingClientRect();
       tip.classList.add('on');
       var tw = tip.offsetWidth, th = tip.offsetHeight;
+      /* 靠左的元素（左下角竖排工具栏）提示一律放右边。
+         放上面会直接盖住上面那颗按钮 —— 竖排按钮间距只有 8px，
+         提示一出来就分不清是在说谁。 */
+      if (r.left + r.width / 2 < window.innerWidth * 0.4) {
+        tip.classList.add('side-right');
+        tip.style.left = (r.right + 10) + 'px';
+        tip.style.top = (r.top + r.height / 2) + 'px';
+        return;
+      }
+      tip.classList.remove('side-right');
       var cx = Math.min(Math.max(r.left + r.width / 2, tw / 2 + 8),
                         window.innerWidth - tw / 2 - 8);
       var y = r.top - th - 8;
@@ -2590,25 +2699,60 @@ body.panel-open #globe-stage{
     return new THREE.LineSegments(g, material);
   }
 
-  /* 经纬网：每 30° 一条 */
-  function graticule(radius) {
-    var pos = [];
-    var lon, lat, i;
-    for (lon = -180; lon < 180; lon += 30) {
-      for (i = -88; i < 88; i += 2) {
-        pushEdge([lon, i], [lon, i + 2], radius, pos);
-      }
+  /* 经纬网：等距圆柱贴图，不是线段。
+     线段版有两个硬伤：经线只画到 ±88°，两极各留一个洞（看起来线根本没交汇）；
+     而且没法标度数 —— 要在球面上写字，只能是贴图。
+     一张 4096×2048 的画布按等距圆柱画满经纬线和度数，贴到球壳上就跟着转，
+     缩放到任何角度都对得上。 */
+  function buildGraticule(radius) {
+    var W = 4096, H = 2048;
+    var cv = document.createElement('canvas');
+    cv.width = W; cv.height = H;
+    var g = cv.getContext('2d');
+    var LINE = 'rgba(226,190,120,0.62)';
+    var MAJOR = 'rgba(240,206,140,0.92)';
+    var TEXT = 'rgba(246,220,168,0.95)';
+    var lon, lat, x, y;
+
+    g.lineWidth = 2.2;
+    g.strokeStyle = LINE;
+    // 经线：-180 到 180，含两端，所以线会真正走到南北极
+    for (lon = -180; lon <= 180; lon += 30) {
+      x = (lon + 180) / 360 * W;
+      g.beginPath(); g.moveTo(x, 0); g.lineTo(x, H); g.stroke();
     }
+    // 纬线：每 30°，到 ±60；赤道单独加粗
     for (lat = -60; lat <= 60; lat += 30) {
-      for (i = -178; i < 178; i += 2) {
-        pushEdge([i, lat], [i + 2, lat], radius, pos);
-      }
+      y = (90 - lat) / 180 * H;
+      g.lineWidth = (lat === 0) ? 3.6 : 2.2;
+      g.strokeStyle = (lat === 0) ? MAJOR : LINE;
+      g.beginPath(); g.moveTo(0, y); g.lineTo(W, y); g.stroke();
     }
-    var g = new THREE.BufferGeometry();
-    g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
-    return new THREE.LineSegments(g, new THREE.LineBasicMaterial({
-      color: 0x2c5478, transparent: true, opacity: 0.42
-    }));
+
+    // 度数：经度贴在赤道上方一点，纬度贴在 0° 经线上（贴图中央，拉伸最小）
+    g.fillStyle = TEXT;
+    g.textAlign = 'center';
+    g.textBaseline = 'middle';
+    g.font = 'bold 44px system-ui,-apple-system,"Microsoft YaHei",sans-serif';
+    for (lon = -180; lon < 180; lon += 30) {
+      if (lon === 0) continue;
+      x = (lon + 180) / 360 * W;
+      y = H / 2 - 46;
+      g.fillText(Math.abs(lon) + '°' + (lon > 0 ? 'E' : 'W'), x, y);
+    }
+    g.font = 'bold 40px system-ui,-apple-system,"Microsoft YaHei",sans-serif';
+    for (lat = -60; lat <= 60; lat += 30) {
+      if (lat === 0) continue;
+      y = (90 - lat) / 180 * H;
+      g.fillText(Math.abs(lat) + '°' + (lat > 0 ? 'N' : 'S'), W / 2 + 90, y - 40);
+    }
+
+    var tex = new THREE.CanvasTexture(cv);
+    tex.anisotropy = 4;
+    var mat = new THREE.MeshBasicMaterial({
+      map: tex, transparent: true, depthWrite: false, side: THREE.FrontSide
+    });
+    return new THREE.Mesh(new THREE.SphereGeometry(radius, 96, 48), mat);
   }
 
   /* 世界坐标（球面）→ 经纬度 */
@@ -3333,20 +3477,17 @@ body.panel-open #globe-stage{
 
     /* 经纬网与大陆轮廓：只在没有贴图时显示（兜底形态）。
        有贴图后它们会显得杂乱，所以贴图一到就隐藏。 */
-    var grat = graticule(1.001);
-    spin.add(grat);
-    /* 经纬线本身是"贴图还没到时的兜底骨架"，球淡入后会和大陆轮廓一起隐掉。
-       但用户要能随时把网格调出来对位置，所以对象留着（globe.grid）不销毁，
-       按钮只是改 visible —— 重建一次要再生成两万个顶点，没必要。 */
-    globe.grid = grat;
+    /* 大陆轮廓：贴图未到时的兜底骨架，球淡入后隐掉。
+       经纬网不再放进 wire —— 它现在是 4096×2048 的贴图，画一次要几十毫秒，
+       放进开机流程会拖慢首屏；改成点按钮时惰性生成。 */
     var landLine = ringsToLines(data.land || [], 1.0015, new THREE.LineBasicMaterial({
       color: 0x4a7ea8, transparent: true, opacity: 0.40
     }));
     spin.add(landLine);
     globe.wire = [
-      { o: grat, base: grat.material.opacity },
       { o: landLine, base: landLine.material.opacity }
     ];
+    globe.grid = null;
 
     /* 已采集完整档案的国家国界：这是数据标记，贴图之上也要保留 */
     globe.matOn = new THREE.LineBasicMaterial({
@@ -3496,8 +3637,11 @@ body.panel-open #globe-stage{
         /* 半径 1.006：球半径是 1，差值必须比深度缓冲的精度大一档，
            否则线会陷进球面被剔掉（1.0045 实测就完全看不见）。
            颜色给亮青白、透明度给足 —— 深蓝海洋上的淡蓝细线等于没画。 */
+        /* 冷蓝线压在深蓝海洋上根本分不出来，用户原话"根本看不清楚"。
+           换成暖白的月牙色，压深蓝底、压棕绿陆地都读得出来。
+           不用金色：金色是"当前选中"的语义，全量边界用金会喧宾夺主。 */
         allBorders = ringsToLines(rings, 1.006, new THREE.LineBasicMaterial({
-          color: 0x9ecdec, transparent: true, opacity: 0.42, depthWrite: false
+          color: 0xf3ead8, transparent: true, opacity: 0.52, depthWrite: false
         }));
         spin.add(allBorders);
         if (cb) cb(true);
@@ -3834,15 +3978,173 @@ body.panel-open #globe-stage{
     var bgd = document.getElementById('btn-grid');
     if (bgd) {
       bgd.addEventListener('click', function () {
-        if (!globe.grid) return;
+        if (!globe.grid) {
+          // 第一次点才画：4096×2048 的画布 + 上万个字的描边，一次性几十毫秒，
+          // 放进首屏就会让"地球多久出来"变难看。
+          if (!globe.spin) return;
+          bgd.classList.add('busy');
+          globe.grid = buildGraticule(1.0018);
+          globe.grid.visible = false;
+          globe.spin.add(globe.grid);
+          bgd.classList.remove('busy');
+        }
         var on = !globe.grid.visible;
-        globe.grid.material.opacity = 0.42;
         globe.grid.visible = on;
         bgd.classList.toggle('on', on);
         bgd.setAttribute('data-tip', on ? '隐藏经纬线' : '显示经纬线');
         if (window.__tipHide) window.__tipHide();
       });
     }
+  })();
+
+  /* ---------- 2D 平面地图 ----------
+     等距圆柱投影。底图直接用 assets/tex/earth-day.webp（它本来就是 2:1 的等距圆柱），
+     国界线画在一张 2048×1024 的 canvas 上，和底图同框 —— 两边都按 2:1 锁死，
+     任何一个用 object-fit 都会错位，海岸线和国界线就对不上了。 */
+  (function bindMap2D() {
+    var wrap = document.getElementById('map2d');
+    var cv = wrap && wrap.querySelector('.map2d-lines');
+    var btnView = document.getElementById('btn-view');
+    var btnPaper = document.getElementById('btn-paper');
+    var stage = document.getElementById('globe-stage');
+    var labelsEl = document.getElementById('labels');
+    if (!wrap || !cv || !btnView) return;
+
+    var W = cv.width, H = cv.height;
+    var ringsAll = null, loading = null;
+    var is2D = false, paper = false;
+
+    function loadRings() {
+      if (ringsAll) return Promise.resolve(ringsAll);
+      if (loading) return loading;
+      var jobs = [];
+      for (var b = 0; b < 8; b++) {
+        jobs.push(fetch('geo/c' + b + '.json')
+          .then(function (r) { return r.ok ? r.json() : null; })
+          .catch(function () { return null; }));
+      }
+      loading = Promise.all(jobs).then(function (list) {
+        var rings = [];
+        list.forEach(function (all) {
+          if (!all) return;
+          Object.keys(all).forEach(function (iso) {
+            (((all[iso] || {}).features) || []).forEach(function (f) {
+              var g = f.geometry || {};
+              var polys = g.type === 'Polygon' ? [g.coordinates]
+                : (g.type === 'MultiPolygon' ? g.coordinates : []);
+              polys.forEach(function (poly) {
+                poly.forEach(function (ring) {
+                  if (ring && ring.length > 2) rings.push(ring);
+                });
+              });
+            });
+          });
+        });
+        ringsAll = rings;
+        return rings;
+      });
+      return loading;
+    }
+
+    function paint() {
+      if (!ringsAll) return;
+      var g = cv.getContext('2d');
+      g.clearRect(0, 0, W, H);
+      if (paper) {
+        g.fillStyle = '#f6f2e9';
+        g.fillRect(0, 0, W, H);
+        g.strokeStyle = 'rgba(30,42,60,.82)';
+        g.lineWidth = 2.0;
+      } else {
+        g.strokeStyle = 'rgba(244,232,210,.72)';
+        g.lineWidth = 1.6;
+      }
+      g.lineJoin = 'round';
+      allRingsLoop(g);
+    }
+
+    function allRingsLoop(g) {
+      for (var k = 0; k < ringsAll.length; k++) {
+        var ring = ringsAll[k];
+        g.beginPath();
+        var prevX = null;
+        for (var i = 0; i < ring.length; i++) {
+          var pt = ring[i];
+          if (!pt) continue;
+          var x = (pt[0] + 180) / 360 * W;
+          var y = (90 - pt[1]) / 180 * H;
+          /* 跨换日线的多边形（俄罗斯、斐济）直接连会横穿整张图，
+             发现相邻两点横跨半幅以上就断开，重新起笔。 */
+          if (prevX !== null && Math.abs(x - prevX) > W * 0.5) g.moveTo(x, y);
+          else if (prevX === null) g.moveTo(x, y);
+          else g.lineTo(x, y);
+          prevX = x;
+        }
+        g.stroke();
+      }
+    }
+
+    function set2D(on) {
+      is2D = on;
+      btnView.classList.toggle('on', on);
+      btnView.setAttribute('data-tip', on ? '切换回三维地球' : '切换到平面地图');
+      var svg = btnView.querySelector('svg');
+      if (svg) {
+        svg.innerHTML = on
+          ? '<circle cx="12" cy="12" r="8.6"/><ellipse cx="12" cy="12" rx="3.9" ry="8.6"/>'
+          : '<rect x="2.6" y="5.4" width="18.8" height="13.2" rx="2"/>' +
+            '<path d="M2.6 12h18.8M9 5.4v13.2M15 5.4v13.2"/>';
+      }
+      if (on) {
+        wrap.classList.add('on');
+        wrap.setAttribute('aria-hidden', 'false');
+        if (stage) stage.style.opacity = '0';
+        if (labelsEl) labelsEl.style.opacity = '0';
+        btnPaper.hidden = false;
+        // 先铺线再淡入：切过去的第一帧就有国界，不会先出现一张光板再补线
+        loadRings().then(paint);
+      } else {
+        wrap.classList.remove('on');
+        wrap.setAttribute('aria-hidden', 'true');
+        if (stage) stage.style.opacity = '1';
+        if (labelsEl) labelsEl.style.opacity = '1';
+        btnPaper.hidden = true;
+        paper = false;
+        wrap.classList.remove('paper');
+        btnPaper.classList.remove('on');
+        btnPaper.setAttribute('data-tip', '白底线稿');
+      }
+    }
+
+    btnView.addEventListener('click', function () {
+      set2D(!is2D);
+      if (window.__tipHide) window.__tipHide();
+    });
+
+    /* 2D 上也要能点国家。反算经纬度后复用 countryAt（bbox 判定），
+       和 3D 球面点击是同一套逻辑，不另写一份。 */
+    cv.addEventListener('click', function (e) {
+      if (!is2D) return;
+      var r = cv.getBoundingClientRect();
+      var x = (e.clientX - r.left) / r.width * W;
+      var y = (e.clientY - r.top) / r.height * H;
+      var lon = x / W * 360 - 180;
+      var lat = 90 - y / H * 180;
+      var c = countryAt(lon, lat);
+      if (!c || !c.iso) return;
+      setActive(c.iso);
+      openDetail(c.iso, cardOf(c.iso), false);
+    });
+
+    btnPaper.addEventListener('click', function () {
+      if (!is2D) return;
+      paper = !paper;
+      wrap.classList.toggle('paper', paper);
+      btnPaper.classList.toggle('on', paper);
+      btnPaper.setAttribute('data-tip', paper ? '回到卫星底图' : '白底线稿');
+      paint();
+      if (window.__tipHide) window.__tipHide();
+    });
   })();
 
   /* ---------- 首屏就是地球，直接启动。之前那套"滚到区块才加载"已经不适用 ——
