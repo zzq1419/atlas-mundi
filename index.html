@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-10-29-N">
+<meta name="build" content="2026-10-29-O">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <title>寰宇图志 · Atlas Mundi</title>
@@ -842,11 +842,18 @@ body.panel-open #globe-stage{
   border-radius:20px;
   box-shadow:0 28px 70px rgba(0,0,0,.62), 0 3px 10px rgba(0,0,0,.42);
   transform:translateX(calc(100% + 28px));
-  transition:transform .56s cubic-bezier(.22,.61,.36,1);
+  /* visibility 不能过渡，但它会**立刻**生效 —— 移除 .open 的瞬间面板就被藏了，
+     滑出动画根本没机会跑，看起来就是"啪"地消失。
+     把 visibility 的切换延迟到 0.56 秒（正好是滑完的时间），动画才看得见。 */
+  transition:transform .56s cubic-bezier(.22,.61,.36,1),
+             visibility 0s linear .56s;
   visibility:hidden;
   overflow:hidden;                 /* 圆角要裁掉内部滚动区的直角 */
 }
-#detail.open{transform:none;visibility:visible}
+#detail.open{
+  transform:none;visibility:visible;
+  transition:transform .56s cubic-bezier(.22,.61,.36,1),visibility 0s;
+}
 #detail[hidden]{display:none}
 
 .dhead{
@@ -1638,6 +1645,16 @@ body.panel-open #globe-stage{
       m.classList.add('gone');
       setTimeout(function () { if (m.parentNode) m.remove(); }, 700);
     }
+    /* 球稳定五秒后，趁空闲把国境线和经纬网先建好。
+       这两样第一次现做都要几十到上百毫秒，用户点下去会僵一下。 */
+    setTimeout(function () {
+      if (!globe.warmHeavyLayers) return;
+      if (window.requestIdleCallback) {
+        requestIdleCallback(globe.warmHeavyLayers, { timeout: 6000 });
+      } else {
+        globe.warmHeavyLayers();
+      }
+    }, 3000);
   }
 
   function fail(msg) {
@@ -3691,19 +3708,56 @@ body.panel-open #globe-stage{
       });
     };
 
+    /* 空闲预热：这两样第一次使用都要现做（国境线合并 1201 个环、
+       经纬网画 4096×2048 的贴图），用户点下去会僵一下。
+       球稳定几秒后趁 idle 先建好，之后开关只切 visible —— 秒开。
+       建好先设 visible=false，不改变当前画面。 */
+    function warmHeavyLayers() {
+      if (!globe.spin) return;
+      globe.toggleAllBorders(function () {
+        if (!allBorders) return;
+        allBorders.visible = false;
+        // 按钮状态同步回来（预热不该把开关点亮）
+        var b = document.getElementById('btn-borders');
+        if (b) { b.classList.remove('on'); b.setAttribute('data-tip', '显示全部国境线'); }
+      });
+      // 经纬网：同理，先建好放着
+      setTimeout(function () {
+        if (!globe.grid && globe.spin && typeof buildGraticule === 'function') {
+          globe.grid = buildGraticule(1.0018);
+          globe.grid.visible = false;
+          globe.spin.add(globe.grid);
+        }
+      }, 1200);
+    }
+    globe.warmHeavyLayers = warmHeavyLayers;
+
+    /* 排查用：看当前高亮了谁、临时国界还在不在。 */
+    window.__sb = function () {
+      return {
+        active: globe.active || null,
+        tempBorder: !!tempBorder,
+        litGroups: Object.keys(globe.groups).filter(function (k) { return globe.groups[k].visible; }),
+        gridBuilt: !!globe.grid,
+        bordersBuilt: !!allBorders
+      };
+    };
+
     /* 全部国境线：一次把 8 个分片里所有国家的轮廓合并成一个 LineSegments。
        240 个国家各建一个对象会有 240 次 draw call，合成一条整线只有 1 次。
        分片总共 1.1MB，切开关时若已加载过就走浏览器缓存，不会重新解析。 */
     var allBorders = null, allBusy = false;
     globe.toggleAllBorders = function (cb) {
+      /* 建好一次就留着，开关只切 visible。
+         以前关掉就 dispose，下次打开又得重新合并 1201 个环 —— 用户手感就是
+         "第一次点卡一下、第二次又卡一下"。这个对象只有一条 draw call，
+         留着占不了多少内存。 */
       if (allBorders) {
-        spin.remove(allBorders);
-        allBorders.geometry.dispose();
-        allBorders.material.dispose();
-        allBorders = null;
-        if (cb) cb(false);
+        allBorders.visible = !allBorders.visible;
+        if (cb) cb(allBorders.visible);
         return;
       }
+      var want = true;         // 本次点开
       if (allBusy) return;
       allBusy = true;
       var jobs = [];
@@ -3740,8 +3794,9 @@ body.panel-open #globe-stage{
         allBorders = ringsToLines(rings, 1.006, new THREE.LineBasicMaterial({
           color: 0xf3ead8, transparent: true, opacity: 0.52, depthWrite: false
         }));
+        allBorders.visible = want;
         spin.add(allBorders);
-        if (cb) cb(true);
+        if (cb) cb(want);
       });
     };
 
