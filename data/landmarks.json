@@ -43,13 +43,13 @@
     "must": "potala"
    },
    {
-    "zh": "桂林漓江山水",
-    "en": "Li River Guilin karst",
+    "zh": "桂林漓江（兴坪）",
+    "en": "RMB20 Li River Xingping",
     "queries": [
-     "桂林漓江山水"
+     "桂林漓江（兴坪）"
     ],
-    "kw": "Li River Guilin karst",
-    "must": "li river"
+    "kw": "RMB20 Li River Xingping",
+    "must": "rmb20"
    },
    {
     "zh": "张家界武陵源",
