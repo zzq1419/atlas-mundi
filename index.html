@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-10-29-P">
+<meta name="build" content="2026-10-29-Q">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <title>寰宇图志 · Atlas Mundi</title>
@@ -3714,7 +3714,12 @@ body.panel-open #globe-stage{
        建好先设 visible=false，不改变当前画面。 */
     function warmHeavyLayers() {
       if (!globe.spin) return;
-      globe.toggleAllBorders(function () {
+      /* 只在"还没建过、也没人在等"的时候预热。
+         否则预热的 toggle 会把用户刚打开的国境线又切掉 —— 这属于
+         "程序自己动了用户设置的状态"。 */
+      if (allBorders || allBusy) {
+        // 已经建好或正在建，跳过；只补经纬网
+      } else globe.toggleAllBorders(function () {
         if (!allBorders) return;
         allBorders.visible = false;
         // 按钮状态同步回来（预热不该把开关点亮）
@@ -3739,7 +3744,10 @@ body.panel-open #globe-stage{
         tempBorder: !!tempBorder,
         litGroups: Object.keys(globe.groups).filter(function (k) { return globe.groups[k].visible; }),
         gridBuilt: !!globe.grid,
-        bordersBuilt: !!allBorders
+        gridVisible: !!(globe.grid && globe.grid.visible),
+        bordersBuilt: !!allBorders,
+        bordersVisible: !!(allBorders && allBorders.visible),
+        bordersBusy: !!allBusy
       };
     };
 
@@ -3747,6 +3755,12 @@ body.panel-open #globe-stage{
        240 个国家各建一个对象会有 240 次 draw call，合成一条整线只有 1 次。
        分片总共 1.1MB，切开关时若已加载过就走浏览器缓存，不会重新解析。 */
     var allBorders = null, allBusy = false;
+    /* 加载期间用户又点了：把回调排上，加载完一次性通知。
+       以前是 `if (allBusy) return;` —— 直接返回、cb 不调、按钮的 busy 类
+       永远摘不掉，之后所有点击都被 `if (classList.contains('busy')) return`
+       挡在外面。用户点两下就变成"按钮没反应"，而屏幕上线的状态跟他以为的
+       完全对不上 —— 这就是"偶发"的来源。 */
+    var allWait = [];
     globe.toggleAllBorders = function (cb) {
       /* 建好一次就留着，开关只切 visible。
          以前关掉就 dispose，下次打开又得重新合并 1201 个环 —— 用户手感就是
@@ -3758,7 +3772,10 @@ body.panel-open #globe-stage{
         return;
       }
       var want = true;         // 本次点开
-      if (allBusy) return;
+      if (allBusy) {
+        if (cb) allWait.push(cb);
+        return;
+      }
       allBusy = true;
       var jobs = [];
       for (var b = 0; b < 8; b++) {
@@ -3797,6 +3814,7 @@ body.panel-open #globe-stage{
         allBorders.visible = want;
         spin.add(allBorders);
         if (cb) cb(want);
+        allWait.splice(0).forEach(function (f) { try { f(want); } catch (e) {} });
       });
     };
 

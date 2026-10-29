@@ -490,8 +490,12 @@ FOOD_SECTIONS = ("饮食", "食俗", "美食", "料理", "节日", "节庆", "�
 # 塞进去只会把 prompt 撑大、把模型往"某某大师"上带。
 SIDE_SECTIONS = ("宗教", "信仰", "语言", "教育", "体育", "建筑", "人口",
                  "音乐", "艺术", "文学")
+# 历史单独一档：内容长（几万字），不能和民俗抢预算，单独限 1000 字。
+HISTORY_SECTIONS = ("历史", "歷史", "简史", "簡史")
 
 _TAG_RE = re.compile(r"<[^>]+>")
+# 「1871年」「公元前221年」都算。用年份密度判断哪段在讲大事。
+YEAR_RE = re.compile(r"公元前\s*\d+|(?:1[0-9]{3}|20[0-2][0-9])\s*年")
 _WS_RE = re.compile(r"[ \t\u00a0]+")
 
 
@@ -560,16 +564,55 @@ def fetch_culture_excerpts(title, notes, limit=4):
     def rank(line):
         if any(k in line for k in FOOD_SECTIONS):
             return 0          # 真民俗，先取
+        if any(k in line for k in HISTORY_SECTIONS):
+            return 1          # 历史，单独限额
         if any(k in line for k in SIDE_SECTIONS):
-            return 1          # 背景，补位用
+            return 2          # 背景，补位用
         return 9
 
     ordered = sorted(secs, key=lambda x: rank((x.get("line") or "").strip()))
     picked = []
+
+    # 历史章节单独处理。它一节几万字、下面挂着十几个子节
+    # （起源 / 中世纪 / 统一 / 两次大战 / 冷战）。
+    #
+    # 试过按 toclevel 抓子节，结果只抓到前两个（日耳曼部落、东法兰克王国），
+    # 1871 统一、两次大战、两德分裂全丢 —— 中文维基这几节的层级标得不规整。
+    # 改成更笨但可靠的办法：把整节正文按段落**均匀抽 8 段**，
+    # 不管层级怎么标，首尾和中段都能覆盖到。
+    hist_sec = next((x for x in ordered
+                     if any(k in (x.get("line") or "") for k in HISTORY_SECTIONS)), None)
+    if hist_sec:
+        try:
+            ph = api_json(ZH_WIKI_API, {"action": "parse", "page": title,
+                                        "prop": "text", "section": hist_sec.get("index"),
+                                        "format": "json", "redirects": "1",
+                                        "variant": "zh-cn"})
+            html_h = ((ph.get("parse") or {}).get("text") or {}).get("*") or ""
+            txt_h = _strip_html(html_h)
+            paras = [x for x in txt_h.split("\n") if len(x) >= 40]
+            # 按"年份密度"挑，不是均匀抽。
+            # 均匀抽出来的是碎片：德国那版从远古直接跳到 962 年，
+            # 再跳到 1806、1918 —— 1871 统一、魏玛、纳粹、两德分裂全丢，
+            # 因为那几段正好落在采样点之间。
+            # 年份密集的段落就是讲大事的段落，挑这些才抓得住主干。
+            scored = [(len(YEAR_RE.findall(x)), i) for i, x in enumerate(paras)]
+            top = set(i for _, i in sorted(scored, reverse=True)[:10])
+            paras = [p for i, p in enumerate(paras) if i in top]   # 保持原文顺序
+            body = "".join(paras)[:2200]
+            if len(body) >= 80:
+                picked.append({"section": hist_sec.get("line"), "text": body,
+                               "chars": len(body)})
+                log("      [ok] 历史正文 %d 段采样，%d 字" % (len(paras), len(body)))
+        except Exception as e:
+            notes.append("历史章节取用失败：%s" % str(e)[:50])
+
     for sec in ordered:
         line = (sec.get("line") or "").strip()
-        if not line or rank(line) > 1:
+        if not line or rank(line) > 2:
             continue
+        if hist_sec is not None and sec is hist_sec:
+            continue          # 历史已按子节采过
         try:
             p = api_json(ZH_WIKI_API, {"action": "parse", "page": title,
                                        "prop": "text", "section": sec.get("index"),
@@ -585,7 +628,7 @@ def fetch_culture_excerpts(title, notes, limit=4):
             # 注意 chars 要记**实际取了多少**，不是原文多少 ——
             # 记原文字数的话，德国「文化」一节 7159 字就一次把预算吃光，
             # 后面所有章节都被 break 掉，最后只剩一节。
-            budget = 3600 - sum(x["chars"] for x in picked)
+            budget = 4200 - sum(x["chars"] for x in picked)
             if budget < 200:
                 break
             focused = _pick_relevant(txt) or txt
