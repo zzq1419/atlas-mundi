@@ -29,6 +29,7 @@ sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 TEX_OUT = os.path.join(ROOT, "assets", "tex", "world-2d.webp")
+TEX_LOW = os.path.join(ROOT, "assets", "tex", "world-2d-low.webp")
 FLAT_OUT = os.path.join(ROOT, "geo", "flat.json")
 
 TEX_W, TEX_H = 3072, 1536
@@ -41,12 +42,17 @@ MIN_RING = 3            # 少于这么多个点的环丢掉（小岛礁）
 def build_texture():
     src = os.path.join(ROOT, "assets", "tex", "earth-day.webp")
     im = Image.open(src).convert("RGB")
-    im = im.resize((TEX_W, TEX_H), Image.LANCZOS)
-    im.save(TEX_OUT, "WEBP", quality=82, method=6)
-    kb = os.path.getsize(TEX_OUT) / 1024
+    im.resize((TEX_W, TEX_H), Image.LANCZOS).save(
+        TEX_OUT, "WEBP", quality=82, method=6)
+    # 低清版：只用来"立刻有东西看"。512×256 拉到全屏是一团糊，
+    # 但用户能马上分辨出海洋和大陆的分布，比对着一个黑屏等十秒好。
+    im.resize((512, 256), Image.LANCZOS).save(
+        TEX_LOW, "WEBP", quality=58, method=6)
     old = os.path.getsize(src) / 1024
-    print("[tex] %dx%d  %.0f KB（原图 %.0f KB，省 %.0f%%）"
-          % (TEX_W, TEX_H, kb, old, (1 - kb / old) * 100))
+    for f, label in ((TEX_OUT, "高清"), (TEX_LOW, "低清")):
+        print("[tex] %-4s %6.0f KB（原图 %.0f KB，省 %.0f%%）"
+              % (label, os.path.getsize(f) / 1024, old,
+                 (1 - os.path.getsize(f) / 1024 / old) * 100))
 
 
 def simplify(ring):

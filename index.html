@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-10-29-F">
+<meta name="build" content="2026-10-29-G">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <title>寰宇图志 · Atlas Mundi</title>
@@ -4076,7 +4076,8 @@ body.panel-open #globe-stage{
     var W = cv.width, H = cv.height;   // 6144 × 1024（三份）
     var ONE = W / 3;                   // 一份的宽度
     var ringsAll = null, boxes = [], baseImg = null;
-    var loading = null, painted = false, boundsDone = false, imgDone = false;
+    var loading = null, painted = false, boundsDone = false;
+    var imgReady = false, imgLoading = false, hiDone = false;
     var is2D = false, paper = false;
     var loadMsg = wrap.querySelector('.map2d-loading');
 
@@ -4087,15 +4088,33 @@ body.panel-open #globe-stage{
        之前是 Promise.all 等 8 个分片 + 1.25MB 底图一起回来才画第一笔，
        线上实测要 20 秒以上，这 20 秒里整个屏幕是纯黑的 —— 用户以为坏了。
        现在底图（431KB）先出，国界线（gzip 后 143KB）随后叠上。 */
+    /* 底图分两级加载：
+       低清 512×256 只有 14KB，境外链路上一两秒就到，先铺上去让用户立刻看到
+       "这是张世界地图"；高清 3072×1536 到了再无缝换掉。
+       直接等高清的话，慢网上是十几秒的纯黑 —— 用户只会觉得坏了。 */
     function loadBase() {
-      if (imgDone) return;
-      var im = new Image();
-      im.onload = function () {
-        baseImg = im; imgDone = true;
+      if (imgReady || imgLoading) return;
+      imgLoading = true;
+      var low = new Image();
+      low.onload = function () {
+        baseImg = low; imgReady = true;      // 先当正式底图用，后面会被顶掉
         if (is2D) paint();
+        var hi = new Image();
+        hi.onload = function () {
+          baseImg = hi; hiDone = true;
+          if (is2D) paint();
+        };
+        hi.onerror = function () { hiDone = true; };
+        hi.src = 'assets/tex/world-2d.webp';
       };
-      im.onerror = function () { imgDone = true; paint(); };
-      im.src = 'assets/tex/world-2d.webp';
+      low.onerror = function () {
+        // 低清都失败就直接上高清，别卡在这一步
+        var hi = new Image();
+        hi.onload = function () { baseImg = hi; imgReady = true; hiDone = true; if (is2D) paint(); };
+        hi.onerror = function () { imgReady = true; hiDone = true; paint(); };
+        hi.src = 'assets/tex/world-2d.webp';
+      };
+      low.src = 'assets/tex/world-2d-low.webp';
     }
 
     function loadBounds() {
@@ -4193,7 +4212,7 @@ body.panel-open #globe-stage{
       for (var j = 0; j < 3; j++) drawOne(g, j * ONE);
       painted = true;
       if (loadMsg) {
-        loadMsg.classList.toggle('on', !(ringsAll && (paper || baseImg)));
+        loadMsg.classList.toggle('on', !(ringsAll && (paper || imgReady)));
       }
     }
 
@@ -4396,6 +4415,21 @@ body.panel-open #globe-stage{
         var list = (idx.countries || []).filter(function (c) {
           return c.status !== 'placeholder';
         });
+        /* 平面地图的资源先备好。按体积从小到大排：
+           低清底图 14KB → 国界 143KB(gzip) → 高清底图 431KB。
+           用户在这十几秒里随时可能点那个 2D 按钮，预先下好就能秒开；
+           没下完也没关系，loadBase/loadBounds 会自己接着要。 */
+        ['assets/tex/world-2d-low.webp',
+         'geo/flat.json',
+         'assets/tex/world-2d.webp'].forEach(function (u, k) {
+          setTimeout(function () {
+            // 图片用 Image 而不是 fetch：图片缓存和 fetch 缓存是两套索引，
+            // 用 Image 预取，后面 new Image().src 同一地址才是真命中
+            if (/\.webp$/.test(u)) { var im = new Image(); im.src = u; }
+            else fetch(u).catch(function () {});
+          }, k * 260);
+        });
+
         var i = 0;
         var step = function () {
           if (i >= list.length) return;
@@ -4403,8 +4437,10 @@ body.panel-open #globe-stage{
           if (iso) fetch('data/' + iso + '.json').catch(function () {});
           setTimeout(step, 140);
         };
-        if (window.requestIdleCallback) requestIdleCallback(step, { timeout: 3000 });
-        else step();
+        setTimeout(function () {
+          if (window.requestIdleCallback) requestIdleCallback(step, { timeout: 3000 });
+          else step();
+        }, 900);
       }, 4200);
     })
     .catch(function (e) {
