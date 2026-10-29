@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-10-29-G">
+<meta name="build" content="2026-10-29-H">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <title>寰宇图志 · Atlas Mundi</title>
@@ -4211,6 +4211,11 @@ body.panel-open #globe-stage{
       }
       for (var j = 0; j < 3; j++) drawOne(g, j * ONE);
       painted = true;
+      // 留个时间戳：canvas 很大，外部靠读像素计时会被 getImageData 本身拖慢，
+      // 排查"到底几秒才画出来"只能靠它
+      window.__map2dPaintedAt = performance.now();
+      window.__map2dHasBase = !!baseImg;
+      window.__map2dHasBounds = !!(ringsAll && ringsAll.length);
       if (loadMsg) {
         loadMsg.classList.toggle('on', !(ringsAll && (paper || imgReady)));
       }
