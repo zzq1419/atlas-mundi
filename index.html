@@ -3,7 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-10-29-B">
+<meta name="build" content="2026-10-29-C">
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+<link rel="apple-touch-icon" href="assets/favicon.svg">
 <title>寰宇图志 · Atlas Mundi</title>
 <meta name="description" content="寰宇图志：3D 地球上的多模态国家文化图谱。全球 200 多个国家与地区均有基础档案，多模态档案逐国推进。">
 <style>
@@ -621,7 +623,13 @@ body.panel-open #globe-stage{
 }
 #topbar > *{pointer-events:auto}
 
-.brand{display:flex;align-items:baseline;gap:10px;flex:0 0 auto}
+.brand{display:flex;align-items:center;gap:9px;flex:0 0 auto}
+.brand-logo{
+  width:26px;height:26px;flex:0 0 auto;display:block;
+  /* 地球是白点阵，压在深空背景上不加滤镜也够亮；这里只补一点极淡的外发光，
+     让它和右侧文字在视觉重量上配平。 */
+  filter:drop-shadow(0 0 6px rgba(150,190,240,.22));
+}
 .brand-cn{
   font-family:var(--serif,"Songti SC",serif);
   font-size:26px;letter-spacing:.18em;color:var(--ink);
@@ -1191,6 +1199,8 @@ body.panel-open #globe-stage{
 <!-- 顶部悬浮栏：品牌 + 搜索 -->
 <header id="topbar">
   <div class="brand">
+    <!-- 点阵球：球面均匀采点正交投影，边缘自然密成一圈。见 scripts/make_logo.py -->
+    <img class="brand-logo" src="assets/logo.svg" alt="" width="26" height="26">
     <span class="brand-cn">寰宇图志</span>
   </div>
   <!-- 搜索：默认就是一个短输入框，点一下（或聚焦）展开变长。
@@ -1237,6 +1247,26 @@ body.panel-open #globe-stage{
 <!-- 左下角只留一个视图开关。国名不再用开关 —— 像地图那样按缩放自动分级；
      复位也不再要按钮，双击画面即可。 -->
 <div id="tools">
+  <button class="tool-btn" id="btn-china" type="button" aria-label="定位到中国上空" data-tip="回到中国上空">
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <circle cx="12" cy="12" r="6.6"/>
+      <circle cx="12" cy="12" r="2.1"/>
+      <path d="M12 2.2v2.6M12 19.2v2.6M2.2 12h2.6M19.2 12h2.6"/>
+    </svg>
+  </button>
+  <button class="tool-btn" id="btn-borders" type="button" aria-label="显示全部国境线" data-tip="显示全部国境线">
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M3.6 6.2h16.8v11.6H3.6z" stroke-dasharray="2.6 2.2"/>
+      <path d="M8.6 6.2v11.6M15.4 6.2v11.6" stroke-dasharray="2.6 2.2" opacity=".55"/>
+    </svg>
+  </button>
+  <button class="tool-btn" id="btn-grid" type="button" aria-label="显示经纬线" data-tip="显示经纬线">
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <circle cx="12" cy="12" r="8.4"/>
+      <ellipse cx="12" cy="12" rx="3.9" ry="8.4"/>
+      <path d="M3.6 12h16.8M5.2 7.3h13.6M5.2 16.7h13.6"/>
+    </svg>
+  </button>
   <button class="tool-btn" id="btn-night" type="button" aria-label="切换白天 / 夜晚" data-tip="切换到夜晚模式">
     <svg viewBox="0 0 24 24" aria-hidden="true">
       <path d="M20.4 14.6A8.6 8.6 0 1 1 9.4 3.6a6.8 6.8 0 0 0 11 11z"/>
@@ -1599,6 +1629,26 @@ body.panel-open #globe-stage{
           '读取 data/' + iso.toLowerCase() + '.json 失败（' + e.message + '），' +
           '基础元数据里也没有这个代码。'));
       });
+  }
+
+  /* 有完整档案的国家（data/index.json 里 status 不是 placeholder）。
+     点地名时用它决定"开自己的，还是开归属国的"。 */
+  var HAS_DOC = {};
+
+  /* 点一个地名之后到底开谁的档案：
+     1. 自己有完整档案 → 开自己的
+     2. 没有，但归某个主权国管 → 开主权国的
+        （格陵兰→丹麦、关岛→美国、法属波利尼西亚→法国、索马里兰→索马里）
+     3. 都没有 → 交给 openDetail 走基础档案
+     以前格陵兰、关岛这类有 ISO 码但从来没采过档案的条目，点开只有一句
+     "档案未就绪" —— 比不显示更让人困惑。归属关系在 labels.json 的 parent 里。 */
+  function openCountry(c) {
+    var iso = String(c.iso || '').toUpperCase();
+    var par = String(c.parent || '').toUpperCase();
+    var known = Object.keys(HAS_DOC).length > 0;
+    var target = (known && !HAS_DOC[iso] && par) ? par : (iso || par);
+    if (!target) return;
+    openDetail(target, cardOf(target), false);
   }
 
   /* 面板关闭按钮 + Esc */
@@ -2998,8 +3048,9 @@ body.panel-open #globe-stage{
         kind: it.cls || 'kp', iso: c.iso || '',
         v: new THREE.Vector3(), w: 0, h: 0, on: false
       };
-      if (c.iso) {
-        d.dataset.iso = c.iso;
+      var tgt = c.iso || c.parent || "";
+      if (tgt) {
+        d.dataset.iso = tgt;
         /* 按在字上也要能转球：把 pointerdown 交给同一套拖拽逻辑。
            松开时如果位移很小才算"点击"，否则一次拖拽会顺手打开一个档案。 */
         d.addEventListener('pointerdown', function (e) {
@@ -3008,7 +3059,7 @@ body.panel-open #globe-stage{
         d.addEventListener('click', function (e) {
           e.stopPropagation();
           if (globe.moved > 6) return;
-          openDetail(c.iso, cardOf(c.iso), false);
+          openCountry(c);
         });
       }
       host.appendChild(d);
@@ -3284,6 +3335,10 @@ body.panel-open #globe-stage{
        有贴图后它们会显得杂乱，所以贴图一到就隐藏。 */
     var grat = graticule(1.001);
     spin.add(grat);
+    /* 经纬线本身是"贴图还没到时的兜底骨架"，球淡入后会和大陆轮廓一起隐掉。
+       但用户要能随时把网格调出来对位置，所以对象留着（globe.grid）不销毁，
+       按钮只是改 visible —— 重建一次要再生成两万个顶点，没必要。 */
+    globe.grid = grat;
     var landLine = ringsToLines(data.land || [], 1.0015, new THREE.LineBasicMaterial({
       color: 0x4a7ea8, transparent: true, opacity: 0.40
     }));
@@ -3398,6 +3453,57 @@ body.panel-open #globe-stage{
       });
     };
 
+    /* 全部国境线：一次把 8 个分片里所有国家的轮廓合并成一个 LineSegments。
+       240 个国家各建一个对象会有 240 次 draw call，合成一条整线只有 1 次。
+       分片总共 1.1MB，切开关时若已加载过就走浏览器缓存，不会重新解析。 */
+    var allBorders = null, allBusy = false;
+    globe.toggleAllBorders = function (cb) {
+      if (allBorders) {
+        spin.remove(allBorders);
+        allBorders.geometry.dispose();
+        allBorders.material.dispose();
+        allBorders = null;
+        if (cb) cb(false);
+        return;
+      }
+      if (allBusy) return;
+      allBusy = true;
+      var jobs = [];
+      for (var b = 0; b < 8; b++) {
+        jobs.push(fetch('geo/c' + b + '.json')
+          .then(function (r) { return r.ok ? r.json() : null; })
+          .catch(function () { return null; }));
+      }
+      Promise.all(jobs).then(function (list) {
+        allBusy = false;
+        var rings = [];
+        list.forEach(function (all) {
+          if (!all) return;
+          Object.keys(all).forEach(function (iso) {
+            (((all[iso] || {}).features) || []).forEach(function (f) {
+              var g = f.geometry || {};
+              var polys = g.type === 'Polygon' ? [g.coordinates]
+                : (g.type === 'MultiPolygon' ? g.coordinates : []);
+              polys.forEach(function (poly) {
+                poly.forEach(function (ring) {
+                  if (ring && ring.length > 2) rings.push(ring);
+                });
+              });
+            });
+          });
+        });
+        if (!rings.length) { if (cb) cb(false); return; }
+        /* 半径 1.006：球半径是 1，差值必须比深度缓冲的精度大一档，
+           否则线会陷进球面被剔掉（1.0045 实测就完全看不见）。
+           颜色给亮青白、透明度给足 —— 深蓝海洋上的淡蓝细线等于没画。 */
+        allBorders = ringsToLines(rings, 1.006, new THREE.LineBasicMaterial({
+          color: 0x9ecdec, transparent: true, opacity: 0.42, depthWrite: false
+        }));
+        spin.add(allBorders);
+        if (cb) cb(true);
+      });
+    };
+
     globe.scene = scene;
     globe.camera = camera;
     globe.renderer = renderer;
@@ -3467,7 +3573,9 @@ body.panel-open #globe-stage{
     cv.addEventListener('wheel', function (e) {
       e.preventDefault();
       // 触控板捏合会带 ctrlKey，deltaY 很小，得放大步长才跟手
-      var d = e.deltaY * (e.ctrlKey ? 0.010 : 0.0026);
+      /* 0.0026 时一格滚轮只挪一点点，看一个国家要连滚七八下。
+         调到 0.0042（一格约 1.6 倍步长）；触控板捏合同比例。 */
+      var d = e.deltaY * (e.ctrlKey ? 0.014 : 0.0042);
       globe.camMode = 'manual';
       globe.lastInput = performance.now();
       globe.camTarget = Math.max(CAM_MIN, Math.min(CAM_MAX, globe.camTarget + d));
@@ -3692,6 +3800,49 @@ body.panel-open #globe-stage{
         if (window.__tipHide) window.__tipHide();
       });
     }
+
+    /* 回到中国上空：只动相机，不开面板。高度回到首屏那个 3.02，
+       否则"定位到中国"会变得很随机 —— 上次放大到街道级别的话，
+       点一下还是贴在街道上。 */
+    var bcn = document.getElementById('btn-china');
+    if (bcn) {
+      bcn.addEventListener('click', function () {
+        globe.camMode = 'manual';
+        globe.flying = false;
+        globe.camTarget = 3.02;
+        focusCountry('CN', 900);
+        if (window.__tipHide) window.__tipHide();
+      });
+    }
+
+    /* 全部国境线：切换。加载 8 个分片期间按钮置 busy，避免连点重复请求。 */
+    var bbd = document.getElementById('btn-borders');
+    if (bbd) {
+      bbd.addEventListener('click', function () {
+        if (bbd.classList.contains('busy')) return;
+        bbd.classList.add('busy');
+        globe.toggleAllBorders(function (on) {
+          bbd.classList.remove('busy');
+          bbd.classList.toggle('on', !!on);
+          bbd.setAttribute('data-tip', on ? '隐藏全部国境线' : '显示全部国境线');
+        });
+        if (window.__tipHide) window.__tipHide();
+      });
+    }
+
+    /* 经纬线：只是把兜底骨架重新亮出来，不重建几何。 */
+    var bgd = document.getElementById('btn-grid');
+    if (bgd) {
+      bgd.addEventListener('click', function () {
+        if (!globe.grid) return;
+        var on = !globe.grid.visible;
+        globe.grid.material.opacity = 0.42;
+        globe.grid.visible = on;
+        bgd.classList.toggle('on', on);
+        bgd.setAttribute('data-tip', on ? '隐藏经纬线' : '显示经纬线');
+        if (window.__tipHide) window.__tipHide();
+      });
+    }
   })();
 
   /* ---------- 首屏就是地球，直接启动。之前那套"滚到区块才加载"已经不适用 ——
@@ -3709,6 +3860,11 @@ body.panel-open #globe-stage{
       return r.json();
     })
     .then(function (idx) {
+      (idx.countries || []).forEach(function (c) {
+        if (c.status !== 'placeholder') {
+          HAS_DOC[String(c.iso_a2 || '').toUpperCase()] = 1;
+        }
+      });
       renderCards(idx.countries || []);
       var total = (idx.countries || []).length;
       var ready = (idx.countries || []).filter(function (c) { return c.status !== 'placeholder'; }).length;

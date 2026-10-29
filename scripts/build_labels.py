@@ -196,6 +196,28 @@ def main() -> int:
 
     # 同 ISO 多要素（AU = Australia / Indian Ocean Ter. / Ashmore）只留人口最多的，
     # 否则球上会同时冒出"澳大利亚"和"澳屬印度洋領地"两个名字，位置还都在澳洲附近。
+    # 主权国索引：谁管着谁。
+    # NE 没有"属地"这种字段，只有 SOVEREIGNT。麻烦在于 SOVEREIGNT 有时填的是
+    # 同一个国家的全称（Tanzania 的 SOVEREIGNT 是 "United Republic of Tanzania"，
+    # Micronesia 是 "Federated States of Micronesia"），直接比字符串会把它们
+    # 全判成属地。所以改用反查：拿 SOVEREIGNT 去查它自己的 ISO，查得到、
+    # 且和自己的 ISO 不同，才算"这块归别人管"。
+    sov_iso = {}
+    for feat in data["features"]:
+        q = feat.get("properties") or {}
+        nm = (q.get("NAME") or "").strip()
+        c2 = (q.get("ISO_A2") or "").upper()
+        if len(c2) != 2:
+            c2 = (q.get("ISO_A2_EH") or "").upper()
+        if nm and len(c2) == 2 and nm not in sov_iso:
+            sov_iso[nm] = c2
+
+    # 反查不出来的手工钉：索马里兰在 NE 里是独立要素、没有 ISO 码，
+    # SOVEREIGNT 写的是它自己。没人为它单独立档，点了只会得到一个空壳，
+    # 所以归到索马里。政治上不该替用户做归属判断的（巴勒斯坦），一律不给。
+    PARENT_FIX = {"Somaliland": "SO"}
+    PARENT_SKIP = {"PS", "EH"}
+
     best = {}
     for idx, feat in enumerate(data["features"]):
         q = feat.get("properties") or {}
@@ -234,6 +256,15 @@ def main() -> int:
             pop = 0
         if len(iso) == 2 and pop > 0:
             pops[iso] = pop
+        # 落在谁名下：有 iso 且和主权国不同，或者压根没 iso（索马里兰这类）。
+        parent = ""
+        if iso not in PARENT_SKIP:
+            parent = PARENT_FIX.get((p.get("NAME") or "").strip(), "")
+            if not parent:
+                cand = sov_iso.get((p.get("SOVEREIGNT") or "").strip(), "")
+                if cand and cand != iso:
+                    parent = cand
+
         countries.append({
             "n": name,
             "lon": round(float(lon), 2),
@@ -245,11 +276,15 @@ def main() -> int:
             # d 表示"已有完整多模态档案"（目前三家），只影响样式与优先级。
             "iso": iso if len(iso) == 2 else "",
             "d": 1 if iso in FEATURED else 0,
+            "parent": parent,
         })
 
     countries.sort(key=lambda c: (c["r"], c["z"], -len(c["n"])))
-    print("国家标注 %d 条（其中站内可点 %d 条）"
-          % (len(countries), sum(1 for c in countries if c["iso"])))
+    print("国家标注 %d 条（其中站内可点 %d 条，带国属 %d 条）"
+          % (len(countries), sum(1 for c in countries if c["iso"]),
+             sum(1 for c in countries if c.get("parent"))))
+    print("  带国属的：", "、".join("%s→%s" % (c["n"], c["parent"])
+                                for c in countries if c.get("parent"))[:160])
 
     # 策展的岛屿如果和 NE 的国家条目重名（关岛、新喀里多尼亚…），
     # 用策展名替换国家名 —— 否则会出现"关岛"和"关岛（美国）"两条，
