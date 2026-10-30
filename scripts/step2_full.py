@@ -94,7 +94,7 @@ def read_json(path, default):
 def ns(**kw):
     """collect_all 的阶段函数吃的是一个 argparse.Namespace。"""
     d = dict(only=None, min_pop=0, limit=0, force=False, geo=False,
-             country_timeout=1500, sleep=0.8, optimize_inline=True,
+             country_timeout=900, idle_kill=300, sleep=0.8, optimize_inline=True,
              proxy=None, llm_only="all", bucket="atlas-mundi-1419",
              region="cn-east-3")
     d.update(kw)
@@ -269,7 +269,10 @@ def main():
     ap.add_argument("--verify-budget", type=float, default=6.0,
                     help="视觉复核最多花多少钱（元，默认 6；0=不限）")
     ap.add_argument("--proxy", default=os.environ.get("HTTPS_PROXY") or None)
-    ap.add_argument("--country-timeout", type=int, default=1500)
+    ap.add_argument("--country-timeout", type=int, default=900,
+                    help="单个国家最长跑多久（秒），超了记失败继续下一个")
+    ap.add_argument("--idle-kill", type=int, default=300,
+                    help="连续多少秒没有输出就认为卡死、跳过（默认 300）")
     a = ap.parse_args()
 
     global VERIFY_BUDGET
@@ -316,7 +319,8 @@ def main():
         return 1
 
     args = ns(only=a.only, limit=a.limit, min_pop=a.min_pop, force=a.force,
-              proxy=a.proxy, country_timeout=a.country_timeout)
+              proxy=a.proxy, country_timeout=a.country_timeout,
+              idle_kill=a.idle_kill)
     fns = {"collect": ca.stage_collect, "landmarks": stage_landmarks,
            "verify": stage_verify,
            "llm": ca.stage_llm,

@@ -99,27 +99,96 @@ def read_json(path, default):
         return default
 
 
-def run(cmd, timeout=1200):
-    """跑一个子进程，输出同时进控制台和 logs/{name}.log。"""
+def run(cmd, timeout=1200, idle=300):
+    """跑一个子进程：输出逐行实时写日志并回显，带"无输出看门狗"。
+
+    为什么不用 subprocess.run —— 它是等子进程结束后一次性把输出返回的。
+    中途卡在哪个请求上完全看不出来，用户看到的就是"窗口不动了，也不知道在干嘛"。
+    实测卡在某一国的图片下载上，13 分钟零输出，只能靠猜。
+    改成逐行读之后，卡住时日志的最后一行就是卡住的位置。
+
+    看门狗：连续 idle 秒没有新输出就杀掉、记失败、继续下一个国家。
+    一个国家的网络抖动不该拖住整批 200 多个。
+    """
+    import queue
+    import threading
+
     name = "_".join(os.path.basename(c).replace(".py", "") for c in cmd[:2])
     os.makedirs(LOGDIR, exist_ok=True)
     path = os.path.join(LOGDIR, "run_%s.log" % name.replace(" ", "_"))
+    env = dict(os.environ)
+    # 强制子进程用 UTF-8 输出：否则它按 cp936 输出、这里按 UTF-8 解码，
+    # logs/*.log 会变成一片"锟斤拷"，出事时完全没法查
+    env["PYTHONIOENCODING"] = "utf-8"
+    env["PYTHONUTF8"] = "1"
+
+    def emit(text):
+        try:
+            sys.stdout.write(text)
+            sys.stdout.flush()
+        except UnicodeEncodeError:
+            # 控制台是 cp936，遇到生僻字/带音标的语言名会炸
+            sys.stdout.write(text.encode("gbk", "replace").decode("gbk"))
+            sys.stdout.flush()
+
     with open(path, "a", encoding="utf-8") as f:
         f.write("\n$ %s\n" % " ".join(cmd))
-        env = dict(os.environ)
-        # 强制子进程用 UTF-8 输出：否则它按 cp936 输出、这里按 UTF-8 解码，
-        # logs/*.log 会变成一片"锟斤拷"，出事时完全没法查
-        env["PYTHONIOENCODING"] = "utf-8"
-        env["PYTHONUTF8"] = "1"
+        f.flush()
         try:
-            p = subprocess.run(cmd, cwd=ROOT, timeout=timeout, env=env,
-                               stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-        except subprocess.TimeoutExpired:
-            f.write("!! TIMEOUT %ss\n" % timeout)
-            return 124, "timeout"
-        out = (p.stdout or b"").decode("utf-8", "replace")
-        f.write(out)
-        return p.returncode, out
+            p = subprocess.Popen(cmd, cwd=ROOT, env=env, stdout=subprocess.PIPE,
+                                 stderr=subprocess.STDOUT, bufsize=0)
+        except Exception as e:
+            f.write("!! 启动失败：%s\n" % e)
+            return 1, str(e)
+
+        q = queue.Queue()
+
+        def pump():
+            for line in iter(p.stdout.readline, b""):
+                q.put(line)
+            q.put(None)
+
+        threading.Thread(target=pump, daemon=True).start()
+
+        buf, t0, last, killed = [], time.time(), time.time(), ""
+        while True:
+            try:
+                line = q.get(timeout=1.0)
+            except queue.Empty:
+                now = time.time()
+                if now - last > idle:
+                    killed = "连续 %d 秒没有输出" % idle
+                elif now - t0 > timeout:
+                    killed = "整国超过 %d 秒" % timeout
+                if killed:
+                    try:
+                        p.kill()
+                    except Exception:
+                        pass
+                    break
+                continue
+            if line is None:
+                break
+            last = time.time()
+            text = line.decode("utf-8", "replace")
+            buf.append(text)
+            f.write(text)
+            f.flush()
+            emit(text)
+
+        if killed:
+            msg = ("\n!! %s，已强制跳过这一国（%.1f 分钟）\n"
+                   % (killed, (time.time() - t0) / 60))
+            f.write(msg)
+            emit(msg)
+            try:
+                p.wait(timeout=10)
+            except Exception:
+                pass
+            return 124, "".join(buf) + msg
+
+        p.wait()
+        return p.returncode, "".join(buf)
 
 
 def note(iso, stage, ok, detail=""):
@@ -192,7 +261,7 @@ def stage_collect(a, isos):
         cmd = [PY, os.path.join(SCRIPTS, "collect.py"), iso]
         if a.geo:
             cmd.append("--geo")
-        code, out = run(cmd, timeout=a.country_timeout)
+        code, out = run(cmd, timeout=a.country_timeout, idle=a.idle_kill)
         good = code == 0 and record_has(iso, ("summary_text",))
         note(iso, "collect", good, out[-300:] if not good else "")
         if good:
@@ -229,7 +298,7 @@ def stage_llm(a, isos):
         log("[%d/%d] %s" % (n, len(todo), iso))
         cmd = [PY, os.path.join(SCRIPTS, "llm_tasks.py"), "--run", iso,
                "--only", a.llm_only, "--apply"]
-        code, out = run(cmd, timeout=a.country_timeout)
+        code, out = run(cmd, timeout=a.country_timeout, idle=a.idle_kill)
         good = code == 0
         note(iso, "llm", good, "" if good else out[-300:])
         ok += good
@@ -247,7 +316,7 @@ def stage_speech(a, isos):
     log("语音阶段 %d 个" % len(todo))
     ok = fail = 0
     for n, iso in enumerate(todo, 1):
-        code, out = run([PY, path, iso], timeout=a.country_timeout)
+        code, out = run([PY, path, iso], timeout=a.country_timeout, idle=a.idle_kill)
         good = code == 0
         note(iso, "speech", good, "" if good else out[-300:])
         ok += good

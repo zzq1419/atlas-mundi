@@ -76,8 +76,16 @@ def load_countries():
     return out
 
 
+# 无常住人口的地区：没有首都、也没有"官方语言"是事实，不是数据缺失。
+# 把它们当错误报，只会逼着往数据里写"无"来骗过检查。
+NO_PERMANENT_POP = {"AQ", "HM", "UM", "BV", "GS", "TF", "IO"}
+
+
 def check_fields(iso, rec):
-    missing = [k for k in FIELDS if not rec.get(k)]
+    need = list(FIELDS)
+    if iso in NO_PERMANENT_POP:
+        need = [k for k in need if k not in ("capital", "languages")]
+    missing = [k for k in need if not rec.get(k)]
     if missing:
         err("%s 缺字段：%s" % (iso, "、".join(missing)))
 

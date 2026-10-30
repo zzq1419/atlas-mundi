@@ -48,5 +48,925 @@
  "MM": [],
  "NG": [],
  "PE": [],
- "SG": []
+ "SG": [],
+ "AD": [],
+ "AE": [
+  {
+   "zh": "谢赫扎耶德大清真寺",
+   "kw": "Sheikh Zayed Grand Mosque Abu Dhabi",
+   "reason": "Wikidata / 维基 / Commons 都没有可用图",
+   "retryable": false
+  },
+  {
+   "zh": "哈杰尔山脉",
+   "kw": "Hajar Mountains United Arab Emirates",
+   "reason": "Wikidata / 维基 / Commons 都没有可用图",
+   "retryable": false
+  }
+ ],
+ "AF": [],
+ "AG": [
+  {
+   "zh": "雪莉高地观景台",
+   "kw": "Shirley Heights Lookout Antigua",
+   "reason": "Wikidata / 维基 / Commons 都没有可用图",
+   "retryable": false
+  }
+ ],
+ "AI": [
+  {
+   "zh": "瓦利城墙遗址",
+   "kw": "Wallblake House Anguilla",
+   "reason": "Wikidata / 维基 / Commons 都没有可用图",
+   "retryable": false
+  },
+  {
+   "zh": "西区盐池",
+   "kw": "West End Salt Pond Anguilla",
+   "reason": "Wikidata / 维基 / Commons 都没有可用图",
+   "retryable": false
+  }
+ ],
+ "AL": [],
+ "AM": [],
+ "AO": [],
+ "AQ": [],
+ "AR": [
+  {
+   "zh": "伊瓜苏瀑布",
+   "kw": "Iguazu Falls Argentina",
+   "reason": "Wikidata / 维基 / Commons 都没有可用图",
+   "retryable": false
+  }
+ ],
+ "AS": [
+  {
+   "zh": "拉尼奥托山",
+   "kw": "Mount Lata Ta'u American Samoa",
+   "reason": "Wikidata / 维基 / Commons 都没有可用图",
+   "retryable": false
+  }
+ ],
+ "AT": [
+  {
+   "zh": "圣斯蒂芬大教堂",
+   "kw": "St. Stephen's Cathedral Vienna",
+   "reason": "Wikidata / 维基 / Commons 都没有可用图",
+   "retryable": false
+  }
+ ],
+ "AU": [],
+ "AW": [],
+ "AZ": [],
+ "BA": [],
+ "BB": [],
+ "BD": [],
+ "BE": [],
+ "BF": [],
+ "BG": [],
+ "BH": [],
+ "BI": [],
+ "BJ": [],
+ "BL": [],
+ "BM": [],
+ "BN": [
+  {
+   "zh": "乌鲁淡布隆国家公园",
+   "kw": "Ulu Temburong National Park",
+   "reason": "Wikidata / 维基 / Commons 都没有可用图",
+   "retryable": false
+  }
+ ],
+ "BO": [],
+ "BS": [],
+ "BW": [
+  {
+   "zh": "奥卡万戈三角洲",
+   "kw": "Okavango Delta Botswana",
+   "reason": "Wikidata / 维基 / Commons 都没有可用图",
+   "retryable": false
+  }
+ ],
+ "BY": [],
+ "BZ": [],
+ "CA": [],
+ "CD": [
+  {
+   "zh": "萨隆加国家公园",
+   "kw": "Salonga National Park river",
+   "reason": "Wikidata / 维基 / Commons 都没有可用图",
+   "retryable": false
+  },
+  {
+   "zh": "卡胡兹-别加国家公园",
+   "kw": "Kahuzi-Biega National Park forest",
+   "reason": "Wikidata / 维基 / Commons 都没有可用图",
+   "retryable": false
+  }
+ ],
+ "CF": [
+  {
+   "zh": "恩戈托岩画遗址",
+   "kw": "Ngoto rock art Central African Republic",
+   "reason": "Wikidata / 维基 / Commons 都没有可用图",
+   "retryable": false
+  }
+ ],
+ "CG": [
+  {
+   "zh": "莱菲尼沼泽",
+   "kw": "Likouala swamps Congo",
+   "reason": "Wikidata / 维基 / Commons 都没有可用图",
+   "retryable": false
+  }
+ ],
+ "CI": [
+  {
+   "zh": "亚穆苏克罗和平圣母大殿",
+   "kw": "Basilica of Our Lady of Peace Yamoussoukro",
+   "reason": "Wikidata / 维基 / Commons 都没有可用图",
+   "retryable": false
+  }
+ ],
+ "CK": [],
+ "CL": [
+  {
+   "zh": "瓦尔帕莱索彩色山城",
+   "kw": "Valparaiso Chile hillside houses",
+   "reason": "Wikidata / 维基 / Commons 都没有可用图",
+   "retryable": false
+  }
+ ],
+ "CM": [
+  {
+   "zh": "林贝黑沙滩",
+   "kw": "Limbe Botanic Garden black sand beach",
+   "reason": "Wikidata / 维基 / Commons 都没有可用图",
+   "retryable": false
+  }
+ ],
+ "CO": [],
+ "CR": [
+  {
+   "zh": "塔马林多瀑布",
+   "kw": "Tamarindo Waterfall Costa Rica",
+   "reason": "Wikidata / 维基 / Commons 都没有可用图",
+   "retryable": false
+  }
+ ],
+ "CU": [
+  {
+   "zh": "马雷贡海滨大道",
+   "kw": "Malecon Havana seawall",
+   "reason": "Wikidata / 维基 / Commons 都没有可用图",
+   "retryable": false
+  }
+ ],
+ "CV": [],
+ "CW": [],
+ "CY": [],
+ "CZ": [],
+ "DJ": [
+  {
+   "zh": "吉布提市天际线",
+   "kw": "Djibouti City skyline",
+   "reason": "Wikidata / 维基 / Commons 都没有可用图",
+   "retryable": false
+  }
+ ],
+ "DK": [],
+ "DM": [
+  {
+   "zh": "香槟礁",
+   "kw": "Champagne Reef Dominica",
+   "reason": "Wikidata / 维基 / Commons 都没有可用图",
+   "retryable": false
+  }
+ ],
+ "DO": [],
+ "DZ": [],
+ "EC": [],
+ "EE": [],
+ "EH": [],
+ "ER": [
+  {
+   "zh": "阿斯马拉大教堂",
+   "kw": "Asmara Cathedral",
+   "reason": "Wikidata / 维基 / Commons 都没有可用图",
+   "retryable": false
+  }
+ ],
+ "ES": [],
+ "ET": [],
+ "FI": [],
+ "FJ": [],
+ "FK": [],
+ "FM": [
+  {
+   "zh": "索克斯岩",
+   "kw": "Sokehs Rock Pohnpei",
+   "reason": "Wikidata / 维基 / Commons 都没有可用图",
+   "retryable": false
+  },
+  {
+   "zh": "利库环礁",
+   "kw": "Likiep Atoll aerial",
+   "reason": "Wikidata / 维基 / Commons 都没有可用图",
+   "retryable": false
+  }
+ ],
+ "FO": [],
+ "GA": [
+  {
+   "zh": "伊温多河瀑布",
+   "kw": "Ivindo Falls Gabon",
+   "reason": "Wikidata / 维基 / Commons 都没有可用图",
+   "retryable": false
+  },
+  {
+   "zh": "洛佩-奥坎德生态系统",
+   "kw": "Lope Okanda Gabon landscape",
+   "reason": "Wikidata / 维基 / Commons 都没有可用图",
+   "retryable": false
+  },
+  {
+   "zh": "阿坎达国家公园",
+   "kw": "Akanda National Park Gabon",
+   "reason": "Wikidata / 维基 / Commons 都没有可用图",
+   "retryable": false
+  }
+ ],
+ "GB": [],
+ "GD": [],
+ "GE": [],
+ "GG": [],
+ "GH": [
+  {
+   "zh": "莫尔国家公园",
+   "kw": "Mole National Park Ghana",
+   "reason": "Wikidata / 维基 / Commons 都没有可用图",
+   "retryable": false
+  },
+  {
+   "zh": "沃尔特湖",
+   "kw": "Lake Volta Ghana",
+   "reason": "Wikidata / 维基 / Commons 都没有可用图",
+   "retryable": false
+  }
+ ],
+ "GI": [
+  {
+   "zh": "摩尔人城堡",
+   "kw": "Moorish Castle Gibraltar",
+   "reason": "Wikidata / 维基 / Commons 都没有可用图",
+   "retryable": false
+  }
+ ],
+ "GL": [
+  {
+   "zh": "雅各布港冰川",
+   "kw": "Jakobshavn Glacier Greenland",
+   "reason": "Wikidata / 维基 / Commons 都没有可用图",
+   "retryable": false
+  }
+ ],
+ "GM": [
+  {
+   "zh": "冈比亚河",
+   "kw": "Gambia River",
+   "reason": "Wikidata / 维基 / Commons 都没有可用图",
+   "retryable": false
+  }
+ ],
+ "GN": [
+  {
+   "zh": "卡库利马国家公园",
+   "kw": "Kakoulima National Park Guinea",
+   "reason": "Wikidata / 维基 / Commons 都没有可用图",
+   "retryable": false
+  },
+  {
+   "zh": "博法瀑布",
+   "kw": "Boffa Guinea waterfall",
+   "reason": "Wikidata / 维基 / Commons 都没有可用图",
+   "retryable": false
+  }
+ ],
+ "GQ": [
+  {
+   "zh": "马拉博独立广场",
+   "kw": "Plaza de la Independencia Malabo",
+   "reason": "Wikidata / 维基 / Commons 都没有可用图",
+   "retryable": false
+  },
+  {
+   "zh": "乌雷卡瀑布",
+   "kw": "Ureca waterfall Bioko",
+   "reason": "检索接口全部失败（英文维基：英文维基无合适条目）",
+   "retryable": true
+  }
+ ],
+ "GR": [],
+ "GS": [
+  {
+   "zh": "南乔治亚岛",
+   "kw": "South Georgia Island landscape",
+   "reason": "Wikidata / 维基 / Commons 都没有可用图",
+   "retryable": false
+  }
+ ],
+ "GT": [],
+ "GU": [],
+ "GW": [
+  {
+   "zh": "若昂维埃拉旧城",
+   "kw": "Bissau Velho Portuguese town",
+   "reason": "Wikidata / 维基 / Commons 都没有可用图",
+   "retryable": false
+  },
+  {
+   "zh": "盐田村",
+   "kw": "Salinas Guinea-Bissau Bijagos",
+   "reason": "Wikidata / 维基 / Commons 都没有可用图",
+   "retryable": false
+  }
+ ],
+ "GY": [],
+ "HM": [
+  {
+   "zh": "麦克唐纳群岛",
+   "kw": "McDonald Islands Heard",
+   "reason": "Wikidata / 维基 / Commons 都没有可用图",
+   "retryable": false
+  },
+  {
+   "zh": "科林斯冰帽",
+   "kw": "Corinth Head Heard Island",
+   "reason": "Wikidata / 维基 / Commons 都没有可用图",
+   "retryable": false
+  }
+ ],
+ "HN": [],
+ "HR": [],
+ "HT": [],
+ "HU": [],
+ "ID": [],
+ "IE": [],
+ "IL": [],
+ "IM": [],
+ "IO": [
+  {
+   "zh": "大查戈斯浅滩",
+   "kw": "Great Chagos Bank atoll",
+   "reason": "Wikidata / 维基 / Commons 都没有可用图",
+   "retryable": false
+  }
+ ],
+ "IQ": [
+  {
+   "zh": "萨迈拉螺旋塔",
+   "kw": "Malwiya Minaret Samarra",
+   "reason": "Wikidata / 维基 / Commons 都没有可用图",
+   "retryable": false
+  }
+ ],
+ "IR": [],
+ "IT": [],
+ "JE": [],
+ "JM": [],
+ "JO": [],
+ "KG": [],
+ "KH": [
+  {
+   "zh": "金边王宫",
+   "kw": "Royal Palace Phnom Penh",
+   "reason": "Wikidata / 维基 / Commons 都没有可用图",
+   "retryable": false
+  }
+ ],
+ "KM": [
+  {
+   "zh": "盐湖火山口",
+   "kw": "Dziani Boundouni Comoros",
+   "reason": "检索接口全部失败（英文维基：英文维基无合适条目）",
+   "retryable": true
+  },
+  {
+   "zh": "莫埃利岛海滩",
+   "kw": "Moheli Comoros beach",
+   "reason": "Wikidata / 维基 / Commons 都没有可用图",
+   "retryable": false
+  }
+ ],
+ "KN": [],
+ "KP": [],
+ "KR": [],
+ "KW": [
+  {
+   "zh": "红堡",
+   "kw": "Red Fort Al Jahra Kuwait",
+   "reason": "Wikidata / 维基 / Commons 都没有可用图",
+   "retryable": false
+  }
+ ],
+ "KY": [],
+ "LA": [],
+ "LB": [],
+ "LC": [],
+ "LI": [
+  {
+   "zh": "米特尔贝格山",
+   "kw": "Mittelberg Liechtenstein",
+   "reason": "检索接口全部失败（英文维基：英文维基无合适条目）",
+   "retryable": true
+  }
+ ],
+ "LK": [],
+ "LR": [
+  {
+   "zh": "萨波国家公园",
+   "kw": "Sapo National Park Liberia",
+   "reason": "Wikidata / 维基 / Commons 都没有可用图",
+   "retryable": false
+  }
+ ],
+ "LS": [
+  {
+   "zh": "莫里亚博物馆村",
+   "kw": "Morija Lesotho mission",
+   "reason": "Wikidata / 维基 / Commons 都没有可用图",
+   "retryable": false
+  },
+  {
+   "zh": "马塞卢圣母主教座堂",
+   "kw": "Our Lady of Victories Cathedral Maseru",
+   "reason": "Wikidata / 维基 / Commons 都没有可用图",
+   "retryable": false
+  }
+ ],
+ "LT": [],
+ "LU": [],
+ "LV": [],
+ "LY": [],
+ "MA": [],
+ "MC": [],
+ "MD": [
+  {
+   "zh": "卡普里亚纳修道院",
+   "kw": "Capriana Monastery Moldova",
+   "reason": "Wikidata / 维基 / Commons 都没有可用图",
+   "retryable": false
+  }
+ ],
+ "ME": [
+  {
+   "zh": "圣斯特凡岛",
+   "kw": "Sveti Stefan Montenegro",
+   "reason": "Wikidata / 维基 / Commons 都没有可用图",
+   "retryable": false
+  }
+ ],
+ "MF": [
+  {
+   "zh": "洛特里海滩",
+   "kw": "Loterie Farm Pic Paradis Saint-Martin",
+   "reason": "Wikidata / 维基 / Commons 都没有可用图",
+   "retryable": false
+  }
+ ],
+ "MG": [],
+ "MH": [
+  {
+   "zh": "埃尼威托克环礁",
+   "kw": "Enewetak Atoll lagoon",
+   "reason": "Wikidata / 维基 / Commons 都没有可用图",
+   "retryable": false
+  }
+ ],
+ "MK": [],
+ "ML": [
+  {
+   "zh": "廷巴克图泥砖清真寺",
+   "kw": "Djinguereber Mosque Timbuktu",
+   "reason": "Wikidata / 维基 / Commons 都没有可用图",
+   "retryable": false
+  },
+  {
+   "zh": "尼日尔河内陆三角洲",
+   "kw": "Niger Inland Delta Mali",
+   "reason": "Wikidata / 维基 / Commons 都没有可用图",
+   "retryable": false
+  }
+ ],
+ "MN": [],
+ "MP": [
+  {
+   "zh": "鸟岛保护区",
+   "kw": "Bird Island Sanctuary Saipan",
+   "reason": "检索接口全部失败（英文维基：英文维基无合适条目）",
+   "retryable": true
+  }
+ ],
+ "MR": [],
+ "MS": [
+  {
+   "zh": "蒙特塞拉特热带雨林",
+   "kw": "Centre Hills Montserrat forest",
+   "reason": "Wikidata / 维基 / Commons 都没有可用图",
+   "retryable": false
+  }
+ ],
+ "MT": [
+  {
+   "zh": "哈加尔奇姆神庙",
+   "kw": "Hagar Qim Temples Malta",
+   "reason": "Wikidata / 维基 / Commons 都没有可用图",
+   "retryable": false
+  },
+  {
+   "zh": "大港与三姐妹城",
+   "kw": "Grand Harbour Valletta Senglea",
+   "reason": "Wikidata / 维基 / Commons 都没有可用图",
+   "retryable": false
+  }
+ ],
+ "MU": [],
+ "MV": [
+  {
+   "zh": "香蕉礁潜水点",
+   "kw": "Banana Reef Maldives",
+   "reason": "Wikidata / 维基 / Commons 都没有可用图",
+   "retryable": false
+  },
+  {
+   "zh": "阿里环礁蝠鲼点",
+   "kw": "Hanifaru Bay Baa Atoll",
+   "reason": "Wikidata / 维基 / Commons 都没有可用图",
+   "retryable": false
+  }
+ ],
+ "MW": [],
+ "MX": [],
+ "MY": [],
+ "MZ": [],
+ "NA": [],
+ "NC": [],
+ "NE": [],
+ "NF": [],
+ "NI": [],
+ "NL": [],
+ "NP": [],
+ "NR": [
+  {
+   "zh": "雅伦区珊瑚崖",
+   "kw": "Yaren coral cliffs Nauru",
+   "reason": "Wikidata / 维基 / Commons 都没有可用图",
+   "retryable": false
+  },
+  {
+   "zh": "瑙鲁磷酸盐矿区",
+   "kw": "Nauru phosphate mining Topside",
+   "reason": "Wikidata / 维基 / Commons 都没有可用图",
+   "retryable": false
+  },
+  {
+   "zh": "安纳巴雷港",
+   "kw": "Anabar Nauru coast",
+   "reason": "Wikidata / 维基 / Commons 都没有可用图",
+   "retryable": false
+  }
+ ],
+ "NU": [],
+ "NZ": [],
+ "OM": [],
+ "PA": [],
+ "PF": [
+  {
+   "zh": "波拉波拉岛",
+   "kw": "Bora Bora island lagoon",
+   "reason": "Wikidata / 维基 / Commons 都没有可用图",
+   "retryable": false
+  }
+ ],
+ "PG": [],
+ "PH": [],
+ "PK": [],
+ "PL": [],
+ "PM": [
+  {
+   "zh": "格朗巴兰灯塔",
+   "kw": "Phare de Grand Barachois Miquelon",
+   "reason": "Wikidata / 维基 / Commons 都没有可用图",
+   "retryable": false
+  },
+  {
+   "zh": "卡普奥克斯莫特",
+   "kw": "Cap aux Morts Miquelon",
+   "reason": "Wikidata / 维基 / Commons 都没有可用图",
+   "retryable": false
+  }
+ ],
+ "PN": [],
+ "PR": [],
+ "PS": [],
+ "PT": [],
+ "PW": [
+  {
+   "zh": "七十群岛",
+   "kw": "Seventy Islands Palau",
+   "reason": "Wikidata / 维基 / Commons 都没有可用图",
+   "retryable": false
+  }
+ ],
+ "PY": [
+  {
+   "zh": "恩卡纳西翁耶稣会遗址",
+   "kw": "Jesuit Mission Jesus de Tavarangue",
+   "reason": "Wikidata / 维基 / Commons 都没有可用图",
+   "retryable": false
+  },
+  {
+   "zh": "帕尔马国家公园",
+   "kw": "Defensores del Chaco National Park Cerro Leon",
+   "reason": "Wikidata / 维基 / Commons 都没有可用图",
+   "retryable": false
+  }
+ ],
+ "QA": [],
+ "RO": [
+  {
+   "zh": "议会宫",
+   "kw": "Palace of the Parliament Bucharest",
+   "reason": "Wikidata / 维基 / Commons 都没有可用图",
+   "retryable": false
+  },
+  {
+   "zh": "多瑙河三角洲",
+   "kw": "Danube Delta Romania",
+   "reason": "Wikidata / 维基 / Commons 都没有可用图",
+   "retryable": false
+  },
+  {
+   "zh": "锡吉什瓦拉老城",
+   "kw": "Sighisoara Citadel",
+   "reason": "Wikidata / 维基 / Commons 都没有可用图",
+   "retryable": false
+  }
+ ],
+ "RS": [],
+ "RU": [],
+ "SA": [
+  {
+   "zh": "麦加大清真寺",
+   "kw": "Masjid al-Haram Mecca",
+   "reason": "Wikidata / 维基 / Commons 都没有可用图",
+   "retryable": false
+  }
+ ],
+ "SB": [],
+ "SC": [],
+ "SD": [],
+ "SE": [],
+ "SH": [],
+ "SI": [],
+ "SK": [],
+ "SL": [
+  {
+   "zh": "苏苏本杜瀑布",
+   "kw": "Sierra Leone waterfall",
+   "reason": "Wikidata / 维基 / Commons 都没有可用图",
+   "retryable": false
+  }
+ ],
+ "SM": [],
+ "SN": [],
+ "SO": [
+  {
+   "zh": "拉斯基博雷灯塔",
+   "kw": "Las Khorey Lighthouse Somalia",
+   "reason": "Wikidata / 维基 / Commons 都没有可用图",
+   "retryable": false
+  },
+  {
+   "zh": "阿尔巴清真寺",
+   "kw": "Arba'a Rukun Mosque Mogadishu",
+   "reason": "Wikidata / 维基 / Commons 都没有可用图",
+   "retryable": false
+  }
+ ],
+ "SR": [],
+ "SS": [
+  {
+   "zh": "博马国家公园",
+   "kw": "Boma National Park South Sudan",
+   "reason": "Wikidata / 维基 / Commons 都没有可用图",
+   "retryable": false
+  },
+  {
+   "zh": "朱巴大教堂",
+   "kw": "St Theresa Cathedral Juba",
+   "reason": "Wikidata / 维基 / Commons 都没有可用图",
+   "retryable": false
+  },
+  {
+   "zh": "苏德沼泽",
+   "kw": "Sudd wetland South Sudan",
+   "reason": "Wikidata / 维基 / Commons 都没有可用图",
+   "retryable": false
+  },
+  {
+   "zh": "伊马通山脉",
+   "kw": "Imatong Mountains South Sudan",
+   "reason": "Wikidata / 维基 / Commons 都没有可用图",
+   "retryable": false
+  }
+ ],
+ "ST": [
+  {
+   "zh": "圣塞巴斯蒂昂博物馆",
+   "kw": "Fort Sao Sebastiao Sao Tome",
+   "reason": "Wikidata / 维基 / Commons 都没有可用图",
+   "retryable": false
+  },
+  {
+   "zh": "七悬石海滩",
+   "kw": "Praia Sete Ondas Sao Tome",
+   "reason": "Wikidata / 维基 / Commons 都没有可用图",
+   "retryable": false
+  }
+ ],
+ "SV": [],
+ "SX": [
+  {
+   "zh": "圣马丁山",
+   "kw": "Mount Flagstaff Sint Maarten",
+   "reason": "Wikidata / 维基 / Commons 都没有可用图",
+   "retryable": false
+  },
+  {
+   "zh": "瓜纳湾海滩",
+   "kw": "Guana Bay Beach Sint Maarten",
+   "reason": "Wikidata / 维基 / Commons 都没有可用图",
+   "retryable": false
+  }
+ ],
+ "SY": [],
+ "SZ": [
+  {
+   "zh": "姆卡亚自然保护区",
+   "kw": "Mkhaya Game Reserve",
+   "reason": "Wikidata / 维基 / Commons 都没有可用图",
+   "retryable": false
+  },
+  {
+   "zh": "西贝贝岩",
+   "kw": "Sibebe Rock",
+   "reason": "Wikidata / 维基 / Commons 都没有可用图",
+   "retryable": false
+  }
+ ],
+ "TC": [
+  {
+   "zh": "乔克桑德国家公园",
+   "kw": "Chalk Sound National Park",
+   "reason": "Wikidata / 维基 / Commons 都没有可用图",
+   "retryable": false
+  }
+ ],
+ "TD": [
+  {
+   "zh": "提贝斯提高原",
+   "kw": "Tibesti Mountains Chad",
+   "reason": "Wikidata / 维基 / Commons 都没有可用图",
+   "retryable": false
+  },
+  {
+   "zh": "恩贾梅纳大清真寺",
+   "kw": "Grand Mosque N'Djamena",
+   "reason": "Wikidata / 维基 / Commons 都没有可用图",
+   "retryable": false
+  }
+ ],
+ "TF": [
+  {
+   "zh": "阿姆斯特丹岛",
+   "kw": "Amsterdam Island Indian Ocean",
+   "reason": "Wikidata / 维基 / Commons 都没有可用图",
+   "retryable": false
+  },
+  {
+   "zh": "法兰西港",
+   "kw": "Port-aux-Francais Kerguelen",
+   "reason": "Wikidata / 维基 / Commons 都没有可用图",
+   "retryable": false
+  }
+ ],
+ "TG": [],
+ "TH": [],
+ "TJ": [],
+ "TL": [],
+ "TM": [],
+ "TN": [],
+ "TO": [
+  {
+   "zh": "汤加塔布岛海岸",
+   "kw": "Tongatapu coastline Tonga",
+   "reason": "Wikidata / 维基 / Commons 都没有可用图",
+   "retryable": false
+  }
+ ],
+ "TR": [],
+ "TT": [],
+ "TV": [
+  {
+   "zh": "富纳富提环礁",
+   "kw": "Funafuti Atoll Tuvalu",
+   "reason": "Wikidata / 维基 / Commons 都没有可用图",
+   "retryable": false
+  },
+  {
+   "zh": "图瓦卢泻湖",
+   "kw": "Funafuti lagoon Tuvalu",
+   "reason": "Wikidata / 维基 / Commons 都没有可用图",
+   "retryable": false
+  },
+  {
+   "zh": "尼乌陶泻湖",
+   "kw": "Nui atoll Tuvalu lagoon",
+   "reason": "Wikidata / 维基 / Commons 都没有可用图",
+   "retryable": false
+  }
+ ],
+ "TZ": [],
+ "UA": [],
+ "UG": [],
+ "UM": [],
+ "UY": [],
+ "UZ": [],
+ "VC": [
+  {
+   "zh": "迈罗岛",
+   "kw": "Mayreau Island Saline Bay",
+   "reason": "Wikidata / 维基 / Commons 都没有可用图",
+   "retryable": false
+  }
+ ],
+ "VE": [],
+ "VG": [],
+ "VI": [
+  {
+   "zh": "黑胡子城堡",
+   "kw": "Blackbeard's Castle Saint Thomas",
+   "reason": "Wikidata / 维基 / Commons 都没有可用图",
+   "retryable": false
+  }
+ ],
+ "VN": [
+  {
+   "zh": "会安古城",
+   "kw": "Hoi An Ancient Town",
+   "reason": "Wikidata / 维基 / Commons 都没有可用图",
+   "retryable": false
+  }
+ ],
+ "WF": [
+  {
+   "zh": "塔列图穆山",
+   "kw": "Mount Puke Wallis Futuna",
+   "reason": "Wikidata / 维基 / Commons 都没有可用图",
+   "retryable": false
+  },
+  {
+   "zh": "乌韦阿岛",
+   "kw": "Ouvea Wallis Island lagoon",
+   "reason": "Wikidata / 维基 / Commons 都没有可用图",
+   "retryable": false
+  }
+ ],
+ "WS": [
+  {
+   "zh": "萨瓦伊岛喷水洞",
+   "kw": "Alofaaga Blowholes Savaii",
+   "reason": "Wikidata / 维基 / Commons 都没有可用图",
+   "retryable": false
+  },
+  {
+   "zh": "阿皮亚圣母无染原罪堂",
+   "kw": "Immaculate Conception Cathedral Apia",
+   "reason": "Wikidata / 维基 / Commons 都没有可用图",
+   "retryable": false
+  },
+  {
+   "zh": "马塔法瀑布",
+   "kw": "Mata o le Afi waterfall Savaii",
+   "reason": "检索接口全部失败（英文维基：英文维基无合适条目）",
+   "retryable": true
+  }
+ ],
+ "XK": [],
+ "YE": [],
+ "ZA": [],
+ "ZM": [],
+ "ZW": [],
+ "AX": []
 }

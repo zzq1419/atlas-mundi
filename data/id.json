@@ -1,0 +1,323 @@
+{
+  "qid": "Q252",
+  "iso_a2": "ID",
+  "iso_a3": "IDN",
+  "name_zh": "印度尼西亚",
+  "name_en": "Indonesia",
+  "capital": "雅加达",
+  "continent": "亚洲",
+  "centroid": [
+    118,
+    -2
+  ],
+  "centroid_source": "wikidata P625",
+  "languages": [
+    {
+      "code": "id",
+      "name_zh": "印尼语",
+      "name_local": "印尼语",
+      "role": "official",
+      "audio_url": "assets/id/audio/id.mp3",
+      "audio_source": "tts_edge",
+      "audio_status": "ok",
+      "tts_text": "Selamat datang di Indonesia, negara kepulauan yang membentang dari Sabang sampai Merauke, dengan Jakarta sebagai ibu kotanya dan Candi Borobudur yang megah di Jawa Tengah sebagai salah satu keajaiban budaya yang patut Anda saksikan.",
+      "tts_text_zh": "欢迎来到印度尼西亚，这个从沙璜延伸到马老奇的群岛之国，首都是雅加达，而中爪哇宏伟的婆罗浮屠寺是值得您一看的文化奇观之一。",
+      "audio_voice": "id-ID-GadisNeural",
+      "audio_bytes": 92736
+    }
+  ],
+  "summary_text": "印度尼西亚共和国通称印度尼西亚，简称印尼，是位于东南亚的群岛国家，疆域横跨亚洲及大洋洲，由17,506个岛屿组成，是世界上最大的群岛国家，别称“万岛之国”。该国国界分别在新几内亚岛与巴布亚新几内亚、在帝汶岛与东帝汶，以及在加里曼丹岛与马来西亚相接，另有新加坡、菲律宾及澳大利亚等国家隔海相望。印尼国体属共和国，国会及总统皆由选举产生，首都及最大城市为雅加达。总人口超过2.7亿，为世界上人口第四多的国家，也是穆斯林人口数量最多的国家。印尼群岛自7世纪起即为重要贸易地区，古代王国三佛齐及之后的满者伯夷曾与中国和印度进行贸易，当地统治者逐步吸收外国文化、宗教和政治型态，曾出现兴盛的佛教和印度教王国。外国势力因天然资源而进入印度尼西亚，穆斯林商人带入伊斯兰教，欧洲势力则带来了基督宗教，并于地理大发现后垄断香料群岛马鲁古群岛的贸易。印尼为东南亚国家联盟创立国之一，且为20国集团成员国；在2017年，依国际汇率计算，该国为世界第16大经济体，以购买力平价计算则为世界第7大经济体。",
+  "summary_source": {
+    "source": "llm_refined",
+    "note": "DeepSeek 基于 Wikipedia 导语 + 人工民俗文本重写；口径限定地理与文化，剔除政权更迭与战争史",
+    "chars": 439,
+    "derived_from": "wikipedia_extracts",
+    "url": "https://zh.wikipedia.org/wiki/%E5%8D%B0%E5%BA%A6%E5%B0%BC%E8%A5%BF%E4%BA%9A",
+    "title": "印度尼西亚"
+  },
+  "culture_excerpts": [
+    {
+      "section": "历史",
+      "text": "由化石及使用工具显示直立人约在150万至3.5万年前生活于印度尼西亚群岛，称之为爪哇猿人。智人约于4.5万年前进入该地区。于2011年在邻国东帝汶发现遗迹，推测在4.2万年前当地居民及有高超的航海技术；由于发现捕捉及食用大量深海鱼如鲔鱼，可能具备跨海至澳大利亚或其他岛屿的技术。南岛民族由台湾移居东南亚，约于公元前2000年移入印度尼西亚，构成现代多数印度尼西亚人，且遍布于群岛，局限了美拉尼西亚人分布范围，美拉尼西亚人仅分布在印度尼西亚东部。最早于公元前八世纪具备理想的农业环境及掌握水田种稻，促使村庄、城镇、及小型王国于公元1世纪兴起。印度尼西亚航道的战略重要性促进了岛屿间及国际贸易，包括于公元前数世纪时即建立与印度及中国间的贸易关系，贸易也在印度尼西亚历史上具有重要地位。印度尼西亚人与欧洲人首次正规接触始于1512年，由佛朗西斯科·施兰（英语：Francisco Serrão）带领葡萄牙商人寻找并垄断摩鹿加群岛上的肉豆蔻、丁香及荜澄茄等资源，随后荷兰商人也到印度尼西亚。荷兰于1602年成立荷兰东印度公司，并成为欧洲位于印度尼西亚的主要势力，曾遭遇印度尼西亚人民武装抗争，荷兰东印度公司于1800年破产解散，荷兰政府续而成立荷属东印度接管印度尼西亚殖民地。在多数殖民统治期间，荷兰在海岸堡垒以外的控制力相当薄弱，直到20世纪初期荷兰统治范围才扩张至今日印度尼西亚的版图。第一次世界大战完结之后，当地人开始争取自治。虽然在印度尼西亚独立战争时内部政治、社会、宗派分歧，但印度尼西亚人团结一致争取独立。第二次世界大战中1942年日本入侵印度尼西亚，荷属东印度战役爆发，3月日军占领荷属东印度全境，印度尼西亚进入印度尼西亚日治时期。最初日本推行“三亚运动”，但并未获得认同而告失败；转而拉拢国族主义及伊斯兰力量。日本训练了年轻人武装，成为在独立战争中的军事力量，但战后联合国报告指出在日本统治时期有400万人因饥荒及强制劳动而死亡。1945年8月15日，日本投降，而盟军东南亚战区最高统帅路易斯·蒙巴顿命令日军不得将权力交给印尼任何党派。在日本投降仅两天后，深具影响力的印尼领导人苏卡诺宣布印尼独立，并出任总统职务。1945年9月29日，依据波茨坦会议决定，同盟国派出英国登陆印度尼西亚接受当地日军的投降，1946年11月下旬，英国军队从印度尼西亚完全撤出。而荷兰军则在10月中重返印度尼西亚，在1947年1月，荷兰军攻击了东面爪哇。同年7月21日，12万的荷兰军在印度尼西亚全境进攻，宣称其为恢复殖民地秩序的“警察行动”（Aksi Polisionil）。印度尼西亚军放弃了都市部，在农村部进行游击战。在1948年12月19日，荷兰军在印度尼西亚全境再次进攻，让临时首都日惹陷落，并逮捕苏卡诺、哈达等共和国领袖。荷兰当局则试图重建政权，但面对国际压力及谴责，且与印度尼西亚战争消耗了荷兰的经济，冲突于1949年12月结束，荷兰宣布印度尼西亚独立（不包括荷属新几内亚，该地区由于1962年的《纽约协定》及1969年《自由选择法》而并入印度尼西亚）。自建国后，苏卡诺一直借由平衡军方反对势力及印度尼西亚共产党维持其权力。1965年9月30日印度尼西亚发生了“九·三〇”事件，部分印度尼西亚军方高层意图推翻苏加诺政权，后事情败露被处决，军事强人苏哈托镇压叛军后掌握大权，此后苏哈托组织部队进行反共清洗和推翻苏加诺，印度尼西亚共产党策动政变而受重创，包含华人和印尼共产党员在内约有50万人受害。1967年2月，苏加诺被解除总统头衔，苏哈托出任代理总统。1968年，军队司令苏哈托正式出任总统一职。苏哈托提出“新秩序”，这是为与前任总统苏卡诺的“旧秩序”（Orde Lama）有所区别而使用的政治语言，然而具有独裁倾向的“新秩序”被指责用以贪污及压制反对势力。1975年，印尼强行入侵东帝汶，并在占领时期进行了许多大屠杀，造成数十万人死亡。苏哈托统治期间，苏哈托家族在印尼垄断了四分之三的国家经济。1999年美国《时代》周刊报道说，苏哈托及其家族非法聚敛了数百亿美元的资产，其中150亿美元藏匿在海外。1997年，印尼于亚洲金融风暴经济遭受重创，引发大规模对“新秩序”政策的不满，并引发大规模排华动乱，苏哈托下台（英语：Fall of Suharto），结束32年独裁执政，政治意识形态也重新洗牌。1999年，东帝汶举行公投决定独立，也结束了25年来印度尼西亚备受国际谴责的军事占领。苏哈托下台后，民主化进一步巩固，包括地区自治，并于2004年进行首次总统直选。政治及经济上不稳定、社会动荡、贪污延滞了民主化进程，但于近年来经济情况有所好转。虽然在不同宗教及种族间尚称和谐，但仍有各教派间的不满及暴力事件发生。与亚齐分离主义的冲突也于2005年告一段落。引用错误：页面中存在&lt;ref&#160;group&#61;\"lower-alpha\"&gt;标签或&#123;&#123;efn&#125;&#125;模板，但没有找到相应的&lt;references&#160;group&#61;\"lower-alpha\"&#160;&#47;&gt;标签或&#123;&#123;notelist&#125;&#125;模板。",
+      "chars": 2163
+    },
+    {
+      "section": "文化",
+      "text": "印度尼西亚国内有超过300个种族，每个种族都有其不同文化，且有数个世纪的历史，并受到印度、阿拉伯、中国、马来及欧洲文化影响。传统爪哇及巴厘舞蹈包括婆罗门教、印度教文化及印度神话的观点。印度尼西亚建筑风格受印度建筑影响最深，但也不乏中国、阿拉伯及欧洲建筑风格的影响。\n印度尼西亚料理是世界上最多样化，最有活力，最丰富多彩且充满浓郁风味的料理之一。\n各地饮食稍有不同并发展出许多地区性料理，以当地物产与饮食文化为基础，加上外来饮食文化的影响，例如印度、中东、中国和欧洲的影响。主食为稻米，搭配肉类和蔬菜。香料、椰浆为常用的食材，烹煮方式以煎、炸、烤等方式为主。\n一些受欢迎的料理，如Nasi goreng（炒饭）、Gado gado（沙拉）、Sate（烤肉串）和Soto ayam（鸡汤），遍布全国各地，被认为是国家美食。2014年，旅游部选择Nasi tumpeng（塑形成圆锥状并搭配多种配料的姜黄饭）作为官方的国家美食，称其包含了各种烹煮传统的多样性。其他受欢迎的料理包括Rendang（仁当，一种类似咖喱但酱汁较少的印尼米南佳保料理或称巴东料理），还有Dendeng（炸肉干）和Gulai（一种类似咖喱的料理）。 另外有一种发酵食品Oncom，类似于Tempeh（天贝，一种豆类发酵食品），但使用不同食材（通常使用食品加工副产品，例如豆渣或榨油饼）和不同菌种制作，常见于西爪哇。\n印度尼西亚传统音乐打击乐器居重要地位，各部族的音乐通常与舞蹈相关，甘美兰为印度尼西亚好传统音乐风格，在外来文化影响下，发展出与外来音乐结合的风格如格朗章（Kroncong）、当杜特（Dangdut）等。现代音乐曲风大致以摇滚、蓝调、流行、节奏蓝调为主。由于语言及文化相近，印度尼西亚的音乐在马来西亚、文莱及新加坡等周边国家相当普及。\n由于印度尼西亚气候湿热，许多建筑物不建边墙，助于通风及散热。用以遮阳及挡雨的屋顶使用的材料相当多样，在农村使用木板片、棕榈或泥制瓦片，城市则采用红瓦片。",
+      "chars": 1200
+    },
+    {
+      "section": "饮食",
+      "text": "印度尼西亚料理是世界上最多样化，最有活力，最丰富多彩且充满浓郁风味的料理之一。\n各地饮食稍有不同并发展出许多地区性料理，以当地物产与饮食文化为基础，加上外来饮食文化的影响，例如印度、中东、中国和欧洲的影响。主食为稻米，搭配肉类和蔬菜。香料、椰浆为常用的食材，烹煮方式以煎、炸、烤等方式为主。\n一些受欢迎的料理，如Nasi goreng（炒饭）、Gado gado（沙拉）、Sate（烤肉串）和Soto ayam（鸡汤），遍布全国各地，被认为是国家美食。2014年，旅游部选择Nasi tumpeng（塑形成圆锥状并搭配多种配料的姜黄饭）作为官方的国家美食，称其包含了各种烹煮传统的多样性。其他受欢迎的料理包括Rendang（仁当，一种类似咖喱但酱汁较少的印尼米南佳保料理或称巴东料理），还有Dendeng（炸肉干）和Gulai（一种类似咖喱的料理）。 另外有一种发酵食品Oncom，类似于Tempeh（天贝，一种豆类发酵食品），但使用不同食材（通常使用食品加工副产品，例如豆渣或榨油饼）和不同菌种制作，常见于西爪哇。",
+      "chars": 837
+    }
+  ],
+  "landmark_images": [
+    {
+      "title": "File:Borobudur-Nothwest-view.jpg",
+      "caption_zh": "婆罗浮屠西北视角",
+      "caption": "婆罗浮屠西北视角",
+      "caption_commons": "Borobudur temple view from northwest plateau, Central Java, Indonesia.",
+      "kw": "Borobudur Temple Java",
+      "url": "assets/id/L01.webp",
+      "thumb_url": "assets/id/L01.thumb.webp",
+      "remote_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/8c/Borobudur-Nothwest-view.jpg/1920px-Borobudur-Nothwest-view.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "source": "wikidata_p18",
+      "pick_tier": "relaxed",
+      "author": "Gunawan Kartapranata",
+      "license": "Public domain",
+      "license_url": null,
+      "license_status": "ok",
+      "load_verified": true,
+      "bytes": 44218,
+      "caption_zh_manual": "婆罗浮屠",
+      "caption_zh_source": "llm_from_commons_filename",
+      "thumb_bytes": 11554,
+      "size": {
+        "detail": "760x299",
+        "thumb": "400x157"
+      },
+      "encoding": "webp q72/q74 (源 1920x755 507KB JPEG)"
+    },
+    {
+      "title": "File:Kecak Dance Tanah Lot 2.jpg",
+      "caption_zh": "巴厘岛海神庙凯卡克舞",
+      "caption": "巴厘岛海神庙凯卡克舞",
+      "caption_commons": "Kecak dance in Tanah Lot, Bali, Indonesia.",
+      "kw": "Tanah Lot Temple Bali",
+      "url": "assets/id/L02.webp",
+      "thumb_url": "assets/id/L02.thumb.webp",
+      "remote_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f5/Kecak_Dance_Tanah_Lot_2.jpg/1920px-Kecak_Dance_Tanah_Lot_2.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "source": "article_img",
+      "pick_tier": "strict",
+      "author": "Akmaie Ajam",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "license_status": "ok",
+      "load_verified": true,
+      "bytes": 28820,
+      "caption_zh_manual": "巴厘岛海神庙",
+      "caption_zh_source": "llm_from_commons_filename",
+      "thumb_bytes": 10158,
+      "size": {
+        "detail": "760x570",
+        "thumb": "400x300"
+      },
+      "encoding": "webp q72/q74 (源 1920x1440 551KB JPEG)"
+    },
+    {
+      "title": "File:Komodo Island north aerial.jpg",
+      "caption_zh": "科莫多岛北部航拍",
+      "caption": "科莫多岛北部航拍",
+      "caption_commons": "Northern tip of Komodo Island, Indonesia",
+      "kw": "Komodo Island Indonesia",
+      "url": "assets/id/L03.webp",
+      "thumb_url": "assets/id/L03.thumb.webp",
+      "remote_url": "https://upload.wikimedia.org/wikipedia/commons/e/e3/Komodo_Island_north_aerial.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+      "source": "wikidata_p18",
+      "pick_tier": "strict",
+      "author": "jon hanson from London",
+      "license": "CC BY-SA 2.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/2.0",
+      "license_status": "ok",
+      "load_verified": true,
+      "bytes": 19502,
+      "caption_zh_manual": "科莫多岛",
+      "caption_zh_source": "llm_from_commons_filename",
+      "thumb_bytes": 6662,
+      "size": {
+        "detail": "760x506",
+        "thumb": "400x266"
+      },
+      "encoding": "webp q72/q74 (源 1280x852 358KB JPEG)"
+    },
+    {
+      "title": "File:Mount Bromo closeup on sunrise 2.jpg",
+      "caption_zh": "日出时分的布罗莫火山特写",
+      "caption": "日出时分的布罗莫火山特写",
+      "caption_commons": "Malang",
+      "kw": "Mount Bromo East Java",
+      "url": "assets/id/L04.webp",
+      "thumb_url": "assets/id/L04.thumb.webp",
+      "remote_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/8b/Mount_Bromo_closeup_on_sunrise_2.jpg/1920px-Mount_Bromo_closeup_on_sunrise_2.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "source": "wikidata_p18",
+      "pick_tier": "strict",
+      "author": "Hugo van den Bos",
+      "license": "CC BY 2.0",
+      "license_url": "https://creativecommons.org/licenses/by/2.0",
+      "license_status": "ok",
+      "load_verified": true,
+      "bytes": 36760,
+      "caption_zh_manual": "布罗莫火山",
+      "caption_zh_source": "llm_from_commons_filename",
+      "thumb_bytes": 14316,
+      "size": {
+        "detail": "760x570",
+        "thumb": "400x300"
+      },
+      "encoding": "webp q72/q74 (源 1920x1440 575KB JPEG)"
+    },
+    {
+      "title": "File:Candi Prambanan di Tahun 1980an.jpg",
+      "caption_zh": "普兰巴南神庙1980年代影像",
+      "caption": "普兰巴南神庙1980年代影像",
+      "caption_commons": "Candi Prambanan di Tahun 1980an",
+      "kw": "Prambanan Temple Java",
+      "url": "assets/id/L05.webp",
+      "thumb_url": "assets/id/L05.thumb.webp",
+      "remote_url": "https://upload.wikimedia.org/wikipedia/commons/9/99/Candi_Prambanan_di_Tahun_1980an.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+      "source": "article_img",
+      "pick_tier": "strict",
+      "author": "Raden Soemardjo Bin Raden Martotenoyo",
+      "license": "CC0",
+      "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+      "license_status": "ok",
+      "load_verified": true,
+      "bytes": 13788,
+      "caption_zh_manual": "普兰巴南神庙",
+      "caption_zh_source": "llm_from_commons_filename",
+      "thumb_bytes": 8202,
+      "size": {
+        "detail": "604x426",
+        "thumb": "400x282"
+      },
+      "encoding": "webp q72/q74 (源 604x426 151KB JPEG)"
+    }
+  ],
+  "image_license": "Public domain",
+  "geometry_status": "naturalearth_50m_chunked",
+  "schema_version": "0.1",
+  "collected_at": "2026-10-30T21:26:55+08:00",
+  "collector": "scripts/collect.py v0.2",
+  "needs_review": true,
+  "review_notes": [
+    "P443 发音语种不符已弃用：Lb-Indonesien.ogg、LL-Q7913 (ron)-KlaudiuMihaila-Indonezia.wav、LL-Q652 (ita)-Francyskus-Indonesia.wav（P443 不保证语种，须按文件名筛）",
+    "该实体无对应语种发音，语音改跑 python scripts/tts.py ID",
+    "Commons 无可用发音，语音走构建期 TTS 兜底（待接）",
+    "地标图改为人工指定清单（5 张，中文图注）"
+  ],
+  "image_source_note": "人工按 data/landmarks.json 指定地标，Commons 关键词检索取图；原先自动获得的 1 张已被替换",
+  "custom_facets": {
+    "festivals": [],
+    "cuisine": [],
+    "religion": [
+      {
+        "v": "伊斯兰教",
+        "evidence": "穆斯林商人带入伊斯兰教"
+      },
+      {
+        "v": "基督宗教",
+        "evidence": "欧洲势力则带来了基督宗教"
+      },
+      {
+        "v": "佛教",
+        "evidence": "兴盛的佛教和印度教王国"
+      },
+      {
+        "v": "印度教",
+        "evidence": "兴盛的佛教和印度教王国"
+      }
+    ],
+    "architecture": [],
+    "heritage": [],
+    "keywords": [
+      {
+        "v": "万岛之国",
+        "evidence": "别称“万岛之国”"
+      },
+      {
+        "v": "香料群岛",
+        "evidence": "香料群岛马鲁古群岛"
+      },
+      {
+        "v": "三佛齐",
+        "evidence": "古代王国三佛齐"
+      },
+      {
+        "v": "满者伯夷",
+        "evidence": "之后的满者伯夷"
+      }
+    ],
+    "model": "deepseek-flash"
+  },
+  "summary_text_raw": "印度尼西亚共和国（印尼语：Republik Indonesia，发音：[rɛpʊblɪk ɪndɔnɛsɪa]），通称印度尼西亚，简称印尼，是位于东南亚的群岛国家；由17,506个岛屿组成，是世界上最大的群岛国家，疆域横跨亚洲及大洋洲，别称“万岛之国”。总人口超过2.7亿，为世界上人口第四多的国家，也是穆斯林人口数量最多的国家。该国国体属共和国，国会及总统皆由选举产生。首都及最大城市为雅加达，国界分别在新几内亚岛与巴布亚新几内亚、在帝汶岛与东帝汶，以及在加里曼丹岛与马来西亚相接，另有新加坡、菲律宾及澳大利亚等国家隔海相望。印尼为东南亚国家联盟创立国之一，且为20国集团成员国。在2017年，依国际汇率计算，该国为世界第16大经济体，以购买力平价计算则为世界第7大经济体。\n印尼群岛自7世纪起即为重要贸易地区，古代王国三佛齐及之后的满者伯夷曾与中国和印度进行贸易，当地统治者逐步吸收外国文化、宗教和政治型态，曾出现兴盛的佛教和印度教王国。外国势力因天然资源而进入印度尼西亚，穆斯林商人带入伊斯兰教，欧洲势力则带来了基督宗教，并于地理大发现后垄断香料群岛马鲁古群岛的贸易。",
+  "history_text": "约一百万年前爪哇猿人已生活在群岛，智人随后进入。南岛民族约于公元前两千年自台湾移入，构成现代多数居民。公元一世纪起村庄与小王国兴起，群岛航道带动与印度、中国的贸易。1512年葡萄牙商人到来寻找香料，荷兰人随后成立东印度公司，成为欧洲主要势力，其间遭遇当地人民武装抗争。",
+  "custom_text": "稻米是主食，配肉类与蔬菜，香料和椰浆常用，煎炸烤为主。炒饭、烤肉串、鸡汤遍布各地，被视为国家美食；圆锥状姜黄饭被选为官方国家美食，寓意烹煮传统的多样。西爪哇人吃一种叫Oncom的发酵食品，用豆渣等副产品与不同菌种制成，与天贝同类而风味有别。",
+  "custom_text_source": {
+    "source": "llm_compose_from_summary_facets",
+    "tier": "minor",
+    "note": "模型基于维基导语 + 抽取特征成文；只在没有人工稿的国家使用",
+    "chars": {
+      "history": 134,
+      "folk": 120
+    }
+  },
+  "knowledge_qa": [
+    {
+      "q": "印尼在哪儿啊？周围都有哪些国家？",
+      "a": "印度尼西亚是位于东南亚的群岛国家，疆域横跨亚洲及大洋洲，与巴布亚新几内亚、东帝汶、马来西亚接壤，并隔海与新加坡、菲律宾、澳大利亚相望。",
+      "tags": [
+        "地理位置",
+        "周边国家",
+        "东南亚"
+      ]
+    },
+    {
+      "q": "印尼首都是哪里？",
+      "a": "首都及最大城市是雅加达。",
+      "tags": [
+        "首都",
+        "雅加达"
+      ]
+    },
+    {
+      "q": "印尼人平时说什么话？",
+      "a": "官方语言是印尼语。",
+      "tags": [
+        "语言",
+        "印尼语",
+        "说什么话"
+      ]
+    },
+    {
+      "q": "印尼有什么值得一看的景点？",
+      "a": "值得看的有婆罗浮屠、巴厘岛海神庙、科莫多岛、布罗莫火山和普兰巴南神庙。",
+      "tags": [
+        "景点",
+        "地标",
+        "旅游"
+      ]
+    },
+    {
+      "q": "印尼有多少个岛？",
+      "a": "由17,506个岛屿组成，是世界上最大的群岛国家，别称“万岛之国”。",
+      "tags": [
+        "岛屿",
+        "万岛之国",
+        "群岛"
+      ]
+    },
+    {
+      "q": "印尼人口多吗？",
+      "a": "总人口超过2.7亿，为世界上人口第四多的国家，也是穆斯林人口数量最多的国家。",
+      "tags": [
+        "人口",
+        "世界第四"
+      ]
+    },
+    {
+      "q": "印尼在历史上受过哪些外来文化影响？",
+      "a": "当地统治者逐步吸收外国文化、宗教和政治型态，曾出现兴盛的佛教和印度教王国；穆斯林商人带入伊斯兰教，欧洲势力则带来了基督宗教。",
+      "tags": [
+        "历史",
+        "文化",
+        "宗教"
+      ]
+    }
+  ],
+  "llm_audit": {
+    "issues": [],
+    "overall": "pass"
+  },
+  "audio_meta": {}
+}

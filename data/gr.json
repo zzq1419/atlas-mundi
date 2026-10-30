@@ -1,0 +1,319 @@
+{
+  "qid": "Q41",
+  "iso_a2": "GR",
+  "iso_a3": "GRC",
+  "name_zh": "希腊",
+  "name_en": "Greece",
+  "capital": "雅典",
+  "continent": "欧洲",
+  "centroid": [
+    23,
+    38.5
+  ],
+  "centroid_source": "wikidata P625",
+  "languages": [
+    {
+      "code": "el",
+      "name_zh": "希腊语",
+      "name_local": "希腊语",
+      "role": "official",
+      "audio_url": "assets/gr/audio/el.mp3",
+      "audio_source": "tts_edge",
+      "audio_status": "ok",
+      "tts_text": "Καλώς ήρθατε στην Ελλάδα, μια χώρα όπου η θάλασσα συναντά αρχαίους ναούς· η πρωτεύουσά της είναι η Αθήνα, και πάνω από την πόλη δεσπόζει το φωτισμένο από τον ήλιο μάρμαρο της Ακρόπολης.",
+      "tts_text_zh": "欢迎来到希腊，一个海洋与古老神庙相遇的国度；它的首都是雅典，而卫城被阳光照亮的 marble 俯瞰着整座城市。",
+      "audio_voice": "el-GR-AthinaNeural",
+      "audio_bytes": 56448
+    }
+  ],
+  "summary_text": "希腊共和国简称希腊，是位于欧洲南部的发达跨大陆国家，2024年人口为1,039万。希腊地处欧洲、亚洲和非洲的中间，战略地位重要，位于巴尔干半岛南端，西北邻阿尔巴尼亚，北部邻北马其顿和保加利亚，东北邻土耳其。爱琴海位于希腊本土东侧，伊奥尼亚海位于西侧，克里特海和地中海位于南侧，海岸线长达13,676千米，为地中海盆地国家中最长，世界第11长。希腊拥有大量岛屿，其中227个岛屿有人居住。希腊百分之八十的区域为山地，奥林帕斯山为全境最高峰，海拔2,918米。希腊分为九个地区：马其顿、中希腊、伯罗奔尼撒、色萨利、伊庇鲁斯、爱琴海群岛（包括十二群岛及基克拉泽斯群岛）、色雷斯、克里特和伊奥尼亚群岛。雅典为希腊首都及最大城市，塞萨洛尼基为第二大城市。希腊为世界上历史最悠久的国家之一，自公元前2700年已经建立文明社会。",
+  "summary_source": {
+    "source": "llm_refined",
+    "note": "DeepSeek 基于 Wikipedia 导语 + 人工民俗文本重写；口径限定地理与文化，剔除政权更迭与战争史",
+    "chars": 357,
+    "derived_from": "wikipedia_extracts",
+    "url": "https://zh.wikipedia.org/wiki/%E5%B8%8C%E8%85%8A",
+    "title": "希腊"
+  },
+  "culture_excerpts": [
+    {
+      "section": "历史",
+      "text": "根据考古资料，希腊大约在二十万年前的旧石器时代中期已经有人类聚居。约公元前3200年，青铜时代的希腊孕育了欧洲最古老的文明：米诺斯文明（位于克里特岛），基克拉泽斯文明（位于基克拉泽斯群岛）及赫拉斯文明（位于希腊大陆）。公元前1600左右被迈锡尼文明取代，以上统称爱琴文明。迈锡尼文明被多利安人取代，之后希腊经历了一段黑暗时期，之前人们认为，在这一时期，希腊与外国文化之间失去了所有交流，几乎没有文化进步。但上世纪八十年代的一些考古研究发现希腊的一些地区比传统上想象的要富裕得多，与外国联系也更广泛。公元前9世纪，随着黑暗时代的结束，希腊半岛上出现了各种王国和城邦，这些王国和城邦分布在黑海沿岸、意大利南部（“Magna Graecia”）和小亚细亚。这些国家及其殖民地巨大的经济繁荣，使得希腊文明达到了前所未有的文化繁荣，古典希腊的文化繁荣表现在建筑、戏剧、科学、数学和哲学上。公元前508年，克利斯提尼在雅典建立了世界上第一个民主政体。这一阶段出现荷马史诗等希腊文作品，称为古风时期。此时希腊城邦在地中海和黑海沿岸纷纷建立起自己的殖民地，并在前776年举办第一次奥林匹克运动会。公元前5世纪初，希腊城邦的联军成功抵御波斯帝国入侵，并在此时达到其科技文化的高峰，称为古典时期。希腊，马其顿和色雷斯地区的文明被统称为海伦尼克（Ελληνιστική），为希腊一词的来源。公元前4世纪马其顿王国在腓力二世与其子亚历山大大帝领导下，统一希腊大部并挥师向东，灭亡波斯帝国，希腊文化传播到埃及、中东和中亚甚至印度河流域，史称希腊化时代。希腊历史中政治与军事上重要的城邦为：雅典、斯巴达、科林斯和底比斯。亚历山大死后，经过一段混乱的时期，亚历山大将军的后裔建立安提柯王朝并在在公元前276年重新控制了马其顿和大部分希腊城邦。大约从公元前200年开始，罗马共和国越来越多地参与希腊事务，并与马其顿进行了一系列战争。最终马其顿在公元前168年的皮德纳战役中战败，标志着希腊反抗力量的终结。公元前146年，马其顿被罗马吞并为一个省，希腊其他地区成为罗马的保护国。公元前27年，罗马皇帝奥古斯都吞并了希腊其他地区，并将其变为参议院的亚该亚行省。虽然在军事上被罗马完全征服，希腊文化却反过来影响罗马人的生活。作为罗马帝国的一个省，希腊文化继续主宰着东地中海。自公元324年开始，君士坦丁一世在拜占庭建立新都，命名为新罗马，330年建成。此新都后来作为东罗马帝国的首都，并改名为君士坦丁堡。公元395年，衰败的罗马帝国被狄奥多西一世分为东罗马和西罗马。620年，希拉克略皇帝用希腊语取代拉丁语，成为帝国的官方语言，东罗马帝国完全希腊化，而希腊也在东罗马帝国的影响下引入了天主教（东西教会大分裂后改为东正教）。东罗马抵御了近千年来自东西方的攻击，直到1453年君士坦丁堡最终沦陷，奥斯曼帝国也从此逐渐征服整个希腊。尽管奥斯曼帝国为伊斯兰教国家，但依然对希腊东正教采取宽容态度，并允许君士坦丁堡普世牧首保有相当的影响力，希腊文化也得以保留下来。从十六世纪后期开始，一些被称为“法那尔人”的富有希腊商人逐渐在帝国中获得了地位与话语权，他们被委以重要职务，如摩尔达维亚和瓦拉几亚地区就由这些商人代管。法那尔人普遍接受西式教育，对其希腊人身份有着认同感。因此随着启蒙运动民族主义概念的传播与世俗学习的增加，可以追溯至古希腊时期的现代希腊民族主义在精英阶层中诞生，这个国家将不再是东罗马帝国的继承者，它要独立于其他东正教民族，获得政治自主权。1814年，友谊社于敖德萨成立，其宣传希腊文化认同，开始筹划武装独立。1821年3月22日，希腊独立战争首先在今天的罗马尼亚地区爆发。尽管起义军开始时取得了一定优势，甚至于1821年10月攻占了特里波利斯，但在易卜拉欣于1825年2月登陆伯罗奔尼撒半岛后被埃及和奥斯曼联军完全压制。1822年和1824年，土耳其人和埃及人蹂躏了包括希俄斯岛和普萨拉岛在内的岛屿，对人口进行了大规模屠杀。希俄斯的12万希腊人口中，约有四分之三被杀害、奴役或死于疾病。这在西欧激起了支持希腊叛军的舆论。经过多年的谈判，法国、俄国和英国签订《1827伦敦条约》决定介入冲突，在数次重创奥斯曼与埃及军队后，这个新生的希腊国家终于在1830年根据《1830伦敦议定书》得到承认，并于1833年建立君主政权。在整个19世纪及20世纪初，希腊不断扩张领土，吸收奥斯曼帝国内讲希腊语的族群，到1913年，希腊的领土和人口几乎翻了一番，吞并了克里特岛、伊庇鲁斯和马其顿南部。由于第二次希土战争希腊灾难性的失败以及之后导致的难民问题，人民对国王愈加不满。1923~1927年间，希腊由君主国变为共和国，旋即是短命的军人独裁统治，最终复归为君主国；三年内颁布三部宪法，此后虽过了四年相对稳定的日子却又遭遇经济危机，货币暴跌四分之三而政府却束手无策；1936年民主制彻底坍塌而专制政府正式登台，当局解散议会、废除宪法、宣布军事管制、镇压政党和反对派组织，并剥夺人民的政治自由，军警力量得以加强，几千人被投入集中营虐待，同时还发展法西斯式的国家青年组织，精心安排歌颂领袖的游行。第二次世界大战时，意大利自意属阿尔巴尼亚入侵希腊，希意战争爆发，但前者把意大利军打退，之后纳粹德国干涉巴尔干半岛，联合意大利和保加利亚发动希腊战役，轴心国军队",
+      "chars": 2200
+    },
+    {
+      "section": "文化",
+      "text": "希腊文化自迈锡尼希腊开始已经发展了数千年，最引人注目的是，希腊文明穿越数千年，经历了罗马帝国及其希腊化的延续东罗马或拜占庭帝国的影响，从古典希腊一直延续下来。其他文化和国家，如拉丁化和法兰克化（中古日耳曼文化）的国家、奥斯曼帝国、威尼斯共和国、热那亚共和国和大英帝国，也对现代希腊文化产生了影响，尽管历史学家认为希腊独立战争振兴了希腊，并将其变为了一个由多方面文化组成的，单一、有凝聚力的实体。\n在古代，希腊是西方文化的发源地。现代民主国家要归功于希腊对人民政府、陪审团审判和法律平等的信念。古希腊人在许多依赖系统思想的领域开创了先河，包括逻辑学、生物学、几何学、政府学、地理学、医学、历史学、哲学、物理学和数学。他们引入了史诗和抒情诗、历史、悲剧、喜剧和戏剧等重要的文学形式。在追求秩序和比例的过程中，希腊人对于美的理念也深刻影响了西方艺术。\n希腊的艺术创作始于史前前希腊基克拉迪文明和米诺斯文明，这两个文明都受到当地传统和古埃及艺术的影响。\n古希腊有几个相互关联的绘画传统。由于技法的差异，它们的发展经历了些微的分化。并不是所有的绘画技术都能在考古记录中同样好地体现出来。根据普林尼·塞孔杜斯或保萨尼亚斯等作家的说法，最受尊敬的艺术形式是画在木板上的独立可移动绘画，被称为木板画，这也是板画最古老的一种形式。此外，希腊的壁画传统至少可以追溯到米诺斯和迈锡尼青铜时代，克诺索斯、梯林斯和迈锡尼等地都有奢华的壁画装饰。古希腊的大部分人像或建筑雕塑都是彩绘的，因此这一类型的希腊石雕被认为是多彩华丽的。\n大多数西方哲学传统始于公元前6世纪的古希腊。最初的一批哲学家被称为“前苏格拉底学派”，也即生活在苏格拉底之前的哲学家。这些哲学家大多来自希腊西部或东部殖民地，他们的原作大多未能完整幸存，只有一些残篇留存至今。",
+      "chars": 1200
+    },
+    {
+      "section": "人口、语言、宗教和医疗",
+      "text": "希腊2011年人口为10,816,286 人。大多数希腊人（98%）信奉国教东正教。东正教会受国家保护，并有自治权，但受位于君士坦丁堡的基督教元老院的精神指导。除此之外，还有1.3%的人口信奉伊斯兰教，而伊斯兰教也是唯一受官方承认的除东正教之外的宗教。\n《希腊宪法》承认，基督宗教中的正教会为国家的普遍的信仰，虽然如此，但同时也保证对所有宗教的信仰自由。希腊政府在人口普查时不统计公民的宗教信仰。据美国国务院，估计有97％的希腊公民确定自己为正教会基督徒，他们是属于希腊正教会。在2005年欧统处调查，81％的希腊公民的回应，他们“相信着有上帝”，这是仅次于马耳他和塞浦路斯的，是欧盟成员国之中的比例最高。根据其他来源，有15.8％的希腊人形容自己作为“笃信宗教”，这是所有欧洲国家中最高的。该调查还发现，只有3.5％希腊人从不去教堂。",
+      "chars": 800
+    }
+  ],
+  "landmark_images": [
+    {
+      "title": "File:Athens and the Acropolis at night.jpg",
+      "caption_zh": "雅典卫城夜景",
+      "caption": "雅典卫城夜景",
+      "caption_commons": "Athens and the Acropolis at night",
+      "kw": "Acropolis of Athens Parthenon",
+      "url": "assets/gr/L01.webp",
+      "thumb_url": "assets/gr/L01.thumb.webp",
+      "remote_url": "https://upload.wikimedia.org/wikipedia/commons/c/cf/Athens_and_the_Acropolis_at_night.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+      "source": "wikidata_p18",
+      "pick_tier": "strict",
+      "author": "Peter van der Sluijs",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "license_status": "ok",
+      "load_verified": true,
+      "bytes": 30854,
+      "caption_zh_manual": "雅典卫城",
+      "caption_zh_source": "llm_from_commons_filename",
+      "thumb_bytes": 14336,
+      "size": {
+        "detail": "640x439",
+        "thumb": "400x274"
+      },
+      "encoding": "webp q72/q74 (源 640x439 98KB JPEG)"
+    },
+    {
+      "title": "File:Church, Oia, Santorini (1360186561).jpg",
+      "caption_zh": "圣托里尼伊亚的教堂",
+      "caption": "圣托里尼伊亚的教堂",
+      "caption_commons": "Klick here for a large view!",
+      "kw": "Oia Santorini caldera",
+      "url": "assets/gr/L02.webp",
+      "thumb_url": "assets/gr/L02.thumb.webp",
+      "remote_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/7c/Church%2C_Oia%2C_Santorini_%281360186561%29.jpg/1920px-Church%2C_Oia%2C_Santorini_%281360186561%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "source": "article_img",
+      "pick_tier": "strict",
+      "author": "Wolfgang Staudt from Saarbruecken, Germany",
+      "license": "CC BY 2.0",
+      "license_url": "https://creativecommons.org/licenses/by/2.0",
+      "license_status": "ok",
+      "load_verified": true,
+      "bytes": 40336,
+      "caption_zh_manual": "圣托里尼伊亚",
+      "caption_zh_source": "llm_from_commons_filename",
+      "thumb_bytes": 13496,
+      "size": {
+        "detail": "760x521",
+        "thumb": "400x274"
+      },
+      "encoding": "webp q72/q74 (源 1920x1317 488KB JPEG)"
+    },
+    {
+      "title": "File:00 0541 Kloster Agía Triáda (Meteora) - Griechenland.jpg",
+      "caption_zh": "迈泰奥拉圣三一修道院",
+      "caption": "迈泰奥拉圣三一修道院",
+      "caption_commons": "Das Kloster Agía Triáda, ein griechisch-orthodoxes Kloster in der Region Thessal",
+      "kw": "Meteora monasteries Greece",
+      "url": "assets/gr/L03.webp",
+      "thumb_url": "assets/gr/L03.thumb.webp",
+      "remote_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/cc/00_0541_Kloster_Ag%C3%ADa_Tri%C3%A1da_%28Meteora%29_-_Griechenland.jpg/1920px-00_0541_Kloster_Ag%C3%ADa_Tri%C3%A1da_%28Meteora%29_-_Griechenland.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "source": "wikidata_p18",
+      "pick_tier": "strict",
+      "author": "W. Bulach",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "license_status": "ok",
+      "load_verified": true,
+      "bytes": 180114,
+      "caption_zh_manual": "迈泰奥拉修道院",
+      "caption_zh_source": "llm_from_commons_filename",
+      "thumb_bytes": 14950,
+      "size": {
+        "detail": "760x1140",
+        "thumb": "200x300"
+      },
+      "encoding": "webp q72/q74 (源 1920x2881 1785KB JPEG)"
+    },
+    {
+      "title": "File:CHURCH(1893) p073 DELPHI.jpg",
+      "caption_zh": "德尔斐阿波罗神庙",
+      "caption": "德尔斐阿波罗神庙",
+      "caption_commons": "",
+      "kw": "Temple of Apollo Delphi",
+      "url": "assets/gr/L04.webp",
+      "thumb_url": "assets/gr/L04.thumb.webp",
+      "remote_url": "https://upload.wikimedia.org/wikipedia/commons/3/30/CHURCH%281893%29_p073_DELPHI.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+      "source": "article_img",
+      "pick_tier": "strict",
+      "author": null,
+      "license": "Public domain",
+      "license_url": null,
+      "license_status": "ok",
+      "load_verified": true,
+      "bytes": 88628,
+      "caption_zh_manual": "德尔斐阿波罗神庙",
+      "caption_zh_source": "llm_from_commons_filename",
+      "thumb_bytes": 25396,
+      "size": {
+        "detail": "760x548",
+        "thumb": "400x288"
+      },
+      "encoding": "webp q72/q74 (源 949x684 519KB JPEG)"
+    },
+    {
+      "title": "File:Delfiny w Knossos.jpg",
+      "caption_zh": "克诺索斯王宫海豚壁画",
+      "caption": "克诺索斯王宫海豚壁画",
+      "caption_commons": "This image has been originally created as the illustration for drapieżne delfiny",
+      "kw": "Knossos palace Crete",
+      "url": "assets/gr/L05.webp",
+      "thumb_url": "assets/gr/L05.thumb.webp",
+      "remote_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c7/Delfiny_w_Knossos.jpg/1920px-Delfiny_w_Knossos.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "source": "article_img",
+      "pick_tier": "strict",
+      "author": "Przemek Pietrak",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "license_status": "ok",
+      "load_verified": true,
+      "bytes": 30806,
+      "caption_zh_manual": "克诺索斯王宫",
+      "caption_zh_source": "llm_from_commons_filename",
+      "thumb_bytes": 11034,
+      "size": {
+        "detail": "760x507",
+        "thumb": "400x267"
+      },
+      "encoding": "webp q72/q74 (源 1920x1280 373KB JPEG)"
+    }
+  ],
+  "image_license": "CC BY-SA 3.0",
+  "geometry_status": "naturalearth_50m_chunked",
+  "schema_version": "0.1",
+  "collected_at": "2026-10-30T21:22:51+08:00",
+  "collector": "scripts/collect.py v0.2",
+  "needs_review": true,
+  "review_notes": [
+    "P443 发音语种不符已弃用：Lb-Griicheland.ogg、LL-Q7913 (ron)-KlaudiuMihaila-Grecia.wav、Hu-Görögország.ogg（P443 不保证语种，须按文件名筛）",
+    "该实体无对应语种发音，语音改跑 python scripts/tts.py GR",
+    "Commons 无可用发音，语音走构建期 TTS 兜底（待接）",
+    "地标图改为人工指定清单（5 张，中文图注）"
+  ],
+  "image_source_note": "人工按 data/landmarks.json 指定地标，Commons 关键词检索取图；原先自动获得的 1 张已被替换",
+  "custom_facets": {
+    "festivals": [],
+    "cuisine": [],
+    "religion": [],
+    "architecture": [],
+    "heritage": [],
+    "keywords": [
+      {
+        "v": "雅典",
+        "evidence": "雅典为希腊首都及最大城市"
+      },
+      {
+        "v": "爱琴海",
+        "evidence": "爱琴海位于希腊本土东侧"
+      },
+      {
+        "v": "克里特",
+        "evidence": "克里特和伊奥尼亚群岛"
+      },
+      {
+        "v": "奥林帕斯山",
+        "evidence": "奥林帕斯山为全境最高峰"
+      },
+      {
+        "v": "岛屿",
+        "evidence": "其中227个岛屿有人居住"
+      }
+    ],
+    "model": "deepseek-flash"
+  },
+  "summary_text_raw": "希腊共和国（希腊语：Ελληνική Δημοκρατία，罗马化：Ellinikí Dimokratía），简称希腊（Ελλάδα，罗马化：Elláda），是位于欧洲南部的发达跨大陆国家。2024年其人口为1,039万。雅典为希腊首都及最大城市，塞萨洛尼基为第二大城市。\n希腊位于欧洲、亚洲和非洲的中间，战略地位重要。其位于巴尔干半岛南端，西北邻阿尔巴尼亚，北部邻北马其顿和保加利亚，东北邻土耳其。希腊分为九个地区：马其顿、中希腊、伯罗奔尼撒、色萨利、伊庇鲁斯、爱琴海群岛（包括十二群岛及基克拉泽斯群岛）、色雷斯、克里特和伊奥尼亚群岛。爱琴海位于希腊本土东侧，伊奥尼亚海位于西侧，克里特海和地中海位于南侧。希腊海岸线长达13,676千米（8,498英里），为地中海盆地国家中最长，世界第11长。希腊拥拥有大量岛屿，其中227个岛屿有人居住。其中百分之八十的区域为山地，奥林帕斯山为全境最高峰，海拔2,918米（9,573英尺）。\n希腊为世界上历史最悠久的国家之一，自公元前2700年已经建立文明社会。",
+  "history_text": "旧石器时代中期已有人类聚居，青铜时代孕育米诺斯、基克拉泽斯与赫拉斯文明，后由迈锡尼文明取代，又被多利安人取代而进入黑暗时期。公元前九世纪黑暗时代结束，半岛上出现众多王国与城邦，殖民遍及黑海与地中海沿岸。公元前五世纪初，希腊城邦联军击退波斯入侵，古典文化随之繁盛。",
+  "custom_text": "多数人信奉东正教，教堂节庆与圣像敬礼贯穿全年，复活节前的斋戒与深夜烛光仪式尤为郑重。日常餐桌上橄榄油、面包与葡萄酒是常客，待客时主人常以一杯浓咖啡或甜酒相赠，席间闲谈多于匆忙。",
+  "custom_text_source": {
+    "source": "llm_compose_from_summary_facets",
+    "tier": "minor",
+    "note": "模型基于维基导语 + 抽取特征成文；只在没有人工稿的国家使用",
+    "chars": {
+      "history": 131,
+      "folk": 88
+    }
+  },
+  "knowledge_qa": [
+    {
+      "q": "希腊在哪儿啊？周围挨着哪些国家？",
+      "a": "希腊位于欧洲南部，在巴尔干半岛南端，西北邻阿尔巴尼亚，北部邻北马其顿和保加利亚，东北邻土耳其。",
+      "tags": [
+        "希腊位置",
+        "欧洲南部",
+        "邻国"
+      ]
+    },
+    {
+      "q": "希腊的首都是哪里？",
+      "a": "雅典是希腊的首都，也是希腊最大的城市。",
+      "tags": [
+        "首都",
+        "雅典"
+      ]
+    },
+    {
+      "q": "希腊说什么语言？",
+      "a": "希腊的官方语言是希腊语。",
+      "tags": [
+        "语言",
+        "希腊语"
+      ]
+    },
+    {
+      "q": "希腊有什么值得一看的地标或景点？",
+      "a": "雅典卫城、圣托里尼伊亚、迈泰奥拉修道院、德尔斐阿波罗神庙和克诺索斯王宫都是希腊著名的地标。",
+      "tags": [
+        "景点",
+        "地标",
+        "雅典卫城",
+        "圣托里尼"
+      ]
+    },
+    {
+      "q": "希腊有多少人口？",
+      "a": "2024年希腊的人口为1,039万。",
+      "tags": [
+        "人口",
+        "多少人"
+      ]
+    },
+    {
+      "q": "希腊的地形怎么样？最高峰是哪座山？",
+      "a": "希腊百分之八十的区域为山地，全境最高峰是奥林帕斯山，海拔2,918米。",
+      "tags": [
+        "地形",
+        "山地",
+        "最高峰",
+        "奥林帕斯山"
+      ]
+    },
+    {
+      "q": "希腊有很多岛屿吗？",
+      "a": "希腊拥有大量岛屿，其中227个岛屿有人居住。",
+      "tags": [
+        "岛屿",
+        "海岛",
+        "希腊群岛"
+      ]
+    },
+    {
+      "q": "希腊的海岸线有多长？",
+      "a": "希腊海岸线长达13,676千米，是地中海盆地国家中最长的，世界第11长。",
+      "tags": [
+        "海岸线",
+        "长度"
+      ]
+    }
+  ],
+  "llm_audit": {
+    "issues": [],
+    "overall": "pass"
+  },
+  "audio_meta": {}
+}

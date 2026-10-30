@@ -1,0 +1,348 @@
+{
+  "qid": "Q145",
+  "iso_a2": "GB",
+  "iso_a3": "GBR",
+  "name_zh": "英国",
+  "name_en": "United Kingdom",
+  "capital": "伦敦",
+  "continent": "欧洲",
+  "centroid": [
+    -2,
+    54.6
+  ],
+  "centroid_source": "wikidata P625",
+  "languages": [
+    {
+      "code": "en",
+      "name_zh": "英语",
+      "name_local": "英语",
+      "role": "official",
+      "audio_url": "assets/gb/audio/en.mp3",
+      "audio_source": "tts_edge",
+      "audio_status": "ok",
+      "tts_text": "Welcome to the United Kingdom, a country whose capital is London, where the great clock tower of Big Ben, Tower Bridge and the ancient stones of Stonehenge stand among its most memorable landmarks.",
+      "tts_text_zh": "欢迎来到英国，这个国家的首都是伦敦，大本钟的钟楼、伦敦塔桥与巨石阵的古老石群都是它最令人难忘的地标。",
+      "audio_voice": "en-US-AriaNeural",
+      "audio_bytes": 70704
+    },
+    {
+      "code": "cy",
+      "name_zh": "威尔士语",
+      "name_local": "威尔士语",
+      "role": "official",
+      "audio_url": "assets/gb/audio/cy.mp3",
+      "audio_source": "tts_edge",
+      "audio_status": "ok",
+      "tts_text": "Croeso i'r Deyrnas Unedig, gwlad a'i phrifddinas yw Llundain, lle mae tŵr cloc Big Ben, Pont y Tŵr a cherrig hynafol Stonehenge ymhlith ei thirnodau mwyaf cofiadwy.",
+      "tts_text_zh": "欢迎来到英国，这个国家的首都是伦敦，大本钟的钟楼、伦敦塔桥与巨石阵的古老石群都是它最令人难忘的地标。",
+      "audio_voice": "cy-GB-NiaNeural",
+      "audio_bytes": 72720
+    },
+    {
+      "code": "gd",
+      "name_zh": "苏格兰盖尔语",
+      "name_local": "苏格兰盖尔语",
+      "role": "official",
+      "audio_url": null,
+      "audio_source": null,
+      "audio_status": "pending"
+    },
+    {
+      "code": "sco",
+      "name_zh": "低地苏格兰语",
+      "name_local": "低地苏格兰语",
+      "role": "official",
+      "audio_url": null,
+      "audio_source": null,
+      "audio_status": "pending"
+    }
+  ],
+  "summary_text": "大不列颠及北爱尔兰联合王国，简称联合王国或不列颠，通称英国，是位于西欧的国家。其地理范围包括大不列颠岛、北爱尔兰及一系列小岛屿，由大西洋所环抱，东面北海，南与欧洲大陆隔英吉利海峡相望，西南偏南为凯尔特海，大不列颠本土西侧与爱尔兰岛隔爱尔兰海。英国本土唯一与他国的陆上国界位于爱尔兰岛东北，此处其构成国之一北爱尔兰接壤爱尔兰共和国。该国总面积达244,376平方千米，为世界第80大国及欧洲面积第11大；截至2025年10月，英国人口约为6968万，世界排名第22位。英国由四个构成国组成，分别为英格兰、苏格兰、威尔士和北爱尔兰，其中后三者在权力下放体系之下，各自拥有一定的权力。首都伦敦为A++级别城市和国际金融中心，都会区人口达1,540万，为欧洲最大。英国行君主立宪，乃实行议会制的民主政体，现任英国君主为国王查尔斯三世，于2022年9月8日即位。",
+  "summary_source": {
+    "source": "llm_refined",
+    "note": "DeepSeek 基于 Wikipedia 导语 + 人工民俗文本重写；口径限定地理与文化，剔除政权更迭与战争史",
+    "chars": 376,
+    "derived_from": "wikipedia_extracts",
+    "url": "https://zh.wikipedia.org/wiki/%E8%8B%B1%E5%9B%BD",
+    "title": "英国"
+  },
+  "culture_excerpts": [
+    {
+      "section": "历史",
+      "text": "现在的英国领土是过去的几百年中多次合并的结果。在10世纪时，苏格兰王国和英格兰王国各自是独立的国家。1155年，英王亨利二世获得教宗赐予的爱尔兰作为自己的封建领地，并于1171年正式出兵，1177年控制了爱尔兰大部分地区。1284年，威尔士公国被英格兰国王爱德华一世征服，而后实际被英格兰王国控制，直至1535年成为英格兰的一部分。1296年，爱德华一世又趁苏格兰王位继承危机占领苏格兰王国。然而以威廉·华莱士和罗伯特·布鲁斯为首的苏格兰贵族不断发起叛乱（英语：First War of Scottish Independence），英格兰始终无法有效控制新征服的土地。1307年爱德华骤逝后战局很快恶化，他的继任者爱德华二世在班诺克本战役中遭到惨败，于1323年被迫承认苏格兰独立。14世纪中叶的第二次苏格兰独立战争（英语：Second War of Scottish Independence）后，尽管英格兰仍尝试武力吞并北方邻国，但从未成功过。1542年，因亨利八世与罗马教廷决裂，之前的教皇封地不再有效，亨利八世加冕为爱尔兰国王，爱尔兰王国建立。1603年，英格兰王国和苏格兰王国两国在詹姆斯六世及一世的治下成为共主邦联，1707年通过《1707年联合法令》正式合并为大不列颠王国。1801年，已成为共主联邦的大不列颠王国和爱尔兰王国合并，组成大不列颠与爱尔兰联合王国。1922年，爱尔兰自由邦成立，而北爱尔兰则仍由英国政府控制，英国国名也在1927年改为大不列颠及北爱尔兰联合王国。红白玫瑰战争结束后都铎王朝建立，英格兰贵族势力遭到削弱，为英国专制王权的发展提供了土壤。亨利八世继位后提出“君权神授”理论，推动宗教改革侵吞大量教产，设立星室法院，使国王得以脱离议会独立执政。然而到17世纪，王室因为战争和长期挥霍财政状况日益拮据，以至于詹姆斯一世不得不经常召开议会筹措资金。其子查理一世不愿意和议会妥协，自1629年后维持个人的专横统治（英语：Personal Rule）长达11年时间，但迫于苏格兰叛乱的压力还是不得不先后召开短期与长期议会寻求后者对战争的支持。之后双方的矛盾愈演愈烈最终导致了英格兰内战的爆发。保王党的军队在第一次内战前期取得过一定优势，然而1645年的内斯比战役后其被议会的新模范军彻底摧毁，查理向苏格兰军队投降，随即被移交给英国议会。1648年保王党人挑起第二次英格兰内战，但很快就被议会军镇压，再度抓回逃亡的查理一世后，已经清洗了同情国王议员的残缺议会指控其犯有叛国罪，法庭裁定罪名成立并将之处决，圆颅党随即废止上议院建立由国务会议掌控的共和国。奥利弗·克伦威尔作为新模范军指挥官于1653年强行解散残缺议会，自任“护国公”进行独裁统治直到1658年去世。1660年查理二世返回伦敦复辟斯特亚特王朝，由于没有合法子嗣，继承王位的将是他的幼弟詹姆斯二世，然而后者因为天主教信仰并未受到广泛欢迎，其登基后颁布的一系列宗教宽容措施激怒了信仰新教的英格兰居民，成为光荣革命导火索。玛丽二世和奥兰治亲王威廉三世得到国内反对派对其发出的邀请（英语：Invitation to William），于1689年11月5日率领荷兰军队在托贝登陆，忠于国王的皇家海军由于逆风和潮汐无法拦截，丧尽民心的詹姆斯二世只能逃亡法国。次年玛丽夫妇在接受《权利法案》后共同加冕为英格兰国王，“议会至上”的政治原则自此确立。英国自16世纪伊丽莎白一世时期开始对外殖民，早期殖民活动以私掠贸易为主，对象一般是满载新大陆财宝的西班牙远洋船队。英西战争结束后其开始自己的殖民点建设。1607年英国在北美大陆的第一个永久定居点詹姆斯敦建立，随后整个17世纪随着大西洋黑奴贸易的扩张，十三殖民地逐步成型。与此同时英荷两国作为新兴海上强权不断爆发战争，1672年英国与法兰西王国结盟共同进攻荷兰，是为法荷战争，自此之后联省共和国疲于应对来自陆上的威胁逐渐衰弱，英国在18世纪初叶的西班牙王位继承战争后成为海上霸主。18世纪中叶英国又与普鲁士王国结盟，在七年战争后夺取法属路易斯安那并获得印度殖民的主导权。之后英格兰联合诸多欧洲强国，在持续二十多年的反法同盟战争后击败法国，取得世界霸主地位。19世纪，大英帝国有着“世界工厂”的称号，是世界上第一个工业革命和工业化的国家，西方资本主义的倡导者，并且是早期议会民主制的诞生地。无论在科学技术还是文学艺术水平皆有显著的贡献。在其顶峰时期，大英帝国曾经控制世界百分之二十二的土地和世界百分之二十的人口，因其控制的土地覆盖地球大部分经度，太阳时时刻刻都会照耀英属领土，故称为“日不落帝国”，是人类历史上最大的帝国。到二十世纪前半叶，经历了两次世界大战的英国国力减退。而在后半个世纪中，这个庞大的殖民帝国的殖民地纷纷开始独立。在处理殖民地独立问题时，英国利用“分而治之”的手段，在谋求本国最大利益的同时，给原殖民地带来了极大的不安定因素。香港是最后一个脱离英国的殖民地，其主权于1997年7月1日移交给中华人民共和国，这也标志着大英帝国的结束。虽然英国在第二次世界大战后国力下降和经济不景气，但是工党自1945年执政后，制定福利国家的政策，包括成立国民保健署（NHS），为英国经济恢复稳定，但工党执政时期的国有化政策，导致1970年代的经济衰退。保守党领导人“铁娘子”撒切",
+      "chars": 2200
+    },
+    {
+      "section": "文化",
+      "text": "英国文化受其自由民主的议会制政体、岛国及宗教等等因素影响。英国由英格兰、威尔士、苏格兰和北爱尔兰四地区组成，四地区都有独自的风俗和象征。英国文化亦是欧洲文化与西方文化的重要组成。\n英国文学、音乐、电影、艺术、戏剧、媒体、电视、哲学和建筑都具有世界性的影响力。在历史上诞生了如莎士比亚、拜伦、摩尔、狄更斯，布兰克特三姐妹与盖斯凯尔夫人等著名的文学家和艺术家。运动也是英国文化重要组成部分之一，其是许多运动的发源地，包括本国最流行的足球，英超联赛就是世界重要足球联赛之一。英国因此也被描述为“文化大国”，伦敦也由此成为了世界文化中心之一。\n英国是众多著名音乐家的故乡，这些音乐家都有可观的贡献和影响。英国音乐的传统来自基督教音乐和不列颠民间音乐，英格兰、苏格兰、威尔士和北爱尔兰有着本土的传统音乐，风格各异。进入工业时代后，兴起如铜管乐队和音乐厅乐团这样的新形式，挑战传统民乐的流行地位。现代流行音乐的诸多潮流都发源自英国，如节拍音乐、强力流行、迷幻音乐、前卫摇滚、重金属音乐、新浪潮音乐、电子流行、回响贝斯等。\n在古典音乐方面，按照历史梳理，都铎时期的音乐归类为文艺复兴音乐，托马斯·塔利斯、约翰·塔弗纳、威廉·伯德、奥兰多·吉本斯、约翰·道兰德是这时英格兰著名的音乐家，他们创作出卓越的弥撒曲、牧歌（英语：Madrigal）和鲁特琴曲。之后的斯图亚特王朝复辟时代，亨利·珀塞尔引领潮流，托马斯·阿恩等人追随，他们创作假面舞曲（英语：Masque）、颂歌和艾尔抒情调，作为之后英格兰音乐的传统风格而延续。入籍英国的德意志人亨德尔是巴洛克时期卓越的作曲家，他创作的《水上音乐》《皇家烟火》和《弥赛亚》广为人知，颂歌《牧师扎多克》成为英国君主的传统加冕曲。19世纪下半叶，爱德华·埃尔加可谓最成功的作曲家，涵盖各式风格，成就和当时的欧陆名家匹敌；阿瑟·萨利文和威廉·S·吉尔伯特合作创作出许多经久不衰的萨伏依歌剧作品。进入20世纪，有古斯塔夫·霍尔斯特和雷夫·佛汉·威廉斯等英国作曲家自民间音乐汲取灵感，引领英国民歌复兴（英语：British folk revival）；布里顿男爵的歌剧作品成就斐然，是英国现代歌剧的先驱。在战后的当代，著名的英国作曲家有彼得·马克斯韦尔·戴维斯，他创作出有序列音乐、东方音乐和文艺复兴音乐色彩的独特作品；哈里森·伯特威斯尔，他的音乐具有神话色彩，富于诗情；约翰·塔文纳，以宗教精神深厚的合唱作品著称。\n英国饮食虽然和其他欧洲国家相比较为简单，但英式早餐和其他欧洲国家相比较为丰盛。英国料理传统上注重食材本身的味道。而国际上熟知的英国饮食包括英式早餐和圣诞晚宴。凯尔特原住民本身就有一系列常用的农业作物及动物食材，而诺曼征服英格兰后又带来了许多外来种。大英帝国的殖民活动又使得食用味道强烈的香料及草药的印度菜进入英国。\n英国内的四个组成部分都有各自的独特饮食，传统的英格兰",
+      "chars": 1200
+    },
+    {
+      "section": "饮食",
+      "text": "英国饮食虽然和其他欧洲国家相比较为简单，但英式早餐和其他欧洲国家相比较为丰盛。英国料理传统上注重食材本身的味道。而国际上熟知的英国饮食包括英式早餐和圣诞晚宴。凯尔特原住民本身就有一系列常用的农业作物及动物食材，而诺曼征服英格兰后又带来了许多外来种。大英帝国的殖民活动又使得食用味道强烈的香料及草药的印度菜进入英国。\n英国内的四个组成部分都有各自的独特饮食，传统的英格兰饮食有周日烤肉、约克郡布丁和肉汁。炸鱼薯条和英式早餐（培根、烤西红柿、炸面包、黑布丁、烘豆、烤蘑菇、香肠和蛋）。最早的炸鱼薯条出现于1860年奥尔德姆的汤米菲尔德市场（Tommyfield Market）。除此之外还有各种肉派，例如牛排腰子派、牧羊人派、农舍派、康瓦尔郡菜肉烘饼和猪肉派。\n在英国文化中，通常会在下午4至6点吃下午茶。而作为英国最常见的饮料之一，茶由查尔斯二世之妻布拉干萨的凯瑟琳引入英国，传统上下午茶还包括三明治、司康饼、蛋糕或其他点心。",
+      "chars": 800
+    }
+  ],
+  "landmark_images": [
+    {
+      "title": "File:Darwin (AU), Parliament House -- 2019 -- 4336-8.jpg",
+      "caption_zh": "大本钟与议会大厦",
+      "caption": "大本钟与议会大厦",
+      "caption_commons": "Parliament House, Darwin, Northern Territory, Australia",
+      "kw": "Big Ben Houses of Parliament",
+      "url": "assets/gb/L01.webp",
+      "thumb_url": "assets/gb/L01.thumb.webp",
+      "remote_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/09/Darwin_%28AU%29%2C_Parliament_House_--_2019_--_4336-8.jpg/1920px-Darwin_%28AU%29%2C_Parliament_House_--_2019_--_4336-8.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "source": "commons_search",
+      "pick_tier": "strict",
+      "author": "Dietmar Rabich",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "license_status": "ok",
+      "load_verified": true,
+      "bytes": 66860,
+      "caption_zh_manual": "大本钟与议会大厦",
+      "caption_zh_source": "llm_from_commons_filename",
+      "thumb_bytes": 20794,
+      "size": {
+        "detail": "760x558",
+        "thumb": "400x294"
+      },
+      "encoding": "webp q72/q74 (源 1920x1409 730KB JPEG)"
+    },
+    {
+      "title": "File:London - London Tower Bridge - 140806 171049.jpg",
+      "caption_zh": "伦敦塔桥",
+      "caption": "伦敦塔桥",
+      "caption_commons": "Tower Bridge, Londres.",
+      "kw": "Tower Bridge London",
+      "url": "assets/gb/L02.webp",
+      "thumb_url": "assets/gb/L02.thumb.webp",
+      "remote_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/71/London_-_London_Tower_Bridge_-_140806_171049.jpg/1920px-London_-_London_Tower_Bridge_-_140806_171049.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "source": "wikidata_p18",
+      "pick_tier": "strict",
+      "author": "Barcex",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "license_status": "ok",
+      "load_verified": true,
+      "bytes": 37072,
+      "caption_zh_manual": "伦敦塔桥",
+      "caption_zh_source": "llm_from_commons_filename",
+      "thumb_bytes": 11466,
+      "size": {
+        "detail": "760x428",
+        "thumb": "400x225"
+      },
+      "encoding": "webp q72/q74 (源 1920x1080 473KB JPEG)"
+    },
+    {
+      "title": "File:Stonehenge Total.jpg",
+      "caption_zh": "巨石阵全景",
+      "caption": "巨石阵全景",
+      "caption_commons": "Stonehenge, GB",
+      "kw": "Stonehenge England",
+      "url": "assets/gb/L03.webp",
+      "thumb_url": "assets/gb/L03.thumb.webp",
+      "remote_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/6b/Stonehenge_Total.jpg/1920px-Stonehenge_Total.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "source": "wikidata_p18",
+      "pick_tier": "strict",
+      "author": "Stefan Kühn",
+      "license": "CC BY-SA 3.0",
+      "license_url": "http://creativecommons.org/licenses/by-sa/3.0/",
+      "license_status": "ok",
+      "load_verified": true,
+      "bytes": 31092,
+      "caption_zh_manual": "巨石阵",
+      "caption_zh_source": "llm_from_commons_filename",
+      "thumb_bytes": 10610,
+      "size": {
+        "detail": "760x570",
+        "thumb": "400x300"
+      },
+      "encoding": "webp q72/q74 (源 1920x1440 384KB JPEG)"
+    },
+    {
+      "title": "File:Edinburgh Castle from the Grassmarket.jpg",
+      "caption_zh": "从草市眺望爱丁堡城堡",
+      "caption": "从草市眺望爱丁堡城堡",
+      "caption_commons": "Edinburgh Castle from the Grassmarket",
+      "kw": "Edinburgh Castle Scotland",
+      "url": "assets/gb/L04.webp",
+      "thumb_url": "assets/gb/L04.thumb.webp",
+      "remote_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/4c/Edinburgh_Castle_from_the_Grassmarket.jpg/1920px-Edinburgh_Castle_from_the_Grassmarket.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "source": "wikidata_p18",
+      "pick_tier": "strict",
+      "author": "Stephencdickson",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "license_status": "ok",
+      "load_verified": true,
+      "bytes": 65860,
+      "caption_zh_manual": "爱丁堡城堡",
+      "caption_zh_source": "llm_from_commons_filename",
+      "thumb_bytes": 19870,
+      "size": {
+        "detail": "760x506",
+        "thumb": "400x266"
+      },
+      "encoding": "webp q72/q74 (源 1920x1278 639KB JPEG)"
+    },
+    {
+      "title": "File:Westminster abbey night.jpg",
+      "caption_zh": "威斯敏斯特教堂夜景",
+      "caption": "威斯敏斯特教堂夜景",
+      "caption_commons": "Westminster Abbey at night, viewed from Dean's Yard",
+      "kw": "Westminster Abbey London",
+      "url": "assets/gb/L05.webp",
+      "thumb_url": "assets/gb/L05.thumb.webp",
+      "remote_url": "https://upload.wikimedia.org/wikipedia/commons/8/86/Westminster_abbey_night.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+      "source": "article_img",
+      "pick_tier": "strict",
+      "author": "Ed g2s",
+      "license": "CC BY-SA 3.0",
+      "license_url": "http://creativecommons.org/licenses/by-sa/3.0/",
+      "license_status": "ok",
+      "load_verified": true,
+      "bytes": 28158,
+      "caption_zh_manual": "威斯敏斯特教堂",
+      "caption_zh_source": "llm_from_commons_filename",
+      "thumb_bytes": 9338,
+      "size": {
+        "detail": "760x513",
+        "thumb": "400x270"
+      },
+      "encoding": "webp q72/q74 (源 1162x784 230KB JPEG)"
+    }
+  ],
+  "image_license": "CC BY-SA 4.0",
+  "geometry_status": "naturalearth_50m_chunked",
+  "schema_version": "0.1",
+  "collected_at": "2026-10-30T21:18:59+08:00",
+  "collector": "scripts/collect.py v0.2",
+  "needs_review": true,
+  "review_notes": [
+    "语言代码未解析，已剔除：康沃尔语、阿爾斯特蘇格蘭語、英國手語",
+    "P37 返回 8 个语言，去重/去上位概念后保留 4 个：英语、威尔士语、苏格兰盖尔语、低地苏格兰语",
+    "P443 发音语种不符已弃用：Lb-Vereenegt Kinnekräich.ogg、GT United Kingdom.ogg、En-us-United Kingdom.ogg（P443 不保证语种，须按文件名筛）",
+    "该实体无对应语种发音，语音改跑 python scripts/tts.py GB",
+    "Commons 无可用发音，语音走构建期 TTS 兜底（待接）",
+    "地标图改为人工指定清单（5 张，中文图注）"
+  ],
+  "image_source_note": "人工按 data/landmarks.json 指定地标，Commons 关键词检索取图；原先自动获得的 1 张已被替换",
+  "custom_facets": {
+    "festivals": [],
+    "cuisine": [],
+    "religion": [],
+    "architecture": [],
+    "heritage": [],
+    "keywords": [
+      {
+        "v": "大不列颠岛",
+        "evidence": "地理范围包括大不列颠岛"
+      },
+      {
+        "v": "英吉利海峡",
+        "evidence": "南与欧洲大陆隔英吉利海峡相望"
+      },
+      {
+        "v": "北海",
+        "evidence": "东面北海"
+      },
+      {
+        "v": "伦敦",
+        "evidence": "首都伦敦为A++级别城市"
+      },
+      {
+        "v": "君主立宪",
+        "evidence": "英国行君主立宪"
+      }
+    ],
+    "model": "deepseek-flash"
+  },
+  "summary_text_raw": "大不列颠及北爱尔兰联合王国（英语：United Kingdom of Great Britain and Northern Ireland），简称联合王国（英语：United Kingdom，缩写：UK）或不列颠（英语：Britain），通称英国，是位于西欧的国家，地理范围包括大不列颠岛、北爱尔兰及一系列小岛屿。英国由大西洋所环抱，东面北海，南与欧洲大陆隔英吉利海峡相望，西南偏南为凯尔特海，大不列颠本土西侧与爱尔兰岛隔爱尔兰海。英国本土唯一与他国的陆上国界位于爱尔兰岛东北，此处其构成国之一北爱尔兰接壤爱尔兰共和国。该国总面积达244,376平方千米（94,354平方英里），为世界第80大国及欧洲面积第11大；截至2025年10月，英国人口约为6968万，世界排名第22位。\n英国行君主立宪，乃实行议会制的民主政体。首都伦敦为A++级别城市和国际金融中心，都会区人口达1,540万，为欧洲最大。现任英国君主为国王查尔斯三世，于2022年9月8日即位。英国由四个构成国组成，分别为英格兰、苏格兰、威尔士和北爱尔兰，其中后三者在权力下放体系之下，各自拥有一定的权力。",
+  "history_text": "现在的英国领土是过去几百年间多次合并的结果。10世纪时，苏格兰王国与英格兰王国各自独立；亨利二世以教宗所赐的爱尔兰为封建领地，出兵控制爱尔兰大部分地区；爱德华一世征服威尔士公国，后又趁苏格兰王位继承危机占领苏格兰，但威廉·华莱士与罗伯特·布鲁斯领头的叛乱使英格兰始终无法稳固控制新土地，班诺克本战役惨败后被迫承认苏格兰独立。亨利八世与罗马教廷决裂后加冕为爱尔兰国王，爱尔兰王国建立。1603年英格兰与苏格兰在詹姆斯六世及一世治下成为共主邦联，1707年通过《1707年联合法令》正式合并为大不列颠王国；1801年又与爱尔兰王国合并。1922年爱尔兰自由邦成立，北爱尔兰仍由英国政府控制，国名于1927年改为大不列颠及北爱尔兰联合王国。其间都铎王朝削弱贵族、亨利八世推动宗教改革，17世纪王室与议会矛盾激化引发英格兰内战，查理一世被处决，克伦威尔以“护国公”独裁，斯特亚特王朝复辟后，光荣革命确立议会主权。",
+  "custom_text": "一双手正把面团擀开、切成圆片，摆在烤盘上送入炉中——这是司康饼，下午茶桌上少不了它。茶由查尔斯二世之妻布拉干萨的凯瑟琳引入，此后饮茶成了日常；传统的下午茶还配三明治、蛋糕或其他点心，时间通常在下午四至六点之间。英式早餐在材料里被写得比欧洲邻国丰盛：培根、烤西红柿、炸面包、黑布丁、烘豆、烤蘑菇、香肠和蛋。炸鱼薯条最早出现在奥尔德姆的汤米菲尔德市场。肉派的花样也多，牛排腰子派、牧羊人派、农舍派、康瓦尔郡菜肉烘饼和猪肉派各有各的做法。英格兰传统里还有周日烤肉、约克郡布丁和肉汁。四个构成地区各有独特饮食，凯尔特原住民早有常用的农作物与动物食材，诺曼征服后带来外来物种，大英帝国的殖民活动又让味道强烈的香料与草药的印度菜进入日常餐桌。",
+  "custom_text_source": {
+    "source": "llm_compose_from_summary_facets",
+    "tier": "major",
+    "note": "模型基于维基导语 + 抽取特征成文；只在没有人工稿的国家使用",
+    "chars": {
+      "history": 402,
+      "folk": 315
+    }
+  },
+  "knowledge_qa": [
+    {
+      "q": "英国在哪儿啊？周围都是什么？",
+      "a": "英国位于西欧，被大西洋环抱，东面是北海，南隔英吉利海峡与欧洲大陆相望，西南偏南为凯尔特海，西侧隔爱尔兰海与爱尔兰岛相望。",
+      "tags": [
+        "英国位置",
+        "欧洲",
+        "地理",
+        "周边"
+      ]
+    },
+    {
+      "q": "英国面积多大？人口多少？",
+      "a": "英国总面积244,376平方千米，是世界第80大国、欧洲面积第11大；截至2025年10月人口约6968万，世界排名第22位。",
+      "tags": [
+        "面积",
+        "人口",
+        "英国多大"
+      ]
+    },
+    {
+      "q": "英国首都是哪里？",
+      "a": "首都伦敦，是A++级别城市和国际金融中心，都会区人口达1,540万，为欧洲最大。",
+      "tags": [
+        "首都",
+        "伦敦",
+        "城市"
+      ]
+    },
+    {
+      "q": "英国人都说什么语言？",
+      "a": "官方语言包括英语、威尔士语、苏格兰盖尔语和低地苏格兰语。",
+      "tags": [
+        "语言",
+        "方言",
+        "说什么话"
+      ]
+    },
+    {
+      "q": "英国有什么值得看的地标？",
+      "a": "值得看的有大本钟与议会大厦、伦敦塔桥、巨石阵、爱丁堡城堡和威斯敏斯特教堂。",
+      "tags": [
+        "地标",
+        "景点",
+        "打卡",
+        "建筑"
+      ]
+    },
+    {
+      "q": "英国由哪几个部分组成？",
+      "a": "英国由四个构成国组成：英格兰、苏格兰、威尔士和北爱尔兰，其中后三者在权力下放体系下拥有一定权力。",
+      "tags": [
+        "构成国",
+        "英格兰",
+        "苏格兰",
+        "威尔士"
+      ]
+    },
+    {
+      "q": "英国现在谁当国王？",
+      "a": "现任君主为国王查尔斯三世，于2022年9月8日即位。英国实行君主立宪和议会制民主政体。",
+      "tags": [
+        "国王",
+        "查尔斯三世",
+        "君主"
+      ]
+    }
+  ],
+  "llm_audit": {
+    "issues": [],
+    "overall": "pass"
+  },
+  "audio_meta": {}
+}

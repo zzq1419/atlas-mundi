@@ -57,3 +57,13 @@ logs/
 data/_collect_report.json
 data/_ids_unresolved.json
 _tmp_*.json
+
+# 压图后的源图：体积 674MB，数据里已经全部指向 .webp，源文件只作本地留档，
+# 不进仓库（进了一次就永远在历史里，克隆会变慢）。根目录的 favicon/logo 除外。
+assets/*/*.jpg
+assets/*/*.jpeg
+assets/*/*.png
+assets/*/*/*.jpg
+assets/*/*/*.png
+!assets/favicon.png
+!assets/logo.png

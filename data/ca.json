@@ -1,0 +1,329 @@
+{
+  "qid": "Q16",
+  "iso_a2": "CA",
+  "iso_a3": "CAN",
+  "name_zh": "加拿大",
+  "name_en": "Canada",
+  "capital": "渥太华",
+  "continent": "北美洲",
+  "centroid": [
+    -109,
+    56
+  ],
+  "centroid_source": "wikidata P625",
+  "languages": [
+    {
+      "code": "en",
+      "name_zh": "英语",
+      "name_local": "英语",
+      "role": "official",
+      "audio_url": "assets/ca/audio/en.mp3",
+      "audio_source": "tts_edge",
+      "audio_status": "ok",
+      "tts_text": "Welcome to Canada, a land of vast lakes and northern light; its capital is Ottawa, where the Peace Tower rises above Parliament Hill and looks out over the Ottawa River.",
+      "tts_text_zh": "欢迎来到加拿大，这片遍布湖泊与北极光的土地；首都是渥太华，和平塔矗立在国会山上，俯瞰渥太华河。",
+      "audio_voice": "en-US-AriaNeural",
+      "audio_bytes": 63216
+    },
+    {
+      "code": "fr",
+      "name_zh": "法语",
+      "name_local": "法语",
+      "role": "official",
+      "audio_url": "assets/ca/audio/fr.mp3",
+      "audio_source": "tts_edge",
+      "audio_status": "ok",
+      "tts_text": "Bienvenue au Canada, pays des grands lacs et des aurores boréales ; sa capitale est Ottawa, où la Tour de la Paix domine la colline du Parlement et veille sur la rivière des Outaouais.",
+      "tts_text_zh": "欢迎来到加拿大，这片大湖与北极光之国；首都是渥太华，和平塔矗立在国会山上，守望渥太华河。",
+      "audio_voice": "fr-FR-DeniseNeural",
+      "audio_bytes": 62352
+    }
+  ],
+  "summary_text": "加拿大是位于北美洲北部的国家，属于西半球及北半球，其领土西临太平洋，东濒大西洋，北接北冰洋，有部分领土位于北极圈内。加拿大东北方与丹麦领地格陵兰相望，并以汉斯岛为界接壤，北方与俄罗斯隔海相望，南方及西北方与美国本土及阿拉斯加州接壤，法国属地圣皮埃尔和密克隆位于其东部的岛屿之中。加拿大的领土面积达998万4670平方公里，为全球面积第二大国家，亦是发达国家之中领土面积最大者，其海岸线是全世界最长。加拿大联邦由十个省和三个地区组成，首都为渥太华。根据2016年都会区人口排序，全国五大城市为多伦多、蒙特利尔、温哥华、卡尔加里和埃德蒙顿。加拿大在1400年前即有原住民在此生活，15世纪末英国和法国殖民者开始探索北美洲的东岸并在此建立殖民地，1763年七年战争结束后法国将其几乎所有的北美殖民地让予英国，在随后的几十年中英国人向西探索至太平洋地区并建立了数个新的殖民地。",
+  "summary_source": {
+    "source": "llm_refined",
+    "note": "DeepSeek 基于 Wikipedia 导语 + 人工民俗文本重写；口径限定地理与文化，剔除政权更迭与战争史",
+    "chars": 384,
+    "derived_from": "wikipedia_extracts",
+    "url": "https://zh.wikipedia.org/wiki/%E5%8A%A0%E6%8B%BF%E5%A4%A7",
+    "title": "加拿大"
+  },
+  "culture_excerpts": [
+    {
+      "section": "历史",
+      "text": "1583年，英国人汉弗莱·吉尔伯特爵士在如今纽芬兰的圣约翰斯建立定居点，并表示这是英国在北美的第一块殖民地。之后法国探险家萨缪尔·德·尚普兰分别在1605年于新斯科舍省的皇家港（英语：Port Royal, Annapolis County, Nova Scotia）和在1608年于魁北克省魁北克市建立北美最早的欧洲人永久定居点。在新法兰西的范围内，法裔加拿大人开始沿着圣劳伦斯河一带扩张，阿卡迪亚人也开始在大西洋省份定居，而传教士和皮毛商人（英语：Coureur des bois）开始探索五大湖、哈德逊湾及密西西比河流域一带。后来在17世纪中叶，为了争夺皮毛交易（英语：North American fur trade）的控制权，阿尔冈金部落和易洛魁部落分别在英国、荷兰和法国的支持下发生河狸战争（英语：Beaver Wars）。1610年，英国在纽芬兰岛建立更多殖民地，不久之后十三殖民地也在南方成立。但在1689年至1763年北美洲爆发北美殖民地战争，而后来在北美洲所爆发的一连串战争更为七年战争铺路。新斯科舍省因乌得勒支和约在1713年让予英国，之后巴黎和约法国将几乎所有在北美洲的殖民地让予英国。在1763年颁布的皇家宣言将魁北克省分离于新法兰西，并将布雷顿角岛合并到新斯科舍，圣约翰斯岛（即如今的爱德华王子岛）更在1769年独立成为单独的殖民地。而为了避免魁北克境内的法裔加拿大人不满，英国于1774年颁布魁北克法案，将魁北克地区延伸至五大湖和俄亥俄河，并在魁北克地区重新确立法语、天主教信仰和法国市民法的地位。1812年战争，英国与美国交战，加拿大成为主要战场。战争结束之后，大量英国人和爱尔兰人移民至加拿大。在1825年到1846年间，有626,628名欧洲移民进入加拿大。其中包括爱尔兰移民以及苏格兰人。出于对问责政府的渴求，加拿大人发动1837年起义。叛乱被平息之后到加调查的达勒姆勋爵撰写了《英属北美事务分析报告》。报告建议把现任政府改为问责制政府。英国政府接纳达勒姆勋爵在报告中的建议，并颁布1840年联合法案，重新将上下加拿大合并成立加拿大省。 1849年，代表所有英属北美的责任政府建立。1846年，英美签定俄勒冈条约，确定美国和英属北美在西部以北纬49度为界。这一条约解决长久以来英属北美与美国的边境争端，也为英国建立温哥华岛殖民地和不列颠哥伦比亚殖民地铺平道路。经过数次立宪会议之后，《1867年宪法法令》于1867年7月1日通过，加拿大省、新不伦瑞克省、新斯科舍省三个英属北美殖民地组成加拿大联邦。加拿大获得罗伯特领地和北西领地的控制权，并将两者合并成西北地区，这一举动促使该地区的原住民梅蒂人在1870年7月发动红河起义，加拿大建立从西北地区分离出的马尼托巴省。20世纪早期，作为自治领地的加拿大外交事务由英国控制，所以当英国在一战对德宣战时加拿大也自动参战（英语：Military history of Canada during World War I），被派往西方战线的加拿大志愿兵后来更组成加拿大军团。这支军队在维米岭战役和其它主要战役中都担当相当重要的角色。参与一战的650,000名加拿大人中，约60,000人战死，173,000人负伤。1917年，保守党总理罗伯特·莱尔德·博登对法裔魁北克人实行强制征兵，征兵危机（英语：Conscription Crisis of 1917）爆发。之后在1917年罗伯特所领导的联合党赢出大选。1919年，加拿大独立于英国加入国际联盟，随后的1931年西敏法案更肯定加拿大的独立性。1949年，纽芬兰自治领（现在是纽芬兰与拉布拉多）加入加拿大联邦。加拿大的经济快速增长，与逐渐亲近的北美土地感情，随之带来加拿大人更强烈的自我认同，标志事件为1965年枫叶旗的采用，加拿大独有的英法融合移民文化，也开始了1969年的双语政策以及1971年多元文化政策的实施。与此同时，20世纪60年代在魁北克掀起的寂静革命深深影响了该省的社会和经济，并掀起了魁北克民族主义运动。信仰马克思主义的极左翼恐怖组织魁北克解放阵线策划了多次恐怖袭击，其中最严重的事件为在1970年发生的十月危机。1976年，主张魁北克独立的魁北克人党赢出大选，并在1980年就魁北克应否独立而进行全民公投，但以失败收场。1990年，各省为了安抚魁北克民族主义而尝试通过米奇湖协定（英语：Meech Lake Accord）修改宪法，但未能通过。作为回应，魁北克成立联邦政党魁人政团，西加拿大成立加拿大改革党。1995年，魁北克人党再次进行全民公投，但以只有49.4％的得票率失败。1997年，加拿大最高法院裁定省单方面宣布脱离联邦是违宪，随后，加拿大国会通过清晰法案，规定在魁北克全民公决中所提出的问题足够明确且得到明显多数的支持时，魁北克便可以与加拿大政府进行脱离联邦的协商程序。除了魁北克主权问题之外，在80年代末至90年代初也发生一些震撼加拿大社会的事件。其中包括在加拿大历史上最大的一场屠杀，印度航空182号班机空难；1989年的蒙特利尔工程学院大屠杀；还有在1990年的奥卡危机（英语：Oka Crisis），加拿大政府第一次与原住民团体发生冲突的事件。加拿大也参加1990年的波斯湾战争，并积极参与维和任务，包括在前南斯拉夫的维和行动。加拿",
+      "chars": 2200
+    },
+    {
+      "section": "文化",
+      "text": "加拿大是个多民族国家，其文化受各种族影响而呈多样化，多元文化主义受宪法保护。在魁北克省，魁北克人对自己的身份有十分强烈的身份认同，而魁北克文化与英式加拿大文化有着鲜明的对比。从全国整体来看，加拿大呈现出显著的文化马赛克现象——即加拿大文化是由不同地区、原住民以及不同种族的次文化构成。而政府的政策，例如公共医疗系统、废除死刑、致力消除贫困、严格的枪枝管制和开放同性婚姻也进一步塑造加拿大的文化。\n历史上曾为英国和法国的殖民地，加拿大文化深受该两国及原住民的文化和传统影响。而原住民的语言，艺术及音乐依然影响著加拿大人的身份认同。许多加拿大人十分珍视多元文化，并视多元文化为该国的一部分。美国的娱乐事业及媒体在英式加拿大文化中十分受欢迎，但同时加拿大的文化产物和艺人于美国以及世界各地也同样受欢迎。而它的文化保育也得到联邦政府，法律以及加拿大广播公司，加拿大国家电影局及加拿大广播电视及通讯委员会等一些机构的支持。\n加拿大节日分为全国性的节日和各省地方性的节日。大多数的节日为基督宗教节日，如圣诞节和耶稣受难日。其它宗教的节日也在全国社会中广为接受，如犹太教、伊斯兰教和印度教的节日。母亲节、父亲节、情人节、圣帕特里克节这些节日虽然不会放假，但是加拿大人也会隆重庆祝这些节日。感恩节是美国和加拿大共有的节日，原意是为了感谢上天赐予的好收成。但两者的日期并不相同。美国感恩节在每年11月的第四个星期四，而加拿大的感恩节在每年10月第二个星期一，与美国的哥伦布日相同。",
+      "chars": 1200
+    },
+    {
+      "section": "人口",
+      "text": "根据2021年人口普查，加拿大共有36,991,981名居民，较2016年增长约5.2%，为1871年加拿大第一次人口普查时的10倍。自加拿大建国以来，人口中心正在逐渐向西扩张，1871年时大部分的加拿大人住在东部的四个省份（安大略，魁北克，新不伦瑞克和新斯科舍），而2016年普查表明，将近1/3的人口住在草原三省以及西部（马尼托巴，萨斯喀彻温，阿尔伯塔和卑诗）。\n加拿大在七国集团中是人口增长率最快的国家，年均增长1%。2016年人口相比2011年增长了170万。移民是该国人口增长的主要因素（约占2/3），而另外1/3则为自然生育。\n加拿大是世界上移民率最高的国家之一，主因是受该国的经济政策（英语：Economic impact of immigration to Canada）和家庭移民政策影响。2012年，有257,887人移民至加国。大多数新移民都会生活在多伦多，蒙特利尔和温哥华等主要城市。加拿大也接受大量难民，它所接受的难民占全球难民数量的10%以上。",
+      "chars": 800
+    }
+  ],
+  "landmark_images": [
+    {
+      "title": "File:Brooklyn Museum - Niagara Falls - Arthur Parton - overall.jpg",
+      "caption_zh": "尼亚加拉大瀑布全景",
+      "caption": "尼亚加拉大瀑布全景",
+      "caption_commons": "",
+      "kw": "Niagara Falls Horseshoe Falls",
+      "url": "assets/ca/L01.webp",
+      "thumb_url": "assets/ca/L01.thumb.webp",
+      "remote_url": "https://upload.wikimedia.org/wikipedia/commons/a/ac/Brooklyn_Museum_-_Niagara_Falls_-_Arthur_Parton_-_overall.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+      "source": "article_img",
+      "pick_tier": "strict",
+      "author": "Arthur Parton",
+      "license": "Public domain",
+      "license_url": null,
+      "license_status": "ok",
+      "load_verified": true,
+      "bytes": 32744,
+      "caption_zh_manual": "尼亚加拉大瀑布",
+      "caption_zh_source": "llm_from_commons_filename",
+      "thumb_bytes": 9720,
+      "size": {
+        "detail": "760x539",
+        "thumb": "400x284"
+      },
+      "encoding": "webp q72/q74 (源 1536x1090 456KB JPEG)"
+    },
+    {
+      "title": "File:Banff National Park (AB, Canada), Lake Louise -- 2022 -- 2212.jpg",
+      "caption_zh": "班夫露易丝湖",
+      "caption": "班夫露易丝湖",
+      "caption_commons": "Lake Louise in the Banff National Park, Alberta, CanadaBanff National Park in th",
+      "kw": "Lake Louise Banff National Park",
+      "url": "assets/ca/L02.webp",
+      "thumb_url": "assets/ca/L02.thumb.webp",
+      "remote_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b6/Banff_National_Park_%28AB%2C_Canada%29%2C_Lake_Louise_--_2022_--_2212.jpg/1920px-Banff_National_Park_%28AB%2C_Canada%29%2C_Lake_Louise_--_2022_--_2212.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "source": "commons_search",
+      "pick_tier": "strict",
+      "author": "Dietmar Rabich",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "license_status": "ok",
+      "load_verified": true,
+      "bytes": 133148,
+      "caption_zh_manual": "班夫露易丝湖",
+      "caption_zh_source": "llm_from_commons_filename",
+      "thumb_bytes": 34084,
+      "size": {
+        "detail": "760x507",
+        "thumb": "400x267"
+      },
+      "encoding": "webp q72/q74 (源 1920x1280 1239KB JPEG)"
+    },
+    {
+      "title": "File:Ringrose.jpg",
+      "caption_zh": "加拿大落基山脉",
+      "caption": "加拿大落基山脉",
+      "caption_commons": "Ringrose Peak soars above Lake Oesa near Lake O'Hara, British Columbia, Canada",
+      "kw": "Moraine Lake Valley of the Ten Peaks",
+      "url": "assets/ca/L03.webp",
+      "thumb_url": "assets/ca/L03.thumb.webp",
+      "remote_url": "https://upload.wikimedia.org/wikipedia/commons/b/b1/Ringrose.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+      "source": "wikidata_p18",
+      "pick_tier": "strict",
+      "author": "No machine-readable author provided. Geoffl assumed (based on copyright claims).",
+      "license": "Public domain",
+      "license_url": null,
+      "license_status": "ok",
+      "load_verified": true,
+      "bytes": 107574,
+      "caption_zh_manual": "加拿大落基山脉",
+      "caption_zh_source": "llm_from_commons_filename",
+      "thumb_bytes": 12910,
+      "size": {
+        "detail": "760x1013",
+        "thumb": "225x300"
+      },
+      "encoding": "webp q72/q74 (源 1704x2272 1287KB JPEG)"
+    },
+    {
+      "title": "File:8 Elm Street Toronto construction 2025.jpg",
+      "caption_zh": "多伦多天际线8 Elm Street施工中",
+      "caption": "多伦多天际线8 Elm Street施工中",
+      "caption_commons": "Construction of 8 Elm Street condominium tower in Toronto in 2025",
+      "kw": "Toronto skyline CN Tower",
+      "url": "assets/ca/L04.webp",
+      "thumb_url": "assets/ca/L04.thumb.webp",
+      "remote_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/30/8_Elm_Street_Toronto_construction_2025.jpg/1920px-8_Elm_Street_Toronto_construction_2025.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "source": "article_img",
+      "pick_tier": "strict",
+      "author": "Transportfan70",
+      "license": "CC BY 4.0",
+      "license_url": "https://creativecommons.org/licenses/by/4.0",
+      "license_status": "ok",
+      "load_verified": true,
+      "bytes": 93528,
+      "caption_zh_manual": "多伦多天际线",
+      "caption_zh_source": "llm_from_commons_filename",
+      "thumb_bytes": 11912,
+      "size": {
+        "detail": "760x1009",
+        "thumb": "226x300"
+      },
+      "encoding": "webp q72/q74 (源 1920x2550 992KB JPEG)"
+    },
+    {
+      "title": "File:Séminaire-de-Quebec.JPG",
+      "caption_zh": "魁北克老城神学院",
+      "caption": "魁北克老城神学院",
+      "caption_commons": "Séminaire de Québec vu du Vieux-Port de Québec, Québec, Canada. Au premier plan,",
+      "kw": "Old Quebec Chateau Frontenac",
+      "url": "assets/ca/L05.webp",
+      "thumb_url": "assets/ca/L05.thumb.webp",
+      "remote_url": "https://upload.wikimedia.org/wikipedia/commons/3/3f/S%C3%A9minaire-de-Quebec.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+      "source": "wikidata_p18",
+      "pick_tier": "strict",
+      "author": "Gilbert Bochenek",
+      "license": "CC BY 3.0",
+      "license_url": "https://creativecommons.org/licenses/by/3.0",
+      "license_status": "ok",
+      "load_verified": true,
+      "bytes": 41206,
+      "caption_zh_manual": "魁北克老城",
+      "caption_zh_source": "llm_from_commons_filename",
+      "thumb_bytes": 13750,
+      "size": {
+        "detail": "760x582",
+        "thumb": "392x300"
+      },
+      "encoding": "webp q72/q74 (源 1662x1272 587KB JPEG)"
+    }
+  ],
+  "image_license": "Public domain",
+  "geometry_status": "naturalearth_50m_chunked",
+  "schema_version": "0.1",
+  "collected_at": "2026-10-30T15:38:11+08:00",
+  "collector": "scripts/collect.py v0.2",
+  "needs_review": true,
+  "review_notes": [
+    "P443 发音语种不符已弃用：En-ca-Canada.ogg、Lb-Kanada.ogg、LL-Q7913 (ron)-KlaudiuMihaila-Canada.wav（P443 不保证语种，须按文件名筛）",
+    "该实体无对应语种发音，语音改跑 python scripts/tts.py CA",
+    "Commons 无可用发音，语音走构建期 TTS 兜底（待接）",
+    "地标图改为人工指定清单（5 张，中文图注）"
+  ],
+  "image_source_note": "人工按 data/landmarks.json 指定地标，Commons 关键词检索取图；原先自动获得的 2 张已被替换",
+  "custom_facets": {
+    "festivals": [],
+    "cuisine": [],
+    "religion": [],
+    "architecture": [],
+    "heritage": [],
+    "keywords": [
+      {
+        "v": "太平洋",
+        "evidence": "其领土西临太平洋"
+      },
+      {
+        "v": "大西洋",
+        "evidence": "东濒大西洋"
+      },
+      {
+        "v": "北冰洋",
+        "evidence": "北接北冰洋"
+      },
+      {
+        "v": "北极圈",
+        "evidence": "有部分领土位于北极圈内"
+      },
+      {
+        "v": "原住民",
+        "evidence": "1400年前即有原住民在此生活"
+      },
+      {
+        "v": "英语、法语",
+        "evidence": "英语、法语：Canada"
+      }
+    ],
+    "model": "deepseek-flash"
+  },
+  "summary_text_raw": "加拿大（英语、法语：Canada，英语：/ˈkænədə/，法语：[kanada]）是一个位于北美洲北部的国家，属于西半球及北半球，其领土西临太平洋，东濒大西洋，北接北冰洋，有部分领土位于北极圈内。加拿大东北方与丹麦领地格陵兰相望，并以汉斯岛为界接壤，北方与俄罗斯隔海相望，南方及西北方与美国本土及阿拉斯加州接壤，法国属地圣皮埃尔和密克隆位于其东部的岛屿之中。加拿大的领土面积达998万4670平方公里，为全球面积第二大国家，亦是发达国家之中的领土面积最大者，加拿大的海岸线是全世界最长。该国首都为渥太华。根据2016年都会区人口排序，全国五大城市为：多伦多、蒙特利尔、温哥华、卡尔加里、埃德蒙顿。加拿大联邦由十个省和三个地区组成。\n加拿大在1400年前即有原住民在此生活。15世纪末，英国和法国殖民者开始探索北美洲的东岸，并在此建立殖民地。1763年，当七年战争结束后，法国将其几乎所有的北美殖民地让予英国。在随后的几十年中，英国人向西探索至太平洋地区，并建立了数个新的殖民地。",
+  "history_text": "十七世纪中叶，为争夺皮毛交易控制权，阿尔冈金与易洛魁部落分别在英、荷、法支持下爆发河狸战争；法裔加拿大人沿圣劳伦斯河扩张，阿卡迪亚人在大西洋省份定居。此后北美殖民地战争连绵，为七年战争铺路。新斯科舍依乌得勒支和约让予英国，巴黎和约后法国将几乎全部北美殖民地让予英国，皇家宣言随之颁布。",
+  "custom_text": "多数节日属基督宗教一路，圣诞节与耶稣受难日最为人看重，各省另有自己的地方性节日。魁北克人对自身身份认同强烈，其文化与英式加拿大文化形成鲜明对照；原住民的语言、艺术与音乐仍在塑造人们的身份感。日常里多元文化被视作生活的一部分，公共医疗、枪枝管制一类政策也参与塑造了社会风气。",
+  "custom_text_source": {
+    "source": "llm_compose_from_summary_facets",
+    "tier": "minor",
+    "note": "模型基于维基导语 + 抽取特征成文；只在没有人工稿的国家使用",
+    "chars": {
+      "history": 142,
+      "folk": 136
+    }
+  },
+  "knowledge_qa": [
+    {
+      "q": "加拿大在哪儿啊？周围都是什么？",
+      "a": "加拿大位于北美洲北部，西临太平洋，东濒大西洋，北接北冰洋，部分领土在北极圈内。南边和西北边与美国本土及阿拉斯加接壤，东北方与丹麦领地格陵兰相望。",
+      "tags": [
+        "北美洲",
+        "地理位置",
+        "邻国"
+      ]
+    },
+    {
+      "q": "加拿大面积有多大？",
+      "a": "加拿大领土面积达998万4670平方公里，是全球面积第二大的国家，也是发达国家中领土面积最大的，海岸线全世界最长。",
+      "tags": [
+        "面积",
+        "世界第二",
+        "海岸线"
+      ]
+    },
+    {
+      "q": "加拿大首都是哪个城市？",
+      "a": "首都是渥太华。",
+      "tags": [
+        "首都",
+        "渥太华"
+      ]
+    },
+    {
+      "q": "加拿大说什么语言？",
+      "a": "加拿大的官方语言是英语和法语。",
+      "tags": [
+        "语言",
+        "英语",
+        "法语"
+      ]
+    },
+    {
+      "q": "加拿大有什么值得去看的景点？",
+      "a": "值得看的有尼亚加拉大瀑布、班夫露易丝湖、加拿大落基山脉、多伦多天际线和魁北克老城。",
+      "tags": [
+        "景点",
+        "瀑布",
+        "落基山",
+        "老城"
+      ]
+    },
+    {
+      "q": "加拿大有哪些大城市？",
+      "a": "根据2016年都会区人口排序，全国五大城市为：多伦多、蒙特利尔、温哥华、卡尔加里、埃德蒙顿。",
+      "tags": [
+        "城市",
+        "多伦多",
+        "温哥华"
+      ]
+    },
+    {
+      "q": "加拿大是怎么组成的？",
+      "a": "加拿大联邦由十个省和三个地区组成。",
+      "tags": [
+        "省份",
+        "地区",
+        "联邦"
+      ]
+    }
+  ],
+  "llm_audit": {
+    "issues": [],
+    "overall": "pass"
+  },
+  "audio_meta": {}
+}

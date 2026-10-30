@@ -1,0 +1,329 @@
+{
+  "qid": "Q223",
+  "iso_a2": "GL",
+  "iso_a3": "GRL",
+  "name_zh": "格陵兰",
+  "name_en": "Greenland",
+  "capital": "努克",
+  "continent": "北美洲",
+  "centroid": [
+    -40,
+    72
+  ],
+  "centroid_source": "wikidata P625",
+  "languages": [
+    {
+      "code": "kl",
+      "name_zh": "格陵兰语",
+      "name_local": "格陵兰语",
+      "role": "official",
+      "audio_url": null,
+      "audio_source": null,
+      "audio_status": "pending",
+      "tts_text": "Kalaallit Nunaanni tikilluarit, nunuarsuarmi qaqqarsuarmi illoqarfik Nuuk, tassaniittaaq Kalaallit Nunaata illoqarfik pingaarnersaa, soorlu Sermitsiaap qaqqaa qaqqarsuarmi takussaanartoq.",
+      "tts_text_zh": "欢迎来到格陵兰，在辽阔的冰原之上坐落着首都努克，那里是格陵兰的主要城市，如同 Sermitsiaq 山那样在群山之中格外醒目。"
+    }
+  ],
+  "summary_text": "格陵兰岛是丹麦王国框架内的自治领地，为世界最大岛屿，位于北美洲东北，介于北冰洋与大西洋之间，处于加拿大北极群岛以东。全境大部分位于北极圈内，气候严寒，约80%的土地长年被冰雪覆盖。格陵兰居民多数为因纽特人，2022年人口为56,583人，是全球人口密度最低的国家和地区。受气候及地理条件影响，人口主要集中于西南沿岸，其他地区则人烟稀少。首府兼最大城市为努克。格陵兰虽在地理上属于北美洲的一部分，但自986年起至15世纪初在政治及文化上一直与欧洲的挪威王国有密切联系，18世纪后随着丹麦与挪威结成联合王国以及努克殖民据点的建立，格陵兰逐步与丹麦建立更紧密的关系。考古证据显示，格陵兰在过去至少4,500年间曾多次有人类居住，其祖先主要为自日后加拿大地区一带迁徙而来的环极地民族。来自挪威的北欧人于10世纪起定居于当时无人居住的格陵兰南部，其后裔在当地生活约400年，直至15世纪末消失；因纽特人则于13世纪抵达。",
+  "summary_source": {
+    "source": "llm_refined",
+    "note": "DeepSeek 基于 Wikipedia 导语 + 人工民俗文本重写；口径限定地理与文化，剔除政权更迭与战争史",
+    "chars": 405,
+    "derived_from": "wikipedia_extracts",
+    "url": "https://zh.wikipedia.org/wiki/%E6%A0%BC%E9%99%B5%E5%85%B0",
+    "title": "格陵兰"
+  },
+  "culture_excerpts": [
+    {
+      "section": "历史",
+      "text": "格陵兰的原住民为因纽特人，属于爱斯基摩人的一支（其余为尤皮克人，并与阿留申人有亲缘关系），不过他们并不自称为爱斯基摩人，因为这是北美其他原住民部落对他们的称呼，意思是“吃生肉的人”，带有贬义。因此他们自称为因纽特人，于因纽特语中的意思为“人”，故外界也逐渐改口作此称呼，以尊重其文化精神。至于何时来到这里、以及为何要选择这个环境严酷的岛屿居住，目前未有定论。在冰岛的北欧殖民者于982年到来，冰岛人在格陵兰岛的最南端建立三个据点。格陵兰这个名字正是这些斯堪的纳维亚人所取。根据北欧神话史诗萨迦记载，红胡子埃里克因为犯谋杀罪而从冰岛流亡至此。埃里克一家及其奴隶向西北航行，以探寻传说存在在那里的陆地。当他在岛上定居下来后，便给该岛取名格陵兰（Grønland，意即“绿色的土地”），以吸引更多的移民（至少该岛南端的峡湾还是多草的）。他的这一妙计果然成功，最终有约4000名北欧移民移入。在早期的地图上，格陵兰也曾被标上Gruntland的名字（意为大地之地），到底Grunt是Grøn的讹音，还是反过来，至今无人知晓。12世纪时，在格陵兰甚至还建立一个天主教的主教辖区。1386年，格陵兰正式被挪威并吞，成为北欧三国卡尔马联盟的领土。后来瑞典退出后，该联盟瓦解，格陵兰又转属于丹麦-挪威双重君主国的殖民统治。持续五百多年以后，北欧人的定居点在15世纪突然消失，这很可能是因为小冰期引起普遍的食物匮乏。后来发现的该时期居民的遗骨，都带有营养不良的特征。一封1424年由格陵兰寄至冰岛的信件，是北欧人定居在格陵兰最后的证据，之后就再没有任何北欧人定居格陵兰的史料，但当时当地的因纽特土著居民并没有受到太大影响。1814年，根据基尔条约，挪威被丹麦割让给瑞典，丹麦挪威联合王国解体。而丹麦重新获得格陵兰的控制权。1931年，挪威占领当时无人居住的格陵兰岛东部地区，宣称该地是无主土地，声称对其拥有主权。1933年，丹麦和挪威两国同意将此争端提交国际联盟下属的常设国际法院仲裁，根据仲裁结果，丹麦获得格陵兰岛的全部权利。在第二次世界大战期间，由于1940年4月9日纳粹德国占领丹麦及入侵挪威，格陵兰和丹麦的联络被切断，英美军队随后占领格陵兰以防德国登陆占领。格陵兰透过开采伊维图特的冰晶石矿，设法与美国、加拿大进行贸易，获得必需的商品。这种情况一直持续到战争结束。二战期间在这一地区也发生小规模的争夺战斗。1943年，一名丹麦士兵在该地区阵亡，一年以后，一名德国士兵也战死该地，战后结束了代管状态，由丹麦控制。",
+      "chars": 1050
+    },
+    {
+      "section": "文化",
+      "text": "格陵兰文化以因纽特人的文化为主，并受到维京人探险文化的影响。部分因纽特人仍然以捕鱼为生。\n格陵兰开始吸引游人参观，在这里可以进行狗拉雪橇比赛、打渔、健行和跨岛滑雪。",
+      "chars": 1200
+    },
+    {
+      "section": "饮食",
+      "text": "格陵兰传统饮食以海洋哺乳类、鸟类和鱼类的肉为主食，提供相当多的蛋白质。自从受到殖民文化和国际贸易普及，饮食习惯也受到丹麦、英国、美国和加拿大菜肴影响。\n由于格陵兰岛的大部分地区被永久性冰川覆盖，因此海洋是大多数食材的来源。近年来全球暖化改变大西洋鳕鱼的迁徙路径，使东海岸开始有商业捕鱼，并有大型鱼虾加工厂。捕鲸是传统生计，当地土著捕鲸是属合法，但捕鲸行为背后有部分肉品的国际商业贩卖，近来经常受到国际保育团体的关注。格陵兰岛为保护生态永续，有猎捕鸟类的各种规定，鸽子、绒鸭、雷鸟和海鸥是常见的猎捕对象，此外猎人也会收集鸟蛋做为食材。\n岛上绿色蔬菜不足，但受益于全球气候暖化，岛上生长季节略有延长趋势，农民正尝试种植青花菜等新作物，以增加蔬菜供应。格陵兰餐点以米饭和马铃薯做为膳食中的淀粉，洋葱也常见。岛民采集野生蓝莓和小红莓，用于蛋糕和甜点装饰，或制作浆果蜜饯搭配肉类菜肴，另在夏季采集可食植物叶做为蔬食，海藻则储存做为冬季储备食品。\n格陵兰的经典特色菜肴是 suaasat，即一种传统的汤品，通常取材自海豹、鲸鱼、驯鹿或海鸟的肉，并用大米、大麦浸泡增加浓稠。汤中加有洋葱和马铃薯，只简单用盐和胡椒或月桂叶调味。独角鲸、白鲸及海豹是肉品的主要来源；烟熏座头鲸肉、鳕鱼乾和鲸鱼脂是受欢迎的餐点和休闲食品。mattak 是晒干的鲸脂或驯鹿肉，生食可提供健康所需的维生素C。由于当地严寒，在天气较回温的夏季，人们喜好在户外用餐。\n过去因纽特人以动物肉类为主食，但1980年以后格陵兰岛的杂货店已类似西方商店，提供咖啡、茶、饼干、薯片等食品。依据地点的不同，一年中能提供新鲜水果和蔬菜的多样性则有很大的差异。在偏远地区的夏季，食品可以船只运送，冬季时的蔬菜、水果必须以飞机运送。",
+      "chars": 1200
+    },
+    {
+      "section": "人口",
+      "text": "格陵兰的人口密度不仅非常低，而且人口呈下降趋势。此外，当地昼夜长度非常极端，增加了当地人患上心理疾病以及自杀的频率。",
+      "chars": 750
+    }
+  ],
+  "landmark_images": [
+    {
+      "title": "File:Ilulissat Icefjord.jpg",
+      "caption_zh": "伊卢利萨特冰湾",
+      "caption": "伊卢利萨特冰湾",
+      "caption_commons": "Icebergs in Greenland’s Ilulissat Icefjord, a UNESCO World Heritage Site fed by ",
+      "kw": "Ilulissat Icefjord Greenland",
+      "url": "assets/gl/L01.webp",
+      "thumb_url": "assets/gl/L01.thumb.webp",
+      "remote_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/69/Ilulissat_Icefjord.jpg/1920px-Ilulissat_Icefjord.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "source": "article_img",
+      "pick_tier": "strict",
+      "author": "Quintin Soloviev",
+      "license": "CC BY 4.0",
+      "license_url": "https://creativecommons.org/licenses/by/4.0",
+      "license_status": "ok",
+      "load_verified": true,
+      "bytes": 44906,
+      "caption_zh_manual": "伊卢利萨特冰湾",
+      "caption_zh_source": "llm_from_commons_filename",
+      "thumb_bytes": 16456,
+      "size": {
+        "detail": "760x543",
+        "thumb": "400x286"
+      },
+      "encoding": "webp q72/q74 (源 1920x1371 561KB JPEG)"
+    },
+    {
+      "title": "File:Port of Nuuk (SIKUKI - Nuuk Harbour AS).jpg",
+      "caption_zh": "努克老港",
+      "caption": "努克老港",
+      "caption_commons": "Port of Nuuk (SIKUKI - Nuuk Harbour A/S)",
+      "kw": "Nuuk Old Harbour Greenland",
+      "url": "assets/gl/L03.webp",
+      "thumb_url": "assets/gl/L03.thumb.webp",
+      "remote_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f5/Port_of_Nuuk_%28SIKUKI_-_Nuuk_Harbour_AS%29.jpg/1920px-Port_of_Nuuk_%28SIKUKI_-_Nuuk_Harbour_AS%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "source": "article_img",
+      "pick_tier": "strict",
+      "author": "Quintin Soloviev",
+      "license": "CC BY 4.0",
+      "license_url": "https://creativecommons.org/licenses/by/4.0",
+      "license_status": "ok",
+      "load_verified": true,
+      "bytes": 81108,
+      "caption_zh_manual": "努克老港",
+      "caption_zh_source": "llm_from_commons_filename",
+      "thumb_bytes": 22808,
+      "size": {
+        "detail": "760x532",
+        "thumb": "400x280"
+      },
+      "encoding": "webp q72/q74 (源 1920x1344 929KB JPEG)"
+    },
+    {
+      "title": "File:Uummannaq.jpg",
+      "caption_zh": "乌马纳克山",
+      "caption": "乌马纳克山",
+      "caption_commons": "",
+      "kw": "Uummannaq Mountain Greenland",
+      "url": "assets/gl/L04.webp",
+      "thumb_url": "assets/gl/L04.thumb.webp",
+      "remote_url": "https://upload.wikimedia.org/wikipedia/commons/1/18/Uummannaq.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+      "source": "article_img",
+      "pick_tier": "strict",
+      "author": "No machine-readable author provided. JuBo14 assumed (based on copyright claims).",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "license_status": "ok",
+      "load_verified": true,
+      "bytes": 36314,
+      "caption_zh_manual": "乌马纳克山",
+      "caption_zh_source": "llm_from_commons_filename",
+      "thumb_bytes": 13674,
+      "size": {
+        "detail": "760x570",
+        "thumb": "400x300"
+      },
+      "encoding": "webp q72/q74 (源 768x576 164KB JPEG)"
+    },
+    {
+      "title": "File:Greenland, bell (js)1.jpg",
+      "caption_zh": "东北格陵兰国家公园",
+      "caption": "东北格陵兰国家公园",
+      "caption_commons": "Greenland, bell",
+      "kw": "Northeast Greenland National Park",
+      "url": "assets/gl/L05.webp",
+      "thumb_url": "assets/gl/L05.thumb.webp",
+      "remote_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/5e/Greenland%2C_bell_%28js%291.jpg/1920px-Greenland%2C_bell_%28js%291.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "source": "commons_search",
+      "pick_tier": "strict",
+      "author": "Jerzy Strzelecki",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "license_status": "ok",
+      "load_verified": true,
+      "bytes": 42602,
+      "caption_zh_manual": "东北格陵兰国家公园",
+      "caption_zh_source": "llm_from_commons_filename",
+      "thumb_bytes": 17738,
+      "size": {
+        "detail": "760x507",
+        "thumb": "400x267"
+      },
+      "encoding": "webp q72/q74 (源 1920x1280 525KB JPEG)"
+    },
+    {
+      "title": "File:Greenland-scoresby bay hg.jpg",
+      "caption_zh": "斯科斯比峡湾",
+      "caption": "斯科斯比峡湾",
+      "caption_commons": "Scoresby Sund, Greenland",
+      "kw": "Scoresby Sund Greenland",
+      "url": "assets/gl/L06.webp",
+      "thumb_url": "assets/gl/L06.thumb.webp",
+      "remote_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/79/Greenland-scoresby_bay_hg.jpg/1920px-Greenland-scoresby_bay_hg.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "source": "article_img",
+      "pick_tier": "strict",
+      "author": "Hannes Grobe 20:20, 16 December 2010 (UTC)",
+      "license": "CC BY-SA 2.5",
+      "license_url": "https://creativecommons.org/licenses/by-sa/2.5",
+      "license_status": "ok",
+      "load_verified": true,
+      "bytes": 45634,
+      "caption_zh_manual": "斯科斯比峡湾",
+      "caption_zh_source": "llm_from_commons_filename",
+      "thumb_bytes": 14154,
+      "size": {
+        "detail": "760x488",
+        "thumb": "400x257"
+      },
+      "encoding": "webp q72/q74 (源 1920x1232 556KB JPEG)"
+    }
+  ],
+  "image_license": "CC BY 4.0",
+  "geometry_status": "naturalearth_50m_chunked",
+  "schema_version": "0.1",
+  "collected_at": "2026-10-30T21:21:17+08:00",
+  "collector": "scripts/collect.py v0.2",
+  "needs_review": true,
+  "review_notes": [
+    "P443 发音语种不符已弃用：LL-Q33810 (ori)-Psubhashish-ଗ୍ରୀନଲାଣ୍ଡ.wav、De-Grönland.ogg、LL-Q652 (ita)-Francyskus-Groenlandia.wav（P443 不保证语种，须按文件名筛）",
+    "该实体无对应语种发音，语音改跑 python scripts/tts.py GL",
+    "Commons 无可用发音，语音走构建期 TTS 兜底（待接）",
+    "雅各布港冰川：Wikidata / 维基 / Commons 都没有可用图",
+    "地标图改为人工指定清单（5 张，中文图注）",
+    "语音跳过 格陵兰语（无音色）",
+    "语音跳过 格陵兰语（无音色）"
+  ],
+  "image_source_note": "人工按 data/landmarks.json 指定地标，Commons 关键词检索取图；原先自动获得的 2 张已被替换",
+  "custom_facets": {
+    "festivals": [],
+    "cuisine": [],
+    "religion": [],
+    "architecture": [],
+    "heritage": [],
+    "keywords": [
+      {
+        "v": "北极圈",
+        "evidence": "全境大部分位于北极圈内"
+      },
+      {
+        "v": "冰雪覆盖",
+        "evidence": "约80%的土地长年被冰雪覆盖"
+      },
+      {
+        "v": "因纽特人",
+        "evidence": "格陵兰居民多数为因纽特人"
+      },
+      {
+        "v": "努克",
+        "evidence": "首府兼最大城市为努克"
+      },
+      {
+        "v": "格陵兰语",
+        "evidence": "格陵兰语：Kalaallit Nunaat"
+      }
+    ],
+    "model": "deepseek-flash"
+  },
+  "summary_text_raw": "格陵兰岛（格陵兰语：Kalaallit Nunaat，发音：[kalaːɬːit nʉnaːt]；丹麦语：Grønland，发音：[ˈkʁɶnˌlænˀ]）是丹麦王国框架内之自治领地。格陵兰岛是世界最大岛屿，位于北美洲东北，介乎北冰洋与大西洋之间，并处于加拿大北极群岛以东。全境大部分位于北极圈内，气候严寒，约80%的土地长年被冰雪覆盖。格陵兰居民多数为因纽特人，2022年人口为56,583人，是全球人口密度最低的国家和地区。受气候及地理条件影响，人口主要集中于西南沿岸，其他地区则人烟稀少。首府兼最大城市为努克。  \n格陵兰虽在地理上属于北美洲的一部分，但自986年起至15世纪初在政治及文化上一直与欧洲的挪威王国有密切联系。18世纪后，随着丹麦与挪威结成联合王国，以及努克殖民据点的建立，格陵兰逐步与丹麦建立更紧密的关系。考古证据显示，格陵兰在过去至少4,500年间曾多次有人类居住，其祖先主要为自日后加拿大地区一带迁徙而来的环极地民族。来自挪威的北欧人于10世纪起定居于当时无人居住的格陵兰南部，其后裔在当地生活约400年，直至15世纪末消失；因纽特人则于13世纪抵达。",
+  "history_text": "格陵兰的原住民为因纽特人，属爱斯基摩人的一支，他们自称“人”，外界也逐渐改用这一称呼。冰岛的北欧殖民者于982年到来，红胡子埃里克因谋杀罪流亡至此，在岛南端建立据点，并取名“绿色的土地”以吸引移民，最终有约四千名北欧移民移入。12世纪当地建立天主教主教辖区，1386年格陵兰被挪威并吞，成为卡尔马联盟领土。",
+  "custom_text": "岛上饮食以海洋哺乳类、鸟类和鱼类的肉为主，海豹、鲸鱼、驯鹿熬成的汤是经典菜式；米饭和马铃薯作主食，洋葱常见。夏季采集野生蓝莓和小红莓，做蛋糕甜点或熬成浆果蜜饯配肉，海藻储存过冬。猎人捕猎鸽子、绒鸭、雷鸟和海鸥，也收集鸟蛋。狗拉雪橇比赛、打渔、健行和跨岛滑雪吸引着外来访客。",
+  "custom_text_source": {
+    "source": "llm_compose_from_summary_facets",
+    "tier": "minor",
+    "note": "模型基于维基导语 + 抽取特征成文；只在没有人工稿的国家使用",
+    "chars": {
+      "history": 153,
+      "folk": 136
+    }
+  },
+  "knowledge_qa": [
+    {
+      "q": "格陵兰在哪儿啊？",
+      "a": "格陵兰岛位于北美洲东北，介于北冰洋与大西洋之间，在加拿大北极群岛以东，全境大部分在北极圈内。",
+      "tags": [
+        "北美洲",
+        "北极圈",
+        "位置"
+      ]
+    },
+    {
+      "q": "格陵兰首都是哪里？",
+      "a": "首府兼最大城市是努克。",
+      "tags": [
+        "努克",
+        "首都"
+      ]
+    },
+    {
+      "q": "格陵兰说什么语言？",
+      "a": "官方语言是格陵兰语。",
+      "tags": [
+        "语言",
+        "格陵兰语",
+        "说什么话"
+      ]
+    },
+    {
+      "q": "格陵兰有什么值得看的地标？",
+      "a": "伊卢利萨特冰湾、努克老港、乌马纳克山、东北格陵兰国家公园和斯科斯比峡湾都是值得一看的地方。",
+      "tags": [
+        "地标",
+        "冰湾",
+        "国家公园",
+        "峡湾"
+      ]
+    },
+    {
+      "q": "格陵兰人口多少？",
+      "a": "2022年人口为56,583人，是全球人口密度最低的国家和地区。",
+      "tags": [
+        "人口",
+        "多少人"
+      ]
+    },
+    {
+      "q": "格陵兰岛有多大？",
+      "a": "格陵兰岛是世界最大岛屿，约80%的土地长年被冰雪覆盖。",
+      "tags": [
+        "面积",
+        "最大岛屿",
+        "冰雪"
+      ]
+    },
+    {
+      "q": "格陵兰人主要住在哪儿？",
+      "a": "受气候及地理条件影响，人口主要集中于西南沿岸，其他地区则人烟稀少。",
+      "tags": [
+        "居住",
+        "西南沿岸",
+        "人口分布"
+      ]
+    },
+    {
+      "q": "格陵兰和丹麦是什么关系？",
+      "a": "格陵兰是丹麦王国框架内的自治领地。",
+      "tags": [
+        "丹麦",
+        "自治",
+        "关系"
+      ]
+    }
+  ],
+  "llm_audit": {
+    "issues": [],
+    "overall": "pass"
+  },
+  "review_short": [
+    "语音：格陵兰语（无音色）"
+  ],
+  "audio_meta": {}
+}

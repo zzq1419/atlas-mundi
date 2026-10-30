@@ -1,0 +1,318 @@
+{
+  "qid": "Q298",
+  "iso_a2": "CL",
+  "iso_a3": "CHL",
+  "name_zh": "智利",
+  "name_en": "Chile",
+  "capital": "圣地亚哥",
+  "continent": "南美洲",
+  "centroid": [
+    -71,
+    -33
+  ],
+  "centroid_source": "wikidata P625",
+  "languages": [
+    {
+      "code": "es",
+      "name_zh": "西班牙语",
+      "name_local": "西班牙语",
+      "role": "official",
+      "audio_url": "assets/cl/audio/es.mp3",
+      "audio_source": "tts_edge",
+      "audio_status": "ok",
+      "tts_text": "Bienvenidos a Chile, un país de contrastes que se extiende desde el desierto más árido hasta los glaciares del sur; su capital es Santiago, una ciudad rodeada de montañas, y entre sus lugares emblemáticos destaca el desierto de Atacama, uno de los cielos más limpios del planeta para contemplar las estrellas.",
+      "tts_text_zh": "欢迎来到智利，这个充满对比的国度从最干旱的沙漠一直延伸到南方的冰川；它的首都是圣地亚哥，一座群山环抱的城市，而代表地标中尤为突出的是阿塔卡马沙漠，那里拥有地球上最纯净的星空之一，适合仰望星辰。",
+      "audio_voice": "es-AR-ElenaNeural",
+      "audio_bytes": 108000
+    }
+  ],
+  "summary_text": "智利共和国通称智利，是位于南美洲的国家。智利西部与南部濒临太平洋，北靠秘鲁，东邻玻利维亚及阿根廷，与厄瓜多尔相同，是两个不与巴西相接的南美洲国家之一。智利地处美洲大陆的最南端，与南极洲仅隔德雷克海峡相望，为全球最南端的国家，对南极洲的主权申索不计算在内。智利人口约有1,800万，种族以白人、混血族群居多，与其东方邻国阿根廷同样，几乎没有非洲裔人口，其他则以本土原住民少数族群相对为多。智利拥有非常丰富的矿产资源、森林资源以及渔业资源，北部安托法加斯塔大区的埃斯孔迪达铜矿是目前全球年产量最高的露天铜矿。其境内的阿塔卡马沙漠是世界旱极，藏有大量的铜和锂资源；中部则是文化和政治中心；森林资源主要集中在南部。在智利的南海岸有着错综复杂的由峡湾、湖泊、运河和岛屿组成的迷宫。智利教育高度发达，其教育素质与水准在发达国家获普遍承认。智利在新闻自由、人类发展指数、民主发展等方面也取得很高的排名，社会方面约相当于经济处于发达水平的北美洲及欧洲国家。",
+  "summary_source": {
+    "source": "llm_refined",
+    "note": "DeepSeek 基于 Wikipedia 导语 + 人工民俗文本重写；口径限定地理与文化，剔除政权更迭与战争史",
+    "chars": 420,
+    "derived_from": "wikipedia_extracts",
+    "url": "https://zh.wikipedia.org/wiki/%E6%99%BA%E5%88%A9",
+    "title": "智利"
+  },
+  "culture_excerpts": [
+    {
+      "section": "历史",
+      "text": "1818年2月12日智利在贝尔纳多·奥希金斯的领导之下宣布独立。19世纪内西班牙外的许多欧洲裔移民到智利。在1879年到1883年的硝石战争中智利占领了那时属于秘鲁和玻利维亚的阿塔卡马沙漠。1930年的世界经济大萧条对智利造成十分严重的打击。铜和硝石的价格巨跌。从1930年代后经济逐渐得到恢复。1973年，基督教民主党撤回对阿连德总统的支持。1973年9月11日，智利陆军首长奥古斯托·皮诺切特发动政变。拒绝下台的阿连德自杀，皮诺切特成为国家元首。在接下来的1974年，皮诺切特奠定了以自己为首的军事独裁制度，秘密警察的活动导致上千人被杀，包括人民团结阵线在内的许多持不同政见者都受到镇压，上百万阿连德的支持者被迫流离。1989年自由选举，基督教民主党人帕特里西奥·艾尔文·阿索卡尔被选为总统，1990年3月11日就职，结束了皮诺切特17年的统治，但皮诺切特继续担任陆军参谋长。中间偏左联盟开始执政至2010年。虽然中间偏左联盟胜出总统选举并连续执政，但因国会缺乏绝对多数，因此需要和右翼反对党合作。1998年皮诺切特从陆军首长职务退位，同年在英国被捕。其后他被软禁。2000年，由于身体健康的原因被释放。2000年起社会党人里卡多·拉戈斯·埃斯科瓦尔当选总统，社会党自1970年的阿连德，再度掌握总统职位。2006年1月15日，米歇尔·巴切莱特在选举中获胜，当选该国历史上第一位女总统。3月11日，巴切莱特在瓦尔帕莱索宣誓就职为智利共和国第47位总统。2010年2月27日凌晨3时34分，智利南部的康赛普西翁发生里氏规模8.8地震。地震在智利全国造成至少750人死亡，200多万人不同程度受灾。地震灾区交通中断，房屋倒塌严重。2010年3月11日，塞巴斯蒂安·皮涅拉就任智利总统，标志近20年来智利右派重新夺回总统的宝座，亦是52年来，右派首次胜出民主选举。2018年3月11日，塞巴斯蒂安·皮涅拉再次就任智利总统，中间偏右联盟再次执政。2022年3月11日，加布列·博里奇以35岁之龄就任智利总统，成为智利史上最年轻的国家元首。中间偏左联盟再次执政。",
+      "chars": 878
+    },
+    {
+      "section": "文化",
+      "text": "智利文化集成欧洲移民传统，融合美洲原住民风俗，吸收北美潮流，因此智利文化既有别于世界各文化，又有相似之处。\n智利被誉为诗人的国家（un país de poetas）。1945年，加夫列拉·米斯特拉尔是拉丁美洲第一位诺贝尔文学奖得主，也是至今唯一来自拉丁美洲的诺贝尔文学奖女性得主；另一名著名的智利诗人是巴勃罗·聂鲁达，他于1971年获得诺贝尔文学奖，并因其关于爱情和政治的大量作品而闻名于世。\n智利的音乐包括民俗音乐、流行音乐和古典音乐。其广阔的地域在该国北部、中部和南部产生了不同的音乐风格，包括复活节岛和马普切音乐。智利民间音乐融合了欧洲与美洲原住民的特色。奎卡（La cueca），自1979年以来的民族舞蹈，就是一个很好的例子。\n智利人以面食为主，他们喜欢吃海产品、牛肉、羊肉等。智利的名菜以海鲜闻名，Caldillo de Congrio是一种鱼汤；Chupe de Mariscos是用牡蛎或用鲜鱼炖成的菜。其他菜有鸡肉蔬菜汤（Cazuela de ave）、辣味玉米粽子（Humitas）、牛排米饭（Bife Lomo）、瓦锅蒸牛排面（Tallarines con Lomito）等。\n智利人喜欢一种小食称恩潘纳达（Empanada），外观类似中华“韭菜盒子”，填充馅可为各种食材，如牛肉、鸡蛋、起士、火腿等等。",
+      "chars": 1200
+    },
+    {
+      "section": "饮食",
+      "text": "智利人以面食为主，他们喜欢吃海产品、牛肉、羊肉等。智利的名菜以海鲜闻名，Caldillo de Congrio是一种鱼汤；Chupe de Mariscos是用牡蛎或用鲜鱼炖成的菜。其他菜有鸡肉蔬菜汤（Cazuela de ave）、辣味玉米粽子（Humitas）、牛排米饭（Bife Lomo）、瓦锅蒸牛排面（Tallarines con Lomito）等。\n智利人喜欢一种小食称恩潘纳达（Empanada），外观类似中华“韭菜盒子”，填充馅可为各种食材，如牛肉、鸡蛋、起士、火腿等等。",
+      "chars": 1200
+    },
+    {
+      "section": "人口",
+      "text": "2012年智利人口普查16,341,929人。由于1990年代以来的出生率下降，智利人口增长率一直在下降，预计2050年前后人口会达到2,020万，并且会出现人口负增长。\n智利是一个多民族的社会，其居民由许多旧大陆国家的移民后裔、印第安原住民和这些族群之间的混血人口组成。在智利，约有59％的人口认为自己是欧洲白人后裔，25％的人口认为自己是麦士蒂索人（欧洲白人后裔和印第安人通婚形成的混血种人），其余为非洲黑人后裔、印第安人、亚裔（包括华裔）等其他族群。智利的白人主要由西班牙殖民者后裔组成（主要是卡斯蒂利亚、安达卢西亚和巴斯克人），还有从葡萄牙、意大利、爱尔兰、法国、希腊、德国、英国、荷兰、克罗地亚、俄罗斯、波兰、匈牙利等国移民到智利的，当然也有这些欧洲民族之间的混血人和来自中东的阿拉伯人的后裔。智利的非洲裔人口一直比较少，约占总人口的1.5%。除上述地区之外，智利亦接受了来自玻利维亚、厄瓜多尔、哥伦比亚、巴西、委内瑞拉、墨西哥、加拿大、美国、中美洲、乌拉圭、加勒比地区、巴拉圭、秘鲁、中国大陆、台湾、日本、韩国的移民。根据2011年人口普查，智利约有8％的人口认为自己是原住民。",
+      "chars": 922
+    }
+  ],
+  "landmark_images": [
+    {
+      "title": "File:MoaiProtectionSign.jpg",
+      "caption_zh": "复活节岛摩艾石像保护标志",
+      "caption": "复活节岛摩艾石像保护标志",
+      "caption_commons": "Moai protection sign on Easter Island",
+      "kw": "Moai Easter Island Rano Raraku",
+      "url": "assets/cl/L01.webp",
+      "thumb_url": "assets/cl/L01.thumb.webp",
+      "remote_url": "https://upload.wikimedia.org/wikipedia/commons/a/a3/MoaiProtectionSign.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+      "source": "article_img",
+      "pick_tier": "strict",
+      "author": "www.viajar24h.com",
+      "license": "CC BY 2.0",
+      "license_url": "https://creativecommons.org/licenses/by/2.0",
+      "license_status": "ok",
+      "load_verified": true,
+      "bytes": 25998,
+      "caption_zh_manual": "复活节岛摩艾石像",
+      "caption_zh_source": "llm_from_commons_filename",
+      "thumb_bytes": 9822,
+      "size": {
+        "detail": "760x570",
+        "thumb": "400x300"
+      },
+      "encoding": "webp q72/q74 (源 1280x960 153KB JPEG)"
+    },
+    {
+      "title": "File:CuernosAndPaineG.jpg",
+      "caption_zh": "百内国家公园内的角峰",
+      "caption": "百内国家公园内的角峰",
+      "caption_commons": "Another view of Cerro Paine Grande and the Cuernos (The horns) from the W Trek h",
+      "kw": "Torres del Paine National Park",
+      "url": "assets/cl/L02.webp",
+      "thumb_url": "assets/cl/L02.thumb.webp",
+      "remote_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/75/CuernosAndPaineG.jpg/1920px-CuernosAndPaineG.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "source": "article_img",
+      "pick_tier": "strict",
+      "author": "AndrewDeAngelo",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "license_status": "ok",
+      "load_verified": true,
+      "bytes": 77802,
+      "caption_zh_manual": "百内国家公园",
+      "caption_zh_source": "llm_from_commons_filename",
+      "thumb_bytes": 20290,
+      "size": {
+        "detail": "760x570",
+        "thumb": "400x300"
+      },
+      "encoding": "webp q72/q74 (源 1920x1440 757KB JPEG)"
+    },
+    {
+      "title": "File:Salar de Atacama.jpg",
+      "caption_zh": "阿塔卡马沙漠阿塔卡马盐沼",
+      "caption": "阿塔卡马沙漠阿塔卡马盐沼",
+      "caption_commons": "The Atacama Dry lake, in Chile. At the horizon, the Tumisa, Lejía and Miñiques v",
+      "kw": "Atacama Desert Valle de la Luna",
+      "url": "assets/cl/L03.webp",
+      "thumb_url": "assets/cl/L03.thumb.webp",
+      "remote_url": "https://upload.wikimedia.org/wikipedia/commons/0/0e/Salar_de_Atacama.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+      "source": "article_img",
+      "pick_tier": "strict",
+      "author": "Francesco Mocellin",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "license_status": "ok",
+      "load_verified": true,
+      "bytes": 69718,
+      "caption_zh_manual": "阿塔卡马沙漠",
+      "caption_zh_source": "llm_from_commons_filename",
+      "thumb_bytes": 22500,
+      "size": {
+        "detail": "760x507",
+        "thumb": "400x267"
+      },
+      "encoding": "webp q72/q74 (源 1920x1280 1820KB JPEG)"
+    },
+    {
+      "title": "File:Placa Cerro San Cristobal.jpg",
+      "caption_zh": "圣地亚哥圣克里斯托瓦尔山标牌",
+      "caption": "圣地亚哥圣克里斯托瓦尔山标牌",
+      "caption_commons": "Cerro San Cristóbal is located in Santiago, the capital of Chile. With an altitu",
+      "kw": "Cerro San Cristobal Santiago Chile",
+      "url": "assets/cl/L04.webp",
+      "thumb_url": "assets/cl/L04.thumb.webp",
+      "remote_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/15/Placa_Cerro_San_Cristobal.jpg/1920px-Placa_Cerro_San_Cristobal.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "source": "commons_search",
+      "pick_tier": "strict",
+      "author": "Rjcastillo",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "license_status": "ok",
+      "load_verified": true,
+      "bytes": 86840,
+      "caption_zh_manual": "圣地亚哥圣克里斯托瓦尔山",
+      "caption_zh_source": "llm_from_commons_filename",
+      "thumb_bytes": 25544,
+      "size": {
+        "detail": "760x488",
+        "thumb": "400x257"
+      },
+      "encoding": "webp q72/q74 (源 1920x1234 961KB JPEG)"
+    },
+    {
+      "title": "File:Chiloe church of wood.jpg",
+      "caption_zh": "奇洛埃木教堂",
+      "caption": "奇洛埃木教堂",
+      "caption_commons": "155-5520_IMG.JPG",
+      "kw": "Chiloe Churches Castro",
+      "url": "assets/cl/L06.webp",
+      "thumb_url": "assets/cl/L06.thumb.webp",
+      "remote_url": "https://upload.wikimedia.org/wikipedia/commons/5/5c/Chiloe_church_of_wood.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+      "source": "commons_search",
+      "pick_tier": "strict",
+      "author": "Anna Maj Michelson from Portland, Estados Unidos",
+      "license": "CC BY 2.0",
+      "license_url": "https://creativecommons.org/licenses/by/2.0",
+      "license_status": "ok",
+      "load_verified": true,
+      "bytes": 27804,
+      "caption_zh_manual": "奇洛埃木教堂",
+      "caption_zh_source": "llm_from_commons_filename",
+      "thumb_bytes": 9406,
+      "size": {
+        "detail": "760x570",
+        "thumb": "400x300"
+      },
+      "encoding": "webp q72/q74 (源 1600x1200 511KB JPEG)"
+    }
+  ],
+  "image_license": "CC BY 2.0",
+  "geometry_status": "naturalearth_50m_chunked",
+  "schema_version": "0.1",
+  "collected_at": "2026-10-30T15:40:25+08:00",
+  "collector": "scripts/collect.py v0.2",
+  "needs_review": true,
+  "review_notes": [
+    "P443 发音语种不符已弃用：Lb-Chile.ogg、LL-Q7913 (ron)-KlaudiuMihaila-Chile.wav、LL-Q652 (ita)-Francyskus-Cile.wav（P443 不保证语种，须按文件名筛）",
+    "该实体无对应语种发音，语音改跑 python scripts/tts.py CL",
+    "Commons 无可用发音，语音走构建期 TTS 兜底（待接）",
+    "瓦尔帕莱索彩色山城：Wikidata / 维基 / Commons 都没有可用图",
+    "地标图改为人工指定清单（5 张，中文图注）"
+  ],
+  "image_source_note": "人工按 data/landmarks.json 指定地标，Commons 关键词检索取图；原先自动获得的 2 张已被替换",
+  "custom_facets": {
+    "festivals": [],
+    "cuisine": [],
+    "religion": [],
+    "architecture": [],
+    "heritage": [],
+    "keywords": [
+      {
+        "v": "阿塔卡马沙漠",
+        "evidence": "阿塔卡马沙漠是世界旱极"
+      },
+      {
+        "v": "埃斯孔迪达铜矿",
+        "evidence": "埃斯孔迪达铜矿是目前全球年产量最高的露天铜矿"
+      },
+      {
+        "v": "德雷克海峡",
+        "evidence": "与南极洲仅隔德雷克海峡相望"
+      },
+      {
+        "v": "峡湾",
+        "evidence": "由峡湾、湖泊、运河和岛屿组成的迷宫"
+      },
+      {
+        "v": "铜和锂资源",
+        "evidence": "藏有大量的铜和锂资源"
+      }
+    ],
+    "model": "deepseek-flash"
+  },
+  "summary_text_raw": "智利共和国（西班牙语：República de Chile ），通称智利（西班牙语：Chile），是位于南美洲的国家，智利西部与南部濒临太平洋，北靠秘鲁，东邻玻利维亚及阿根廷。为南美洲国家联盟的前成员国。除此之外，智利与厄瓜多尔相同，是两个不与巴西相接的南美洲国家之一。\n智利地处美洲大陆的最南端，与南极洲仅隔德雷克海峡相望，为全球最南端的国家（对南极洲的主权申索不计算在内）。智利人口约有1,800万，种族以白人、混血族群居多，与其东方邻国阿根廷同样，几乎没有非洲裔人口，其他则以本土原住民少数族群相对为多。智利教育高度发达，其教育素质与水准在发达国家获普遍承认。智利在新闻自由、人类发展指数、民主发展等方面也取得很高的排名。社会方面，智利约相当于经济处于发达水平的北美洲及欧洲国家。\n智利拥有非常丰富的矿产资源、森林资源，以及渔业资源，北部安托法加斯塔大区的埃斯孔迪达铜矿是目前全球年产量最高的露天铜矿。其境内的阿塔卡马沙漠是世界旱极，藏有大量的铜和锂资源；中部则是文化和政治中心；森林资源主要集中在南部。在智利的南海岸有着错综复杂的由峡湾、湖泊、运河和岛屿组成的迷宫。",
+  "history_text": "1818年在贝尔纳多·奥希金斯领导下宣布独立，此后欧洲移民陆续迁入。硝石战争中占领原属秘鲁和玻利维亚的阿塔卡马沙漠。1973年皮诺切特发动政变，建立军事独裁，秘密警察镇压异见者，上百万人流离。1989年自由选举后，1990年艾尔文就职，结束十七年统治，中间偏左联盟随后长期执政。",
+  "custom_text": "日常以面食为主，海产品、牛肉、羊肉常见于餐桌。名菜多与海鲜相关，如鱼汤Caldillo de Congrio、鲜鱼炖菜Chupe de Mariscos。街头小食恩潘纳达形似韭菜盒子，馅料有牛肉、鸡蛋、起士、火腿。民族舞蹈奎卡融合欧洲与美洲原住民特色，各地音乐风格随北部、中部、南部而异。",
+  "custom_text_source": {
+    "source": "llm_compose_from_summary_facets",
+    "tier": "minor",
+    "note": "模型基于维基导语 + 抽取特征成文；只在没有人工稿的国家使用",
+    "chars": {
+      "history": 139,
+      "folk": 144
+    }
+  },
+  "knowledge_qa": [
+    {
+      "q": "智利在哪儿啊？周围都是些什么国家？",
+      "a": "智利位于南美洲，西部与南部濒临太平洋，北靠秘鲁，东邻玻利维亚及阿根廷。它地处美洲大陆最南端，与南极洲仅隔德雷克海峡相望。",
+      "tags": [
+        "南美洲",
+        "地理位置",
+        "邻国"
+      ]
+    },
+    {
+      "q": "智利首都是哪里？",
+      "a": "首都：圣地亚哥。",
+      "tags": [
+        "首都",
+        "圣地亚哥"
+      ]
+    },
+    {
+      "q": "智利人说什么语言？",
+      "a": "官方语言是西班牙语。",
+      "tags": [
+        "语言",
+        "西班牙语",
+        "说什么话"
+      ]
+    },
+    {
+      "q": "智利有什么值得一看的地标或景观？",
+      "a": "有复活节岛摩艾石像、百内国家公园、阿塔卡马沙漠、圣地亚哥圣克里斯托瓦尔山和奇洛埃木教堂等。",
+      "tags": [
+        "地标",
+        "景点",
+        "复活节岛",
+        "百内国家公园"
+      ]
+    },
+    {
+      "q": "智利有什么特别的自然景观？",
+      "a": "阿塔卡马沙漠是世界旱极，藏有大量铜和锂资源；南部有峡湾、湖泊、运河和岛屿组成的迷宫；还有百内国家公园等。",
+      "tags": [
+        "自然景观",
+        "沙漠",
+        "国家公园"
+      ]
+    },
+    {
+      "q": "智利人口大概多少？主要是什么人种？",
+      "a": "智利人口约1,800万，种族以白人、混血族群居多，几乎没有非洲裔人口，其他则以本土原住民少数族群相对为多。",
+      "tags": [
+        "人口",
+        "人种",
+        "原住民"
+      ]
+    },
+    {
+      "q": "智利有什么矿产资源？",
+      "a": "智利矿产资源非常丰富，北部安托法加斯塔大区的埃斯孔迪达铜矿是目前全球年产量最高的露天铜矿，阿塔卡马沙漠藏有大量铜和锂资源。",
+      "tags": [
+        "矿产",
+        "铜矿",
+        "资源"
+      ]
+    }
+  ],
+  "llm_audit": {
+    "issues": [],
+    "overall": "pass"
+  },
+  "audio_meta": {}
+}

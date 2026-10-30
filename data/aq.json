@@ -1,0 +1,305 @@
+{
+  "qid": "Q51",
+  "iso_a2": "AQ",
+  "iso_a3": "ATA",
+  "name_zh": "南极洲",
+  "name_en": "Antarctica",
+  "centroid": [
+    0,
+    -90
+  ],
+  "centroid_source": "wikidata P625",
+  "summary_text": "南极洲是地球最南端的洲，位于南半球的南极区，为地理南极的所在地。南极洲大部分区域都在南极圈内，四周被南冰洋环绕。南极洲是世界上的第五大洲，其面积约为1,400万平方公里，约占地球陆地面积的十分之一，排在亚洲、非洲、北美洲和南美洲之后，是大洋洲的两倍。除了南极半岛最北端的部分区域之外，全洲约98%的地方都被平均厚度1.9公里的冰层覆盖着。南极洲是地球上最寒冷、干燥、多风的大陆，是唯一横跨所有经线的洲，平均海拔为2350米，是世界上平均海拔最高的洲。全境为冰雪覆盖，占地球冰盖面积的80%以上。它沿岸地区的年降水量仅有200毫米，内陆地区更少。一年中最寒冷季节南极洲的平均温度低至-63℃，1983年曾观测最低温度为-89.2℃。南极洲的本地物种有各类藻类、细菌、真菌、植物（包括苔藓）、原生生物以及一些可以适应寒冷环境的动物，例如企鹅、海豹、线虫、缓步动物、螨等。南极洲没有永久居民，但每年居住在这里的科研人员有一千至五千人。",
+  "summary_source": {
+    "source": "llm_refined",
+    "note": "DeepSeek 基于 Wikipedia 导语 + 人工民俗文本重写；口径限定地理与文化，剔除政权更迭与战争史",
+    "chars": 414,
+    "derived_from": "wikipedia_extracts",
+    "url": "https://zh.wikipedia.org/wiki/%E5%8D%97%E6%9E%81%E6%B4%B2",
+    "title": "南极洲"
+  },
+  "culture_excerpts": [
+    {
+      "section": "地质学历史和古生物学",
+      "text": "一亿七千多万年前，南极洲是冈瓦那超大陆的一部分。随着时间的推移，冈瓦那超大陆随着板块运动逐渐解体。现在所称的南极洲形成于2500万年前。南极洲并不总是寒冷干燥，千里冰封。在一段时期内，南极洲的位置比现在偏北许多，因此也曾具有热带和温带气候，而且也是很多古生物的栖息地。寒武纪时期的冈瓦那超大陆气候温和。当时西部南极洲有一部分处于北半球，大量的砂岩、石灰岩和页岩也在此时期沉积。东部南极洲则位于赤道——孕育了无脊椎动物和三叶虫的海床的所在区域。从4.16亿年前的泥盆纪开始，冈瓦那超大陆漂移到了更往南的地方，气候也逐渐变冷，不过化石证明当时陆地上仍有植物生长。在此期间，大量的沙和淤泥沉积在现今的埃尔斯沃思山脉、霍利克山脉和彭萨科拉山脉。冈瓦那超大陆的冰期始于3.6亿年前的泥盆纪末期，那时超大陆的中心已到达到南极点，气候更为寒冷，但此时大陆上仍有植物群。二叠纪时期，陆地上的植物以种子植物为主，如舌羊齿属植物（一种长在沼泽里的种子蕨）。随着时间推移，这些湿地变成了横贯南极山脉下的煤层。二叠纪末期，冈瓦那超大陆的大部分地区因为气候的持续转暖而变得燥热。气候的持续转暖导致极地冰盖融化，冈瓦那超大陆的大部分区域成为沙漠。这时东部南极洲出现了许多种子蕨，并有大量砂岩和页岩沉积。三叠纪早期，类似哺乳类的合弓纲动物在南极洲很常见，这当中也包括了水龙兽。南极半岛在侏罗纪（2.06–1.46亿年前）时开始形成，周围岛屿也开始浮出海面。银杏、松柏、本勒苏铁、木贼、真蕨和苏铁在此时期都相当繁茂。针叶林占据西部南极洲的时期长达整个白垩纪（1.46–0.66亿年前）。此外南青冈科植物在白垩纪末期也越来越繁盛，菊石在南极洲周围海域也很常见。南极洲上面也有恐龙，但目前只发现三个属（冰脊龙属、冰河龙属和南极甲龙属）。此外，冈瓦那超大陆是从这个时代开始分裂的。由于大陆扩张，原本在赤道与极地间运行的沿经线方向的洋流，开始转变为沿纬线方向流动。这一变化使得洋流功能从原本的有利于赤道与极地间的热量交换，开始转变为保持甚至加大二者之间的温差。伴随着这一变化，南极大陆开始逐渐变冷。在侏罗纪期间（距今约1.6亿年），非洲大陆从南极大陆中分离；随后在白垩纪期间（距今约1.25亿年），印度次大陆也脱离南极大陆。直到距今约6600万年的白垩纪末期，南极洲（当时尚与澳洲相连）仍具有亚热带的气候类型和植被特点，有袋类动物群也分布于其上。进入新生代后，在距今约4000万年前的始新世，澳大利亚-新几内亚与南极洲相分离。这一变化导致沿纬线方向运行的洋流将澳大利亚与南极大陆分隔开来，南极洲的气温进一步受到影响，冰层开始出现。同时，在距今约3400万年前的始新世-渐新世灭绝事件中，温室气体二氧化碳的含量也降至760 ppm，低于较早地质年代中超过1000 ppm的水准。距今约2300万年前，南极洲与南美洲之间的德雷克海峡终于完全分离，这导致了南极绕极流的形成。这股强烈的沿纬线方向运行的海流最终将南极洲与低纬度温暖的海水完全分隔开来。模型显示，同期大气中二氧化碳含量的进一步下降也对南极大陆的气温产生了明显影响。由此，南极大陆的冰层覆盖面积开始扩大，原有的森林渐渐为冰盖所取代。天狼星地层组中的梅尔沙漠植物群留有南青冈科植物的化石，显示多明尼昂山脉迟至300至400万年前（上新世中晚期）仍有间歇性的暖化期，使得南青冈科植物仍然能留存在山脉上。更新世之后，冰河期再度袭卷整个南极大陆，并导致所有主要的植物灭绝。",
+      "chars": 1439
+    },
+    {
+      "section": "历史",
+      "text": "南极洲既没有原住民，也没有永久居民，而且目前尚无证据表明在19世纪之前有人类发现南极洲。不过，在公元1世纪时，托勒密提出，地球是有对称性的。自那时起，人们就相信在遥远的南方有一片“未知的大陆”存在，以平衡北方欧洲、亚洲和非洲北部等北方大陆。直到17世纪晚期，探险家们发现南美洲和大洋洲并非是传说中的“南极大陆”的一部分。当时的地理学家相信南方存在一块比现今的南极洲大的多的大陆。\n“Terra Australis”（南方大陆）一词并未用于指代南极洲，而是成为了澳大利亚的代称。其原因是当时人们错误地认为在澳大利亚南边不会再有大陆。探险家马修·福林达斯亦推广了用“Terra Australis”命名澳大利亚的做法。他在自己的《南方大陆之行（英语：A Voyage to Terra Australis）》（英语：A Voyage to Terra Australis）的引言中这样解释书名：",
+      "chars": 1200
+    },
+    {
+      "section": "人口",
+      "text": "一些国家在南极洲设置了常驻研究站。在冬季，位于南极洲大陆及附近岛屿从事科学研究或其他相关工作的人员约有1,000人，到了夏季人数则是5,000左右，因此南极洲的人口密度在冬季和夏季分别是每百万平方公里70人和350人。许多研究站全年有人驻守，在南极过冬的人员通常都是执行持续一整年的任务。2004年，俄罗斯的别林斯高晋站设立了一座俄罗斯正教会的三一教堂（英语：Trinity Church (Antarctica)），每年会有一两位司祭轮流驻守。\n最早在南极洲附近（南极辐合带以南）半永久居住的人是从1786年起在南乔治亚和南桑威奇群岛驻留一年以上的英国和美国的海豹猎人。在捕鲸时期，夏季岛上人数超过一千（有时甚至超过两千），冬季则是200左右，直到1966年才结束。在捕鲸猎人中挪威人占大多数，而英国人也逐渐增多。他们的居住地包括古利德维肯、利斯港（英语：Leith Harbour）、爱德华国王角、斯特罗姆内斯、胡斯维克（英语：Husvik）、奥拉夫王子港、海洋港及戈德苏尔湾。捕鲸站的主管及资深人员经常和家人同住，其中包括葛利特维根基地的创始人卡尔·安东·拉森船长。他是著名的挪威捕鲸人及采险家，在1910年与家人一同获得英国公民身份。\n埃米利奥·马科·斯帕尔马（英语：Emilio Marcos Palma）则是第一位出生在南纬60度线（南极条约体系中订定的南极洲边界）以南的人，也是第一个出生在南极大陆的人。1978年，他在位于南极半岛顶点的埃斯佩兰萨站出生。他的父母和另外七个家庭由阿根廷到达南极，其目的是确定南极是否适合居住。1984年，胡安·巴勃罗·卡马乔（Juan Pablo Camacho）在爱德华多·弗雷·蒙塔尔瓦总统基地出生，成为第一位在南极洲出生的智利人。现在，南极洲已有几个基地拥有带小孩的家庭，这些小孩在研究站内设立的学校上学。截至2009年，已有11个小孩在南极洲出生（南纬60度线以南），其中八人出生在阿根廷的埃斯佩兰萨基地，另外三人出生在智利的弗雷蒙塔尔瓦基地。",
+      "chars": 1200
+    }
+  ],
+  "landmark_images": [
+    {
+      "title": "File:Geographic Southpole crop.jpg",
+      "caption_zh": "南极点局部裁剪图",
+      "caption": "南极点局部裁剪图",
+      "caption_commons": "Geographic Southpole",
+      "kw": "South Pole marker Antarctica",
+      "url": "assets/aq/01.webp",
+      "thumb_url": "assets/aq/01.webp",
+      "remote_url": "https://upload.wikimedia.org/wikipedia/commons/9/9f/Geographic_Southpole_crop.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+      "source": "wikidata_p18",
+      "pick_tier": "strict",
+      "author": "Kuno Lechner; cropped by H Debussy-Jones (talk) 08:31, 14 November 2009 (UTC)",
+      "license": "CC BY-SA 3.0",
+      "license_url": "http://creativecommons.org/licenses/by-sa/3.0/",
+      "license_status": "ok",
+      "load_verified": true,
+      "bytes": 273640,
+      "caption_zh_manual": "南极点",
+      "caption_zh_source": "llm_from_commons_filename"
+    },
+    {
+      "title": "File:Ross Ice Shelf 1997.jpg",
+      "caption_zh": "罗斯冰架",
+      "caption": "罗斯冰架",
+      "caption_commons": "Ross Ice Shelf, 1997The Ross Ice Shelf from the NATHANIEL B. PALMERRoss Sea, Ant",
+      "kw": "Ross Ice Shelf Antarctica",
+      "url": "assets/aq/02.webp",
+      "thumb_url": "assets/aq/02.webp",
+      "remote_url": "https://upload.wikimedia.org/wikipedia/commons/1/1a/Ross_Ice_Shelf_1997.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+      "source": "wikidata_p18",
+      "pick_tier": "strict",
+      "author": "Michael Van Woert, NOAA NESDIS, ORA",
+      "license": "Public domain",
+      "license_url": null,
+      "license_status": "ok",
+      "load_verified": true,
+      "bytes": 1226615,
+      "caption_zh_manual": "罗斯冰架",
+      "caption_zh_source": "llm_from_commons_filename"
+    },
+    {
+      "title": "File:McMurdo Station.jpg",
+      "caption_zh": "麦克默多站",
+      "caption": "麦克默多站",
+      "caption_commons": "McMurdo Station on Ross Island, Antarctica, taken from Observation Hill.",
+      "kw": "McMurdo Station Antarctica",
+      "url": "assets/aq/L03.webp",
+      "thumb_url": "assets/aq/L03.thumb.webp",
+      "remote_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/bb/McMurdo_Station.jpg/1920px-McMurdo_Station.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "source": "wikidata_p18",
+      "pick_tier": "relaxed",
+      "author": "Gaelen Marsden",
+      "license": "CC BY-SA 3.0",
+      "license_url": "http://creativecommons.org/licenses/by-sa/3.0/",
+      "license_status": "ok",
+      "load_verified": true,
+      "bytes": 53632,
+      "caption_zh_manual": "麦克默多站",
+      "caption_zh_source": "llm_from_commons_filename",
+      "thumb_bytes": 16806,
+      "size": {
+        "detail": "760x309",
+        "thumb": "400x162"
+      },
+      "encoding": "webp q72/q74 (源 1920x780 525KB JPEG)"
+    },
+    {
+      "title": "File:Mount erebus hg.jpg",
+      "caption_zh": "埃里伯斯火山",
+      "caption": "埃里伯斯火山",
+      "caption_commons": "Panorama of Ross Island seen from Castle Rock, near McMurdo Station on Hut Point",
+      "kw": "Mount Erebus Antarctica",
+      "url": "assets/aq/L04.webp",
+      "thumb_url": "assets/aq/L04.thumb.webp",
+      "remote_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/6e/Mount_erebus_hg.jpg/1920px-Mount_erebus_hg.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "source": "article_img",
+      "pick_tier": "strict",
+      "author": "Hannes Grobe, Alfred Wegener Institute for Polar and Marine Research, Germany",
+      "license": "CC BY-SA 2.5",
+      "license_url": "https://creativecommons.org/licenses/by-sa/2.5",
+      "license_status": "ok",
+      "load_verified": true,
+      "bytes": 23080,
+      "caption_zh_manual": "埃里伯斯火山",
+      "caption_zh_source": "llm_from_commons_filename",
+      "thumb_bytes": 7516,
+      "size": {
+        "detail": "760x498",
+        "thumb": "400x262"
+      },
+      "encoding": "webp q72/q74 (源 1920x1257 479KB JPEG)"
+    },
+    {
+      "title": "File:LarsenC-detail photo 2016315 lrg.jpg",
+      "caption_zh": "拉森冰架局部细节",
+      "caption": "拉森冰架局部细节",
+      "caption_commons": "These photograph shows the detail view of the rift in Larsen C from the vantage ",
+      "kw": "Larsen Ice Shelf Antarctica",
+      "url": "assets/aq/L05.webp",
+      "thumb_url": "assets/aq/L05.thumb.webp",
+      "remote_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/90/LarsenC-detail_photo_2016315_lrg.jpg/1920px-LarsenC-detail_photo_2016315_lrg.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "source": "article_img",
+      "pick_tier": "strict",
+      "author": "NASA photographs by John Sonntag",
+      "license": "Public domain",
+      "license_url": null,
+      "license_status": "ok",
+      "load_verified": true,
+      "bytes": 43020,
+      "caption_zh_manual": "拉森冰架",
+      "caption_zh_source": "llm_from_commons_filename",
+      "thumb_bytes": 12816,
+      "size": {
+        "detail": "760x534",
+        "thumb": "400x281"
+      },
+      "encoding": "webp q72/q74 (源 1920x1348 593KB JPEG)"
+    }
+  ],
+  "image_license": "CC BY-SA 3.0",
+  "geometry_status": "naturalearth_50m_chunked",
+  "schema_version": "0.1",
+  "collected_at": "2026-10-30T15:28:12+08:00",
+  "collector": "scripts/collect.py v0.2",
+  "needs_review": true,
+  "review_notes": [
+    "Wikidata 无 P36（首都）",
+    "Commons 无可用发音，语音走构建期 TTS 兜底（待接）",
+    "地标图改为人工指定清单（5 张，中文图注）"
+  ],
+  "image_source_note": "人工按 data/landmarks.json 指定地标，Commons 关键词检索取图；原先自动获得的 2 张已被替换",
+  "custom_facets": {
+    "festivals": [],
+    "cuisine": [],
+    "religion": [],
+    "architecture": [],
+    "heritage": [],
+    "keywords": [
+      {
+        "v": "南极圈",
+        "evidence": "大部分区域都在南极圈内"
+      },
+      {
+        "v": "南冰洋",
+        "evidence": "四周被南冰洋环绕"
+      },
+      {
+        "v": "冰层覆盖",
+        "evidence": "全洲约98%的地方都被平均厚度1.9公里的冰层覆盖"
+      },
+      {
+        "v": "企鹅",
+        "evidence": "例如企鹅、海豹、线虫"
+      },
+      {
+        "v": "横跨所有经线",
+        "evidence": "唯一横跨所有经线的洲"
+      },
+      {
+        "v": "平均海拔最高",
+        "evidence": "是世界上平均海拔最高的洲"
+      }
+    ],
+    "model": "deepseek-flash"
+  },
+  "summary_text_raw": "南极洲（英语：Antarctica）是地球最南端的洲，位于南半球的南极区，为地理南极的所在地。南极洲大部分区域都在南极圈内，四周被南冰洋环绕。南极洲是世界上的第五大洲，其面积约为1,400万平方公里，约占地球陆地面积的十分之一，排在亚洲、非洲、北美洲和南美洲之后，是大洋洲的两倍。除了南极半岛最北端的部分区域之外，全洲约98%的地方都被平均厚度1.9公里的冰层覆盖着。\n南极洲是地球上最寒冷、干燥、多风的大陆，是唯一横跨所有经线的洲，平均海拔为2350米，是世界上平均海拔最高的洲。全境为冰雪覆盖，占地球冰盖面积的80%以上。它沿岸地区的年降水量仅有200毫米，内陆地区更少。一年中最寒冷季节南极洲的平均温度低至-63℃，1983年曾观测最低温度为-89.2℃。南极洲的本地物种有各类藻类、细菌、真菌、植物（包括苔藓）、原生生物以及一些可以适应寒冷环境的动物，例如企鹅、海豹、线虫、缓步动物、螨等。南极洲没有永久居民，但每年居住在这里的科研人员有一千至五千人。",
+  "history_text": "一亿七千多万年前，这片陆地是冈瓦那超大陆的一部分，随板块运动逐渐解体，现今的形态形成于约两千五百万年前。它并非一直冰封，曾位于偏北位置，拥有热带与温带气候，是古生物的栖息地。泥盆纪起超大陆南移、气候转冷，冰期始于泥盆纪末期；二叠纪时湿地变为煤层，末期气候转暖使大部分地区成为沙漠。十九世纪之前，尚无证据表明有人类发现此地。",
+  "custom_text": "冬季驻守研究站的人执行持续一整年的任务，夏季则换上一批新面孔。别林斯高晋站设有一座正教会教堂，司祭轮流驻守，在冰原上主持仪式。更早的时候，猎海豹与捕鲸的人在南乔治亚一带留下居住点，捕鲸站的主管和资深人员常与家人同住，挪威人占多数，英国人也渐渐增多，直到捕鲸时期结束。",
+  "custom_text_source": {
+    "source": "llm_compose_from_summary_facets",
+    "tier": "minor",
+    "note": "模型基于维基导语 + 抽取特征成文；只在没有人工稿的国家使用",
+    "chars": {
+      "history": 161,
+      "folk": 133
+    }
+  },
+  "knowledge_qa": [
+    {
+      "q": "南极洲在地球哪儿啊？周围是什么？",
+      "a": "南极洲是地球最南端的洲，位于南半球的南极区，为地理南极的所在地，四周被南冰洋环绕。",
+      "tags": [
+        "南极",
+        "位置",
+        "南半球",
+        "南冰洋"
+      ]
+    },
+    {
+      "q": "南极洲面积有多大？排第几？",
+      "a": "南极洲是世界上的第五大洲，面积约为1,400万平方公里，约占地球陆地面积的十分之一，是大洋洲的两倍。",
+      "tags": [
+        "面积",
+        "第五大洲",
+        "多大",
+        "排名"
+      ]
+    },
+    {
+      "q": "南极洲的首都是哪？",
+      "a": "南极洲没有首都，也没有永久居民，但每年居住在这里的科研人员有一千至五千人。",
+      "tags": [
+        "首都",
+        "有没有人",
+        "居民",
+        "科研人员"
+      ]
+    },
+    {
+      "q": "南极洲说什么语言？",
+      "a": "南极洲没有官方语言，也没有永久居民，只有每年居住在这里的一千至五千名科研人员。",
+      "tags": [
+        "语言",
+        "说什么话",
+        "方言",
+        "官方语言"
+      ]
+    },
+    {
+      "q": "南极洲有什么值得看的地标或景观？",
+      "a": "南极洲的地标包括南极点、罗斯冰架、麦克默多站、埃里伯斯火山和拉森冰架。",
+      "tags": [
+        "地标",
+        "景点",
+        "南极点",
+        "冰架",
+        "火山"
+      ]
+    },
+    {
+      "q": "南极洲有什么动物？",
+      "a": "南极洲的本地物种有各类藻类、细菌、真菌、植物（包括苔藓）、原生生物以及一些可以适应寒冷环境的动物，例如企鹅、海豹、线虫、缓步动物、螨等。",
+      "tags": [
+        "动物",
+        "企鹅",
+        "海豹",
+        "物种"
+      ]
+    },
+    {
+      "q": "南极洲气候怎么样？有多冷？",
+      "a": "南极洲是地球上最寒冷、干燥、多风的大陆，一年中最寒冷季节平均温度低至-63℃，1983年曾观测最低温度为-89.2℃。",
+      "tags": [
+        "气候",
+        "多冷",
+        "温度",
+        "寒冷"
+      ]
+    },
+    {
+      "q": "南极洲的冰盖有多厚？覆盖多少？",
+      "a": "南极洲全洲约98%的地方被平均厚度1.9公里的冰层覆盖，占地球冰盖面积的80%以上。",
+      "tags": [
+        "冰盖",
+        "冰层",
+        "厚度",
+        "覆盖"
+      ]
+    }
+  ],
+  "llm_audit": {
+    "issues": [],
+    "overall": "pass"
+  },
+  "capital": "无常住人口",
+  "continent": "南极洲"
+}
