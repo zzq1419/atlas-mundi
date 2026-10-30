@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-10-30-B">
+<meta name="build" content="2026-10-30-C">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -1932,8 +1932,19 @@ body.panel-open #globe-stage{
         ? 'Natural Earth 10m · ' + ((d.geometry_stats || {}).vertices || '?') + ' 顶点'
         : 'Natural Earth 10m · 分片几何']
     ].forEach(function (p) {
+      var dd = el('dd', null, p[1]);
+      if (p[0] === '边界') {
+        /* 常被当成"边界画偏了"的那段：江苏外海在 2004 年的卫星图上是一大片
+           含沙浑水（长江、旧黄河口），颜色和岸上的土一样。国界是矢量、按测绘
+           海岸线画，两者在河口本来就不会完全重合 —— 说清楚，省得每次都要解释。 */
+        dd.setAttribute('data-tip', '国界取自 Natural Earth 矢量（10m），底图是 2004 年卫星影像：'
+          + '河口与外海的含沙浑水在影像上接近陆地色，边界与影像色块不完全重合属正常');
+        dd.style.cursor = 'help';
+        dd.style.textDecoration = 'underline dotted rgba(140,165,220,.45)';
+        dd.style.textUnderlineOffset = '3px';
+      }
       meta.appendChild(el('dt', null, p[0]));
-      meta.appendChild(el('dd', null, p[1]));
+      meta.appendChild(dd);
     });
     right.appendChild(meta);
 
