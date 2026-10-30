@@ -98,10 +98,35 @@ LANG_CODES = IDS.get("_langs") or {}
 NE_META = _load_json(os.path.join(ROOT, "geo", "meta.json"), {})
 
 
+# ISO 639-2（三字母，很多还是 639-2/B 书目码）-> 639-1 两字母。
+# 从 Wikidata 的 P218 拿到的就是三字母，edge-tts 只认两字母（"zh-CN" 这种），
+# 不转的话中文会变成 "chi"、法语 "fre"，语音阶段一律找不到音色 —— 直接没声音。
+ISO3_TO_1 = {
+    "zho": "zh", "chi": "zh", "fra": "fr", "fre": "fr", "deu": "de", "ger": "de",
+    "spa": "es", "ita": "it", "rus": "ru", "jpn": "ja", "kor": "ko", "ara": "ar",
+    "por": "pt", "hin": "hi", "ben": "bn", "msa": "ms", "may": "ms", "ind": "id",
+    "tha": "th", "vie": "vi", "tur": "tr", "fas": "fa", "per": "fa", "urd": "ur",
+    "heb": "he", "ell": "el", "gre": "el", "nld": "nl", "dut": "nl", "pol": "pl",
+    "ukr": "uk", "ron": "ro", "rum": "ro", "ces": "cs", "cze": "cs", "swe": "sv",
+    "nor": "no", "nob": "nb", "dan": "da", "fin": "fi", "isl": "is", "ice": "is",
+    "hun": "hu", "bul": "bg", "srp": "sr", "hrv": "hr", "slk": "sk", "slv": "sl",
+    "lit": "lt", "lav": "lv", "est": "et", "kat": "ka", "geo": "ka", "hye": "hy",
+    "arm": "hy", "aze": "az", "kaz": "kk", "uzb": "uz", "mon": "mn", "nep": "ne",
+    "sin": "si", "tam": "ta", "tel": "te", "mal": "ml", "kan": "kn", "mar": "mr",
+    "guj": "gu", "pan": "pa", "mya": "my", "bur": "my", "khm": "km", "lao": "lo",
+    "bod": "bo", "tib": "bo", "amh": "am", "swa": "sw", "som": "so", "yor": "yo",
+    "ibo": "ig", "hau": "ha", "zul": "zu", "afr": "af", "sqi": "sq", "alb": "sq",
+    "mkd": "mk", "mac": "mk", "bel": "be", "eus": "eu", "baq": "eu", "cat": "ca",
+    "glg": "gl", "mlt": "mt", "cym": "cy", "wel": "cy", "gle": "ga", "smi": "se",
+}
+
+
 def lang_code(qid):
     """语言 QID -> BCP 47 风格代码：先查 resolve_ids 生成的 P218/P219，再退回手写表。"""
     c = LANG_CODES.get(qid) or {}
-    return c.get("c1") or c.get("c3") or LANG_CODE.get(qid) or qid
+    code = c.get("c1") or c.get("c3") or LANG_CODE.get(qid) or qid
+    low = str(code).lower()
+    return ISO3_TO_1.get(low, code)
 
 # Wikidata 的 zh 标签常给全称，卡片要短名。补在这里，按需扩展。
 SHORT_NAME = {"Q148": ["中国"], "Q142": ["法国"], "Q30": ["美国"]}
@@ -356,7 +381,11 @@ def fetch_wikidata(iso2, forced_qid, notes):
     cap_id = entity_id(cap_vals[0]) if cap_vals else None
     con_ids = [entity_id(v) for v in claim_values(ent, "P30") if entity_id(v)]
     lang_ids = [entity_id(v) for v in claim_values(ent, "P37") if entity_id(v)]
-    lab = fetch_labels([q for q in ([cap_id] + con_ids + lang_ids) if q])
+    # P2936 = 该国实际使用的语言。美国联邦层面没有官方语言，P37 只有夏威夷语、
+    # 西班牙语、萨摩亚语、查莫罗语这些属地语言，英语根本不在里面 ——
+    # 只按 P37 写，美国卡片上会没有英语。P2936 的第一条正好是英语。
+    spoken_ids = [entity_id(v) for v in claim_values(ent, "P2936") if entity_id(v)]
+    lab = fetch_labels([q for q in ([cap_id] + con_ids + lang_ids + spoken_ids[:8]) if q])
 
     if cap_id:
         out["capital"] = lab.get(cap_id)
@@ -388,8 +417,32 @@ def fetch_wikidata(iso2, forced_qid, notes):
             notes.append("语言代码未解析，已剔除：%s"
                          % "、".join(l["name_zh"] for l in keep if l not in parsed))
             keep = parsed
-        out["languages"] = keep[:2] or raw[:1]
-        if len(raw) > len(out["languages"]):
+        # 以前固定只留 2 个，瑞士的四种官方语言就只剩德语和意大利语 ——
+        # 法语、罗曼什语直接消失，面板上看着像资料缺了一半。
+        # 现在按国家规模给上限：人口 ≥3000 万的给 4 个，其余 3 个。
+        # 不无限放：南非有 11 种官方语言，全列出来语音区会变成一张清单。
+        try:
+            pop = int((NE_META.get(str(iso2).upper()) or {}).get("pop") or 0)
+        except (TypeError, ValueError):
+            pop = 0
+        cap = 4 if pop >= 30_000_000 else 3
+        out["languages"] = keep[:cap] or raw[:1]
+        # 兜底：一个"通行大语种"都没有时（美国就是这种情况），
+        # 从 P2936 里挑第一个大语种补到最前面，标成"通用"而不是"官方"。
+        CORE = {"en", "fr", "es", "pt", "ar", "ru", "zh", "hi", "ms", "id"}
+        if not (set(str(l.get("code") or "") for l in out["languages"]) & CORE):
+            for q in spoken_ids[:8]:
+                code = lang_code(q)
+                if code in CORE:
+                    out["languages"].insert(0, {
+                        "code": code, "name_zh": lab.get(q) or q,
+                        "name_local": lab.get(q) or q,
+                        "role": "spoken", "audio_url": None,
+                        "audio_source": None, "audio_status": "pending"})
+                    out["languages"] = out["languages"][:cap]
+                    notes.append("P37 无通行语，从 P2936 补：%s" % (lab.get(q) or q))
+                    break
+        if len(keep) > len(out["languages"]):
             notes.append("P37 返回 %d 个语言，去重/去上位概念后保留 %d 个：%s"
                          % (len(raw), len(out["languages"]),
                             "、".join(l["name_zh"] for l in out["languages"])))

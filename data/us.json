@@ -33,6 +33,28 @@
       "audio_url": null,
       "audio_source": null,
       "audio_status": "pending"
+    },
+    {
+      "code": "es",
+      "name_zh": "西班牙语",
+      "name_local": "西班牙语",
+      "role": "official",
+      "audio_url": "assets/us/audio/es.mp3",
+      "audio_source": "tts_edge",
+      "audio_status": "ok",
+      "tts_text": "Bienvenidos a los Estados Unidos de América, un país de horizontes amplios y paisajes diversos; su capital es Washington, D. C., donde se alza el Capitolio, y entre sus lugares más emblemáticos destaca el Gran Cañón, una maravilla natural que invita a contemplar la inmensidad del continente.",
+      "tts_text_zh": "欢迎来到美利坚合众国，这是一个视野辽阔、风景多样的国家；首都是华盛顿哥伦比亚特区，国会大厦就矗立在那里，而在众多代表性名胜中，大峡谷尤为突出，这处自然奇观让人得以凝望大陆的广袤。",
+      "audio_voice": "es-AR-ElenaNeural",
+      "audio_bytes": 106272
+    },
+    {
+      "code": "sm",
+      "name_zh": "萨摩亚语",
+      "name_local": "萨摩亚语",
+      "role": "official",
+      "audio_url": null,
+      "audio_source": null,
+      "audio_status": "pending"
     }
   ],
   "summary_text": "美利坚合众国位于北美洲，是联邦制共和国，由50个州、首都华盛顿哥伦比亚特区和326个印第安人保留地组成，在联邦外主张对5个离岸自治领土及若干外岛拥有主权。美国领土面积为9,372,610平方公里，为北美第二、世界第三或第四。美国国土的地形与气候复杂，生物多样性齐全。行政区划上，全国划分为50个州，各州各有州旗、州歌与州博览会传统，首都为华盛顿哥伦比亚特区。截至2020年初，美国总人口约为3.3亿人，是世界第三人口大国、人口最多的发达国家以及美洲人口最多的国家，并有着来自世界各地的大量移民，是世界上民族和文化最多元的国家之一。美国建国于1776年《独立宣言》，1787年宪法确立联邦制与三权分立，联邦制下各州法律差异显著。感恩节在11月第四个周四，源自1621年清教徒与万帕诺亚格人的共食传统，1863年由林肯定为全国节日。爵士乐、蓝调、摇滚与嘻哈均发源于此，新奥尔良、孟菲斯、底特律构成一条音乐地理线索。",
@@ -176,7 +198,6 @@
     "夏威夷语缺音源"
   ],
   "review_notes": [
-    "P37 返回 6 个语言，去重/去上位概念后保留 2 个：英语、夏威夷语",
     "P443 发音语种不符已弃用：Lb-Amerika.ogg、LL-Q7913 (ron)-KlaudiuMihaila-Statele Unite ale Americii.wav、LL-Q33810 (ori)-Psubhashish-ଯୁକ୍ତରାଷ୍ଟ୍ର ଆମେରିକା.wav（P443 不保证语种，须按文件名筛）",
     "该实体无对应语种发音，语音改跑 python scripts/tts.py US",
     "Commons 无可用发音，语音走构建期 TTS 兜底（待接）",

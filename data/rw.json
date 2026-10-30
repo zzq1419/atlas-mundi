@@ -33,6 +33,19 @@
       "tts_text_zh": "欢迎来到卢旺达，这片心地温暖、山峦起伏的土地；首都是基加利，而一处令人难忘的地标是纽格威国家公园，古老的雨林里栖息着黑猩猩和丰富的鸟类。",
       "audio_voice": "en-US-AriaNeural",
       "audio_bytes": 79056
+    },
+    {
+      "code": "fr",
+      "name_zh": "法语",
+      "name_local": "法语",
+      "role": "official",
+      "audio_url": "assets/rw/audio/fr.mp3",
+      "audio_source": "tts_edge",
+      "audio_status": "ok",
+      "tts_text": "Bienvenue au Rwanda, un pays de collines verdoyantes ; sa capitale, Kigali, s'étend sur les hauteurs, et le mémorial du génocide de Gisozi vous invite à découvrir une histoire de mémoire et de résilience.",
+      "tts_text_zh": "欢迎来到卢旺达，一个山丘青翠的国度；首都基加利坐落于高地之上，吉索齐种族灭绝纪念馆邀请您了解一段关于记忆与坚韧的历史。",
+      "audio_voice": "fr-FR-DeniseNeural",
+      "audio_bytes": 75744
     }
   ],
   "summary_text": "卢旺达共和国通称卢旺达，是东非主权国家，坐落在赤道以南，与乌干达、坦桑尼亚、布隆迪和刚果民主共和国接壤。卢旺达地处大湖地区，海拔较高，地理上以西部的山区和东部的热带草原为主，全国各地分布有多个湖泊。该国属温带到亚热带气候，每年有两个雨季和两个旱季。卢旺达的人口主要居住在农村地区，以年轻人为主。卢旺达人主要分为三个族群：胡图族、图西族和特瓦族，其中特瓦族是该国生活在森林中的最早居民俾格米人的后代。基督教是该国第一大宗教，主要语言是卢旺达语，与法语和英语并列为该国的官方语言。",
@@ -183,7 +196,6 @@
   "collector": "scripts/collect.py v0.2",
   "needs_review": true,
   "review_notes": [
-    "P37 返回 4 个语言，去重/去上位概念后保留 2 个：卢旺达语、英语",
     "P443 发音语种不符已弃用：LL-Q7026 (cat)-Millars-Ruanda.wav、Lb-Ruanda.ogg、LL-Q7913 (ron)-KlaudiuMihaila-Rwanda.wav（P443 不保证语种，须按文件名筛）",
     "该实体无对应语种发音，语音改跑 python scripts/tts.py RW",
     "Commons 无可用发音，语音走构建期 TTS 兜底（待接）",

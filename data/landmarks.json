@@ -922,6 +922,324 @@
     "kw": "Pentecost Island land diving",
     "must": "pentecost"
    }
+  ],
+  "CH": [
+   {
+    "zh": "马特洪峰",
+    "en": "Matterhorn Zermatt",
+    "queries": [
+     "马特洪峰"
+    ],
+    "kw": "Matterhorn Zermatt",
+    "must": "matterhorn"
+   },
+   {
+    "zh": "少女峰",
+    "en": "Jungfrau mountain Switzerland",
+    "queries": [
+     "少女峰"
+    ],
+    "kw": "Jungfrau mountain Switzerland",
+    "must": "jungfrau"
+   },
+   {
+    "zh": "圣莫里茨/伯尔尼纳快车",
+    "en": "Bernina Express Landwasser Viaduct",
+    "queries": [
+     "圣莫里茨/伯尔尼纳快车"
+    ],
+    "kw": "Bernina Express Landwasser Viaduct",
+    "must": "bernina"
+   },
+   {
+    "zh": "莱茵瀑布",
+    "en": "Rhine Falls Schaffhausen",
+    "queries": [
+     "莱茵瀑布"
+    ],
+    "kw": "Rhine Falls Schaffhausen",
+    "must": "rhine"
+   }
+  ],
+  "IN": [
+   {
+    "zh": "泰姬陵",
+    "en": "Taj Mahal Agra",
+    "queries": [
+     "泰姬陵"
+    ],
+    "kw": "Taj Mahal Agra",
+    "must": "taj"
+   },
+   {
+    "zh": "瓦拉纳西恒河",
+    "en": "Varanasi Ganges Ghats",
+    "queries": [
+     "瓦拉纳西恒河"
+    ],
+    "kw": "Varanasi Ganges Ghats",
+    "must": "varanasi"
+   },
+   {
+    "zh": "斋浦尔风之宫",
+    "en": "Hawa Mahal Jaipur",
+    "queries": [
+     "斋浦尔风之宫"
+    ],
+    "kw": "Hawa Mahal Jaipur",
+    "must": "hawa"
+   },
+   {
+    "zh": "阿格拉堡",
+    "en": "Agra Fort India",
+    "queries": [
+     "阿格拉堡"
+    ],
+    "kw": "Agra Fort India",
+    "must": "agra"
+   },
+   {
+    "zh": "埃洛拉石窟",
+    "en": "Ellora Caves Maharashtra",
+    "queries": [
+     "埃洛拉石窟"
+    ],
+    "kw": "Ellora Caves Maharashtra",
+    "must": "ellora"
+   },
+   {
+    "zh": "亨比古迹群",
+    "en": "Hampi Virupaksha Temple",
+    "queries": [
+     "亨比古迹群"
+    ],
+    "kw": "Hampi Virupaksha Temple",
+    "must": "hampi"
+   }
+  ],
+  "MM": [
+   {
+    "zh": "仰光大金塔",
+    "en": "Shwedagon Pagoda Yangon",
+    "queries": [
+     "仰光大金塔"
+    ],
+    "kw": "Shwedagon Pagoda Yangon",
+    "must": "shwedagon"
+   },
+   {
+    "zh": "蒲甘佛塔群",
+    "en": "Bagan temples Myanmar",
+    "queries": [
+     "蒲甘佛塔群"
+    ],
+    "kw": "Bagan temples Myanmar",
+    "must": "bagan"
+   },
+   {
+    "zh": "曼德勒乌本桥",
+    "en": "U Bein Bridge Mandalay",
+    "queries": [
+     "曼德勒乌本桥"
+    ],
+    "kw": "U Bein Bridge Mandalay",
+    "must": "bein"
+   },
+   {
+    "zh": "茵莱湖",
+    "en": "Inle Lake Myanmar",
+    "queries": [
+     "茵莱湖"
+    ],
+    "kw": "Inle Lake Myanmar",
+    "must": "inle"
+   },
+   {
+    "zh": "曼德勒皇宫",
+    "en": "Mandalay Palace Myanmar",
+    "queries": [
+     "曼德勒皇宫"
+    ],
+    "kw": "Mandalay Palace Myanmar",
+    "must": "mandalay"
+   },
+   {
+    "zh": "大金石佛塔",
+    "en": "Kyaiktiyo Golden Rock",
+    "queries": [
+     "大金石佛塔"
+    ],
+    "kw": "Kyaiktiyo Golden Rock",
+    "must": "kyaiktiyo"
+   }
+  ],
+  "NG": [
+   {
+    "zh": "祖马岩",
+    "en": "Zuma Rock Nigeria",
+    "queries": [
+     "祖马岩"
+    ],
+    "kw": "Zuma Rock Nigeria",
+    "must": "zuma"
+   },
+   {
+    "zh": "奥卢莫岩",
+    "en": "Olumo Rock Abeokuta",
+    "queries": [
+     "奥卢莫岩"
+    ],
+    "kw": "Olumo Rock Abeokuta",
+    "must": "olumo"
+   },
+   {
+    "zh": "扬卡里野生动物保护区",
+    "en": "Yankari National Park",
+    "queries": [
+     "扬卡里野生动物保护区"
+    ],
+    "kw": "Yankari National Park",
+    "must": "yankari"
+   },
+   {
+    "zh": "拉各斯莱基大桥",
+    "en": "Lekki Ikoyi Link Bridge",
+    "queries": [
+     "拉各斯莱基大桥"
+    ],
+    "kw": "Lekki Ikoyi Link Bridge",
+    "must": "lekki"
+   },
+   {
+    "zh": "苏库尔文化景观",
+    "en": "Sukur Cultural Landscape",
+    "queries": [
+     "苏库尔文化景观"
+    ],
+    "kw": "Sukur Cultural Landscape",
+    "must": "sukur"
+   },
+   {
+    "zh": "阿布贾国家清真寺",
+    "en": "Abuja National Mosque",
+    "queries": [
+     "阿布贾国家清真寺"
+    ],
+    "kw": "Abuja National Mosque",
+    "must": "mosque"
+   }
+  ],
+  "PE": [
+   {
+    "zh": "马丘比丘",
+    "en": "Machu Picchu Peru",
+    "queries": [
+     "马丘比丘"
+    ],
+    "kw": "Machu Picchu Peru",
+    "must": "machu"
+   },
+   {
+    "zh": "纳斯卡线条",
+    "en": "Nazca Lines Peru",
+    "queries": [
+     "纳斯卡线条"
+    ],
+    "kw": "Nazca Lines Peru",
+    "must": "nazca"
+   },
+   {
+    "zh": "的的喀喀湖",
+    "en": "Lake Titicaca Peru",
+    "queries": [
+     "的的喀喀湖"
+    ],
+    "kw": "Lake Titicaca Peru",
+    "must": "titicaca"
+   },
+   {
+    "zh": "库斯科古城",
+    "en": "Cusco Plaza de Armas",
+    "queries": [
+     "库斯科古城"
+    ],
+    "kw": "Cusco Plaza de Armas",
+    "must": "cusco"
+   },
+   {
+    "zh": "科尔卡峡谷",
+    "en": "Colca Canyon Peru",
+    "queries": [
+     "科尔卡峡谷"
+    ],
+    "kw": "Colca Canyon Peru",
+    "must": "colca"
+   },
+   {
+    "zh": "彩虹山",
+    "en": "Vinicunca Rainbow Mountain Peru",
+    "queries": [
+     "彩虹山"
+    ],
+    "kw": "Vinicunca Rainbow Mountain Peru",
+    "must": "vinicunca"
+   }
+  ],
+  "SG": [
+   {
+    "zh": "滨海湾金沙",
+    "en": "Marina Bay Sands Singapore",
+    "queries": [
+     "滨海湾金沙"
+    ],
+    "kw": "Marina Bay Sands Singapore",
+    "must": "marina bay sands"
+   },
+   {
+    "zh": "鱼尾狮公园",
+    "en": "Merlion Park Singapore",
+    "queries": [
+     "鱼尾狮公园"
+    ],
+    "kw": "Merlion Park Singapore",
+    "must": "merlion"
+   },
+   {
+    "zh": "滨海湾花园",
+    "en": "Gardens by the Bay Singapore",
+    "queries": [
+     "滨海湾花园"
+    ],
+    "kw": "Gardens by the Bay Singapore",
+    "must": "gardens by the bay"
+   },
+   {
+    "zh": "新加坡植物园",
+    "en": "Singapore Botanic Gardens",
+    "queries": [
+     "新加坡植物园"
+    ],
+    "kw": "Singapore Botanic Gardens",
+    "must": "botanic gardens"
+   },
+   {
+    "zh": "圣淘沙岛",
+    "en": "Sentosa Island Singapore",
+    "queries": [
+     "圣淘沙岛"
+    ],
+    "kw": "Sentosa Island Singapore",
+    "must": "sentosa"
+   },
+   {
+    "zh": "苏丹回教堂",
+    "en": "Sultan Mosque Singapore",
+    "queries": [
+     "苏丹回教堂"
+    ],
+    "kw": "Sultan Mosque Singapore",
+    "must": "sultan mosque"
+   }
   ]
  }
 }

@@ -213,10 +213,10 @@ def do_country(iso, force=False):
         speakable = [l for l in (rec.get("languages") or []) if pick_voice(l.get("code"))]
     if speakable:
         all_langs = speakable
-    if pop and pop < SMALL_POP:
-        all_langs = all_langs[:1]
-    else:
-        all_langs = all_langs[:2]
+    # 以前大国 2 条、小国 1 条。结果瑞士只剩德语（意/法/罗曼什全没有），
+    # 印度只剩英语（印地语排在前面反而被挤掉）。edge-tts 不收费，
+    # 多一条只多 40~70KB，所以跟语言字段的上限对齐：最多 4 条。
+    all_langs = all_langs[:4]
     if not all_langs:
         print("  · 没有语言字段，跳过")
         return True
@@ -227,6 +227,18 @@ def do_country(iso, force=False):
         got = llm_sentences(rec, need)
         for l in need:
             g = got.get(l.get("code")) or {}
+            if isinstance(g, str):
+                g = {"text": g, "zh": ""}
+            if g.get("text"):
+                l["tts_text"] = g["text"].strip()
+                if g.get("zh"):
+                    l["tts_text_zh"] = g["zh"].strip()
+        # 一次调用让模型写多种语言时，它经常只交回一半（印度：只回了英语，
+        # 印地语空着，于是整条语音被跳过）。对还没拿到句子的语言单独再问一次，
+        # 一次只写一种 —— 命中率高得多，单次成本约 0.001 元。
+        for l in [x for x in need if not (x.get("tts_text") or "").strip()]:
+            g1 = llm_sentences(rec, [l])
+            g = g1.get(l.get("code")) or {}
             if isinstance(g, str):
                 g = {"text": g, "zh": ""}
             if g.get("text"):

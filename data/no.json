@@ -24,6 +24,24 @@
       "tts_text_zh": "欢迎来到挪威。首都名叫奥斯陆，你应该去那里看看宏伟的王宫，它坐落在城市中央的一处高地上。",
       "audio_voice": "nb-NO-PernilleNeural",
       "audio_bytes": 52704
+    },
+    {
+      "code": "se",
+      "name_zh": "萨米语支",
+      "name_local": "萨米语支",
+      "role": "official",
+      "audio_url": null,
+      "audio_source": null,
+      "audio_status": "pending"
+    },
+    {
+      "code": "nn",
+      "name_zh": "新挪威语",
+      "name_local": "新挪威语",
+      "role": "official",
+      "audio_url": null,
+      "audio_source": null,
+      "audio_status": "pending"
     }
   ],
   "summary_text": "挪威（书面挪威语：Norge，新挪威语：Noreg，北萨米语：Norga），全称挪威王国，是一个位于斯堪的纳维亚半岛的北欧国家。挪威地处欧洲大陆西北部，涵盖北极地区的扬马延岛和斯瓦尔巴群岛，此外在南大西洋还拥有布韦岛，并对南极地区的彼得一世岛与毛德皇后地持有主权要求。该国东部与瑞典接壤，东北部分别与芬兰的拉普兰区和俄罗斯的摩尔曼斯克州相邻。挪威国土狭长，拥有绵长的海岸线，其沿岸濒临斯卡格拉克海峡、北大西洋和巴伦支海。挪威的总面积为385,207平方千米（148,729平方英里）。该国人口约560万，首都及最大城市均为奥斯陆。挪威的通用语言包括书面挪威语、新挪威语和北萨米语。挪威王国于公元872年由多个小王国合并而成，迄今已有1154年的历史。",
@@ -168,7 +186,6 @@
   "collector": "scripts/collect.py v0.2",
   "needs_review": true,
   "review_notes": [
-    "P37 返回 4 个语言，去重/去上位概念后保留 2 个：书面挪威语、萨米语支",
     "P443 发音语种不符已弃用：Lb-Norwegen.ogg、LL-Q7913 (ron)-KlaudiuMihaila-Norvegia.wav、LL-Q652 (ita)-Francyskus-Norvegia.wav（P443 不保证语种，须按文件名筛）",
     "该实体无对应语种发音，语音改跑 python scripts/tts.py NO",
     "Commons 无可用发音，语音走构建期 TTS 兜底（待接）",

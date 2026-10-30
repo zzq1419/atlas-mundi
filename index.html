@@ -2051,7 +2051,12 @@ body.panel-open #globe-stage{
         var box = el('div', 'lang-block');
         var row = el('div', 'lang-audio');
         row.appendChild(el('span', 'la-name', l.name_zh));
-        row.appendChild(el('span', 'la-role', l.role === 'official' ? '官方' : '区域'));
+        /* 三种角色：official 官方 / spoken 通用（美国那种联邦无官方语言、
+           只有实际通行语的情况）/ regional 区域。以前只有两档，
+           spoken 会被显示成"区域"，读起来像地方方言。 */
+        var roleText = l.role === 'official' ? '官方'
+          : (l.role === 'spoken' ? '通用' : '区域');
+        row.appendChild(el('span', 'la-role', roleText));
         row.appendChild(makePlayer(l.audio_url));
         box.appendChild(row);
         /* 播放器下面配原文 + 中文翻译：外国语音不翻译等于听不懂。

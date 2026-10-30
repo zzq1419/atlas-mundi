@@ -72,8 +72,9 @@ LABEL = {"collect": "3 · 全量采集（Wikidata + 维基 + 图片）",
 # 粗略耗时（分钟/国），只用来在开始时给个预期
 COST = {"collect": 0.35, "landmarks": 0.55, "verify": 0.75, "llm": 0.45,
         "speech": 0.10, "images": 0.03, "index": 0.0, "upload": 0.0}
-# 视觉复核对钱有硬闸门：花到这个数就停（默认 3 元，可 --verify-budget 改）
-VERIFY_BUDGET = 3.0
+# 视觉复核对钱有硬闸门：花到这个数就停（默认 6 元，可 --verify-budget 改）
+# 每张图约 0.0008 元，6 元能验 7000 多张 —— 覆盖 220 国 × 5 张还有余量。
+VERIFY_BUDGET = 6.0
 
 
 def hr(title=""):
@@ -190,10 +191,10 @@ def stage_verify(a, isos):
     if not have:
         print("  没有已采集的国家，跳过")
         return False
-    print("  预算 %.1f 元；验过的图有缓存，重跑不重复花钱" % VERIFY_BUDGET)
+    print("  预算 %.1f 元、最多补 3 轮；验过的图有缓存，重跑不重复花钱" % VERIFY_BUDGET)
     code, out = ca.run([ca.PY, os.path.join(SCRIPTS, "verify_images.py"),
                         "--only"] + have +
-                       ["--budget", str(VERIFY_BUDGET), "--max-rounds", "2"],
+                       ["--budget", str(VERIFY_BUDGET), "--max-rounds", "3"],
                       timeout=14400)
     tail = [l for l in (out or "").splitlines() if l.strip()][-6:]
     print("\n".join("  " + l for l in tail))
@@ -265,8 +266,8 @@ def main():
     ap.add_argument("--force", action="store_true", help="已完成也重做")
     ap.add_argument("--skip-collect", action="store_true", help="跳过采集阶段")
     ap.add_argument("--upload", action="store_true", help="最后加一步上传 OBS")
-    ap.add_argument("--verify-budget", type=float, default=3.0,
-                    help="视觉复核最多花多少钱（元，默认 3；0=不限）")
+    ap.add_argument("--verify-budget", type=float, default=6.0,
+                    help="视觉复核最多花多少钱（元，默认 6；0=不限）")
     ap.add_argument("--proxy", default=os.environ.get("HTTPS_PROXY") or None)
     ap.add_argument("--country-timeout", type=int, default=1500)
     a = ap.parse_args()

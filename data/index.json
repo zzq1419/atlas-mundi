@@ -1,6 +1,6 @@
 {
   "schema_version": "0.1",
-  "updated_at": "2026-10-29",
+  "updated_at": "2026-10-30",
   "note": "国家/地区清单。前端只读这个文件来渲染入口卡，详情按 iso_a2 拉 /data/{iso}.json。iso_a2 是对外唯一主键。",
   "countries": [
     {
@@ -74,9 +74,10 @@
         "geometry": true
       },
       "status": "complete",
-      "lang_count": 2,
+      "lang_count": 4,
       "audio_langs": [
-        "en"
+        "en",
+        "es"
       ]
     },
     {
@@ -200,7 +201,7 @@
         "geometry": true
       },
       "status": "complete",
-      "lang_count": 1,
+      "lang_count": 3,
       "audio_langs": [
         "nb"
       ]
@@ -349,9 +350,10 @@
         "geometry": true
       },
       "status": "complete",
-      "lang_count": 2,
+      "lang_count": 3,
       "audio_langs": [
-        "en"
+        "en",
+        "fr"
       ]
     },
     {
@@ -374,9 +376,165 @@
         "geometry": true
       },
       "status": "complete",
+      "lang_count": 3,
+      "audio_langs": [
+        "fr",
+        "en"
+      ]
+    },
+    {
+      "iso_a2": "CH",
+      "name_zh": "瑞士",
+      "name_en": "Switzerland",
+      "name_local": "瑞士",
+      "continent": "欧洲",
+      "capital": "伯尔尼",
+      "centroid": [
+        8.232,
+        46.7986
+      ],
+      "thumb": "assets/ch/L01.thumb.webp",
+      "modalities": {
+        "image": true,
+        "audio": true,
+        "text": true,
+        "coords": true,
+        "geometry": true
+      },
+      "status": "complete",
+      "lang_count": 3,
+      "audio_langs": [
+        "de",
+        "it",
+        "fr"
+      ]
+    },
+    {
+      "iso_a2": "IN",
+      "name_zh": "印度",
+      "name_en": "India",
+      "name_local": "印度",
+      "continent": "亚洲",
+      "capital": "新德里",
+      "centroid": [
+        83,
+        22.8
+      ],
+      "thumb": "assets/in/L01.thumb.webp",
+      "modalities": {
+        "image": true,
+        "audio": true,
+        "text": true,
+        "coords": true,
+        "geometry": true
+      },
+      "status": "complete",
       "lang_count": 2,
       "audio_langs": [
-        "fr"
+        "hi",
+        "en"
+      ]
+    },
+    {
+      "iso_a2": "MM",
+      "name_zh": "缅甸",
+      "name_en": "Myanmar",
+      "name_local": "缅甸",
+      "continent": "亚洲",
+      "capital": "内比都",
+      "centroid": [
+        96,
+        22
+      ],
+      "thumb": "assets/mm/L01.thumb.webp",
+      "modalities": {
+        "image": true,
+        "audio": true,
+        "text": true,
+        "coords": true,
+        "geometry": true
+      },
+      "status": "complete",
+      "lang_count": 1,
+      "audio_langs": [
+        "my"
+      ]
+    },
+    {
+      "iso_a2": "NG",
+      "name_zh": "尼日利亚",
+      "name_en": "Nigeria",
+      "name_local": "尼日利亚",
+      "continent": "非洲",
+      "capital": "阿布贾",
+      "centroid": [
+        8,
+        9
+      ],
+      "thumb": "assets/ng/L01.thumb.webp",
+      "modalities": {
+        "image": true,
+        "audio": true,
+        "text": true,
+        "coords": true,
+        "geometry": true
+      },
+      "status": "complete",
+      "lang_count": 1,
+      "audio_langs": [
+        "en"
+      ]
+    },
+    {
+      "iso_a2": "PE",
+      "name_zh": "秘鲁",
+      "name_en": "Peru",
+      "name_local": "秘鲁",
+      "continent": "南美洲",
+      "capital": "利马",
+      "centroid": [
+        -76,
+        -9.4
+      ],
+      "thumb": "assets/pe/L01.thumb.webp",
+      "modalities": {
+        "image": true,
+        "audio": true,
+        "text": true,
+        "coords": true,
+        "geometry": true
+      },
+      "status": "complete",
+      "lang_count": 3,
+      "audio_langs": [
+        "es"
+      ]
+    },
+    {
+      "iso_a2": "SG",
+      "name_zh": "新加坡",
+      "name_en": "Singapore",
+      "name_local": "新加坡",
+      "continent": "亚洲",
+      "capital": "新加坡",
+      "centroid": [
+        103.8,
+        1.3
+      ],
+      "thumb": "assets/sg/L01.thumb.webp",
+      "modalities": {
+        "image": true,
+        "audio": true,
+        "text": true,
+        "coords": true,
+        "geometry": true
+      },
+      "status": "complete",
+      "lang_count": 3,
+      "audio_langs": [
+        "en",
+        "ms",
+        "zh"
       ]
     }
   ]

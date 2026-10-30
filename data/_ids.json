@@ -39,6 +39,15 @@
   "verified": true,
   "via": "zh"
  },
+ "AI": {
+  "lang_qids": [
+   "Q1860"
+  ],
+  "name_zh": "安圭拉",
+  "qid": "Q25228",
+  "verified": true,
+  "via": "zh"
+ },
  "AL": {
   "lang_qids": [
    "Q8748"
@@ -226,6 +235,15 @@
   "verified": true,
   "via": "zh"
  },
+ "BL": {
+  "lang_qids": [
+   "Q150"
+  ],
+  "name_zh": "圣巴泰勒米",
+  "qid": "Q25362",
+  "verified": true,
+  "via": "zh"
+ },
  "BM": {
   "lang_qids": [
    "Q1860"
@@ -369,6 +387,16 @@
   ],
   "name_zh": "科特迪瓦",
   "qid": "Q1008",
+  "verified": true,
+  "via": "zh"
+ },
+ "CK": {
+  "lang_qids": [
+   "Q1860",
+   "Q36745"
+  ],
+  "name_zh": "库克群岛",
+  "qid": "Q26988",
   "verified": true,
   "via": "zh"
  },
@@ -711,6 +739,15 @@
   ],
   "name_zh": "加纳",
   "qid": "Q117",
+  "verified": true,
+  "via": "zh"
+ },
+ "GI": {
+  "lang_qids": [
+   "Q7979"
+  ],
+  "name_zh": "直布罗陀",
+  "qid": "Q1410",
   "verified": true,
   "via": "zh"
  },
@@ -1224,6 +1261,15 @@
   "verified": true,
   "via": "zh"
  },
+ "MC": {
+  "lang_qids": [
+   "Q150"
+  ],
+  "name_zh": "摩纳哥",
+  "qid": "Q235",
+  "verified": true,
+  "via": "zh"
+ },
  "MD": {
   "lang_qids": [
    "Q36392",
@@ -1244,6 +1290,15 @@
   ],
   "name_zh": "黑山",
   "qid": "Q236",
+  "verified": true,
+  "via": "zh"
+ },
+ "MF": {
+  "lang_qids": [
+   "Q150"
+  ],
+  "name_zh": "法属圣马丁",
+  "qid": "Q126125",
   "verified": true,
   "via": "zh"
  },
@@ -1357,6 +1412,15 @@
   "verified": true,
   "via": "zh"
  },
+ "MV": {
+  "lang_qids": [
+   "Q32656"
+  ],
+  "name_zh": "马尔代夫",
+  "qid": "Q826",
+  "verified": true,
+  "via": "zh"
+ },
  "MW": {
   "lang_qids": [
    "Q1860",
@@ -1424,6 +1488,16 @@
   "verified": true,
   "via": "zh"
  },
+ "NF": {
+  "lang_qids": [
+   "Q1860",
+   "Q33797"
+  ],
+  "name_zh": "诺福克岛",
+  "qid": "Q31057",
+  "verified": true,
+  "via": "zh"
+ },
  "NG": {
   "lang_qids": [
    "Q1860"
@@ -1472,6 +1546,16 @@
   ],
   "name_zh": "尼泊尔",
   "qid": "Q837",
+  "verified": true,
+  "via": "zh"
+ },
+ "NR": {
+  "lang_qids": [
+   "Q13307",
+   "Q1860"
+  ],
+  "name_zh": "瑙鲁",
+  "qid": "Q697",
   "verified": true,
   "via": "zh"
  },
@@ -1585,6 +1669,16 @@
   ],
   "name_zh": "圣皮埃尔和密克隆",
   "qid": "Q34617",
+  "verified": true,
+  "via": "zh"
+ },
+ "PN": {
+  "lang_qids": [
+   "Q36554",
+   "Q1860"
+  ],
+  "name_zh": "皮特凯恩群岛",
+  "qid": "Q35672",
   "verified": true,
   "via": "zh"
  },
@@ -1858,6 +1952,16 @@
   "verified": true,
   "via": "zh"
  },
+ "SX": {
+  "lang_qids": [
+   "Q7411",
+   "Q1860"
+  ],
+  "name_zh": "荷属圣马丁",
+  "qid": "Q26273",
+  "verified": true,
+  "via": "zh"
+ },
  "SY": {
   "lang_qids": [
    "Q13955"
@@ -1989,6 +2093,16 @@
   "verified": true,
   "via": "zh"
  },
+ "TV": {
+  "lang_qids": [
+   "Q34055",
+   "Q1860"
+  ],
+  "name_zh": "图瓦卢",
+  "qid": "Q672",
+  "verified": true,
+  "via": "zh"
+ },
  "TW": {
   "lang_qids": [
    "Q262828",
@@ -2027,6 +2141,15 @@
   ],
   "name_zh": "乌干达",
   "qid": "Q1036",
+  "verified": true,
+  "via": "zh"
+ },
+ "UM": {
+  "lang_qids": [
+   "Q1860"
+  ],
+  "name_zh": "美国本土外小岛屿",
+  "qid": "Q16645",
   "verified": true,
   "via": "zh"
  },
@@ -2073,6 +2196,15 @@
   ],
   "name_zh": "委内瑞拉",
   "qid": "Q717",
+  "verified": true,
+  "via": "zh"
+ },
+ "VG": {
+  "lang_qids": [
+   "Q1860"
+  ],
+  "name_zh": "英属维尔京群岛",
+  "qid": "Q25305",
   "verified": true,
   "via": "zh"
  },
@@ -2210,6 +2342,10 @@
   "Q13300": {
    "c1": "",
    "c3": "nah"
+  },
+  "Q13307": {
+   "c1": "na",
+   "c3": "nau"
   },
   "Q13330": {
    "c1": "",
@@ -2371,6 +2507,10 @@
    "c1": "",
    "c3": ""
   },
+  "Q32656": {
+   "c1": "dv",
+   "c3": "div"
+  },
   "Q32706": {
    "c1": "",
    "c3": "dyu"
@@ -2447,6 +2587,10 @@
    "c1": "",
    "c3": "niu"
   },
+  "Q33797": {
+   "c1": "",
+   "c3": ""
+  },
   "Q33823": {
    "c1": "ne",
    "c3": "nep"
@@ -2478,6 +2622,10 @@
   "Q34015": {
    "c1": "",
    "c3": ""
+  },
+  "Q34055": {
+   "c1": "",
+   "c3": "tvl"
   },
   "Q34094": {
    "c1": "to",
@@ -2587,9 +2735,17 @@
    "c1": "el",
    "c3": "ell"
   },
+  "Q36554": {
+   "c1": "",
+   "c3": "cpe"
+  },
   "Q36668": {
    "c1": "",
    "c3": ""
+  },
+  "Q36745": {
+   "c1": "",
+   "c3": "rar"
   },
   "Q36778": {
    "c1": "",

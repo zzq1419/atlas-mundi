@@ -35,6 +35,19 @@
       "tts_text_zh": "欢迎来到瓦努阿图，这个南太平洋宁静的群岛国家，首都是维拉港；在塔纳岛上，亚苏尔火山每晚都上演着火焰与火山灰的壮观景象。",
       "audio_voice": "fr-FR-DeniseNeural",
       "audio_bytes": 68688
+    },
+    {
+      "code": "en",
+      "name_zh": "英语",
+      "name_local": "英语",
+      "role": "official",
+      "audio_url": "assets/vu/audio/en.mp3",
+      "audio_source": "tts_edge",
+      "audio_status": "ok",
+      "tts_text": "Welcome to Vanuatu, a Pacific nation whose capital, Port Vila, sits on the island of Efate, and where the active volcano of Mount Yasur on Tanna offers one of the region's most striking sights.",
+      "tts_text_zh": "欢迎来到瓦努阿图，这个太平洋国家的首都维拉港位于埃法特岛，而塔纳岛上活跃的亚苏尔火山则呈现出该地区最震撼的景象之一。",
+      "audio_voice": "en-US-AriaNeural",
+      "audio_bytes": 75024
     }
   ],
   "summary_text": "瓦努阿图（台湾作万那杜）是位于太平洋西南部的岛国，由80多个岛屿组成，其中68个岛屿有人居住，属于美拉尼西亚群岛的一部分，一年四季均为热带海洋性气候。大约公元前4000年起，瓦努阿图的不少岛屿就已经有人居住；大约在公元前1300年，该地已经有一些陶器文物的痕迹。1606年，由佩德罗·费尔南德斯·德·基罗斯带领的西班牙探险队成为第一批登陆该岛的欧洲人，认为该地是未知的南方大陆。18世纪末，英国探险家詹姆斯·库克在第二次航海中到达该岛，把该岛命名为新赫布里底群岛，尔后欧洲人便开始移居当地。1887年起，新赫布里底群岛由英法海军委员会管理。1889年，维拉港居民宣布自治，成立弗朗斯维尔独立公社，虽然只有白人才有实际统治权，却成为第一个实行无性别之分的普选的自治地区；次年，公社被英法联合海军委员会镇压。1906年，英国和法国两国同意新赫布里底群岛由英法两国共同管治，成立新赫布里底群岛共管地。1980年，瓦努阿图脱离英国与法国的殖民并独立建国。",
@@ -185,7 +198,6 @@
   "collector": "scripts/collect.py v0.2",
   "needs_review": true,
   "review_notes": [
-    "P37 返回 3 个语言，去重/去上位概念后保留 2 个：比斯拉马语、法语",
     "P443 发音语种不符已弃用：Lb-Vanuatu.ogg、LL-Q7913 (ron)-KlaudiuMihaila-Vanuatu.wav、LL-Q9027 (swe)-Moonhouse-Vanuatu.wav（P443 不保证语种，须按文件名筛）",
     "该实体无对应语种发音，语音改跑 python scripts/tts.py VU",
     "Commons 无可用发音，语音走构建期 TTS 兜底（待接）",
