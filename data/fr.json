@@ -177,12 +177,14 @@
   ],
   "name_official": "法國",
   "geometry": "geo/fr.geojson",
-  "geometry_status": "naturalearth_50m",
+  "geometry_status": "naturalearth_10m_merged",
   "geometry_name": "法国",
   "geometry_stats": {
-    "rings": 10,
-    "vertices": 817,
-    "bytes": 22846
+    "rings": 21,
+    "vertices": 2035,
+    "polygons": 20,
+    "merged": [],
+    "bytes": 39517
   },
   "audio_url": "assets/fr/audio/fr.mp3",
   "audio_source": "edge",

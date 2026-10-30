@@ -38,8 +38,13 @@ ROOT = os.path.dirname(HERE)
 sys.path.insert(0, HERE)
 
 from build_labels import SHORT  # 同一个中文简称表，避免两处漂移
+import geo_rules  # 版图合并规则，与 build_geo.py 共用一份
 
 NE = os.path.join(ROOT, "geo", "_ne_50m_countries.geojson")
+# 优先用 10m。50m 的海岸线在中国沿海被简化到"1.7 个纬度只用 10 个点"，
+# 叠在 8K 卫星贴图旁边一眼就能看出形状不对（用户原话"连形状都不一样"）。
+# 10m 原始有 54 万点，抽稀后体积还能接受。
+NE10 = os.path.join(ROOT, "geo", "_ne_10m_countries.geojson")
 OUT_META = os.path.join(ROOT, "geo", "meta.json")
 BUCKETS = 8
 
@@ -59,32 +64,16 @@ CONT = {
     "Seven seas (open ocean)": "公海",
 }
 
-# 简化参数：50m 图层本来就粗，这里只做"去重 + 抽稀 + 三位小数"
-MIN_STEP = 0.06      # 相邻点小于这个经纬度距离就丢掉（≈6km）
-MAX_POINTS = 700     # 单个环的上限，超了按等间隔抽
-ROUND = 3
-
-
-def ring_simplify(ring):
-    out = []
-    for pt in ring:
-        x, y = round(float(pt[0]), ROUND), round(float(pt[1]), ROUND)
-        if out and abs(x - out[-1][0]) < MIN_STEP and abs(y - out[-1][1]) < MIN_STEP:
-            continue
-        out.append([x, y])
-    if len(out) > MAX_POINTS:
-        step = len(out) / float(MAX_POINTS)
-        out = [out[int(i * step)] for i in range(MAX_POINTS)]
-    if len(out) < 4:
-        return None
-    if out[0] != out[-1]:
-        out.append(out[0])
-    return out
+# 抽稀规则放在 geo_simplify.py，与 build_geo.py（详情面板轮廓）共用一份 ——
+# 球上看着是圆的、面板里却是折线，就是这么漂移出来的。
+from geo_simplify import simplify_ring  # noqa: E402
 
 
 def main():
-    with open(NE, encoding="utf-8") as f:
+    src_path = NE10 if os.path.exists(NE10) else NE
+    with open(src_path, encoding="utf-8") as f:
         src = json.load(f)
+    print("数据源：%s" % os.path.basename(src_path))
 
     meta = {}
     chunks = [{} for _ in range(BUCKETS)]
@@ -108,23 +97,48 @@ def main():
         if code not in best or pop > best[code][0]:
             best[code] = (pop, idx)
 
+    def iso_of(p):
+        c = (p.get("ISO_A2") or "").upper()
+        if len(c) != 2:
+            c = (p.get("ISO_A2_EH") or "").upper()
+        return c if len(c) == 2 else ""
+
+    def polys_of(feat):
+        g = feat.get("geometry") or {}
+        if g.get("type") == "Polygon":
+            return [g["coordinates"]]
+        if g.get("type") == "MultiPolygon":
+            return g["coordinates"]
+        return []
+
+    # 版图合并：中国台湾 / 中国香港 / 中国澳门并入中国，且不作为独立条目出现。
+    # 以前这里没做合并，球面点亮"中国"时台湾不亮、港澳还各自成了可点国家 ——
+    # 既不合规，也与 data/cn.json 的边界（build_geo 已合并）对不上。
+    merge_from = {c: par for par, cs in geo_rules.MERGE_INTO.items() for c in cs}
+    child_polys = {}
+    for feat in feats:
+        iso = iso_of(feat.get("properties", {}) or {})
+        if iso in merge_from:
+            child_polys.setdefault(merge_from[iso], []).extend(polys_of(feat))
+
     for idx, feat in enumerate(feats):
         p = feat.get("properties", {})
-        iso = (p.get("ISO_A2") or "").upper()
-        if len(iso) != 2:
-            iso = (p.get("ISO_A2_EH") or "").upper()
+        iso = iso_of(p)
         if len(iso) != 2:
             skipped.append(p.get("NAME"))
             continue
+        if iso in merge_from:
+            continue                     # 已并入父级版图，不再单独出现
         if best.get(iso) and best[iso][1] != idx:
             continue                     # 同 ISO 的非主要素（属地/离岛）跳过
 
         name_zh = p.get("NAME_ZH") or p.get("NAME") or iso
         name_zh = SHORT.get(name_zh, name_zh)
+        name_zh = geo_rules.DISPLAY_NAME.get(iso, name_zh)
 
-        g = feat.get("geometry") or {}
-        polys = g.get("type") == "Polygon" and [g["coordinates"]] or \
-            (g.get("type") == "MultiPolygon" and g["coordinates"] or [])
+        polys = polys_of(feat)
+        if iso in child_polys:
+            polys = polys + child_polys[iso]
 
         out_polys = []
         minx = miny = 1e9
@@ -132,7 +146,7 @@ def main():
         for poly in polys:
             rings = []
             for ring in poly:
-                r = ring_simplify(ring)
+                r = simplify_ring(ring)
                 if not r:
                     continue
                 rings.append(r)

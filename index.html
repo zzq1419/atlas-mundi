@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-10-29-R">
+<meta name="build" content="2026-10-30-A">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -1887,7 +1887,7 @@ body.panel-open #globe-stage{
      ['坐标', d.centroid ? d.centroid[1].toFixed(2) + '°N, ' + d.centroid[0].toFixed(2) + '°E' : '—'],
      ['语言', (d.languages || []).map(function (l) { return l.name_zh; }).join(' / ') || '—'],
      ['边界', d.geometry
-        ? 'Natural Earth 50m · ' + ((d.geometry_stats || {}).vertices || '?') + ' 顶点'
+        ? 'Natural Earth 10m · ' + ((d.geometry_stats || {}).vertices || '?') + ' 顶点'
         : 'Natural Earth 50m · 分片几何']
     ].forEach(function (p) {
       meta.appendChild(el('dt', null, p[0]));
@@ -3658,6 +3658,12 @@ body.panel-open #globe-stage{
        - matAll  「显示全部国境线」铺满全屏的那一层（最淡）
        以前全量边界用的是米白 0xf3ead8，和选中的金线是两种颜色，
        屏幕上同时出现时看着像两套系统；现在统一一支金，只分浓淡。 */
+    /* 半径：只比球面高一点点。
+       以前点亮线用 1.008 —— 放大到省级时，那 0.008 的半径差会被透视放大成
+       十几像素，"金线浮在地图上方"就是这么来的（用户原话"有一段不小的距离"）。
+       球体是 160×100 细分，弦高只有 1.2e-4，所以 1.0012 已经稳稳压在地表之上、
+       不会再被深度剔除；1.0018 / 1.0012 的差也远大于深度分辨率，不会打架。 */
+    var BORDER_R_ON = 1.0018, BORDER_R_ALL = 1.0012;
     globe.matOn = new THREE.LineBasicMaterial({
       color: 0xffd98a, transparent: true, opacity: 1, depthWrite: false
     });
@@ -3670,7 +3676,7 @@ body.panel-open #globe-stage{
     /* 国界默认隐藏。满屏金线会把照片级的地球拉回"数据可视化"的观感，
        而且哪块是哪国并不需要常驻提示。点过的国家会把轮廓留在球上 —— 见 lightBorder。 */
     (data.countries || []).forEach(function (c) {
-      var line = ringsToLines(c.rings, 1.008, globe.matLit);
+      var line = ringsToLines(c.rings, BORDER_R_ON, globe.matLit);
       line.visible = false;
       spin.add(line);
       globe.groups[c.iso] = line;
@@ -3777,7 +3783,7 @@ body.panel-open #globe-stage{
       if (!rings.length) return null;
       /* 半径 1.008：必须比全量国境线（1.006）更靠外，否则两线重合时
          外层那条会盖住这条，"当前选中"就亮不起来了（深度缓冲按视线方向取近的）。 */
-      return ringsToLines(rings, 1.008, globe.matLit);
+      return ringsToLines(rings, BORDER_R_ON, globe.matLit);
     }
 
     globe.lightBorder = function (iso, cb) {
@@ -3880,6 +3886,19 @@ body.panel-open #globe-stage{
       return g;
     }
 
+    /* 排查用：把某个经纬度转到正对相机，并指定相机距离。
+       截图比对"金线贴不贴合"时必须能精确复现同一个视角，靠拖鼠标没法复现。 */
+    window.__look = function (lon, lat, dist) {
+      if (!globe.spin || !globe.tilt) return false;
+      globe.camMode = 'manual';
+      globe.flying = false;
+      globe.autoSpin = false;
+      if (dist) globe.camTarget = dist;
+      globe.spin.rotation.y = -lon * D2R - Math.PI / 2;
+      globe.tilt.rotation.x = lat * D2R;
+      return true;
+    };
+
     /* 排查用：看当前拼上了几块、全量线在不在。 */
     window.__sb = function () {
       return {
@@ -3943,7 +3962,7 @@ body.panel-open #globe-stage{
              否则线会陷进球面被剔掉（1.0045 实测就完全看不见）。
              颜色与选中的金线同一支（matAll = 0.40 透明度），只分浓淡。
              点亮的那几国画在 1.008，永远压在这层上面。 */
-          allBorders = ringsToLines(rings, 1.006, globe.matAll);
+          allBorders = ringsToLines(rings, BORDER_R_ALL, globe.matAll);
           allBorders.visible = false;
           spin.add(allBorders);
         }

@@ -185,12 +185,14 @@
   ],
   "name_official": "美國",
   "geometry": "geo/us.geojson",
-  "geometry_status": "naturalearth_50m",
+  "geometry_status": "naturalearth_10m_merged",
   "geometry_name": "美国",
   "geometry_stats": {
-    "rings": 127,
-    "vertices": 5753,
-    "bytes": 151074
+    "rings": 332,
+    "vertices": 16590,
+    "polygons": 332,
+    "merged": [],
+    "bytes": 328130
   },
   "audio_url": "assets/us/audio/en.mp3",
   "audio_source": "edge",

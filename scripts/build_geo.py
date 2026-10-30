@@ -37,6 +37,11 @@ sys.path.insert(0, os.path.join(ROOT, "scripts"))
 import geo_rules  # noqa: E402
 
 NE = os.path.join(ROOT, "geo", "_ne_50m_countries.geojson")
+# 优先 10m：50m 的海岸线在中国沿海被简化得太厉害，面板里的轮廓会和球面
+# （已换 10m）不一致 —— 同一个国家两处画得不一样，是最容易被看出来的错。
+NE10 = os.path.join(ROOT, "geo", "_ne_10m_countries.geojson")
+
+from geo_simplify import simplify_ring  # noqa: E402
 
 
 def codes_of(props):
@@ -54,9 +59,10 @@ def polys_of(feature):
 
 
 def load_ne():
-    if not os.path.exists(NE):
+    path = NE10 if os.path.exists(NE10) else NE
+    if not os.path.exists(path):
         raise SystemExit("缺少 %s，请先跑 collect.py --geo 或手动下载" % os.path.relpath(NE, ROOT))
-    with open(NE, encoding="utf-8") as f:
+    with open(path, encoding="utf-8") as f:
         return json.load(f)["features"]
 
 
@@ -73,11 +79,19 @@ def build(features, iso):
     if main is None:
         return None, "Natural Earth 中没有 ISO_A2=%s" % iso
 
-    polys = list(polys_of(main))
+    raw = list(polys_of(main))
     merged = []
     for code, feat in extra:
-        polys.extend(polys_of(feat))
+        raw.extend(polys_of(feat))
         merged.append(code)
+
+    # 抽稀：10m 原始的中国有 3 万多个顶点，直接塞进 data/cn.json 是 500KB；
+    # DP 到 0.006° 后形状不变、体积降到十分之一。
+    polys = []
+    for poly in raw:
+        rings = [r for r in (simplify_ring(x) for x in poly) if r]
+        if rings:
+            polys.append(rings)
 
     props = dict(main["properties"])
     props["NAME_ZH"] = geo_rules.DISPLAY_NAME.get(iso, props.get("NAME_ZH"))

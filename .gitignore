@@ -19,8 +19,11 @@ _cache/
 *.log
 _raw/
 
-# Natural Earth 原始包（约 24MB，仅作缓存，不进仓库）
+# Natural Earth 原始包（50m 约 3MB、10m 约 13MB，仅作缓存，不进仓库）
+# 生成物 geo/c*.json 才是要发布的数据
 geo/_ne_50m_countries.geojson
+geo/_ne_10m_countries.geojson
+geo_bak_*/
 
 # 选图核对用的联络表，不进仓库
 review/
