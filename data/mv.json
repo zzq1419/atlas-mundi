@@ -68,6 +68,102 @@
   ],
   "landmark_images": [
     {
+      "title": "File:View from the water villas at Medhufushi Island Resort in the Maldives1.jpg",
+      "caption_zh": "马尔代夫水上别墅",
+      "caption": "马尔代夫水上别墅",
+      "caption_commons": "View from the water villas at Medhufushi Island Resort in the Maldives",
+      "kw": "Maldives water villa resort",
+      "url": "assets/mv/L01.webp",
+      "thumb_url": "assets/mv/L01.thumb.webp",
+      "remote_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/2d/View_from_the_water_villas_at_Medhufushi_Island_Resort_in_the_Maldives1.jpg/1920px-View_from_the_water_villas_at_Medhufushi_Island_Resort_in_the_Maldives1.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "source": "commons_search",
+      "pick_tier": "strict",
+      "author": "Priyaflorenceshah",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "license_status": "ok",
+      "load_verified": true,
+      "bytes": 44274,
+      "thumb_bytes": 12804,
+      "size": {
+        "detail": "760x428",
+        "thumb": "400x225"
+      },
+      "encoding": "webp q72/q74 (源 1920x1080 699KB JPEG)"
+    },
+    {
+      "title": "File:Aerial view of Hoarafushi, Haa Alif Atoll, Maldives.jpg",
+      "caption_zh": "马尔代夫环礁航拍",
+      "caption": "马尔代夫环礁航拍",
+      "caption_commons": "Image of hoarafushi",
+      "kw": "Maldives atoll aerial view",
+      "url": "assets/mv/L02.webp",
+      "thumb_url": "assets/mv/L02.thumb.webp",
+      "remote_url": "https://upload.wikimedia.org/wikipedia/commons/e/ef/Aerial_view_of_Hoarafushi%2C_Haa_Alif_Atoll%2C_Maldives.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+      "source": "commons_search",
+      "pick_tier": "strict",
+      "author": "Ahmedidn",
+      "license": "CC0",
+      "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+      "license_status": "ok",
+      "load_verified": true,
+      "bytes": 77316,
+      "thumb_bytes": 25324,
+      "size": {
+        "detail": "760x517",
+        "thumb": "400x272"
+      },
+      "encoding": "webp q72/q74 (源 894x608 285KB JPEG)"
+    },
+    {
+      "title": "File:Bathala (Maldives) 8.JPG",
+      "caption_zh": "马尔代夫白沙滩",
+      "caption": "马尔代夫白沙滩",
+      "caption_commons": "A beach of Bathala island (Maldives).",
+      "kw": "Maldives white sand beach",
+      "url": "assets/mv/L03.webp",
+      "thumb_url": "assets/mv/L03.thumb.webp",
+      "remote_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/73/Bathala_%28Maldives%29_8.JPG/1920px-Bathala_%28Maldives%29_8.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "source": "article_img",
+      "pick_tier": "strict",
+      "author": "Gzzz",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "license_status": "ok",
+      "load_verified": true,
+      "bytes": 31450,
+      "thumb_bytes": 9530,
+      "size": {
+        "detail": "760x504",
+        "thumb": "400x265"
+      },
+      "encoding": "webp q72/q74 (源 1920x1272 455KB JPEG)"
+    },
+    {
+      "title": "File:Male' Hukuru Miskiy Friedhof 03.jpg",
+      "caption_zh": "马累清真寺",
+      "caption": "马累清真寺",
+      "caption_commons": "Cemetry of the Friday Mosque, Malé, Maldives",
+      "kw": "Male Friday Mosque Maldives",
+      "url": "assets/mv/L04.webp",
+      "thumb_url": "assets/mv/L04.thumb.webp",
+      "remote_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/6f/Male%27_Hukuru_Miskiy_Friedhof_03.jpg/1920px-Male%27_Hukuru_Miskiy_Friedhof_03.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "source": "commons_search",
+      "pick_tier": "strict",
+      "author": "Zairon",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "license_status": "ok",
+      "load_verified": true,
+      "bytes": 86126,
+      "thumb_bytes": 26996,
+      "size": {
+        "detail": "760x534",
+        "thumb": "400x281"
+      },
+      "encoding": "webp q72/q74 (源 1920x1349 810KB JPEG)"
+    },
+    {
       "title": "File:Ithaa inside.JPG",
       "caption_zh": "马尔代夫水下餐厅内部",
       "caption": "马尔代夫水下餐厅内部",
@@ -94,7 +190,7 @@
       "encoding": "webp q72/q74 (源 1920x1440 578KB JPEG)"
     }
   ],
-  "image_license": "CC BY-SA 2.5",
+  "image_license": "CC BY-SA 4.0",
   "geometry_status": "naturalearth_50m_chunked",
   "schema_version": "0.1",
   "collected_at": "2026-10-30T21:44:46+08:00",
@@ -109,9 +205,12 @@
     "阿里环礁蝠鲼点：Wikidata / 维基 / Commons 都没有可用图",
     "香蕉礁潜水点：Wikidata / 维基 / Commons 都没有可用图",
     "阿里环礁蝠鲼点：Wikidata / 维基 / Commons 都没有可用图",
-    "地标图改为人工指定清单（1 张，中文图注）"
+    "香蕉礁潜水点：Wikidata / 维基 / Commons 都没有可用图",
+    "阿里环礁蝠鲼点：Wikidata / 维基 / Commons 都没有可用图",
+    "马尔代夫水上别墅：Wikidata / 维基 / Commons 都没有可用图",
+    "地标图改为人工指定清单（5 张，中文图注）"
   ],
-  "image_source_note": "人工按 data/landmarks.json 指定地标，Commons 关键词检索取图；原先自动获得的 1 张已被替换",
+  "image_source_note": "人工按 data/landmarks.json 指定地标，Commons 关键词检索取图；原先自动获得的 2 张已被替换",
   "custom_facets": {
     "festivals": [],
     "cuisine": [],

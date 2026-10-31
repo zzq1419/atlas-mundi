@@ -488,7 +488,7 @@ def series_bonus(name):
     return 0.0
 
 
-def rank_pool(pool, info, cats, must, tier):
+def rank_pool(pool, info, cats, must, tier, avoid=None):
     """按档位给一组候选打分，返回 (通过的, 被淘汰的原因)。"""
     scored, rejects = [], []
     for name, kind in pool:
@@ -499,6 +499,13 @@ def rank_pool(pool, info, cats, must, tier):
             continue
         ext = C.ext_of(meta["remote_url"])
         if ext not in (".jpg", ".jpeg", ".png", ".webp"):
+            continue
+        # 排除词：同一个名字在别的国家也有（里约的基督像、基辅的圣索菲亚），
+        # 只靠 must 拦不住 —— "cristo" 照样命中里约那张。这里按文件名直接排除。
+        low = name.replace("_", " ").lower()
+        hit = [a for a in (avoid or []) if a and a.lower() in low]
+        if hit:
+            rejects.append("%s（命中排除词「%s」）" % (name[:38], hit[0]))
             continue
         # 卫星图/地图/示意图一律不要，不管它多"合规"
         bad = bad_kind(name, cats.get(C.norm_title(name)), meta)
@@ -553,7 +560,8 @@ def ranked_picks(entry):
         pool = pools[pool_name]
         if not pool:
             continue
-        scored, _rej = rank_pool(pool, info, cats, must, tiers[tier_name])
+        scored, _rej = rank_pool(pool, info, cats, must, tiers[tier_name],
+                                 entry.get("avoid"))
         for total, name, meta, ext, kind in scored:
             out.append({"order": idx, "score": total, "name": name, "meta": meta,
                         "ext": ext, "kind": kind, "tier": tier_name})

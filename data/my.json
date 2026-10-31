@@ -80,32 +80,6 @@
       "encoding": "webp q72/q74 (源 1920x1280 550KB JPEG)"
     },
     {
-      "title": "File:Borobudur-Nothwest-view.jpg",
-      "caption_zh": "婆罗浮屠西北视角",
-      "caption": "婆罗浮屠西北视角",
-      "caption_commons": "Borobudur temple view from northwest plateau, Central Java, Indonesia.",
-      "kw": "Borobudur Temple Java",
-      "url": "assets/my/L02.webp",
-      "thumb_url": "assets/my/L02.thumb.webp",
-      "remote_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/8c/Borobudur-Nothwest-view.jpg/1920px-Borobudur-Nothwest-view.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
-      "source": "wikidata_p18",
-      "pick_tier": "relaxed",
-      "author": "Gunawan Kartapranata",
-      "license": "Public domain",
-      "license_url": null,
-      "license_status": "ok",
-      "load_verified": true,
-      "bytes": 44218,
-      "caption_zh_manual": "婆罗浮屠",
-      "caption_zh_source": "llm_from_commons_filename",
-      "thumb_bytes": 11554,
-      "size": {
-        "detail": "760x299",
-        "thumb": "400x157"
-      },
-      "encoding": "webp q72/q74 (源 1920x755 507KB JPEG)"
-    },
-    {
       "title": "File:Kinabalu Sabah Borneo Kampong Kundasang 2.jpg",
       "caption_zh": "京那巴鲁山与甘榜昆达山",
       "caption": "京那巴鲁山与甘榜昆达山",
@@ -182,6 +156,30 @@
         "thumb": "400x300"
       },
       "encoding": "webp q72/q74 (源 1920x1440 1432KB JPEG)"
+    },
+    {
+      "title": "File:Malacca_stadhuys1.jpg",
+      "caption_zh": "马六甲红屋",
+      "caption": "马六甲红屋",
+      "caption_commons": "The Stadhuys in Malacca. Picture taken by Elizabeth Lisa John. Email slleong@hot",
+      "kw": "Stadthuys Malacca",
+      "url": "assets/my/L05.webp",
+      "thumb_url": "assets/my/L05.thumb.webp",
+      "remote_url": "https://upload.wikimedia.org/wikipedia/commons/0/07/Malacca_stadhuys1.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+      "source": "wikipedia_lead",
+      "pick_tier": "strict",
+      "author": "User: (WT-shared) Slleong at wts wikivoyage",
+      "license": "CC BY 1.0",
+      "license_url": "https://creativecommons.org/licenses/by/1.0",
+      "license_status": "ok",
+      "load_verified": true,
+      "bytes": 54064,
+      "thumb_bytes": 18162,
+      "size": {
+        "detail": "760x570",
+        "thumb": "400x300"
+      },
+      "encoding": "webp q72/q74 (源 1345x1009 249KB JPEG)"
     }
   ],
   "image_license": "CC BY-SA 4.0",
@@ -194,10 +192,9 @@
     "P443 发音语种不符已弃用：En-us-Malaysia.ogg、Lb-Malaysia.ogg、Ms-MY-Malaysia.ogg（P443 不保证语种，须按文件名筛）",
     "该实体无对应语种发音，语音改跑 python scripts/tts.py MY",
     "Commons 无可用发音，语音走构建期 TTS 兜底（待接）",
-    "地标图改为人工指定清单（5 张，中文图注）",
-    "LLM 质检[error] image_captions：婆罗浮屠在印度尼西亚，不在马来西亚 → 删除或替换为马来西亚地标"
+    "地标图改为人工指定清单（5 张，中文图注）"
   ],
-  "image_source_note": "人工按 data/landmarks.json 指定地标，Commons 关键词检索取图；原先自动获得的 3 张已被替换",
+  "image_source_note": "人工按 data/landmarks.json 指定地标，Commons 关键词检索取图；原先自动获得的 4 张已被替换",
   "custom_facets": {
     "festivals": [],
     "cuisine": [],

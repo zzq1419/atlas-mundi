@@ -163,32 +163,6 @@
       "encoding": "webp q72/q74 (源 1920x1280 653KB JPEG)"
     },
     {
-      "title": "File:Cataratas Victoria, Zambia-Zimbabue, 2018-07-27, DD 05.jpg",
-      "caption_zh": "维多利亚瀑布",
-      "caption": "维多利亚瀑布",
-      "caption_commons": "Victoria Falls, Zambia-Zimbabwe",
-      "kw": "Victoria Falls Zambezi",
-      "url": "assets/za/L04.webp",
-      "thumb_url": "assets/za/L04.thumb.webp",
-      "remote_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/2d/Cataratas_Victoria%2C_Zambia-Zimbabue%2C_2018-07-27%2C_DD_05.jpg/1920px-Cataratas_Victoria%2C_Zambia-Zimbabue%2C_2018-07-27%2C_DD_05.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
-      "source": "wikidata_p18",
-      "pick_tier": "strict",
-      "author": "Diego Delso",
-      "license": "CC BY-SA 4.0",
-      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
-      "license_status": "ok",
-      "load_verified": true,
-      "bytes": 51220,
-      "caption_zh_manual": "维多利亚瀑布",
-      "caption_zh_source": "llm_from_commons_filename",
-      "thumb_bytes": 14718,
-      "size": {
-        "detail": "760x434",
-        "thumb": "400x228"
-      },
-      "encoding": "webp q72/q74 (源 1920x1096 623KB JPEG)"
-    },
-    {
       "title": "File:Robben Island-113362.jpg",
       "caption_zh": "罗本岛",
       "caption": "罗本岛",
@@ -213,6 +187,30 @@
         "thumb": "400x300"
       },
       "encoding": "webp q72/q74 (源 1920x1440 423KB JPEG)"
+    },
+    {
+      "title": "File:South Africa - Garden Route (15458482290).jpg",
+      "caption_zh": "花园大道",
+      "caption": "花园大道",
+      "caption_commons": "South Africa - Garden Route",
+      "kw": "Garden Route South Africa",
+      "url": "assets/za/L05.webp",
+      "thumb_url": "assets/za/L05.thumb.webp",
+      "remote_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/ba/South_Africa_-_Garden_Route_%2815458482290%29.jpg/1920px-South_Africa_-_Garden_Route_%2815458482290%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "source": "wikidata_p18",
+      "pick_tier": "strict",
+      "author": "Diriye Amey from Locarno, Switzerland",
+      "license": "CC BY 2.0",
+      "license_url": "https://creativecommons.org/licenses/by/2.0",
+      "license_status": "ok",
+      "load_verified": true,
+      "bytes": 38866,
+      "thumb_bytes": 11632,
+      "size": {
+        "detail": "760x428",
+        "thumb": "400x225"
+      },
+      "encoding": "webp q72/q74 (源 1920x1080 482KB JPEG)"
     }
   ],
   "image_license": "CC BY 2.0",
@@ -227,10 +225,10 @@
     "P443 发音语种不符已弃用：Lb-Südafrika.ogg、LL-Q7913 (ron)-KlaudiuMihaila-Africa de Sud.wav、LL-Q9610 (ben)-Tahmid-দক্ষিণ আফ্রিকা.wav（P443 不保证语种，须按文件名筛）",
     "该实体无对应语种发音，语音改跑 python scripts/tts.py ZA",
     "Commons 无可用发音，语音走构建期 TTS 兜底（待接）",
-    "地标图改为人工指定清单（5 张，中文图注）",
-    "LLM 质检[error] image_captions：维多利亚瀑布位于赞比亚与津巴布韦边境，不在南非 → 删除该条或改为南非境内景点"
+    "LLM 质检[error] image_captions：维多利亚瀑布位于赞比亚与津巴布韦边境，不在南非 → 删除该条或改为南非境内景点",
+    "地标图改为人工指定清单（5 张，中文图注）"
   ],
-  "image_source_note": "人工按 data/landmarks.json 指定地标，Commons 关键词检索取图；原先自动获得的 1 张已被替换",
+  "image_source_note": "人工按 data/landmarks.json 指定地标，Commons 关键词检索取图；原先自动获得的 4 张已被替换",
   "custom_facets": {
     "festivals": [],
     "cuisine": [],

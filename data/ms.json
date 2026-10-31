@@ -112,8 +112,8 @@
     },
     {
       "title": "File:Dickinson bay beach antigua.jpg",
-      "caption_zh": "安提瓜迪金森湾黑沙滩",
-      "caption": "安提瓜迪金森湾黑沙滩",
+      "caption_zh": "黑沙滩",
+      "caption": "黑沙滩",
       "caption_commons": "Dickenson Bay Beach in Antigua",
       "kw": "Montserrat black sand beach",
       "url": "assets/ms/L04.webp",
@@ -127,8 +127,6 @@
       "license_status": "ok",
       "load_verified": true,
       "bytes": 31174,
-      "caption_zh_manual": "黑沙滩",
-      "caption_zh_source": "llm_from_commons_filename",
       "thumb_bytes": 10672,
       "size": {
         "detail": "760x543",
@@ -164,8 +162,8 @@
     },
     {
       "title": "File:Mount Garibaldi West Face.jpg",
-      "caption_zh": "加里波第山西坡",
-      "caption": "加里波第山西坡",
+      "caption_zh": "加里波第山",
+      "caption": "加里波第山",
       "caption_commons": "West Face of Mount Garibaldi",
       "kw": "Garibaldi Hill Montserrat",
       "url": "assets/ms/L06.webp",
@@ -179,8 +177,6 @@
       "license_status": "ok",
       "load_verified": true,
       "bytes": 29912,
-      "caption_zh_manual": "加里波第山",
-      "caption_zh_source": "llm_from_commons_filename",
       "thumb_bytes": 11540,
       "size": {
         "detail": "760x539",
@@ -198,10 +194,11 @@
   "review_notes": [
     "Commons 无可用发音，语音走构建期 TTS 兜底（待接）",
     "蒙特塞拉特热带雨林：Wikidata / 维基 / Commons 都没有可用图",
-    "地标图改为人工指定清单（5 张，中文图注）",
-    "LLM 质检[warn] capital：普利茅斯因火山被毁，实际政府驻地为布莱兹 → 注明普利茅斯为法定首府、布莱兹为实际行政中心"
+    "LLM 质检[warn] capital：普利茅斯因火山被毁，实际政府驻地为布莱兹 → 注明普利茅斯为法定首府、布莱兹为实际行政中心",
+    "蒙特塞拉特热带雨林：Wikidata / 维基 / Commons 都没有可用图",
+    "地标图改为人工指定清单（5 张，中文图注）"
   ],
-  "image_source_note": "人工按 data/landmarks.json 指定地标，Commons 关键词检索取图；原先自动获得的 2 张已被替换",
+  "image_source_note": "人工按 data/landmarks.json 指定地标，Commons 关键词检索取图；原先自动获得的 3 张已被替换",
   "custom_facets": {
     "festivals": [],
     "cuisine": [],

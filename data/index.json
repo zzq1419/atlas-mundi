@@ -743,8 +743,8 @@
       "name_zh": "南极洲",
       "name_en": "Antarctica",
       "name_local": "南极洲",
-      "continent": null,
-      "capital": null,
+      "continent": "南极洲",
+      "capital": "无常住人口",
       "centroid": [
         0,
         -90
@@ -891,7 +891,7 @@
       "name_zh": "奥兰",
       "name_en": "Åland",
       "name_local": "奥兰",
-      "continent": null,
+      "continent": "欧洲",
       "capital": "玛丽港",
       "centroid": [
         20,
@@ -1925,7 +1925,7 @@
       "name_en": "Western Sahara",
       "name_local": "西撒哈拉",
       "continent": "非洲",
-      "capital": null,
+      "capital": "阿尤恩",
       "centroid": [
         -13,
         25
@@ -2581,7 +2581,7 @@
       "name_en": "Heard Island and McDonald Islands",
       "name_local": "赫德岛和麦克唐纳群岛",
       "continent": "南极洲",
-      "capital": null,
+      "capital": "无常住人口",
       "centroid": [
         73.5075,
         -53.0783
@@ -5310,7 +5310,7 @@
         125.75,
         -8.9667
       ],
-      "thumb": "assets/tl/L01.thumb.webp",
+      "thumb": "assets/tl/L02.thumb.webp",
       "modalities": {
         "image": true,
         "audio": true,
@@ -5555,7 +5555,7 @@
       "name_en": "United States Minor Outlying Islands",
       "name_local": "美国本土外小岛屿",
       "continent": "太平洋岛国",
-      "capital": null,
+      "capital": "无常住人口",
       "centroid": [
         166.6333,
         19.3

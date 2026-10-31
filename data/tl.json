@@ -63,32 +63,6 @@
   ],
   "landmark_images": [
     {
-      "title": "File:Christ the Redeemer - Cristo Redentor.jpg",
-      "caption_zh": "救世基督像",
-      "caption": "救世基督像",
-      "caption_commons": "Cristo Redentor, Rio de Janeiro, Brasil",
-      "kw": "Cristo Rei Dili Timor-Leste",
-      "url": "assets/tl/L01.webp",
-      "thumb_url": "assets/tl/L01.thumb.webp",
-      "remote_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/4f/Christ_the_Redeemer_-_Cristo_Redentor.jpg/1920px-Christ_the_Redeemer_-_Cristo_Redentor.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
-      "source": "wikidata_p18",
-      "pick_tier": "strict",
-      "author": "Arne Müseler",
-      "license": "CC BY-SA 3.0 de",
-      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/de/deed.en",
-      "license_status": "ok",
-      "load_verified": true,
-      "bytes": 170248,
-      "caption_zh_manual": "基督像",
-      "caption_zh_source": "llm_from_commons_filename",
-      "thumb_bytes": 11362,
-      "size": {
-        "detail": "760x1140",
-        "thumb": "200x300"
-      },
-      "encoding": "webp q72/q74 (源 1920x2879 1944KB JPEG)"
-    },
-    {
       "title": "File:2021-12-20 Berlin-Ramelau 2.jpg",
       "caption_zh": "柏林拉梅劳山2号",
       "caption": "柏林拉梅劳山2号",
@@ -193,7 +167,7 @@
       "encoding": "webp q72/q74 (源 1000x702 235KB JPEG)"
     }
   ],
-  "image_license": "CC BY-SA 3.0 de",
+  "image_license": "Public domain",
   "geometry_status": "naturalearth_50m_chunked",
   "schema_version": "0.1",
   "collected_at": "2026-10-30T22:07:30+08:00",
@@ -203,9 +177,10 @@
     "P443 发音语种不符已弃用：Lb-Timor-Leste.ogg、LL-Q7913 (ron)-KlaudiuMihaila-Timorul de Est.wav、LL-Q652 (ita)-Francyskus-Timor Est.wav（P443 不保证语种，须按文件名筛）",
     "该实体无对应语种发音，语音改跑 python scripts/tts.py TL",
     "Commons 无可用发音，语音走构建期 TTS 兜底（待接）",
-    "地标图改为人工指定清单（5 张，中文图注）"
+    "包考老城：Wikidata / 维基 / Commons 都没有可用图",
+    "地标图改为人工指定清单（4 张，中文图注）"
   ],
-  "image_source_note": "人工按 data/landmarks.json 指定地标，Commons 关键词检索取图；原先自动获得的 1 张已被替换",
+  "image_source_note": "人工按 data/landmarks.json 指定地标，Commons 关键词检索取图；原先自动获得的 5 张已被替换",
   "custom_facets": {
     "festivals": [],
     "cuisine": [],
