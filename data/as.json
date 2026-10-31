@@ -53,35 +53,33 @@
   ],
   "landmark_images": [
     {
-      "title": "File:American Samoa students attend class at Tauese P. F. Sunia Ocean Center Pago Pago.png",
-      "caption_zh": "美属萨摩亚学生在帕果帕果港海洋中心上课",
-      "caption": "美属萨摩亚学生在帕果帕果港海洋中心上课",
-      "caption_commons": "Students attend a class at the Tauese P. F. Sunia Ocean Center in Pago Pago, Ame",
+      "title": "File:Fagatogo Dock.jpg",
+      "caption_zh": "帕果帕果港",
+      "caption": "帕果帕果港",
+      "caption_commons": "Portion of the dock area at Fagatogo, Pago Pago Harbor, American Samoa with Rain",
       "kw": "Pago Pago Harbor",
       "url": "assets/as/L01.webp",
       "thumb_url": "assets/as/L01.thumb.webp",
-      "remote_url": "https://upload.wikimedia.org/wikipedia/commons/6/61/American_Samoa_students_attend_class_at_Tauese_P._F._Sunia_Ocean_Center_Pago_Pago.png?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
-      "source": "article_img",
+      "remote_url": "https://upload.wikimedia.org/wikipedia/commons/1/1b/Fagatogo_Dock.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+      "source": "wikidata_p18",
       "pick_tier": "strict",
-      "author": "Apulu Veronika Molio'o Mata'utia Mortenson/National Oceanic and Atmospheric Administration",
-      "license": "Public domain",
-      "license_url": null,
+      "author": "Eric Guinther",
+      "license": "CC BY-SA 3.0",
+      "license_url": "http://creativecommons.org/licenses/by-sa/3.0/",
       "license_status": "ok",
       "load_verified": true,
-      "bytes": 45304,
-      "caption_zh_manual": "帕果帕果港",
-      "caption_zh_source": "llm_from_commons_filename",
-      "thumb_bytes": 17274,
+      "bytes": 55086,
+      "thumb_bytes": 17522,
       "size": {
-        "detail": "760x399",
-        "thumb": "400x210"
+        "detail": "760x547",
+        "thumb": "400x288"
       },
-      "encoding": "webp q72/q74 (源 865x454 1047KB JPEG)"
+      "encoding": "webp q72/q74 (源 1571x1131 582KB JPEG)"
     },
     {
       "title": "File:American Samoa tramway remains.jpg",
-      "caption_zh": "国家公园图图伊拉电车遗迹",
-      "caption": "国家公园图图伊拉电车遗迹",
+      "caption_zh": "国家公园图图伊拉",
+      "caption": "国家公园图图伊拉",
       "caption_commons": "Remains of the historic tramway on the World War II Heritage Trail managed by th",
       "kw": "National Park of American Samoa Tutuila",
       "url": "assets/as/L02.webp",
@@ -95,8 +93,6 @@
       "license_status": "ok",
       "load_verified": true,
       "bytes": 81834,
-      "caption_zh_manual": "国家公园图图伊拉",
-      "caption_zh_source": "llm_from_commons_filename",
       "thumb_bytes": 22298,
       "size": {
         "detail": "760x428",
@@ -106,8 +102,8 @@
     },
     {
       "title": "File:Aunu'u Island National National Landmark.jpg",
-      "caption_zh": "波拉岛奥努乌岛国家地标",
-      "caption": "波拉岛奥努乌岛国家地标",
+      "caption_zh": "波拉岛",
+      "caption": "波拉岛",
       "caption_commons": "Aunu'u Island, offshore of the island of Tutuila, American Samoa",
       "kw": "Aunu'u Island American Samoa",
       "url": "assets/as/L03.webp",
@@ -121,8 +117,6 @@
       "license_status": "ok",
       "load_verified": true,
       "bytes": 3526,
-      "caption_zh_manual": "波拉岛",
-      "caption_zh_source": "llm_from_commons_filename",
       "thumb_bytes": 3586,
       "size": {
         "detail": "300x225",
@@ -132,8 +126,8 @@
     },
     {
       "title": "File:Islands of Manua (Manu'a), Ofoo (Ofu) & Oloosinga (Olosega), Samoan Group, U.S.Ex.Ex. 1839. Island of Tutuila (American Samoa) (IA dr islands-of-manua-manua-ofoo-ofu-oloosinga-olosega-samoan-group-6974000).jpg",
-      "caption_zh": "马努阿群岛的奥富岛与奥洛塞加岛",
-      "caption": "马努阿群岛的奥富岛与奥洛塞加岛",
+      "caption_zh": "马努阿群岛",
+      "caption": "马努阿群岛",
       "caption_commons": "Zoomable full resolution image available at davidrumsey.com.This image 6974.000 ",
       "kw": "Manu'a Islands Ofu Olosega",
       "url": "assets/as/L04.webp",
@@ -147,8 +141,6 @@
       "license_status": "ok",
       "load_verified": true,
       "bytes": 20376,
-      "caption_zh_manual": "马努阿群岛",
-      "caption_zh_source": "llm_from_commons_filename",
       "thumb_bytes": 2642,
       "size": {
         "detail": "760x1008",
@@ -173,8 +165,6 @@
       "license_status": "ok",
       "load_verified": true,
       "bytes": 22162,
-      "caption_zh_manual": "图图伊拉雨林",
-      "caption_zh_source": "llm_from_commons_filename",
       "thumb_bytes": 6632,
       "size": {
         "detail": "760x428",
@@ -183,7 +173,7 @@
       "encoding": "webp q72/q74 (源 1920x1080 212KB JPEG)"
     }
   ],
-  "image_license": "Public domain",
+  "image_license": "CC BY-SA 3.0",
   "geometry_status": "naturalearth_50m_chunked",
   "schema_version": "0.1",
   "collected_at": "2026-10-30T15:29:02+08:00",
@@ -194,10 +184,10 @@
     "该实体无对应语种发音，语音改跑 python scripts/tts.py AS",
     "Commons 无可用发音，语音走构建期 TTS 兜底（待接）",
     "拉尼奥托山：Wikidata / 维基 / Commons 都没有可用图",
-    "地标图改为人工指定清单（5 张，中文图注）",
-    "LLM 质检[error] image_captions：波拉岛（Bora Bora）属法属波利尼西亚，不在美属萨摩亚 → 删除或替换为美属萨摩亚地标"
+    "拉尼奥托山：Wikidata / 维基 / Commons 都没有可用图",
+    "地标图改为人工指定清单（5 张，中文图注）"
   ],
-  "image_source_note": "人工按 data/landmarks.json 指定地标，Commons 关键词检索取图；原先自动获得的 1 张已被替换",
+  "image_source_note": "人工按 data/landmarks.json 指定地标，Commons 关键词检索取图；原先自动获得的 0 张已被替换",
   "custom_facets": {
     "festivals": [],
     "cuisine": [],

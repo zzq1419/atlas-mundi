@@ -67,30 +67,28 @@
   ],
   "landmark_images": [
     {
-      "title": "File:Boracay Cleanup EMB DENR R6.jpg",
-      "caption_zh": "长滩岛白沙滩清理",
-      "caption": "长滩岛白沙滩清理",
-      "caption_commons": "EMB personnel volunteered to clean up Boracay on April 26, 2018 during the closu",
+      "title": "File:Boracay White Beach.jpg",
+      "caption_zh": "长滩岛白沙滩",
+      "caption": "长滩岛白沙滩",
+      "caption_commons": "White Beach, Boracay Island",
       "kw": "White Beach Boracay",
       "url": "assets/ph/L01.webp",
       "thumb_url": "assets/ph/L01.thumb.webp",
-      "remote_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/46/Boracay_Cleanup_EMB_DENR_R6.jpg/1920px-Boracay_Cleanup_EMB_DENR_R6.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
-      "source": "article_img",
+      "remote_url": "https://upload.wikimedia.org/wikipedia/commons/c/c7/Boracay_White_Beach.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+      "source": "commons_search",
       "pick_tier": "strict",
-      "author": "Environmental Management Bureau (EMB) of the Department of Environment and Natural Resources (DENR) - Region 6",
-      "license": "Public domain",
+      "author": "Tomas Tam, aka Tam3rd at en.wikipedia",
+      "license": "Attribution",
       "license_url": null,
       "license_status": "ok",
       "load_verified": true,
-      "bytes": 67124,
-      "caption_zh_manual": "长滩岛白沙滩",
-      "caption_zh_source": "llm_from_commons_filename",
-      "thumb_bytes": 21126,
+      "bytes": 25056,
+      "thumb_bytes": 10528,
       "size": {
-        "detail": "760x507",
-        "thumb": "400x267"
+        "detail": "650x439",
+        "thumb": "400x270"
       },
-      "encoding": "webp q72/q74 (源 1920x1280 657KB JPEG)"
+      "encoding": "webp q72/q74 (源 650x439 121KB JPEG)"
     },
     {
       "title": "File:Chocolate Hills Bohol Philippines 3.jpg",
@@ -109,8 +107,6 @@
       "license_status": "ok",
       "load_verified": true,
       "bytes": 70708,
-      "caption_zh_manual": "巧克力山",
-      "caption_zh_source": "llm_from_commons_filename",
       "thumb_bytes": 19820,
       "size": {
         "detail": "760x570",
@@ -135,8 +131,6 @@
       "license_status": "ok",
       "load_verified": true,
       "bytes": 103046,
-      "caption_zh_manual": "巴纳韦梯田",
-      "caption_zh_source": "llm_from_commons_filename",
       "thumb_bytes": 28600,
       "size": {
         "detail": "760x570",
@@ -146,8 +140,8 @@
     },
     {
       "title": "File:Mayon Volcano as of March 2020.jpg",
-      "caption_zh": "2020年3月的马荣火山",
-      "caption": "2020年3月的马荣火山",
+      "caption_zh": "马荣火山",
+      "caption": "马荣火山",
       "caption_commons": "Mayon Volcano as of March 2020.",
       "kw": "Mayon Volcano Albay",
       "url": "assets/ph/L04.webp",
@@ -161,8 +155,6 @@
       "license_status": "ok",
       "load_verified": true,
       "bytes": 38214,
-      "caption_zh_manual": "马荣火山",
-      "caption_zh_source": "llm_from_commons_filename",
       "thumb_bytes": 11300,
       "size": {
         "detail": "760x428",
@@ -172,8 +164,8 @@
     },
     {
       "title": "File:Tubbataha Reefs Natural Park-112043.jpg",
-      "caption_zh": "图巴塔哈礁自然公园",
-      "caption": "图巴塔哈礁自然公园",
+      "caption_zh": "图巴塔哈礁",
+      "caption": "图巴塔哈礁",
       "caption_commons": "Tubbataha Reefs Natural Park (Philippines)",
       "kw": "Tubbataha Reef",
       "url": "assets/ph/L05.webp",
@@ -187,8 +179,6 @@
       "license_status": "ok",
       "load_verified": true,
       "bytes": 35630,
-      "caption_zh_manual": "图巴塔哈礁",
-      "caption_zh_source": "llm_from_commons_filename",
       "thumb_bytes": 10690,
       "size": {
         "detail": "760x505",
@@ -197,7 +187,7 @@
       "encoding": "webp q72/q74 (源 1920x1277 434KB JPEG)"
     }
   ],
-  "image_license": "Public domain",
+  "image_license": "Attribution",
   "geometry_status": "naturalearth_50m_chunked",
   "schema_version": "0.1",
   "collected_at": "2026-10-30T21:52:05+08:00",
@@ -210,7 +200,7 @@
     "Commons 无可用发音，语音走构建期 TTS 兜底（待接）",
     "地标图改为人工指定清单（5 张，中文图注）"
   ],
-  "image_source_note": "人工按 data/landmarks.json 指定地标，Commons 关键词检索取图；原先自动获得的 1 张已被替换",
+  "image_source_note": "人工按 data/landmarks.json 指定地标，Commons 关键词检索取图；原先自动获得的 0 张已被替换",
   "custom_facets": {
     "festivals": [],
     "cuisine": [],

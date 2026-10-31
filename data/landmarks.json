@@ -9141,7 +9141,14 @@
           "长滩岛白沙滩"
         ],
         "kw": "White Beach Boracay",
-        "must": "boracay"
+        "must": "white beach",
+        "avoid": [
+          "ati",
+          "community",
+          "puka",
+          "cleanup",
+          "denr"
+        ]
       },
       {
         "zh": "巧克力山",

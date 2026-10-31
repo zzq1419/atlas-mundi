@@ -130,6 +130,24 @@ FACILITY_RE = re.compile(
     r"warehouse|factory|power station|power plant|post office|police station|"
     r"fire station|residential|housing estate|shop|supermarket|petrol station", re.I)
 
+# 活动照 / 事件照：这些画面里有地标所在的地名，但主体是人和事，不是景。
+# 菲律宾「长滩岛白沙滩」就配到一张 "Boracay Cleanup EMB DENR R6.jpg" ——
+# 名字里确实有 Boracay，must 校验通过了，可那是一群人在捡垃圾。
+# 地标卡片放这种图，用户第一反应是"这也算地标？"
+EVENT_RE = re.compile(
+    r"clean ?up|clean-up|coastal clean|beach clean|"
+    r"trash|rubbish|litter|garbage|waste collection|"
+    r"tree planting|planting (?:activity|drive)|reforestation drive|"
+    r"protest|demonstration|strike|riot|"
+    r"ribbon cutting|groundbreaking|inaugurat|turnover ceremony|"
+    r"conference|forum|workshop|seminar|"  # 不收 summit：山峰照片文件名里到处都是它
+    r"awareness|observance|celebration of|earth day|environment day|"
+    r"volunteers|volunteering|donation|relief operation|"
+    # 人物主体照：地名对得上，但画面里全是人 ——
+    # 长滩岛就抓到一张 "Ati community in Boracay.jpg"（原住民社区合影）
+    r"community|villagers|residents|portrait|children|students|"
+    r"crowd|people|workers|fishermen|farmers", re.I)
+
 # 文件名层面的同一件事，成本更低，先用它挡一道
 BAD_NAME_RE = re.compile(
     r"(?<![a-z])(esa|nasa|landsat|sentinel|copernicus|bathymetry|seamount|"
@@ -443,6 +461,8 @@ def fetch_cats(names):
 def bad_kind(name, cats, meta=None):
     """这张图是"卫星影像/地图/示意图/人物照"吗？返回原因或 None。"""
     low = (name or "").replace("_", " ")
+    if EVENT_RE.search(low):
+        return "文件名像活动照/会议照"
     if BAD_NAME_RE.search(low):
         return "文件名像卫星/科研数据"
     if BAD_PREFIX_RE.match(low):
@@ -450,6 +470,8 @@ def bad_kind(name, cats, meta=None):
     for c in cats or ():
         if BAD_CAT_RE.search(c):
             return "分类是「%s」" % c[:40]
+        if EVENT_RE.search(c):
+            return "分类是活动照「%s」" % c[:40]
     # 原图不到 25 KB，1400px 宽的照片不可能这么小 —— 基本是纯色块、定位图、示意图
     if meta and 0 < (meta.get("bytes") or 0) < 25000:
         return "原图仅 %d KB，疑似示意图" % ((meta.get("bytes") or 0) // 1024)

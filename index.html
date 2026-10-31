@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-10-31-I">
+<meta name="build" content="2026-10-31-J">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -1936,11 +1936,14 @@ body.panel-open #globe-stage{
 
   var _ac = null;
 
-  /* 点击音：机械键盘那一下"咔"。
-     两段叠出来的 ——
-     1) 一小撮白噪声过带通（2.6kHz），30ms 内衰完，这是键帽碰撞的"沙"；
-     2) 一个 180Hz 正弦，45ms 衰减，是触底的"咚"。
-     每次噪声都重新生成，所以连点时不会听起来像同一段音频在循环。 */
+  /* 点击音：机械键盘的"嗒"。
+     第一版是 50ms 白噪声过带通（Q 只有 0.9）—— 听起来是"沙"，不是键盘：
+     噪声拖了整整 50 毫秒、滤波器又宽，整段都在嘶。
+     现在拆成"一个瞬态 + 三个音高"，靠音高做出"嗒"的实体感：
+       · 6ms 噪声过 2.8kHz 高通，音量压到 0.055 —— 只当边缘的一点毛刺，不是主体；
+       · 1250Hz / 2650Hz 两个正弦，7~11ms 衰完 —— 塑料键帽撞上去那一下；
+       · 230Hz 滑到 165Hz、32ms 衰减 —— 触底的"咚"，给一点重量。
+     全程 40ms 内收干净，连点也不会糊成一片沙沙声。 */
   function keyClick() {
     try {
       var AC = window.AudioContext || window.webkitAudioContext;
@@ -1948,33 +1951,44 @@ body.panel-open #globe-stage{
       if (!_ac) _ac = new AC();
       if (_ac.state === 'suspended') _ac.resume();
       var t = _ac.currentTime;
+      var sr = _ac.sampleRate;
 
-      var dur = 0.05;
-      var buf = _ac.createBuffer(1, Math.max(1, Math.floor(_ac.sampleRate * dur)), _ac.sampleRate);
+      function tone(freq, dur, gain, toFreq) {
+        var o = _ac.createOscillator();
+        var g = _ac.createGain();
+        o.type = 'sine';
+        o.frequency.setValueAtTime(freq, t);
+        if (toFreq) o.frequency.exponentialRampToValueAtTime(toFreq, t + dur);
+        g.gain.setValueAtTime(0.0001, t);
+        g.gain.exponentialRampToValueAtTime(gain, t + 0.0015);
+        g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+        o.connect(g);
+        g.connect(_ac.destination);
+        o.start(t);
+        o.stop(t + dur + 0.01);
+      }
+
+      var n = Math.max(1, Math.floor(sr * 0.006));
+      var buf = _ac.createBuffer(1, n, sr);
       var ch = buf.getChannelData(0);
-      for (var i = 0; i < ch.length; i++) {
-        ch[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / ch.length, 7);
+      for (var i = 0; i < n; i++) {
+        ch[i] = (Math.random() * 2 - 1) * Math.exp(-i / (n * 0.16));
       }
       var src = _ac.createBufferSource();
       src.buffer = buf;
-      var bp = _ac.createBiquadFilter();
-      bp.type = 'bandpass';
-      bp.frequency.value = 2600;
-      bp.Q.value = 0.9;
-      var g1 = _ac.createGain();
-      g1.gain.value = 0.30;
-      src.connect(bp); bp.connect(g1); g1.connect(_ac.destination);
+      var hp = _ac.createBiquadFilter();
+      hp.type = 'highpass';
+      hp.frequency.value = 2800;
+      var g0 = _ac.createGain();
+      g0.gain.value = 0.055;
+      src.connect(hp); hp.connect(g0); g0.connect(_ac.destination);
       src.start(t);
 
-      var o = _ac.createOscillator();
-      var g2 = _ac.createGain();
-      o.type = 'sine';
-      o.frequency.setValueAtTime(185, t);
-      g2.gain.setValueAtTime(0.0001, t);
-      g2.gain.exponentialRampToValueAtTime(0.11, t + 0.004);
-      g2.gain.exponentialRampToValueAtTime(0.0001, t + 0.048);
-      o.connect(g2); g2.connect(_ac.destination);
-      o.start(t); o.stop(t + 0.06);
+      // 能量重心放在 1~3kHz：键盘声是"嗒"，不是"咚"。
+      // 低频只留一点点（0.045），给点击一点重量，压过头就变成敲门声。
+      tone(1250, 0.012, 0.115);            // 键帽的"嗒"
+      tone(2650, 0.008, 0.055);            // 高频的一点脆
+      tone(230, 0.026, 0.045, 180);        // 触底的"咚"，很轻
     } catch (e) { /* 没有 AudioContext 就静默 */ }
   }
 

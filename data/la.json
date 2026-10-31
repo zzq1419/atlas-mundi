@@ -70,8 +70,6 @@
       "license_status": "ok",
       "load_verified": true,
       "bytes": 40076,
-      "caption_zh_manual": "塔銮",
-      "caption_zh_source": "llm_from_commons_filename",
       "thumb_bytes": 12874,
       "size": {
         "detail": "760x503",
@@ -96,8 +94,6 @@
       "license_status": "ok",
       "load_verified": true,
       "bytes": 76476,
-      "caption_zh_manual": "琅勃拉邦光西瀑布",
-      "caption_zh_source": "llm_from_commons_filename",
       "thumb_bytes": 24170,
       "size": {
         "detail": "760x383",
@@ -122,8 +118,6 @@
       "license_status": "ok",
       "load_verified": true,
       "bytes": 109528,
-      "caption_zh_manual": "凯旋门",
-      "caption_zh_source": "llm_from_commons_filename",
       "thumb_bytes": 10532,
       "size": {
         "detail": "760x1140",
@@ -133,8 +127,8 @@
     },
     {
       "title": "File:Wat Xieng Thong Laos I.jpg",
-      "caption_zh": "老挝香通寺",
-      "caption": "老挝香通寺",
+      "caption_zh": "香通寺",
+      "caption": "香通寺",
       "caption_commons": "The Xieng Thong Ratsavoravihanh which belongs to Wat Xieng Thong in Luang Praban",
       "kw": "Wat Xieng Thong Luang Prabang",
       "url": "assets/la/L04.webp",
@@ -148,8 +142,6 @@
       "license_status": "ok",
       "load_verified": true,
       "bytes": 56996,
-      "caption_zh_manual": "香通寺",
-      "caption_zh_source": "llm_from_commons_filename",
       "thumb_bytes": 16262,
       "size": {
         "detail": "760x475",
@@ -158,14 +150,14 @@
       "encoding": "webp q72/q74 (源 1920x1201 742KB JPEG)"
     },
     {
-      "title": "File:Children playing at sunset on a Mekong bank in Si Phan Don.jpg",
-      "caption_zh": "四千美岛湄公河畔日落时儿童玩耍",
-      "caption": "四千美岛湄公河畔日落时儿童玩耍",
-      "caption_commons": "Children playing at sunset on a Mekong bank, near a submerged fence reflecting i",
+      "title": "File:Mekong beach in Si Phan Don.jpg",
+      "caption_zh": "四千美岛",
+      "caption": "四千美岛",
+      "caption_commons": "Mekong beach near the island of Don Loppadi, in Si Phan Don (4000 islands), Laos",
       "kw": "Si Phan Don Four Thousand Islands",
       "url": "assets/la/L05.webp",
       "thumb_url": "assets/la/L05.thumb.webp",
-      "remote_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/7e/Children_playing_at_sunset_on_a_Mekong_bank_in_Si_Phan_Don.jpg/1920px-Children_playing_at_sunset_on_a_Mekong_bank_in_Si_Phan_Don.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+      "remote_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/bf/Mekong_beach_in_Si_Phan_Don.jpg/1920px-Mekong_beach_in_Si_Phan_Don.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "source": "article_img",
       "pick_tier": "strict",
       "author": "Basile Morin",
@@ -173,15 +165,13 @@
       "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
       "license_status": "ok",
       "load_verified": true,
-      "bytes": 31052,
-      "caption_zh_manual": "四千美岛",
-      "caption_zh_source": "llm_from_commons_filename",
-      "thumb_bytes": 9978,
+      "bytes": 32036,
+      "thumb_bytes": 9960,
       "size": {
         "detail": "760x507",
         "thumb": "400x267"
       },
-      "encoding": "webp q72/q74 (源 1920x1280 468KB JPEG)"
+      "encoding": "webp q72/q74 (源 1920x1280 475KB JPEG)"
     }
   ],
   "image_license": "CC BY-SA 3.0",
@@ -196,7 +186,7 @@
     "Commons 无可用发音，语音走构建期 TTS 兜底（待接）",
     "地标图改为人工指定清单（5 张，中文图注）"
   ],
-  "image_source_note": "人工按 data/landmarks.json 指定地标，Commons 关键词检索取图；原先自动获得的 1 张已被替换",
+  "image_source_note": "人工按 data/landmarks.json 指定地标，Commons 关键词检索取图；原先自动获得的 0 张已被替换",
   "custom_facets": {
     "festivals": [],
     "cuisine": [],
