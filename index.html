@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-10-31-D">
+<meta name="build" content="2026-10-31-E">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -1083,19 +1083,53 @@ body.panel-open #globe-stage{
 /* ============ 左下角工具按钮 ============ */
 #tools{
   position:fixed;left:22px;bottom:22px;z-index:25;
-  display:flex;flex-direction:column;gap:10px;
+  display:flex;align-items:center;
 }
-/* 按钮组：收起时高度收到 0，靠 max-height 做过渡（height:auto 没法过渡） */
+/* 一块面板装下全部按钮：深色玻璃底 + 细边，收起来时整块缩到零宽，
+   只留下右边那条把手 —— 不再是一串按钮直接浮在球面上。 */
 #tools-body{
   display:flex;flex-direction:column;gap:8px;
-  max-height:320px;opacity:1;overflow:visible;
-  transition:max-height .30s cubic-bezier(.4,0,.2,1),opacity .22s ease;
+  padding:8px;border-radius:15px;
+  background:rgba(8,13,22,.74);
+  border:1px solid rgba(126,158,198,.22);
+  box-shadow:0 12px 34px rgba(0,0,0,.42);
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  max-height:340px;opacity:1;overflow:hidden;
+  transition:max-height .30s cubic-bezier(.4,0,.2,1),
+             max-width .30s cubic-bezier(.4,0,.2,1),
+             padding .30s cubic-bezier(.4,0,.2,1),
+             opacity .20s ease,border-color .2s ease;
 }
 #tools.collapsed #tools-body{
-  max-height:0;opacity:0;overflow:hidden;pointer-events:none;
+  max-height:0;max-width:0;padding:0;opacity:0;border-color:transparent;
+  pointer-events:none;
 }
-#tools-toggle svg{transition:transform .30s cubic-bezier(.4,0,.2,1)}
-#tools.collapsed #tools-toggle svg{transform:rotate(180deg)}
+/* 面板里的按钮不再自带底色，否则一层套一层 */
+#tools-body .tool-btn{background:transparent;border-color:transparent}
+#tools-body .tool-btn:hover{background:rgba(120,160,210,.16);border-color:rgba(150,185,230,.35)}
+#tools-body .tool-btn.on{background:rgba(58,45,22,.92);border-color:rgba(255,215,138,.72)}
+/* 复位按钮和下面那组开关拉开距离 */
+#tools-body #btn-china{margin-bottom:8px}
+
+/* 折叠把手：贴在面板右侧中间，一条竖着的胶囊 */
+.tools-tab{
+  position:absolute;left:100%;top:50%;margin-left:7px;
+  transform:translateY(-50%);
+  width:16px;height:46px;padding:0;border-radius:9px;cursor:pointer;
+  background:rgba(8,13,22,.78);
+  border:1px solid rgba(126,158,198,.26);
+  transition:border-color .2s ease,background .2s ease;
+}
+.tools-tab::before{
+  content:"";position:absolute;left:50%;top:50%;
+  width:5px;height:5px;margin:-4px 0 0 -3px;
+  border-left:1.5px solid rgba(178,204,238,.85);
+  border-bottom:1.5px solid rgba(178,204,238,.85);
+  transform:rotate(45deg);           /* 尖朝左：点它收起 */
+  transition:transform .30s cubic-bezier(.4,0,.2,1);
+}
+#tools.collapsed .tools-tab::before{transform:rotate(-135deg)}  /* 尖朝右：点它展开 */
+.tools-tab:hover{border-color:rgba(150,185,230,.55);background:rgba(20,32,52,.9)}
 .tool-btn{
   width:36px;height:36px;padding:0;border-radius:50%;
   display:flex;align-items:center;justify-content:center;
@@ -1121,8 +1155,6 @@ body.panel-open #globe-stage{
   box-shadow:0 0 0 1px rgba(255,215,138,.16),0 0 16px rgba(255,196,96,.20);
 }
 .tool-btn.on svg{stroke:rgba(255,224,152,.98)}
-/* 复位按钮不属于开关，和下面那组拉开距离，免得误点 */
-#tools #btn-china{margin-bottom:16px}
 /* 时间指示模式：光标换成一面小旗子，热点在旗杆脚下 */
 #globe-stage.time-mode{cursor:url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='30' height='30'%3E%3Cpath d='M6 27V5' stroke='%23ffdb8a' stroke-width='2.4' stroke-linecap='round'/%3E%3Cpath d='M6 6h14l-3.4 4.6L20 15H6z' fill='%23ffdb8a'/%3E%3C/svg%3E") 6 27, crosshair}
 #globe-stage.time-mode canvas{cursor:inherit}
@@ -1410,15 +1442,9 @@ body.panel-open #globe-stage{
 
 <!-- 左下角只留一个视图开关。国名不再用开关 —— 像地图那样按缩放自动分级；
      复位也不再要按钮，双击画面即可。 -->
+<!-- 工具栏是一整块面板，按钮竖排装在里头；收起/展开的把手贴在面板右侧中间，
+     平时不占画面，要收纳就捏它一下。 -->
 <div id="tools">
-  <!-- 工具栏可以收起来：6 个按钮竖排占了小半屏，看南半球时正好压在球面上。
-       收起后只留这一颗，再点一下展开。 -->
-  <button class="tool-btn" id="tools-toggle" type="button" aria-label="收起 / 展开工具栏" data-tip="收起工具栏">
-    <svg viewBox="0 0 24 24" aria-hidden="true">
-      <path d="M4.4 7.2h8.2M4.4 12h13.2M4.4 16.8h8.2"/>
-      <path d="M17.6 9.6l2.4 2.5-2.4 2.5" stroke-width="1.5"/>
-    </svg>
-  </button>
   <div id="tools-body">
   <button class="tool-btn" id="btn-china" type="button" aria-label="定位到中国上空" data-tip="回到中国上空">
     <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -1460,6 +1486,8 @@ body.panel-open #globe-stage{
     </svg>
   </button>
   </div>
+  <button class="tools-tab" id="tools-toggle" type="button"
+          aria-label="收起 / 展开工具栏" data-tip="收起工具栏"></button>
 </div>
 
 <!-- 时间指示的浮标：跟着点击位置走，不接收事件（否则挡住后续点击） -->
@@ -1507,11 +1535,20 @@ body.panel-open #globe-stage{
     return p.length > 2 ? p[1] : '';
   }
 
+  /* 构建号：OBS 上的对象带 7 天 Cache-Control，图换了以后浏览器还认旧的，
+     表现就是"数据改了、页面没变"。给每个素材 URL 挂上构建号，
+     换一版就换一个 URL，缓存自然失效。只在页面层加，不改 OBS 对象。 */
+  var BUILD_TAG = (function () {
+    var m = document.querySelector('meta[name="build"]');
+    return m ? (m.getAttribute('content') || '') : '';
+  })();
+
   function assetSrc(rel) {
     if (!rel) return '';
     if (/^https?:\/\//i.test(rel)) return rel;
-    if (OBS_MISS[assetDir(rel)]) return rel;
-    return OBS_BASE + rel.replace(/^\/+/, '');
+    var q = BUILD_TAG ? ('?v=' + encodeURIComponent(BUILD_TAG)) : '';
+    if (OBS_MISS[assetDir(rel)]) return rel + q;
+    return OBS_BASE + rel.replace(/^\/+/, '') + q;
   }
 
   /* ---------- 数据镜像 ----------
