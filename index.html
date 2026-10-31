@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-10-30-C">
+<meta name="build" content="2026-10-31-A">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -1102,8 +1102,44 @@ body.panel-open #globe-stage{
 }
 .tool-btn:hover{border-color:rgba(150,185,230,.55);background:rgba(19,31,50,.88)}
 .tool-btn:hover svg{stroke:rgba(200,222,250,.95)}
-.tool-btn.on{border-color:rgba(150,185,230,.62);background:rgba(28,44,68,.9)}
-.tool-btn.on svg{stroke:rgba(214,232,255,.98)}
+/* 点亮态用金色 —— 和地球上的国界线、晨昏线是同一支色。
+   开关类按钮（国境线 / 经纬线 / 昼夜分界 / 时间指示）点开都是这个状态。 */
+.tool-btn.on{
+  border-color:rgba(255,215,138,.72);
+  background:rgba(58,45,22,.92);
+  box-shadow:0 0 0 1px rgba(255,215,138,.16),0 0 16px rgba(255,196,96,.20);
+}
+.tool-btn.on svg{stroke:rgba(255,224,152,.98)}
+/* 复位按钮不属于开关，和下面那组拉开距离，免得误点 */
+#tools #btn-china{margin-bottom:16px}
+/* 时间指示模式：光标换成一面小旗子，热点在旗杆脚下 */
+#globe-stage.time-mode{cursor:url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='30' height='30'%3E%3Cpath d='M6 27V5' stroke='%23ffdb8a' stroke-width='2.4' stroke-linecap='round'/%3E%3Cpath d='M6 6h14l-3.4 4.6L20 15H6z' fill='%23ffdb8a'/%3E%3C/svg%3E") 6 27, crosshair}
+#globe-stage.time-mode canvas{cursor:inherit}
+/* 时间模式下国名标签不接事件：点哪儿都是"问时间"，不能顺手打开档案 */
+#globe-stage.time-mode .mlabel{pointer-events:none!important}
+
+/* 时间气泡：跟着点击的位置走，样式和左侧工具栏同一套 */
+#time-pin{
+  position:fixed;z-index:32;left:0;top:0;
+  transform:translate(-50%,calc(-100% - 14px));
+  padding:7px 12px 8px;border-radius:10px;
+  background:rgba(10,16,26,.94);
+  border:1px solid rgba(255,215,138,.45);
+  box-shadow:0 12px 30px rgba(0,0,0,.55);
+  color:#f4e7cd;font-size:12.5px;line-height:1.5;white-space:nowrap;
+  pointer-events:none;opacity:0;transition:opacity .16s ease;
+}
+#time-pin.on{opacity:1}
+#time-pin b{color:#ffdb8a;font-weight:600;font-variant-numeric:tabular-nums}
+#time-pin i{display:block;font-style:normal;font-size:11px;color:rgba(214,206,186,.72);
+  letter-spacing:.04em;margin-top:2px;font-variant-numeric:tabular-nums}
+#time-pin::after{
+  content:"";position:absolute;left:50%;bottom:-5px;width:8px;height:8px;
+  margin-left:-4px;transform:rotate(45deg);
+  background:rgba(10,16,26,.94);
+  border-right:1px solid rgba(255,215,138,.45);
+  border-bottom:1px solid rgba(255,215,138,.45);
+}
 
 /* ============ 2D 平面地图 ============
    横向循环平铺的世界地图：画布本身是 3 份等距圆柱首尾相接，
@@ -1389,7 +1425,24 @@ body.panel-open #globe-stage{
       <path d="M20.4 14.6A8.6 8.6 0 1 1 9.4 3.6a6.8 6.8 0 0 0 11 11z"/>
     </svg>
   </button>
+  <button class="tool-btn" id="btn-term" type="button" aria-label="昼夜分界线" data-tip="按此刻的太阳位置分出昼夜两半">
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <circle cx="12" cy="12" r="8.2"/>
+      <path d="M12 3.8a8.2 8.2 0 0 0 0 16.4z" fill="currentColor" fill-opacity=".22" stroke="none"/>
+      <path d="M7.2 4.9l9.6 14.2" stroke-width="1.5"/>
+    </svg>
+  </button>
+  <button class="tool-btn" id="btn-time" type="button" aria-label="时间指示" data-tip="点地球任意位置看当地时间">
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <circle cx="12" cy="12" r="8.2"/>
+      <path d="M12 6.9V12l3.4 2.1"/>
+      <path d="M12 3.8v1.5M20.2 12h-1.5M12 20.2v-1.5M3.8 12h1.5" stroke-width="1.3" opacity=".55"/>
+    </svg>
+  </button>
 </div>
+
+<!-- 时间指示的浮标：跟着点击位置走，不接收事件（否则挡住后续点击） -->
+<div id="time-pin" aria-hidden="true"></div>
 
 <!-- 自绘提示气泡：浏览器原生 title 太慢、样式也不受控 -->
 <div id="tip" class="tip" aria-hidden="true"></div>
@@ -2481,8 +2534,12 @@ body.panel-open #globe-stage{
       tip.classList.remove('side-right');
       var cx = Math.min(Math.max(r.left + r.width / 2, tw / 2 + 8),
                         window.innerWidth - tw / 2 - 8);
-      var y = r.top - th - 8;
-      if (y < 6) y = r.bottom + 8;
+      /* 一律放在元素下方。
+         原来是"上面放不下才放下方"，于是同一排关键词里：靠上的那几个提示在下面、
+         其余的在上面，鼠标扫过去一上一下，看着很散。统一在下，
+         只有真的贴着屏幕底边（比如左下角那排按钮）才翻上去。 */
+      var y = r.bottom + 8;
+      if (y + th > window.innerHeight - 8) y = Math.max(6, r.top - th - 8);
       tip.style.left = cx + 'px';
       tip.style.top = y + 'px';
     }
@@ -3670,6 +3727,64 @@ body.panel-open #globe-stage{
     sphere.visible = false;
     spin.add(sphere);
 
+    /* ---------- 昼夜分界 ----------
+       一层只比球面高 0.0016 的球壳，片元里按"太阳方向"决定明暗：
+       dot(法线, 太阳) < 0 的那半边压暗，等于 0 的那一圈画成金色晨昏线。
+       为什么要自己算而不是给球体加光照：底图是烘死的卫星影像（自带光照），
+       再叠一个真实光源只会把白天的云和海面照得发灰，得不到"半边暗"的效果。
+
+       挂在 spin 里而不是 scene：这样分界线钉在地表上，是一张"此刻的昼夜快照"。
+       挂在 scene 里的话，地球 116 秒自转一圈，阴影会每秒扫过 3 个经度，
+       看起来像昼夜在疯狂交替 —— 那不是他想看的东西。 */
+    var SUN = new THREE.Vector3(1, 0, 0);
+    var termMat = new THREE.ShaderMaterial({
+      uniforms: { uSun: { value: SUN }, uOn: { value: 0 } },
+      transparent: true,
+      depthWrite: false,
+      vertexShader: [
+        'varying vec3 vW;',
+        'void main() {',
+        '  vW = (modelMatrix * vec4(position, 1.0)).xyz;',
+        '  gl_Position = projectionMatrix * viewMatrix * vec4(vW, 1.0);',
+        '}'
+      ].join('\n'),
+      fragmentShader: [
+        'uniform vec3 uSun;',
+        'uniform float uOn;',
+        'varying vec3 vW;',
+        'void main() {',
+        '  vec3 n = normalize(vW);',
+        '  float d = dot(n, normalize(uSun));',
+        // 夜半球压暗；±0.03 的过渡带避免边界出现锯齿
+        '  float night = 1.0 - smoothstep(-0.03, 0.03, d);',
+        // 晨昏线：|d| 很小的窄带，染成金色
+        '  float line = 1.0 - smoothstep(0.0, 0.014, abs(d));',
+        '  vec3 col = mix(vec3(0.020, 0.045, 0.105), vec3(1.0, 0.85, 0.52), step(0.5, line));',
+        // 0.36 而不是 0.5：压到太黑就看不出夜半球是哪儿了，那片海和陆地还得能认
+        '  float a = night * 0.36 + line * 0.28;',
+        '  gl_FragColor = vec4(col, a * uOn);',
+        '}'
+      ].join('\n')
+    });
+    var termMesh = new THREE.Mesh(new THREE.SphereGeometry(1.0016, 96, 64), termMat);
+    termMesh.renderOrder = 6;
+    termMesh.visible = false;
+    spin.add(termMesh);
+    globe.term = { mesh: termMesh, mat: termMat, sun: SUN, on: false };
+
+    /* 太阳直射点：UTC 12:00 正对 0° 经线，每小时西移 15°；
+       纬度用赤纬的近似公式（一年一轮，误差 < 0.5°，看昼夜够用）。 */
+    function updateSunTerm() {
+      if (!globe.term) return;
+      var now = new Date();
+      var utcH = now.getUTCHours() + now.getUTCMinutes() / 60 + now.getUTCSeconds() / 3600;
+      var lon = -(utcH - 12) * 15;
+      var doy = Math.floor((now - Date.UTC(now.getUTCFullYear(), 0, 0)) / 86400000);
+      var decl = 23.44 * Math.sin(2 * Math.PI * (284 + doy) / 365);
+      llToVec3(lon, decl, 1, globe.term.sun);
+    }
+    globe.updateSunTerm = updateSunTerm;
+
     /* 大气：两层。内层贴着球面做轮廓辉光，外层再散开一点。
        外缘 1.055 和 fitZ(1.07) 配套 —— 聚焦时不会被上下切掉。
        opacity 初始为 0，跟着地球一起淡入；否则会先出现一圈光晕、球还没出来。 */
@@ -4091,6 +4206,57 @@ body.panel-open #globe-stage{
     }
     globe.dragDown = dragDown;
     cv.addEventListener('pointerdown', dragDown);
+
+    /* ---------- 时间指示 ----------
+       射线打到球面拿交点，再转回经纬度算当地时间。
+       交点用的是世界坐标，必须先 worldToLocal 回球体坐标 ——
+       直接拿世界坐标算经纬度，地球转过多少，时间就错多少。 */
+    var _ray = new THREE.Raycaster();
+    var _ndc = new THREE.Vector2();
+    globe.pickLL = function (clientX, clientY) {
+      var r = cv.getBoundingClientRect();
+      if (!r.width || !r.height) return null;
+      _ndc.x = ((clientX - r.left) / r.width) * 2 - 1;
+      _ndc.y = -((clientY - r.top) / r.height) * 2 + 1;
+      _ray.setFromCamera(_ndc, camera);
+      var hit = _ray.intersectObject(sphere, false);
+      if (!hit || !hit.length) return null;
+      var p = hit[0].point.clone();
+      sphere.worldToLocal(p);
+      return vec3ToLL(p);
+    };
+
+    var pin = document.getElementById('time-pin');
+    function showTimePin(cx, cy, ll) {
+      if (!pin) return;
+      /* 时区按经度算：每 15° 一小时。真实时区有政治边界，
+         这里要的是"这一点在太阳下的地方时"，按经度反而更自洽。 */
+      var offMin = Math.round(ll.lon / 15 * 60);
+      var now = new Date();
+      var t = new Date(now.getTime() + offMin * 60000);
+      var hh = t.getUTCHours(), mm = t.getUTCMinutes();
+      var off = offMin / 60;
+      var offStr = 'UTC' + (off >= 0 ? '+' : '−') +
+        (Math.abs(off) % 1 === 0 ? Math.abs(off) : Math.abs(off).toFixed(1));
+      var ns = ll.lat >= 0 ? 'N' : 'S';
+      var ew = ll.lon >= 0 ? 'E' : 'W';
+      pin.innerHTML = '<b>' + (hh < 10 ? '0' : '') + hh + ':' + (mm < 10 ? '0' : '') + mm +
+        '</b>　' + (t.getUTCMonth() + 1) + '月' + t.getUTCDate() + '日 · ' + offStr +
+        '<i>' + Math.abs(ll.lat).toFixed(1) + '°' + ns + '　' +
+        Math.abs(ll.lon).toFixed(1) + '°' + ew + '</i>';
+      pin.style.left = cx + 'px';
+      pin.style.top = cy + 'px';
+      pin.classList.add('on');
+    }
+    globe.hideTimePin = function () { if (pin) pin.classList.remove('on'); };
+
+    cv.addEventListener('click', function (e) {
+      if (!globe.timeMode) return;
+      if (globe.moved > 6) return;            // 拖动过就不算"点了一下"
+      var ll = globe.pickLL(e.clientX, e.clientY);
+      if (!ll) return;
+      showTimePin(e.clientX, e.clientY, ll);
+    });
     window.addEventListener('pointermove', dragMove);
     window.addEventListener('pointerup', dragUp);
     window.addEventListener('pointercancel', dragUp);
@@ -4224,7 +4390,7 @@ body.panel-open #globe-stage{
       }
 
       if (globe.autoSpin && !globe.dragging && !globe.flying &&
-          nowMs > globe.idleUntil) {
+          nowMs > globe.idleUntil && !(globe.term && globe.term.on)) {
         /* 自转：0.0009 弧度/帧@60fps ≈ 116 秒一圈（原来 0.0013 = 80 秒，偏快）。
            再按相机距离减速：同样的角速度，凑近看时地表掠过屏幕的速度会快得多，
            乘 z/CAM_FAR 正好把这个放大抵消掉，远近看着一样从容。 */
@@ -4370,6 +4536,49 @@ body.panel-open #globe-stage{
         globe.grid.visible = on;
         bgd.classList.toggle('on', on);
         bgd.setAttribute('data-tip', on ? '隐藏经纬线' : '显示经纬线');
+        if (window.__tipHide) window.__tipHide();
+      });
+    }
+
+    /* 昼夜分界：开关。打开时停自转，让这张"此刻的昼夜"定住；
+       再点一次恢复自转。每分钟对一次太阳位置（太阳一小时才移 15°，
+       每帧算纯属浪费）。 */
+    var btm = document.getElementById('btn-term');
+    var sunTimer = 0;
+    if (btm) {
+      btm.addEventListener('click', function () {
+        var T = globe.term;
+        if (!T) return;
+        T.on = !T.on;
+        T.mesh.visible = T.on;
+        T.mat.uniforms.uOn.value = T.on ? 1 : 0;
+        if (T.on) {
+          globe.updateSunTerm();
+          clearInterval(sunTimer);
+          sunTimer = setInterval(globe.updateSunTerm, 60000);
+        } else {
+          clearInterval(sunTimer);
+        }
+        btm.classList.toggle('on', T.on);
+        btm.setAttribute('data-tip', T.on
+          ? '关闭昼夜分界' : '按此刻的太阳位置分出昼夜两半');
+        if (window.__tipHide) window.__tipHide();
+      });
+    }
+
+    /* 时间指示：开关。打开后光标变旗子，点哪儿显示哪儿的地方时；
+       同时把国名标签的事件关掉（CSS 里 .time-mode .mlabel），
+       免得"问个时间"顺手弹出档案。 */
+    var bti = document.getElementById('btn-time');
+    if (bti) {
+      bti.addEventListener('click', function () {
+        globe.timeMode = !globe.timeMode;
+        var st = globeStage();
+        if (st) st.classList.toggle('time-mode', globe.timeMode);
+        bti.classList.toggle('on', globe.timeMode);
+        bti.setAttribute('data-tip', globe.timeMode
+          ? '退出时间指示' : '点地球任意位置看当地时间');
+        if (!globe.timeMode && globe.hideTimePin) globe.hideTimePin();
         if (window.__tipHide) window.__tipHide();
       });
     }
