@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-10-31-H">
+<meta name="build" content="2026-10-31-I">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -1859,6 +1859,9 @@ body.panel-open #globe-stage{
   var DETAIL_ABORT = null;
 
   function openDetail(iso, item, quiet) {
+    /* 点击音挂在这里而不是 openCountry：打开档案有三条路（搜索框、球面标签、
+       下方卡片），只有"标签"那条经过 openCountry，挂在上面另外两条就没声了。 */
+    if (!quiet && !globe.timeMode) keyClick();
     var seq = ++DETAIL_SEQ;
     if (DETAIL_ABORT) { try { DETAIL_ABORT.abort(); } catch (e) {} }
     DETAIL_ABORT = (typeof AbortController === 'function') ? new AbortController() : null;
@@ -1932,28 +1935,47 @@ body.panel-open #globe-stage{
   }
 
   var _ac = null;
-  function chime(freq) {
+
+  /* 点击音：机械键盘那一下"咔"。
+     两段叠出来的 ——
+     1) 一小撮白噪声过带通（2.6kHz），30ms 内衰完，这是键帽碰撞的"沙"；
+     2) 一个 180Hz 正弦，45ms 衰减，是触底的"咚"。
+     每次噪声都重新生成，所以连点时不会听起来像同一段音频在循环。 */
+  function keyClick() {
     try {
       var AC = window.AudioContext || window.webkitAudioContext;
       if (!AC) return;
       if (!_ac) _ac = new AC();
       if (_ac.state === 'suspended') _ac.resume();
       var t = _ac.currentTime;
-      /* 两个正弦差五度叠加，音量 10ms 冲上去、400ms 衰减干净 ——
-         像敲了一下小铜铃，不是"嘟"的一声提示音。 */
-      [freq, freq * 1.5].forEach(function (f, i) {
-        var o = _ac.createOscillator(), g = _ac.createGain();
-        o.type = 'sine';
-        o.frequency.setValueAtTime(f, t);
-        g.gain.setValueAtTime(0.0001, t);
-        g.gain.exponentialRampToValueAtTime(i ? 0.042 : 0.070, t + 0.012);
-        g.gain.exponentialRampToValueAtTime(0.0001, t + 0.40 + i * 0.12);
-        o.connect(g);
-        g.connect(_ac.destination);
-        o.start(t);
-        o.stop(t + 0.6);
-      });
-    } catch (e) { /* 老浏览器没有 AudioContext，静默跳过 */ }
+
+      var dur = 0.05;
+      var buf = _ac.createBuffer(1, Math.max(1, Math.floor(_ac.sampleRate * dur)), _ac.sampleRate);
+      var ch = buf.getChannelData(0);
+      for (var i = 0; i < ch.length; i++) {
+        ch[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / ch.length, 7);
+      }
+      var src = _ac.createBufferSource();
+      src.buffer = buf;
+      var bp = _ac.createBiquadFilter();
+      bp.type = 'bandpass';
+      bp.frequency.value = 2600;
+      bp.Q.value = 0.9;
+      var g1 = _ac.createGain();
+      g1.gain.value = 0.30;
+      src.connect(bp); bp.connect(g1); g1.connect(_ac.destination);
+      src.start(t);
+
+      var o = _ac.createOscillator();
+      var g2 = _ac.createGain();
+      o.type = 'sine';
+      o.frequency.setValueAtTime(185, t);
+      g2.gain.setValueAtTime(0.0001, t);
+      g2.gain.exponentialRampToValueAtTime(0.11, t + 0.004);
+      g2.gain.exponentialRampToValueAtTime(0.0001, t + 0.048);
+      o.connect(g2); g2.connect(_ac.destination);
+      o.start(t); o.stop(t + 0.06);
+    } catch (e) { /* 没有 AudioContext 就静默 */ }
   }
 
   function openCountry(c) {
@@ -1961,8 +1983,8 @@ body.panel-open #globe-stage{
        pointer-events，这里再兜一道：大洲/海洋那几个标签走的是 parent 分支，
        只关国家标签的话，点"北美洲"照样会弹出一张卡片。 */
     if (globe.timeMode) return;
-    rippleAt(_lastDown.x, _lastDown.y);
-    chime(880);
+    /* 波纹只在"点地球问时间"时出现；打开档案时画面本来就要飞过去、
+       面板会滑出来，再叠一圈扩散的金环会打架。音效在 openDetail 里统一放。 */
     var iso = String(c.iso || '').toUpperCase();
     var par = String(c.parent || '').toUpperCase();
     var known = Object.keys(HAS_DOC).length > 0;
@@ -4351,7 +4373,7 @@ body.panel-open #globe-stage{
       var ll = globe.pickLL(e.clientX, e.clientY);
       if (!ll) return;
       rippleAt(e.clientX, e.clientY);
-      chime(1320);
+      keyClick();
       showTimePin(e.clientX, e.clientY, ll);
     });
     window.addEventListener('pointermove', dragMove);
