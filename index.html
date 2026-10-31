@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-10-31-G">
+<meta name="build" content="2026-10-31-H">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -1131,10 +1131,24 @@ body.panel-open #globe-stage{
 }
 .tool-btn.on svg{stroke:rgba(255,224,152,.98)}
 /* 时间指示模式：光标换成一面小旗子，热点在旗杆脚下 */
-#globe-stage.time-mode{cursor:url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='30' height='30'%3E%3Cpath d='M6 27V5' stroke='%23ffdb8a' stroke-width='2.4' stroke-linecap='round'/%3E%3Cpath d='M6 6h14l-3.4 4.6L20 15H6z' fill='%23ffdb8a'/%3E%3C/svg%3E") 6 27, crosshair}
+#globe-stage.time-mode{cursor:url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='36' height='36' viewBox='0 0 36 36'%3E%3Cdefs%3E%3ClinearGradient id='f' x1='0' y1='0' x2='.9' y2='1'%3E%3Cstop offset='0' stop-color='%23ffeec2'/%3E%3Cstop offset='.55' stop-color='%23f6c85c'/%3E%3Cstop offset='1' stop-color='%23cd9a2e'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M9 31.4V5' stroke='%23e9c987' stroke-width='1.9' stroke-linecap='round'/%3E%3Ccircle cx='9' cy='4.2' r='1.9' fill='%23ffe9b3'/%3E%3Ccircle cx='8.4' cy='3.7' r='.7' fill='%23fffdf2' opacity='.9'/%3E%3Cpath d='M10.2 5.6c5.4-1.7 8.6 1.5 13.6.1.5 2.9.4 5.8-.3 8.7-5 1.3-8.6-1.5-13.3.2z' fill='url(%23f)' stroke='%23a97a1f' stroke-width='.9'/%3E%3Cpath d='M10.2 5.6c5.4-1.7 8.6 1.5 13.6.1' stroke='%23fff6da' stroke-width='1' fill='none' opacity='.85'/%3E%3Cpath d='M12.6 7.2c-.7 2.2-.9 4.4-.6 6.6M16.4 6.7c-.6 2.3-.7 4.6-.4 6.9' stroke='%23b98a24' stroke-width='.7' fill='none' opacity='.55'/%3E%3C/svg%3E") 9 32, crosshair}
 #globe-stage.time-mode canvas{cursor:inherit}
 /* 时间模式下国名标签不接事件：点哪儿都是"问时间"，不能顺手打开档案 */
 #globe-stage.time-mode .mlabel{pointer-events:none!important}
+
+/* 点击波纹：三圈金色，错开 90ms 扩散出去 */
+.ripple{
+  position:fixed;z-index:31;pointer-events:none;
+  width:18px;height:18px;margin:-9px 0 0 -9px;border-radius:50%;
+  border:1.4px solid rgba(255,216,140,.95);
+  box-shadow:0 0 10px rgba(255,196,96,.45);
+  opacity:0;animation:rippleOut .72s cubic-bezier(.2,.7,.3,1) forwards;
+}
+@keyframes rippleOut{
+  0%{opacity:.95;transform:scale(.35)}
+  70%{opacity:.35}
+  100%{opacity:0;transform:scale(4.2)}
+}
 
 /* 时间气泡：跟着点击的位置走，样式和左侧工具栏同一套 */
 #time-pin{
@@ -1893,11 +1907,62 @@ body.panel-open #globe-stage{
      3. 都没有 → 交给 openDetail 走基础档案
      以前格陵兰、关岛这类有 ISO 码但从来没采过档案的条目，点开只有一句
      "档案未就绪" —— 比不显示更让人困惑。归属关系在 labels.json 的 parent 里。 */
+  /* ---------- 点击反馈：金色波纹 + 一声轻响 ----------
+     波纹用 DOM 画（三圈错开 90ms），音效用 WebAudio 现场合成 ——
+     不引任何音频文件，省一个请求，也不占仓库体积。 */
+  var _lastDown = { x: 0, y: 0 };
+  document.addEventListener('pointerdown', function (e) {
+    _lastDown.x = e.clientX;
+    _lastDown.y = e.clientY;
+  }, true);
+
+  function rippleAt(x, y) {
+    for (var k = 0; k < 3; k++) {
+      (function (delay) {
+        setTimeout(function () {
+          var d = document.createElement('div');
+          d.className = 'ripple';
+          d.style.left = x + 'px';
+          d.style.top = y + 'px';
+          document.body.appendChild(d);
+          setTimeout(function () { d.remove(); }, 800);
+        }, delay);
+      })(k * 90);
+    }
+  }
+
+  var _ac = null;
+  function chime(freq) {
+    try {
+      var AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return;
+      if (!_ac) _ac = new AC();
+      if (_ac.state === 'suspended') _ac.resume();
+      var t = _ac.currentTime;
+      /* 两个正弦差五度叠加，音量 10ms 冲上去、400ms 衰减干净 ——
+         像敲了一下小铜铃，不是"嘟"的一声提示音。 */
+      [freq, freq * 1.5].forEach(function (f, i) {
+        var o = _ac.createOscillator(), g = _ac.createGain();
+        o.type = 'sine';
+        o.frequency.setValueAtTime(f, t);
+        g.gain.setValueAtTime(0.0001, t);
+        g.gain.exponentialRampToValueAtTime(i ? 0.042 : 0.070, t + 0.012);
+        g.gain.exponentialRampToValueAtTime(0.0001, t + 0.40 + i * 0.12);
+        o.connect(g);
+        g.connect(_ac.destination);
+        o.start(t);
+        o.stop(t + 0.6);
+      });
+    } catch (e) { /* 老浏览器没有 AudioContext，静默跳过 */ }
+  }
+
   function openCountry(c) {
     /* 时间指示模式（旗子）下不打开任何档案。标签那边已经关了
        pointer-events，这里再兜一道：大洲/海洋那几个标签走的是 parent 分支，
        只关国家标签的话，点"北美洲"照样会弹出一张卡片。 */
     if (globe.timeMode) return;
+    rippleAt(_lastDown.x, _lastDown.y);
+    chime(880);
     var iso = String(c.iso || '').toUpperCase();
     var par = String(c.parent || '').toUpperCase();
     var known = Object.keys(HAS_DOC).length > 0;
@@ -1970,22 +2035,11 @@ body.panel-open #globe-stage{
           picWrap.classList.remove('loading');
           picWrap.classList.add('blank');
         };
-        /* 先挂缩略图，主图后台预载完再替换。
-           OBS 上主图 50~150KB、缩略图 10~35KB，第一次访问还要付一次 TLS；
-           直接等主图就是"点开先空一块，过一会儿才出图"。
-           拇指图构图与主图完全一样，只是分辨率低 —— 视觉上变成"很快有图，
-           随后变清晰"，没有空白期。 */
-        if (it.thumb_url) setAsset(pic, it.thumb_url);
-        else setAsset(pic, it.url);
-        if (it.thumb_url && it.url) {
-          var big = new Image();
-          big.onload = function () {
-            if (seq !== picSeq) return;                 // 已经切到别的图了
-            if (pic.getAttribute('src') === big.src) return;
-            setAsset(pic, it.url);
-          };
-          big.src = assetSrc(it.url);
-        }
+        /* 直接上主图。
+           原来先挂缩略图、等主图预载好再替换，视觉上是"先糊一下再变清晰"——
+           用户明确不要这个过渡。OBS 上主图 50~150KB、0.2 秒就到，
+           这点等待比"糊一下"舒服。缩略图只在底下那条胶片带里用。 */
+        setAsset(pic, it.url || it.thumb_url);
         // 换到同一张图时浏览器不会重新触发 load，loaded 就永远加不上，图是透明
         if (pic.complete && pic.naturalWidth) pic.onload();
         capEl.textContent = it.caption_zh || it.caption || '';
@@ -4296,6 +4350,8 @@ body.panel-open #globe-stage{
       if (globe.moved > 6) return;            // 拖动过就不算"点了一下"
       var ll = globe.pickLL(e.clientX, e.clientY);
       if (!ll) return;
+      rippleAt(e.clientX, e.clientY);
+      chime(1320);
       showTimePin(e.clientX, e.clientY, ll);
     });
     window.addEventListener('pointermove', dragMove);

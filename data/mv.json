@@ -165,12 +165,12 @@
     },
     {
       "title": "File:Ithaa inside.JPG",
-      "caption_zh": "马尔代夫水下餐厅内部",
-      "caption": "马尔代夫水下餐厅内部",
+      "caption_zh": "马尔代夫水下餐厅",
+      "caption": "马尔代夫水下餐厅",
       "caption_commons": "Inside Ithaa restaurant",
       "kw": "Ithaa Undersea Restaurant",
-      "url": "assets/mv/L01.webp",
-      "thumb_url": "assets/mv/L01.thumb.webp",
+      "url": "assets/mv/L05.webp",
+      "thumb_url": "assets/mv/L05.thumb.webp",
       "remote_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/bd/Ithaa_inside.JPG/1920px-Ithaa_inside.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
       "source": "article_img",
       "pick_tier": "strict",
@@ -180,8 +180,6 @@
       "license_status": "ok",
       "load_verified": true,
       "bytes": 42848,
-      "caption_zh_manual": "马尔代夫水下餐厅",
-      "caption_zh_source": "llm_from_commons_filename",
       "thumb_bytes": 15432,
       "size": {
         "detail": "760x570",
@@ -210,7 +208,7 @@
     "马尔代夫水上别墅：Wikidata / 维基 / Commons 都没有可用图",
     "地标图改为人工指定清单（5 张，中文图注）"
   ],
-  "image_source_note": "人工按 data/landmarks.json 指定地标，Commons 关键词检索取图；原先自动获得的 2 张已被替换",
+  "image_source_note": "人工按 data/landmarks.json 指定地标，Commons 关键词检索取图；原先自动获得的 0 张已被替换",
   "custom_facets": {
     "festivals": [],
     "cuisine": [],
