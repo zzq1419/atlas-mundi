@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-10-31-J">
+<meta name="build" content="2026-10-31-K">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -1150,28 +1150,46 @@ body.panel-open #globe-stage{
   100%{opacity:0;transform:scale(4.2)}
 }
 
-/* 时间气泡：跟着点击的位置走，样式和左侧工具栏同一套 */
-#time-pin{
-  position:fixed;z-index:32;left:0;top:0;
-  transform:translate(-50%,calc(-100% - 14px));
-  padding:7px 12px 8px;border-radius:10px;
+/* ===== 时间标记 =====
+   在哪儿点，就在那儿"钉"一个标记：一根金色竖线从落点往上，挑住时间气泡。
+   旗子模式下可以连点好几处，每个各钉一根、互不影响，也不跟着鼠标动；
+   退出旗子模式时一起收掉。 */
+#time-pins{position:fixed;inset:0;z-index:32;pointer-events:none}
+.tpin{
+  position:absolute;display:flex;flex-direction:column;align-items:center;
+  transform:translate(-50%,-100%);
+  opacity:0;animation:tpIn .18s ease forwards;
+}
+/* 点得太靠屏幕顶：气泡翻到线下面去，线改朝下 */
+.tpin.below{transform:translate(-50%,0);flex-direction:column-reverse}
+.tpin.out{opacity:0!important;transition:opacity .16s ease}
+@keyframes tpIn{to{opacity:1}}
+.tp-stem{
+  width:2px;height:32px;border-radius:1px;
+  background:linear-gradient(to top,rgba(255,216,140,.95),rgba(255,216,140,.28));
+  box-shadow:0 0 7px rgba(255,196,96,.45);
+}
+.tpin.below .tp-stem{
+  background:linear-gradient(to bottom,rgba(255,216,140,.95),rgba(255,216,140,.28));
+}
+.tp-bubble{
+  padding:7px 12px 8px;border-radius:10px;margin-bottom:7px;
   background:rgba(10,16,26,.94);
   border:1px solid rgba(255,215,138,.45);
   box-shadow:0 12px 30px rgba(0,0,0,.55);
   color:#f4e7cd;font-size:12.5px;line-height:1.5;white-space:nowrap;
-  pointer-events:none;opacity:0;transition:opacity .16s ease;
 }
-#time-pin.on{opacity:1}
-#time-pin b{color:#ffdb8a;font-weight:600;font-variant-numeric:tabular-nums}
-#time-pin i{display:block;font-style:normal;font-size:11px;color:rgba(214,206,186,.72);
+.tpin.below .tp-bubble{margin-bottom:0;margin-top:7px}
+.tp-bubble b{color:#ffdb8a;font-weight:600;font-variant-numeric:tabular-nums}
+.tp-bubble i{display:block;font-style:normal;font-size:11px;color:rgba(214,206,186,.72);
   letter-spacing:.04em;margin-top:2px;font-variant-numeric:tabular-nums}
-#time-pin::after{
-  content:"";position:absolute;left:50%;bottom:-5px;width:8px;height:8px;
-  margin-left:-4px;transform:rotate(45deg);
-  background:rgba(10,16,26,.94);
-  border-right:1px solid rgba(255,215,138,.45);
-  border-bottom:1px solid rgba(255,215,138,.45);
+/* 落点上的一点亮：竖线就扎在这儿 */
+.tpin::after{
+  content:"";position:absolute;left:50%;bottom:-3.5px;width:7px;height:7px;margin-left:-3.5px;
+  border-radius:50%;background:#ffdf9e;
+  box-shadow:0 0 10px rgba(255,196,96,.9),0 0 0 2px rgba(255,196,96,.16);
 }
+.tpin.below::after{bottom:auto;top:-3.5px}
 
 /* ============ 2D 平面地图 ============
    横向循环平铺的世界地图：画布本身是 3 份等距圆柱首尾相接，
@@ -1477,8 +1495,8 @@ body.panel-open #globe-stage{
   </div>
 </div>
 
-<!-- 时间指示的浮标：跟着点击位置走，不接收事件（否则挡住后续点击） -->
-<div id="time-pin" aria-hidden="true"></div>
+<!-- 时间标记的容器：每次点击往里放一个 .tpin（气泡 + 竖线），不接收事件 -->
+<div id="time-pins" aria-hidden="true"></div>
 
 <!-- 自绘提示气泡：浏览器原生 title 太慢、样式也不受控 -->
 <div id="tip" class="tip" aria-hidden="true"></div>
@@ -4357,9 +4375,11 @@ body.panel-open #globe-stage{
       return vec3ToLL(p);
     };
 
-    var pin = document.getElementById('time-pin');
+    var pinLayer = document.getElementById('time-pins');
+    var TPIN_MAX = 6;                      // 最多同时钉 6 个，再多就从最早的开始收
+
     function showTimePin(cx, cy, ll) {
-      if (!pin) return;
+      if (!pinLayer) return;
       /* 时区按经度算：每 15° 一小时。真实时区有政治边界，
          这里要的是"这一点在太阳下的地方时"，按经度反而更自洽。 */
       var offMin = Math.round(ll.lon / 15 * 60);
@@ -4371,15 +4391,36 @@ body.panel-open #globe-stage{
         (Math.abs(off) % 1 === 0 ? Math.abs(off) : Math.abs(off).toFixed(1));
       var ns = ll.lat >= 0 ? 'N' : 'S';
       var ew = ll.lon >= 0 ? 'E' : 'W';
-      pin.innerHTML = '<b>' + (hh < 10 ? '0' : '') + hh + ':' + (mm < 10 ? '0' : '') + mm +
-        '</b>　' + (t.getUTCMonth() + 1) + '月' + t.getUTCDate() + '日 · ' + offStr +
-        '<i>' + Math.abs(ll.lat).toFixed(1) + '°' + ns + '　' +
-        Math.abs(ll.lon).toFixed(1) + '°' + ew + '</i>';
-      pin.style.left = cx + 'px';
-      pin.style.top = cy + 'px';
-      pin.classList.add('on');
+
+      /* 每个落点各自一个标记，互不覆盖 —— 连着点三处就有三个时间钉在那儿。
+         气泡里记的是**点击那一刻**的时间，所以定住以后不会再跟着走。 */
+      var d = document.createElement('div');
+      d.className = 'tpin' + (cy < 150 ? ' below' : '');
+      d.style.left = cx + 'px';
+      d.style.top = cy + 'px';
+      d.innerHTML =
+        '<div class="tp-bubble"><b>' + (hh < 10 ? '0' : '') + hh + ':' +
+          (mm < 10 ? '0' : '') + mm + '</b>　' +
+          (t.getUTCMonth() + 1) + '月' + t.getUTCDate() + '日 · ' + offStr +
+          '<i>' + Math.abs(ll.lat).toFixed(1) + '°' + ns + '　' +
+          Math.abs(ll.lon).toFixed(1) + '°' + ew + '</i></div>' +
+        '<div class="tp-stem"></div>';
+      pinLayer.appendChild(d);
+
+      var kids = pinLayer.children;
+      while (kids.length > TPIN_MAX) pinLayer.removeChild(kids[0]);
     }
-    globe.hideTimePin = function () { if (pin) pin.classList.remove('on'); };
+
+    /* 退出旗子模式时全部收掉：先淡出再删，一起消失 */
+    globe.hideTimePin = function () {
+      if (!pinLayer || !pinLayer.children.length) return;
+      Array.prototype.forEach.call(pinLayer.children, function (n) {
+        n.classList.add('out');
+      });
+      setTimeout(function () {
+        if (pinLayer) pinLayer.innerHTML = '';
+      }, 180);
+    };
 
     cv.addEventListener('click', function (e) {
       if (!globe.timeMode) return;
