@@ -63,30 +63,28 @@
   ],
   "landmark_images": [
     {
-      "title": "File:2021-12-20 Berlin-Ramelau 2.jpg",
-      "caption_zh": "柏林拉梅劳山2号",
-      "caption": "柏林拉梅劳山2号",
-      "caption_commons": "𝙈𝙊𝙋 𝙋𝘼𝙍𝙏𝙄𝙎𝙄𝙋𝘼 𝙎𝙀𝙍𝙄𝙈𝙊𝙉𝙄𝘼 𝙀𝙉𝙏𝙍𝙀𝙂𝘼 𝙉𝙊 𝙄𝙉𝘼𝙂𝙐𝙍𝘼𝙎𝘼𝙐𝙉 𝙍Ó 𝘽𝙀𝙍𝙇𝙄𝙉-𝙍𝘼𝙈𝙀𝙇𝘼𝙐 𝘿𝙄𝙇𝙄, 20 DEZEMB",
-      "kw": "Mount Ramelau Timor-Leste",
-      "url": "assets/tl/L02.webp",
-      "thumb_url": "assets/tl/L02.thumb.webp",
-      "remote_url": "https://upload.wikimedia.org/wikipedia/commons/0/09/2021-12-20_Berlin-Ramelau_2.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+      "title": "File:Tatamailau morning light.jpg",
+      "caption_zh": "拉梅劳山",
+      "caption": "拉梅劳山",
+      "caption_commons": "Marienstatue auf dem Tatamailau bei Sonnenaufgang",
+      "kw": "Tatamailau Mount Ramelau summit Timor Leste",
+      "url": "assets/tl/L01.webp",
+      "thumb_url": "assets/tl/L01.thumb.webp",
+      "remote_url": "https://upload.wikimedia.org/wikipedia/commons/3/32/Tatamailau_morning_light.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
       "source": "commons_search",
       "pick_tier": "strict",
-      "author": "Ministru Obras Públikas. Arq. Salvador Eugénio Soares Dos Reis Pires",
-      "license": "Public domain",
-      "license_url": null,
+      "author": "Isabel Nolasco",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
       "license_status": "ok",
       "load_verified": true,
-      "bytes": 32098,
-      "caption_zh_manual": "拉梅劳山",
-      "caption_zh_source": "llm_from_commons_filename",
-      "thumb_bytes": 12314,
+      "bytes": 14038,
+      "thumb_bytes": 5800,
       "size": {
-        "detail": "760x465",
-        "thumb": "400x245"
+        "detail": "760x507",
+        "thumb": "400x267"
       },
-      "encoding": "webp q72/q74 (源 1800x1102 351KB JPEG)"
+      "encoding": "webp q72/q74 (源 960x640 40KB JPEG)"
     },
     {
       "title": "File:Atauro.jpg",
@@ -167,7 +165,7 @@
       "encoding": "webp q72/q74 (源 1000x702 235KB JPEG)"
     }
   ],
-  "image_license": "Public domain",
+  "image_license": "CC BY-SA 4.0",
   "geometry_status": "naturalearth_50m_chunked",
   "schema_version": "0.1",
   "collected_at": "2026-10-30T22:07:30+08:00",
@@ -178,9 +176,11 @@
     "该实体无对应语种发音，语音改跑 python scripts/tts.py TL",
     "Commons 无可用发音，语音走构建期 TTS 兜底（待接）",
     "包考老城：Wikidata / 维基 / Commons 都没有可用图",
+    "包考老城：Wikidata / 维基 / Commons 都没有可用图",
+    "包考老城：Wikidata / 维基 / Commons 都没有可用图",
     "地标图改为人工指定清单（4 张，中文图注）"
   ],
-  "image_source_note": "人工按 data/landmarks.json 指定地标，Commons 关键词检索取图；原先自动获得的 5 张已被替换",
+  "image_source_note": "人工按 data/landmarks.json 指定地标，Commons 关键词检索取图；原先自动获得的 3 张已被替换",
   "custom_facets": {
     "festivals": [],
     "cuisine": [],

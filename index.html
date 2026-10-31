@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-10-31-E">
+<meta name="build" content="2026-10-31-F">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -1082,54 +1082,29 @@ body.panel-open #globe-stage{
 
 /* ============ 左下角工具按钮 ============ */
 #tools{
-  position:fixed;left:22px;bottom:22px;z-index:25;
-  display:flex;align-items:center;
+  position:fixed;left:20px;bottom:20px;z-index:25;
+  display:flex;align-items:flex-end;
 }
-/* 一块面板装下全部按钮：深色玻璃底 + 细边，收起来时整块缩到零宽，
-   只留下右边那条把手 —— 不再是一串按钮直接浮在球面上。 */
+/* 不加面板、不加边框：图标直接落在球面上，靠间距和留白组织。
+   深色玻璃框会把球面切掉一块，反而更脏。 */
 #tools-body{
-  display:flex;flex-direction:column;gap:8px;
-  padding:8px;border-radius:15px;
-  background:rgba(8,13,22,.74);
-  border:1px solid rgba(126,158,198,.22);
-  box-shadow:0 12px 34px rgba(0,0,0,.42);
-  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
-  max-height:340px;opacity:1;overflow:hidden;
-  transition:max-height .30s cubic-bezier(.4,0,.2,1),
-             max-width .30s cubic-bezier(.4,0,.2,1),
-             padding .30s cubic-bezier(.4,0,.2,1),
-             opacity .20s ease,border-color .2s ease;
+  display:flex;flex-direction:column;gap:6px;
 }
-#tools.collapsed #tools-body{
-  max-height:0;max-width:0;padding:0;opacity:0;border-color:transparent;
-  pointer-events:none;
+/* 每个图标自己带一层极淡的圆底：完全透明会看不清，
+   但也不能再套整块面板 —— 那样等于把球面切掉一角。 */
+#tools-body .tool-btn{
+  background:rgba(7,11,19,.58);
+  border-color:rgba(126,158,198,.18);
+  box-shadow:none;
 }
-/* 面板里的按钮不再自带底色，否则一层套一层 */
-#tools-body .tool-btn{background:transparent;border-color:transparent}
-#tools-body .tool-btn:hover{background:rgba(120,160,210,.16);border-color:rgba(150,185,230,.35)}
-#tools-body .tool-btn.on{background:rgba(58,45,22,.92);border-color:rgba(255,215,138,.72)}
-/* 复位按钮和下面那组开关拉开距离 */
-#tools-body #btn-china{margin-bottom:8px}
-
-/* 折叠把手：贴在面板右侧中间，一条竖着的胶囊 */
-.tools-tab{
-  position:absolute;left:100%;top:50%;margin-left:7px;
-  transform:translateY(-50%);
-  width:16px;height:46px;padding:0;border-radius:9px;cursor:pointer;
-  background:rgba(8,13,22,.78);
-  border:1px solid rgba(126,158,198,.26);
-  transition:border-color .2s ease,background .2s ease;
+#tools-body .tool-btn svg{stroke:rgba(176,202,238,.82)}
+#tools-body .tool-btn:hover{background:rgba(120,160,210,.18);border-color:rgba(150,185,230,.30)}
+#tools-body .tool-btn.on{
+  background:rgba(58,45,22,.82);border-color:rgba(255,215,138,.65);
+  box-shadow:0 0 14px rgba(255,196,96,.18);
 }
-.tools-tab::before{
-  content:"";position:absolute;left:50%;top:50%;
-  width:5px;height:5px;margin:-4px 0 0 -3px;
-  border-left:1.5px solid rgba(178,204,238,.85);
-  border-bottom:1.5px solid rgba(178,204,238,.85);
-  transform:rotate(45deg);           /* 尖朝左：点它收起 */
-  transition:transform .30s cubic-bezier(.4,0,.2,1);
-}
-#tools.collapsed .tools-tab::before{transform:rotate(-135deg)}  /* 尖朝右：点它展开 */
-.tools-tab:hover{border-color:rgba(150,185,230,.55);background:rgba(20,32,52,.9)}
+/* 复位按钮不属于开关，和下面那组拉开距离 */
+#tools-body #btn-china{margin-bottom:14px}
 .tool-btn{
   width:36px;height:36px;padding:0;border-radius:50%;
   display:flex;align-items:center;justify-content:center;
@@ -1442,8 +1417,8 @@ body.panel-open #globe-stage{
 
 <!-- 左下角只留一个视图开关。国名不再用开关 —— 像地图那样按缩放自动分级；
      复位也不再要按钮，双击画面即可。 -->
-<!-- 工具栏是一整块面板，按钮竖排装在里头；收起/展开的把手贴在面板右侧中间，
-     平时不占画面，要收纳就捏它一下。 -->
+<!-- 工具栏：只留图标本身。之前外面套了层玻璃面板，在深色球面上显得又厚又重，
+     干脆去掉容器和折叠把手 —— 六个图标直接浮着，鼠标移上去才有反馈。 -->
 <div id="tools">
   <div id="tools-body">
   <button class="tool-btn" id="btn-china" type="button" aria-label="定位到中国上空" data-tip="回到中国上空">
@@ -1486,8 +1461,6 @@ body.panel-open #globe-stage{
     </svg>
   </button>
   </div>
-  <button class="tools-tab" id="tools-toggle" type="button"
-          aria-label="收起 / 展开工具栏" data-tip="收起工具栏"></button>
 </div>
 
 <!-- 时间指示的浮标：跟着点击位置走，不接收事件（否则挡住后续点击） -->
@@ -1574,7 +1547,11 @@ body.panel-open #globe-stage{
     return new Promise(function (resolve, reject) {
       (function next() {
         if (i >= MIRRORS.length) { reject(new Error('数据源均不可用')); return; }
-        var url = MIRRORS[i++] + rel;
+        /* 数据 URL 也挂构建号。只给图片加没用：
+           浏览器/jsDelivr 缓存的是 data/tl.json 本身，拿到旧数据就会去取旧图，
+           表现就是"页面换了、图片永远不换"。 */
+        var url = MIRRORS[i++] + rel +
+          (BUILD_TAG ? ((rel.indexOf('?') < 0 ? '?' : '&') + 'v=' + encodeURIComponent(BUILD_TAG)) : '');
         var init = opt.signal ? { signal: opt.signal } : undefined;
         fetch(url, init)
           .then(function (r) {

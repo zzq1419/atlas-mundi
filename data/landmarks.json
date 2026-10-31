@@ -11216,8 +11216,14 @@
         "queries": [
           "拉梅劳山"
         ],
-        "kw": "Mount Ramelau Timor-Leste",
-        "must": "ramelau"
+        "kw": "Tatamailau Mount Ramelau summit Timor Leste",
+        "must": "tatamailau",
+        "avoid": [
+          "ferry",
+          "berlin-ramelau",
+          "berlin ramelau",
+          "ship"
+        ]
       },
       {
         "zh": "阿陶罗岛",
