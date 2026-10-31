@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-10-31-L">
+<meta name="build" content="2026-10-31-M">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -3316,8 +3316,25 @@ body.panel-open #globe-stage{
       function (t) { night = t; need--; maybe(); },
       function () { night = null; need--; maybe(); });
 
-    if (want8) {
-      loadTex(loader, 'earth-day-8k.webp', function (t) {
+    /* 地形法线贴图：185KB，**不算进"出球"的等待**（need 不加），
+       晚到一点没影响 —— 到了把 uBump 打开，地形就有了起伏。
+       night 只作用于夜面，日面的山脉/沙漠本来是平的。 */
+    loadTex(loader, 'earth-normal.webp',
+      function (t) {
+        t.anisotropy = 4;
+        t.minFilter = THREE.LinearMipmapLinearFilter;
+        t.magFilter = THREE.LinearFilter;
+        t.generateMipmaps = true;
+        t.needsUpdate = true;
+        globe.normalTex = t;
+        if (globe.earthMat) {
+          globe.earthMat.uniforms.uNormalMap.value = t;
+          globe.earthMat.uniforms.uBump.value = 1;
+        }
+      },
+      function () { /* 拿不到就只是没有起伏，不影响其它 */ });
+
+    if (want8) {      loadTex(loader, 'earth-day-8k.webp', function (t) {
         t.anisotropy = 1;                 // 无 mipmap，各向异性过滤没意义
         t.generateMipmaps = false;        // 省掉最贵的一步（3300 万像素的 mip 链）
         t.minFilter = THREE.LinearFilter;
@@ -3479,7 +3496,13 @@ body.panel-open #globe-stage{
       /* 昼夜分界：按太阳方向决定这半边用白天贴图还是夜间贴图。
          uTermOn=0 时完全不参与计算，行为和以前一模一样。 */
       uSunDir: { value: new THREE.Vector3(1, 0, 0) },
-      uTermOn: { value: 0 }
+      uTermOn: { value: 0 },
+      /* 地形法线：贴图没到时 uBump 保持 0，整段计算被跳过，
+         行为和加这个功能之前完全一样。 */
+      uNormalMap: { value: dayTex },
+      uBump: { value: 0 },
+      uNormalScale: { value: 1.0 },
+      uRelief: { value: 1.0 }
     };
 
     var vert = [
@@ -3512,6 +3535,10 @@ body.panel-open #globe-stage{
       'uniform float uFade;',
       'uniform vec3 uSunDir;',
       'uniform float uTermOn;',
+      'uniform sampler2D uNormalMap;',
+      'uniform float uBump;',
+      'uniform float uNormalScale;',
+      'uniform float uRelief;',
       'varying vec2 vUv;',
       'varying vec3 vN;',
       'varying vec3 vNL;',
@@ -3532,6 +3559,24 @@ body.panel-open #globe-stage{
       '  float tpp = max(fwidth(vUv.x), fwidth(vUv.y)) * 8192.0;',
       '  float k = smoothstep(1.5, 0.8, tpp) * uMixB;',
       '  vec3 day = mix(dA, dB, k) * limb;',
+      /* ---------- 地形法线（起伏） ----------
+         贴图本身是"平"的：山脉和沙漠一样亮，只能靠颜色区分。
+         这里用一张法线贴图把每个像素的法线歪一下，再跟"从观察者左上方
+         打过来"的一束光做点积，明暗差就是这一点的起伏。
+         光源固定在相机侧而不是太阳侧 —— 否则转到夜面时整片地形全黑。
+         TBN 不用屏幕导数算：球面的切向就是"东"和"北"，
+         east = 上 × n，north = n × east，两个叉乘就够。 */
+      '  if (uBump > 0.5) {',
+      '    vec3 nt = texture2D(uNormalMap, vUv).xyz * 2.0 - 1.0;',
+      '    vec3 east = cross(vec3(0.0, 1.0, 0.0), n);',
+      '    if (length(east) < 0.0008) east = vec3(1.0, 0.0, 0.0);',
+      '    east = normalize(east);',
+      '    vec3 north = normalize(cross(n, east));',
+      '    vec3 nP = normalize(n + (east * nt.x + north * nt.y) * uNormalScale);',
+      '    vec3 L = normalize(v + vec3(-0.34, 0.46, 0.0));',
+      '    float rl = (dot(nP, L) - dot(n, L)) * uRelief;',
+      '    day *= clamp(1.0 + rl, 0.62, 1.38);',
+      '  }',
       '  vec3 col = day;',
       '  float nightK = nightMix;',   // 夜里用多少夜间贴图（0=全白天）
       '  if (hasNight > 0.5) {',
@@ -3934,17 +3979,60 @@ body.panel-open #globe-stage{
     }
     globe.updateSunTerm = updateSunTerm;
 
-    /* 大气：两层。内层贴着球面做轮廓辉光，外层再散开一点。
-       外缘 1.055 和 fitZ(1.07) 配套 —— 聚焦时不会被上下切掉。
-       opacity 初始为 0，跟着地球一起淡入；否则会先出现一圈光晕、球还没出来。 */
+    /* 大气：两层菲涅尔壳。
+       以前这两层是 MeshBasicMaterial 的纯色球 —— BackSide 只能看到"球的
+       内壁"，等于在整个圆面上糊了一层淡蓝，而真正的边缘辉光并不存在。
+       现在改成按视角做菲涅尔：正对相机的地方完全透明，越靠轮廓越亮，
+       颜色加算叠加，于是只有一圈光晕，球面本身不被蒙住。
+       外缘 1.06 和 fitZ(1.07) 配套 —— 聚焦时不会被上下切掉。 */
+    function atmoMaterial(color, power, strength) {
+      return new THREE.ShaderMaterial({
+        uniforms: {
+          uColor: { value: new THREE.Color(color) },
+          uPow: { value: power },
+          uOpacity: { value: 0 }
+        },
+        vertexShader: [
+          'varying vec3 vN;',
+          'varying vec3 vP;',
+          'void main() {',
+          '  vN = normalize(normalMatrix * normal);',
+          '  vec4 mv = modelViewMatrix * vec4(position, 1.0);',
+          '  vP = mv.xyz;',
+          '  gl_Position = projectionMatrix * mv;',
+          '}'
+        ].join('\n'),
+        fragmentShader: [
+          'uniform vec3 uColor;',
+          'uniform float uPow;',
+          'uniform float uOpacity;',
+          'varying vec3 vN;',
+          'varying vec3 vP;',
+          'void main() {',
+          '  vec3 v = normalize(-vP);',
+          // abs()：BackSide 看到的是内壁，法线朝外，点积是负的
+          '  float f = pow(1.0 - abs(dot(normalize(vN), v)), uPow);',
+          '  gl_FragColor = vec4(uColor, f * uOpacity);',
+          '}'
+        ].join('\n'),
+        side: THREE.BackSide,
+        transparent: true,
+        depthWrite: false,
+        blending: THREE.AdditiveBlending
+      });
+    }
     globe.atmo = [
-      { mat: new THREE.MeshBasicMaterial({
-          color: 0x4a90d0, transparent: true, opacity: 0, side: THREE.BackSide }), base: 0.05 },
-      { mat: new THREE.MeshBasicMaterial({
-          color: 0x2a6096, transparent: true, opacity: 0, side: THREE.BackSide }), base: 0.026 }
+      { mat: atmoMaterial(0x74b4ff, 3.6, 1), base: 0.42 },   // 贴着球面的细亮边
+      { mat: atmoMaterial(0x2f6ea8, 2.6, 1), base: 0.26 }    // 外面散开的一层
     ];
-    scene.add(new THREE.Mesh(new THREE.SphereGeometry(1.006, 64, 48), globe.atmo[0].mat));
-    scene.add(new THREE.Mesh(new THREE.SphereGeometry(1.055, 48, 32), globe.atmo[1].mat));
+    var atmoIn = new THREE.Mesh(new THREE.SphereGeometry(1.004, 64, 48), globe.atmo[0].mat);
+    var atmoOut = new THREE.Mesh(new THREE.SphereGeometry(1.045, 48, 32), globe.atmo[1].mat);
+    atmoIn.renderOrder = 4;
+    atmoOut.renderOrder = 3;
+    window.__atmo = globe.atmo;          // 调试用：命令行里可以直接调参
+    window.__globe = globe;
+    scene.add(atmoIn);
+    scene.add(atmoOut);
 
     /* 经纬网与大陆轮廓：只在没有贴图时显示（兜底形态）。
        有贴图后它们会显得杂乱，所以贴图一到就隐藏。 */
@@ -4024,6 +4112,11 @@ body.panel-open #globe-stage{
 
       sphere.material = earthMaterial(dayTex, nightTex);
       globe.earthMat = sphere.material;
+      /* 法线贴图可能比材质先到（它更快），也可能后到（回调里自己挂） */
+      if (globe.normalTex) {
+        globe.earthMat.uniforms.uNormalMap.value = globe.normalTex;
+        globe.earthMat.uniforms.uBump.value = 1;
+      }
       /* 8K 到位就直接挂上，uMixB 恒为 1：
          shader 里按 fwidth 算"每像素吃几个 8K 纹素"，缩放时自动在 4K/8K 之间软切换，
          所以这里不需要任何交叉淡化动画 —— 也就没有"淡化到一半卡一下"这回事。 */
@@ -4555,7 +4648,9 @@ body.panel-open #globe-stage{
         if (globe.atmo) {
           var atmoK = (globe.fadeVal == null ? 1 : globe.fadeVal) *
                       (1 - 0.93 * U.nightMix.value);
-          globe.atmo.forEach(function (a) { a.mat.opacity = a.base * atmoK; });
+          globe.atmo.forEach(function (a) {
+            a.mat.uniforms.uOpacity.value = a.base * atmoK;
+          });
         }
 
         /* 8K 淡入：只把 uMixB 推到 1，不接管 dayMap、也不释放 4K ——
