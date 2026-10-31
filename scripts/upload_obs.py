@@ -85,14 +85,18 @@ EXCLUDE_SUFFIX = ("_ne_50m_countries.geojson", "_ne_110m_land.geojson")
 EXCLUDE_DIRS = {"__pycache__", "_llm"}
 
 
-def collect() -> list[tuple[str, str]]:
+def collect(only: str = "") -> list[tuple[str, str]]:
     """收集待上传文件，返回 [(绝对路径, 对象键)]。"""
     out = []
     for name in INCLUDE_FILES:
         p = os.path.join(ROOT, name)
         if os.path.isfile(p):
             out.append((p, name))
-    for d in INCLUDE_DIRS:
+    dirs = INCLUDE_DIRS
+    if only:
+        keep = {x.strip().strip("/") for x in only.split(",") if x.strip()}
+        dirs = [d for d in INCLUDE_DIRS if d in keep]
+    for d in dirs:
         base = os.path.join(ROOT, d)
         if not os.path.isdir(base):
             continue
@@ -100,6 +104,13 @@ def collect() -> list[tuple[str, str]]:
             dirnames[:] = [x for x in dirnames if x not in EXCLUDE_DIRS]
             for fn in filenames:
                 if fn.endswith(EXCLUDE_SUFFIX) or fn.startswith("."):
+                    continue
+                # 压图后的源图（674MB）：数据里已经全部指向 .webp，
+                # 传上去只是白占空间和带宽。assets 根目录的 favicon/logo 除外。
+                low = fn.lower()
+                under_country = os.path.relpath(dirpath, base).count(os.sep) >= 0 and \
+                    dirpath != base
+                if under_country and low.endswith((".jpg", ".jpeg", ".png")):
                     continue
                 p = os.path.join(dirpath, fn)
                 key = os.path.relpath(p, ROOT).replace(os.sep, "/")
@@ -128,9 +139,18 @@ def main() -> int:
                     help="cn-north-4 北京四 / cn-east-3 上海一 / cn-south-1 广州")
     ap.add_argument("--dry-run", action="store_true", help="只列文件与体积，不上传")
     ap.add_argument("--prefix", default="", help="对象键前缀，如 v1/")
+    ap.add_argument("--only", default="",
+                    help="只传这些目录（逗号分隔），如 assets。data/geo 现在走 jsDelivr 更快，"
+                         "一般只需要传 assets")
     a = ap.parse_args()
 
-    files = collect()
+    try:
+        from envfile import load as load_env
+        load_env()
+    except Exception:
+        pass
+
+    files = collect(a.only)
     total = sum(os.path.getsize(p) for p, _ in files)
     print("待上传 %d 个文件，合计 %.2f MB" % (len(files), total / 1048576))
     by_ext = {}
