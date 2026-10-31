@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-10-31-A">
+<meta name="build" content="2026-10-31-B">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -3324,15 +3324,22 @@ body.panel-open #globe-stage{
       nightMap: { value: nightTex || dayTex },
       hasNight: { value: hasNight },
       nightMix: { value: 0 },       // 0=白天，1=全夜（看城市灯光）
-      uFade: { value: 0 }           // 整球淡入，避免"啪"一下贴上来
+      uFade: { value: 0 },          // 整球淡入，避免"啪"一下贴上来
+      /* 昼夜分界：按太阳方向决定这半边用白天贴图还是夜间贴图。
+         uTermOn=0 时完全不参与计算，行为和以前一模一样。 */
+      uSunDir: { value: new THREE.Vector3(1, 0, 0) },
+      uTermOn: { value: 0 }
     };
 
     var vert = [
       'varying vec2 vUv;',
       'varying vec3 vN;',
+      'varying vec3 vNL;',
       'varying vec3 vV;',
       'void main() {',
       '  vUv = uv;',
+      // vNL 是没旋转过的法线：昼夜分界要"钉在地表上"，不能被自转/拖拽带跑
+      '  vNL = normalize(normal);',
       '  vN = normalize(mat3(modelMatrix) * normal);',
       '  vec4 wp = modelMatrix * vec4(position, 1.0);',
       '  vV = normalize(cameraPosition - wp.xyz);',
@@ -3352,8 +3359,11 @@ body.panel-open #globe-stage{
       'uniform float hasNight;',
       'uniform float nightMix;',
       'uniform float uFade;',
+      'uniform vec3 uSunDir;',
+      'uniform float uTermOn;',
       'varying vec2 vUv;',
       'varying vec3 vN;',
+      'varying vec3 vNL;',
       'varying vec3 vV;',
       'vec3 s2l(vec3 c){ return pow(c, vec3(2.2)); }',
       'vec3 l2s(vec3 c){ return pow(c, vec3(1.0/2.2)); }',
@@ -3372,6 +3382,7 @@ body.panel-open #globe-stage{
       '  float k = smoothstep(1.5, 0.8, tpp) * uMixB;',
       '  vec3 day = mix(dA, dB, k) * limb;',
       '  vec3 col = day;',
+      '  float nightK = nightMix;',   // 夜里用多少夜间贴图（0=全白天）
       '  if (hasNight > 0.5) {',
       '    vec3 lights = s2l(texture2D(nightMap, vUv).rgb);',
       /* 夜图自己的"深蓝海面"就是整片蓝雾的来源：直接乘 3.2 会把它一起提亮。
@@ -3379,13 +3390,24 @@ body.panel-open #globe-stage{
          给陆地一点轮廓 —— 再多就又开始发蓝了。 */
       '    float ll = dot(lights, vec3(0.299, 0.587, 0.114));',
       '    lights *= smoothstep(0.014, 0.11, ll);',
-      '    vec3 night = lights * 2.1 + day * 0.006;',
-      '    col = mix(day, night, nightMix);',
+      /* 夜半球保留 10% 的地表亮度（原来是 0.6%）。
+         纯灯光的夜面是一块黑，看不出那边是什么大陆；留一点底色，
+         轮廓认得出来，又不至于像加了层蓝雾。 */
+      '    vec3 night = lights * 2.1 + day * 0.10;',
+      /* 昼夜分界：世界坐标法线点太阳方向，>0 是白昼侧。
+         ±0.05 的过渡带 ≈ 3°，一条柔和的过渡，不是一条硬线。 */
+      '    if (uTermOn > 0.5) {',
+      // 用局部法线：分界跟着地表走，转球/自转都不会让它跑掉
+      '      float sd = dot(normalize(vNL), normalize(uSunDir));',
+      '      float dayK = smoothstep(-0.05, 0.05, sd);',
+      '      nightK = max(nightMix, (1.0 - dayK) * uTermOn);',
+      '    }',
+      '    col = mix(day, night, nightK);',
       '  }',
       // 边缘大气：Fresnel 越靠轮廓越亮，模拟散射
       '  float rim = pow(1.0 - facing, 3.8);',
       // 夜面把蓝色边缘光收掉大半，否则整个轮廓糊成一圈蓝雾
-      '  col += vec3(0.12, 0.32, 0.66) * rim * 0.26 * (1.0 - 0.7 * nightMix);',
+      '  col += vec3(0.12, 0.32, 0.66) * rim * 0.26 * (1.0 - 0.7 * nightK);',
       '  gl_FragColor = vec4(l2s(col) * uFade, 1.0);',
       '}'
     ].join('\n');
@@ -3728,60 +3750,27 @@ body.panel-open #globe-stage{
     spin.add(sphere);
 
     /* ---------- 昼夜分界 ----------
-       一层只比球面高 0.0016 的球壳，片元里按"太阳方向"决定明暗：
-       dot(法线, 太阳) < 0 的那半边压暗，等于 0 的那一圈画成金色晨昏线。
-       为什么要自己算而不是给球体加光照：底图是烘死的卫星影像（自带光照），
-       再叠一个真实光源只会把白天的云和海面照得发灰，得不到"半边暗"的效果。
-
-       挂在 spin 里而不是 scene：这样分界线钉在地表上，是一张"此刻的昼夜快照"。
-       挂在 scene 里的话，地球 116 秒自转一圈，阴影会每秒扫过 3 个经度，
-       看起来像昼夜在疯狂交替 —— 那不是他想看的东西。 */
-    var SUN = new THREE.Vector3(1, 0, 0);
-    var termMat = new THREE.ShaderMaterial({
-      uniforms: { uSun: { value: SUN }, uOn: { value: 0 } },
-      transparent: true,
-      depthWrite: false,
-      vertexShader: [
-        'varying vec3 vW;',
-        'void main() {',
-        '  vW = (modelMatrix * vec4(position, 1.0)).xyz;',
-        '  gl_Position = projectionMatrix * viewMatrix * vec4(vW, 1.0);',
-        '}'
-      ].join('\n'),
-      fragmentShader: [
-        'uniform vec3 uSun;',
-        'uniform float uOn;',
-        'varying vec3 vW;',
-        'void main() {',
-        '  vec3 n = normalize(vW);',
-        '  float d = dot(n, normalize(uSun));',
-        // 夜半球压暗；±0.03 的过渡带避免边界出现锯齿
-        '  float night = 1.0 - smoothstep(-0.03, 0.03, d);',
-        // 晨昏线：|d| 很小的窄带，染成金色
-        '  float line = 1.0 - smoothstep(0.0, 0.014, abs(d));',
-        '  vec3 col = mix(vec3(0.020, 0.045, 0.105), vec3(1.0, 0.85, 0.52), step(0.5, line));',
-        // 0.36 而不是 0.5：压到太黑就看不出夜半球是哪儿了，那片海和陆地还得能认
-        '  float a = night * 0.36 + line * 0.28;',
-        '  gl_FragColor = vec4(col, a * uOn);',
-        '}'
-      ].join('\n')
-    });
-    var termMesh = new THREE.Mesh(new THREE.SphereGeometry(1.0016, 96, 64), termMat);
-    termMesh.renderOrder = 6;
-    termMesh.visible = false;
-    spin.add(termMesh);
-    globe.term = { mesh: termMesh, mat: termMat, sun: SUN, on: false };
+       不做叠加层，直接让球体材质自己分两半：
+       法线点太阳方向 > 0 的那半边用白天贴图，< 0 的那半边换成夜间贴图
+       （城市灯光那套）。第一版做的是"整体压暗 + 画一条金色晨昏线"，
+       方向错了 —— 要的是"一半白天模式、一半黑夜模式"，不是一条分界线。 */
+    globe.term = { on: false };
 
     /* 太阳直射点：UTC 12:00 正对 0° 经线，每小时西移 15°；
-       纬度用赤纬的近似公式（一年一轮，误差 < 0.5°，看昼夜够用）。 */
+       纬度用赤纬的近似公式（一年一轮，误差 < 0.5°，看昼夜够用）。
+       这里给的是球体局部坐标，shader 里也改用局部法线比 ——
+       分界线于是钉在地表上，转球或自转都不会把它带跑。 */
+    var _sunTmp = new THREE.Vector3();
     function updateSunTerm() {
-      if (!globe.term) return;
+      var m = globe.earthMat;
+      if (!m || !m.uniforms.uSunDir || !sphere) return;
       var now = new Date();
       var utcH = now.getUTCHours() + now.getUTCMinutes() / 60 + now.getUTCSeconds() / 3600;
       var lon = -(utcH - 12) * 15;
       var doy = Math.floor((now - Date.UTC(now.getUTCFullYear(), 0, 0)) / 86400000);
       var decl = 23.44 * Math.sin(2 * Math.PI * (284 + doy) / 365);
-      llToVec3(lon, decl, 1, globe.term.sun);
+      llToVec3(lon, decl, 1, _sunTmp);
+      m.uniforms.uSunDir.value.copy(_sunTmp);
     }
     globe.updateSunTerm = updateSunTerm;
 
@@ -4548,10 +4537,9 @@ body.panel-open #globe-stage{
     if (btm) {
       btm.addEventListener('click', function () {
         var T = globe.term;
-        if (!T) return;
+        if (!T || !globe.earthMat) return;
         T.on = !T.on;
-        T.mesh.visible = T.on;
-        T.mat.uniforms.uOn.value = T.on ? 1 : 0;
+        globe.earthMat.uniforms.uTermOn.value = T.on ? 1 : 0;
         if (T.on) {
           globe.updateSunTerm();
           clearInterval(sunTimer);
