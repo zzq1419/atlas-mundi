@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-10-31-B">
+<meta name="build" content="2026-10-31-C">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -1855,6 +1855,10 @@ body.panel-open #globe-stage{
      以前格陵兰、关岛这类有 ISO 码但从来没采过档案的条目，点开只有一句
      "档案未就绪" —— 比不显示更让人困惑。归属关系在 labels.json 的 parent 里。 */
   function openCountry(c) {
+    /* 时间指示模式（旗子）下不打开任何档案。标签那边已经关了
+       pointer-events，这里再兜一道：大洲/海洋那几个标签走的是 parent 分支，
+       只关国家标签的话，点"北美洲"照样会弹出一张卡片。 */
+    if (globe.timeMode) return;
     var iso = String(c.iso || '').toUpperCase();
     var par = String(c.parent || '').toUpperCase();
     var known = Object.keys(HAS_DOC).length > 0;
@@ -3623,7 +3627,16 @@ body.panel-open #globe-stage{
       if (!L._wc) { L._wc = 1; L.el.style.willChange = 'transform'; }
       var op = alpha.toFixed(2);
       if (L._o !== op) { L._o = op; L.el.style.opacity = op; }
-      if (L.iso) L.el.style.pointerEvents = 'auto';
+      /* 时间指示模式下所有标签都不接事件 —— 不只是国家，大洲/海洋/岛这些
+         没 iso 的标签也在内。它们同样挂着 click（走 parent 分支），
+         只关国家那几个的话，点"北美洲"照样会弹出一张卡片。
+         这里写的是内联样式，优先级高于 CSS 的 .time-mode .mlabel 规则，
+         所以必须在这拦一道。 */
+      if (globe.timeMode) {
+        if (L.el.style.pointerEvents !== 'none') L.el.style.pointerEvents = 'none';
+      } else if (L.iso && L.el.style.pointerEvents === 'none') {
+        L.el.style.pointerEvents = 'auto';
+      }
       L.on = true;
     }
   }
@@ -4284,6 +4297,9 @@ body.panel-open #globe-stage{
       // 拖拽结束时浏览器也会派发 click，位移超过 6px 视为拖动而非点击
       if (Math.abs(e.clientX - downAt.x) + Math.abs(e.clientY - downAt.y) > 6) return;
       if (e.detail > 1) return;        // 双击的第二次，交给 dblclick 复位
+      /* 时间指示模式下这里什么都不做：点哪儿都只是"问时间"，
+         不能顺手高亮国界、更不能弹档案。真正处理时间的是另一个监听器。 */
+      if (globe.timeMode) return;
       var rect = cv.getBoundingClientRect();
       ndc.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
       ndc.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
@@ -4379,7 +4395,8 @@ body.panel-open #globe-stage{
       }
 
       if (globe.autoSpin && !globe.dragging && !globe.flying &&
-          nowMs > globe.idleUntil && !(globe.term && globe.term.on)) {
+          nowMs > globe.idleUntil && !(globe.term && globe.term.on) &&
+          !globe.timeMode) {
         /* 自转：0.0009 弧度/帧@60fps ≈ 116 秒一圈（原来 0.0013 = 80 秒，偏快）。
            再按相机距离减速：同样的角速度，凑近看时地表掠过屏幕的速度会快得多，
            乘 z/CAM_FAR 正好把这个放大抵消掉，远近看着一样从容。 */
@@ -4566,6 +4583,11 @@ body.panel-open #globe-stage{
         bti.classList.toggle('on', globe.timeMode);
         bti.setAttribute('data-tip', globe.timeMode
           ? '退出时间指示' : '点地球任意位置看当地时间');
+        /* 立刻把所有标签的点击态刷一遍：光靠下一帧的 updateLabels 也行，
+           但那之间有一帧的空窗，手快的话正好点进去。 */
+        (globe.labels || []).forEach(function (L) {
+          L.el.style.pointerEvents = globe.timeMode ? 'none' : (L.iso ? 'auto' : '');
+        });
         if (!globe.timeMode && globe.hideTimePin) globe.hideTimePin();
         if (window.__tipHide) window.__tipHide();
       });
