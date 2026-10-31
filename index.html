@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-10-31-M">
+<meta name="build" content="2026-10-31-N">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -3501,8 +3501,13 @@ body.panel-open #globe-stage{
          行为和加这个功能之前完全一样。 */
       uNormalMap: { value: dayTex },
       uBump: { value: 0 },
-      uNormalScale: { value: 1.0 },
-      uRelief: { value: 1.0 }
+      uNormalScale: { value: 1.25 },
+      uRelief: { value: 2.1 },
+      uShade: { value: 1.0 },
+      uSpec: { value: 0.7 },
+      uSpecPow: { value: 26.0 },
+      uTone: { value: 0.9 },
+      uLight: { value: new THREE.Vector3(0, 0, 1) }
     };
 
     var vert = [
@@ -3539,6 +3544,11 @@ body.panel-open #globe-stage{
       'uniform float uBump;',
       'uniform float uNormalScale;',
       'uniform float uRelief;',
+      'uniform float uShade;',
+      'uniform float uSpec;',
+      'uniform float uSpecPow;',
+      'uniform float uTone;',
+      'uniform vec3 uLight;',
       'varying vec2 vUv;',
       'varying vec3 vN;',
       'varying vec3 vNL;',
@@ -3558,7 +3568,29 @@ body.panel-open #globe-stage{
          所以缩小时退回带 mipmap 的 4K —— 两张图按这个比例软过渡，没有跳变。 */
       '  float tpp = max(fwidth(vUv.x), fwidth(vUv.y)) * 8192.0;',
       '  float k = smoothstep(1.5, 0.8, tpp) * uMixB;',
-      '  vec3 day = mix(dA, dB, k) * limb;',
+      /* ---------- 体积光 ----------
+         贴图直出时整颗球亮度一样，看着就是个圆片。这里加一束"从观察者
+         左上方打过来"的光（跟法线起伏用的是同一束，两者方向一致才不打架）：
+         亮面提 10%、暗面压 30%，球就有了立体感。
+         光跟着相机走而不是太阳 —— 否则地球一转，暗面就转到正面，
+         "白天模式"里会凭空出现半个黑夜。 */
+      /* 光必须是**一个方向**，不能拿"点到相机的方向"加个偏移凑：
+         v 每个像素都不同，等于光源跟着像素乱转，明暗自然出不来。
+         uLight 由 CPU 每帧按相机算好（相机上方偏左）。 */
+      '  vec3 Lv = normalize(uLight);',
+      '  float sdot = dot(n, Lv);',
+      '  float shade = mix(1.0 - 0.60 * uShade, 1.0 + 0.20 * uShade,',
+      '                    smoothstep(-0.55, 0.85, sdot));',
+      '  vec3 day = mix(dA, dB, k) * limb * shade;',
+      /* ---------- 海面反光 ----------
+         海水和陆地的差别在蓝通道：海是"蓝远大于红"。用这个差当遮罩，
+         在光来的那一侧加一块小而亮的高光（Blinn-Phong，指数 46 = 很紧的一点）。
+         这是"球是立体的"最有效的暗示 —— 一块会移动的亮斑，
+         比任何明暗渐变更像真的。 */
+      '  float sea = smoothstep(0.012, 0.075, day.b - day.r);',
+      '  vec3 Hv = normalize(Lv + v);',
+      '  float spec = pow(max(dot(n, Hv), 0.0), uSpecPow) * sea * uSpec;',
+      '  day += vec3(0.42, 0.56, 0.78) * spec;',
       /* ---------- 地形法线（起伏） ----------
          贴图本身是"平"的：山脉和沙漠一样亮，只能靠颜色区分。
          这里用一张法线贴图把每个像素的法线歪一下，再跟"从观察者左上方
@@ -3573,9 +3605,9 @@ body.panel-open #globe-stage{
       '    east = normalize(east);',
       '    vec3 north = normalize(cross(n, east));',
       '    vec3 nP = normalize(n + (east * nt.x + north * nt.y) * uNormalScale);',
-      '    vec3 L = normalize(v + vec3(-0.34, 0.46, 0.0));',
+      '    vec3 L = Lv;',
       '    float rl = (dot(nP, L) - dot(n, L)) * uRelief;',
-      '    day *= clamp(1.0 + rl, 0.62, 1.38);',
+      '    day *= clamp(1.0 + rl, 0.52, 1.62);',
       '  }',
       '  vec3 col = day;',
       '  float nightK = nightMix;',   // 夜里用多少夜间贴图（0=全白天）
@@ -3589,7 +3621,9 @@ body.panel-open #globe-stage{
       /* 夜半球保留 10% 的地表亮度（原来是 0.6%）。
          纯灯光的夜面是一块黑，看不出那边是什么大陆；留一点底色，
          轮廓认得出来，又不至于像加了层蓝雾。 */
-      '    vec3 night = lights * 2.1 + day * 0.10;',
+      /* 2.1 → 2.9：加了 ACES 之后中间调被压，灯光显得发闷，
+         这里补回来，夜里还是一眼能看出城市带。 */
+      '    vec3 night = lights * 2.9 + day * 0.10;',
       /* 昼夜分界：世界坐标法线点太阳方向，>0 是白昼侧。
          ±0.05 的过渡带 ≈ 3°，一条柔和的过渡，不是一条硬线。 */
       '    if (uTermOn > 0.5) {',
@@ -3604,6 +3638,26 @@ body.panel-open #globe-stage{
       '  float rim = pow(1.0 - facing, 3.8);',
       // 夜面把蓝色边缘光收掉大半，否则整个轮廓糊成一圈蓝雾
       '  col += vec3(0.12, 0.32, 0.66) * rim * 0.26 * (1.0 - 0.7 * nightK);',
+      /* 这里必须自己转回 sRGB。
+         实测过：three 的 outputColorSpace 只作用于内置材质，
+         自写的 ShaderMaterial 不会被追加 colorspace 转换 ——
+         去掉这行，渲染出来的像素正好比贴图暗一个 gamma（102 → 35）。
+         取中心点与 8K 贴图同坐标对比：贴图 (101,80,48)、渲染 (102,81,48)，
+         一一对上，说明这条链路是对的。 */
+      /* ---------- 轻微调色 ----------
+         和实验页并排看，这颗球"发淡"：贴图直出没有明暗层次，
+         中间调偏灰。这里补两笔（都作用在线性值上）：
+         · 提饱和 12%：把每个像素往远离灰色的方向推
+         · 压一点暗部：pow(1.06) 让中间调略沉，白的地方基本不动
+         数值都很小，目的是"更像照片"，不是滤镜。 */
+      '  float lum0 = dot(col, vec3(0.2126, 0.7152, 0.0722));',
+      '  col = mix(vec3(lum0), col, 1.12);',
+      /* ACES 的近似曲线（Narkowicz 版），在**线性**空间里压中间调、收高光：
+         这正是实验页看起来"厚"的原因 —— 它挂了 toneMapping，我们没挂。
+         直接照搬会让整颗球发闷，所以用 uTone 控制混合比例。 */
+      '  vec3 aces = (col * (2.51 * col + 0.03)) / (col * (2.43 * col + 0.59) + 0.14);',
+      '  col = mix(col, aces, uTone);',
+      '  col = pow(max(col, 0.0), vec3(1.06));',
       '  gl_FragColor = vec4(l2s(col) * uFade, 1.0);',
       '}'
     ].join('\n');
@@ -4619,6 +4673,23 @@ body.panel-open #globe-stage{
       if (globe.earthMat) {
         var U = globe.earthMat.uniforms;
         U.nightMix.value += (globe.nightTarget - U.nightMix.value) * 0.09;
+
+        /* 场景光：相机正前方再往"上偏左"抬一点。
+           每帧按相机算，所以拖到任何角度，球面都是"左上亮、右下暗"，
+           立体感稳定；它不跟地球自转，否则一转暗部就跑到正面来了。 */
+        if (U.uLight) {
+          var cd = globe.camDir || (globe.camDir = new THREE.Vector3());
+          cd.copy(camera.position).normalize();          // 球心在原点，相机位置就是方向
+          var upv = globe.camUp || (globe.camUp = new THREE.Vector3());
+          upv.set(0, 1, 0).applyQuaternion(camera.quaternion);   // 屏幕上方向
+          var rtv = globe.camRight || (globe.camRight = new THREE.Vector3());
+          rtv.crossVectors(upv, cd).normalize();                  // 屏幕右方向
+          /* 系数决定"有多斜"：z 太大等于正面打光，整颗球一样亮（没立体感），
+             所以这里把正前方向压到 0.55，往上 0.85、往左 0.55 ——
+             光从左上斜着进来，明暗才铺得开。 */
+          U.uLight.value.copy(cd).multiplyScalar(0.55)
+            .addScaledVector(upv, 0.85).addScaledVector(rtv, -0.55).normalize();
+        }
 
         /* 整球淡入：0 → 1 用 1.1 秒、smoothstep 缓动。
            不是过渡动画炫技 —— 贴图从无到有如果硬切，观感就是"闪了一下"。
