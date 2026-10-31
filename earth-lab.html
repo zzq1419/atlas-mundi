@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>地球实验室 · three.js 光照版</title>
+<style>
+  :root{
+    --gold:#ffdb8a;
+    --ink:#e8eef8;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;background:#04060b;overflow:hidden}
+  canvas{display:block;width:100%;height:100%}
+
+  #hud{
+    position:fixed;left:26px;top:24px;z-index:5;
+    font:13px/1.75 -apple-system,"Segoe UI","Microsoft YaHei",sans-serif;
+    color:var(--ink);letter-spacing:.01em;
+    text-shadow:0 1px 12px rgba(0,0,0,.8);
+    pointer-events:none;max-width:330px;
+  }
+  #hud h1{
+    margin:0 0 2px;font-size:15px;font-weight:600;letter-spacing:.04em;
+  }
+  #hud h1 span{color:var(--gold);font-weight:500}
+  #hud p.sub{
+    margin:0 0 12px;font-size:11.5px;color:rgba(180,196,220,.62);letter-spacing:.06em;
+  }
+  #hud ul{margin:0;padding:0;list-style:none}
+  #hud li{
+    position:relative;padding-left:14px;font-size:12.5px;color:rgba(214,226,244,.88);
+    margin-bottom:5px;
+  }
+  #hud li::before{
+    content:"";position:absolute;left:0;top:8px;width:5px;height:5px;border-radius:50%;
+    background:var(--gold);opacity:.75;
+  }
+  #hud li b{color:#fff;font-weight:600}
+  #hint{
+    position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:5;
+    font:12px/1 -apple-system,"Segoe UI","Microsoft YaHei",sans-serif;
+    color:rgba(190,206,230,.55);letter-spacing:.08em;pointer-events:none;
+  }
+  #ab{
+    position:fixed;right:26px;bottom:24px;z-index:6;
+    padding:9px 15px;border-radius:10px;cursor:pointer;
+    font:12.5px/1 -apple-system,"Segoe UI","Microsoft YaHei",sans-serif;letter-spacing:.04em;
+    color:#f2e6cd;background:rgba(12,18,28,.86);
+    border:1px solid rgba(255,215,138,.42);
+    box-shadow:0 10px 26px rgba(0,0,0,.5);
+    transition:background .15s ease,border-color .15s ease;
+  }
+  #ab:hover{background:rgba(24,34,50,.92);border-color:rgba(255,215,138,.7)}
+  #ab.raw{color:#cfe0f6;border-color:rgba(140,170,210,.5)}
+  #load{
+    position:fixed;inset:0;z-index:9;display:flex;align-items:center;justify-content:center;
+    background:#04060b;color:rgba(220,232,250,.7);
+    font:13px/1 -apple-system,"Segoe UI","Microsoft YaHei",sans-serif;letter-spacing:.1em;
+    transition:opacity .5s ease;
+  }
+  #load.off{opacity:0;pointer-events:none}
+  #err{
+    position:fixed;left:24px;bottom:24px;z-index:10;max-width:640px;
+    font:12px/1.6 ui-monospace,Consolas,monospace;color:#ffb4b4;white-space:pre-wrap;
+    display:none;
+  }
+</style>
+
+<!-- 依赖全部走 CDN：three 本体 + OrbitControls，不用 importmap 以外的本地文件 -->
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+</head>
+<body>
+
+<div id="hud">
+  <h1>地球实验室 <span>· 光照版</span></h1>
+  <p class="sub">THREE.JS r160 · 公开纹理 · 实时太阳光</p>
+  <ul>
+    <li><b>海洋高光</b>：镜面贴图让海面跟着太阳反光，陆地不反光</li>
+    <li><b>地形起伏</b>：法线贴图让山脉有阴影，不是一张平画</li>
+    <li><b>夜景灯光</b>：贴着晨昏线亮起，不是整块换贴图</li>
+    <li><b>晨昏过渡</b>：真实光照的自然衰减，没有刀切线</li>
+    <li><b>大气辉光</b>：边缘一圈菲涅尔蓝光</li>
+  </ul>
+</div>
+<div id="hint">拖拽旋转 · 滚轮缩放</div>
+<button id="ab" type="button">按住看「纯贴图」</button>
+<div id="load">正在加载纹理…</div>
+<div id="err"></div>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+/* 纹理全部是可直接访问的公开 URL，不用本地文件：
+   白天贴图用主站那张 8K（OBS，带 CORS），法线/高光/夜景用 threejs.org 官方。
+   为什么不用 solarsystemscope 的 8K：它的下载域名没发 CORS 头，
+   跨域拖进 WebGL 会被拦（实测 ERR_FAILED），除非自建代理。 */
+const TEX = 'https://threejs.org/examples/textures/planets/';
+const DAY8 = 'https://atlas-mundi-1419.obs.cn-east-3.myhuaweicloud.com/assets/tex/earth-day-8k.webp';
+const errEl = document.getElementById('err');
+window.addEventListener('error', e => {
+  errEl.style.display = 'block';
+  errEl.textContent = '加载失败：' + (e.message || e.type) + '\n检查 unpkg.com / threejs.org 是否可达';
+});
+
+/* ---------- 基础三件套 ---------- */
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setSize(innerWidth, innerHeight);
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.18;
+document.body.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(38, innerWidth / innerHeight, 0.01, 400);
+camera.position.set(0, 0.35, 3.75);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.dampingFactor = 0.06;
+controls.rotateSpeed = 0.55;
+controls.zoomSpeed = 0.75;
+controls.enablePan = false;
+controls.minDistance = 1.35;
+controls.maxDistance = 7;
+controls.autoRotate = true;
+controls.autoRotateSpeed = 0.28;
+
+/* ---------- 太阳方向：按当前 UTC 算直射点 ---------- */
+function sunDirection() {
+  const now = new Date();
+  const utcH = now.getUTCHours() + now.getUTCMinutes() / 60 + now.getUTCSeconds() / 3600;
+  const lon = -(utcH - 12) * 15;                                  // 12:00 正对 0°
+  const doy = Math.floor((now - Date.UTC(now.getUTCFullYear(), 0, 0)) / 86400000);
+  const decl = 23.44 * Math.sin(2 * Math.PI * (284 + doy) / 365); // 赤纬近似
+  const la = THREE.MathUtils.degToRad(decl);
+  const lo = THREE.MathUtils.degToRad(lon);
+  /* 与 SphereGeometry 的经纬映射对齐：u=0 在 -180°，经度往东递增 */
+  return new THREE.Vector3(
+    Math.cos(la) * Math.cos(lo),
+    Math.sin(la),
+    -Math.cos(la) * Math.sin(lo)
+  ).normalize();
+}
+
+const SUN = sunDirection();
+const sunLight = new THREE.DirectionalLight(0xfff6e8, 3.6);
+sunLight.position.copy(SUN).multiplyScalar(12);
+scene.add(sunLight);
+// 一点点环境光：夜面不至于纯黑，否则大陆轮廓完全看不见
+scene.add(new THREE.AmbientLight(0x2a3a52, 0.22));
+
+/* ---------- 贴图 ---------- */
+const manager = new THREE.LoadingManager();
+const loader = new THREE.TextureLoader(manager);
+
+function tex(file, srgb, base) {
+  // file 可以已经是完整 URL（比如 OBS 上那张 8K），别再加前缀
+  const url = /^https?:/i.test(file) ? file : (base || TEX) + file;
+  const t = loader.load(url);
+  t.colorSpace = srgb ? THREE.SRGBColorSpace : THREE.NoColorSpace;
+  t.anisotropy = renderer.capabilities.getMaxAnisotropy();
+  return t;
+}
+
+const dayMap    = tex(DAY8, true);                        // 8K，和主站同一张
+const nightMap  = tex('earth_lights_2048.png', true);     // 2K 城市灯光
+const normalMap = tex('earth_normal_2048.jpg', false);    // 2K 地形法线
+const specMap   = tex('earth_specular_2048.jpg', false);  // 2K 海陆掩膜（海面反光）
+
+/* ---------- 地球本体 ---------- */
+const R = 1;
+const earthMat = new THREE.MeshPhongMaterial({
+  map: dayMap,
+  normalMap: normalMap,
+  normalScale: new THREE.Vector2(0.85, 0.85),
+  specularMap: specMap,          // 只有海面反光，陆地是哑的
+  /* 高光要"小而亮"：太宽就变成海面上一坨灰白的糊斑（第一版就是这样）。
+     shininess 拉高到 90，specular 压暗，太阳的倒影才是一小块亮点。 */
+  specular: new THREE.Color(0x1e2c3a),
+  shininess: 150
+});
+/* 对照用：只有贴图、不带任何光照的版本 —— 也就是主站现在那张"烘死"的观感 */
+const flatMat = new THREE.MeshBasicMaterial({ map: dayMap });
+const earth = new THREE.Mesh(new THREE.SphereGeometry(R, 128, 80), earthMat);
+earth.rotation.y = -Math.PI / 2;   // 让贴图 0° 经线对着 +X，跟光照方向同一套坐标
+scene.add(earth);
+
+/* ---------- 夜面城市灯光（只在背光面出现） ---------- */
+const nightMat = new THREE.ShaderMaterial({
+  uniforms: {
+    uLights: { value: nightMap },
+    uSun: { value: SUN.clone() }
+  },
+  vertexShader: /* glsl */`
+    varying vec2 vUv;
+    varying vec3 vN;
+    void main() {
+      vUv = uv;
+      vN = normalize(mat3(modelMatrix) * normal);
+      gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+    }
+  `,
+  fragmentShader: /* glsl */`
+    uniform sampler2D uLights;
+    uniform vec3 uSun;
+    varying vec2 vUv;
+    varying vec3 vN;
+    void main() {
+      float d = dot(normalize(vN), normalize(uSun));
+      /* 0.06 就开始起亮、-0.30 满亮：黄昏那一带灯先亮，符合直觉 */
+      float night = smoothstep(0.06, -0.30, d);
+      vec3 c = texture2D(uLights, vUv).rgb;
+      gl_FragColor = vec4(c * 1.25, night * 0.95);
+    }
+  `,
+  transparent: true,
+  blending: THREE.AdditiveBlending,
+  depthWrite: false
+});
+const nightLights = new THREE.Mesh(new THREE.SphereGeometry(R * 1.0008, 128, 80), nightMat);
+nightLights.rotation.y = earth.rotation.y;   // UV 必须和本体对齐
+scene.add(nightLights);
+
+/* ---------- 大气辉光 ---------- */
+const atmoMat = new THREE.ShaderMaterial({
+  vertexShader: /* glsl */`
+    varying vec3 vN;
+    varying vec3 vP;
+    void main() {
+      vN = normalize(normalMatrix * normal);
+      vec4 mv = modelViewMatrix * vec4(position, 1.0);
+      vP = mv.xyz;
+      gl_Position = projectionMatrix * mv;
+    }
+  `,
+  fragmentShader: /* glsl */`
+    varying vec3 vN;
+    varying vec3 vP;
+    void main() {
+      vec3 v = normalize(-vP);
+      float f = pow(1.0 - abs(dot(normalize(vN), v)), 3.2);
+      vec3 col = mix(vec3(0.18, 0.42, 0.86), vec3(0.55, 0.78, 1.0), f);
+      gl_FragColor = vec4(col, f * 0.72);
+    }
+  `,
+  side: THREE.BackSide,
+  transparent: true,
+  blending: THREE.AdditiveBlending,
+  depthWrite: false
+});
+scene.add(new THREE.Mesh(new THREE.SphereGeometry(R * 1.16, 64, 48), atmoMat));
+
+/* ---------- 星空 ---------- */
+(function stars() {
+  const N = 2600;
+  const pos = new Float32Array(N * 3);
+  for (let i = 0; i < N; i++) {
+    const v = new THREE.Vector3().randomDirection().multiplyScalar(60 + Math.random() * 90);
+    pos[i * 3] = v.x; pos[i * 3 + 1] = v.y; pos[i * 3 + 2] = v.z;
+  }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  const m = new THREE.PointsMaterial({
+    color: 0xbcd0ec, size: 0.42, sizeAttenuation: true,
+    transparent: true, opacity: 0.75, depthWrite: false
+  });
+  scene.add(new THREE.Points(g, m));
+})();
+
+/* ---------- 收尾 ---------- */
+const loadEl = document.getElementById('load');
+manager.onProgress = (url, n, total) => {
+  loadEl.textContent = '正在加载纹理 ' + n + '/' + total + ' …';
+};
+manager.onLoad = () => {
+  window.__ready = true;              // 截图脚本等这个
+  loadEl.classList.add('off');
+};
+// 兜底：网络慢也别一直挡着（8K 贴图有 5~40 秒的下载时间）
+setTimeout(() => { window.__ready = true; loadEl.classList.add('off'); }, 60000);
+
+addEventListener('resize', () => {
+  camera.aspect = innerWidth / innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+});
+
+const clock = new THREE.Clock();
+renderer.setAnimationLoop(() => {
+  const dt = clock.getDelta();
+  controls.update();
+  renderer.render(scene, camera);
+});
+
+/* ---------- 按住即看「纯贴图」 ---------- */
+const abBtn = document.getElementById('ab');
+let rawMode = false;
+function setRaw(on) {
+  if (on === rawMode) return;
+  rawMode = on;
+  earth.material = on ? flatMat : earthMat;
+  abBtn.classList.toggle('raw', on);
+  abBtn.textContent = on ? '松手回到「光照」' : '按住看「纯贴图」';
+  const nl = scene.children.find(o => o.material && o.material.uniforms && o.material.uniforms.uLights);
+  if (nl) nl.visible = !on;
+}
+['pointerdown', 'touchstart'].forEach(e => abBtn.addEventListener(e, ev => {
+  ev.preventDefault(); setRaw(true);
+}));
+['pointerup', 'pointerleave', 'touchend', 'touchcancel'].forEach(e =>
+  abBtn.addEventListener(e, () => setRaw(false)));
+
+// 供截图脚本用
+window.__lab = { scene, camera, renderer, controls, SUN, THREE, setRaw };
+</script>
+</body>
+</html>

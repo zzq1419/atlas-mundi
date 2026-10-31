@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-10-31-K">
+<meta name="build" content="2026-10-31-L">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -1173,13 +1173,13 @@ body.panel-open #globe-stage{
   background:linear-gradient(to bottom,rgba(255,216,140,.95),rgba(255,216,140,.28));
 }
 .tp-bubble{
-  padding:7px 12px 8px;border-radius:10px;margin-bottom:7px;
+  padding:7px 12px 8px;border-radius:10px;margin-bottom:0;   /* 无缝：竖线直接顶到气泡底边 */
   background:rgba(10,16,26,.94);
   border:1px solid rgba(255,215,138,.45);
   box-shadow:0 12px 30px rgba(0,0,0,.55);
   color:#f4e7cd;font-size:12.5px;line-height:1.5;white-space:nowrap;
 }
-.tpin.below .tp-bubble{margin-bottom:0;margin-top:7px}
+.tpin.below .tp-bubble{margin-bottom:0;margin-top:0}
 .tp-bubble b{color:#ffdb8a;font-weight:600;font-variant-numeric:tabular-nums}
 .tp-bubble i{display:block;font-style:normal;font-size:11px;color:rgba(214,206,186,.72);
   letter-spacing:.04em;margin-top:2px;font-variant-numeric:tabular-nums}
