@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-09-AC">
+<meta name="build" content="2026-11-09-AD">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -1896,6 +1896,7 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
      每张图都要先 404 一次再回退，白等一轮 RTT。所以按目录记一笔：
      某个目录第一次 404 之后，这个目录后面就直连相对路径。 */
   var OBS_MISS = {};
+  var OBS_DOWN = 0;      // 连续失败次数，>=2 就整个会话不再走 OBS（见 assetSrc）
 
   function assetDir(rel) {
     var p = String(rel || '').split('/');
@@ -1918,7 +1919,10 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
        全部打成过期缓存。没有才退回全局 BUILD_TAG。 */
     var tag = ver || BUILD_TAG;
     var q = tag ? ('?v=' + encodeURIComponent(tag)) : '';
-    if (OBS_MISS[assetDir(rel)]) return rel + q;
+    /* OBS_DOWN 是会话级熔断：连续两张图都没拿到，说明这台机器到 OBS 的路
+       本身不通（弱网、代理绕路、DNS 落到坏节点），后面所有素材直接走同源，
+       不再一张一张等超时。只要有一张成功就复位。 */
+    if (OBS_DOWN >= 2 || OBS_MISS[assetDir(rel)]) return rel + q;
     return OBS_BASE + rel.replace(/^\/+/, '') + q;
   }
 
@@ -1985,12 +1989,14 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
       node.__assetBound = true;
       node.addEventListener('load', function () {
         if (node.__assetTimer) { clearTimeout(node.__assetTimer); node.__assetTimer = null; }
+        OBS_DOWN = 0;                      // 有一张通了就说明路是通的
       });
       node.addEventListener('error', function () {
         var cur = node.__assetRel;
         if (cur && !node.__assetFellBack) {
           node.__assetFellBack = true;
           OBS_MISS[assetDir(cur)] = true;
+          OBS_DOWN++;
           node.src = cur;                    // 回退到仓库相对路径
           return;
         }
@@ -2014,8 +2020,9 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
       if (node.complete && node.naturalWidth > 0) return;
       node.__assetFellBack = true;
       OBS_MISS[assetDir(rel)] = true;
+      OBS_DOWN++;
       node.src = rel;
-    }, 3000);
+    }, 2500);
   }
 
   function el(tag, cls, text) {
