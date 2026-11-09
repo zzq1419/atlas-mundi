@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-07-AA">
+<meta name="build" content="2026-11-09-AB">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -3346,19 +3346,57 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
      长问句里"产业""发展"这类散词能把别的国家顶上来，但用户开口就写了国名，
      那才是他要找的。只提一条：把该国的条目全部前移会打乱相关性排序，
      而"某某的国家基础条目"提到第一位又会变成"点了只开卡不定位"。 */
+  /* 从索引里按国家 + 类型取一条档案（brief = 该国简介）。
+     它在 BM25 候选里排不上（"简介"两字跟国名无关），纯国名查询要单独取。 */
+  function indexDocOf(iso, kind) {
+    if (!IDX || !IDX.docs) return null;
+    for (var i = 0; i < IDX.docs.length; i++) {
+      var d = IDX.docs[i];
+      if (String(d.iso || '').toUpperCase() === iso && d.kind === kind) return d;
+    }
+    return null;
+  }
+
   function boostByCountry(q, hits) {
-    /* 短查询不参与："中国美食"这种本来就是关键词检索，
-       把"该国得分最高的一条"提上来反而会把最相关的挤掉。 */
-    if (String(q || '').length < 10) return hits;
     var c = findCountryInQuery(q);
     if (!c) return hits;
     var iso = String(c.iso || '').toUpperCase();
-    var at = -1;
-    for (var i = 0; i < hits.length; i++) {
-      var d = (hits[i] && hits[i][0]) || {};
-      if (String(d.iso || '').toUpperCase() === iso && d.kind !== 'country') { at = i; break; }
+
+    /* 敲的是国名本身（"朝鲜"），或是港澳台这类归到主权国的地区
+       （"中国香港" → 中国）：把该国档案条目顶到第一条。
+       否则结果全是该国的问答，第一条可能是"中国说什么话？"这种无关条目，
+       回车/点第一条就滚到语言那一节，看着像跳错了地方。 */
+    var pure = !c.rest || /^(香港|澳门|台湾)/.test(String(c.rest || ''));
+    if (pure) {
+      var host = targetIso(iso);
+      var entry = null, at = -1;
+      for (var k = 0; k < hits.length; k++) {
+        var hd = (hits[k] && hits[k][0]) || {};
+        if (String(hd.iso || '').toUpperCase() === host && hd.kind === 'brief') { entry = hits[k]; at = k; break; }
+      }
+      /* hits 里通常没有简介这条（BM25 前 5 全是问答），从索引单独取。
+         不能退而拿第一条问答顶上 —— 那等于原样插回，排序一点没变。 */
+      if (!entry) {
+        var bd = indexDocOf(host, 'brief') || indexDocOf(host, 'country');
+        if (bd) entry = [bd, 0];
+      }
+      if (entry) {
+        if (at >= 0) hits.splice(at, 1);
+        hits.unshift(entry);
+        if (hits.length > 6) hits.pop();
+      }
+      return hits;
     }
-    if (at > 0) hits.unshift(hits.splice(at, 1)[0]);
+
+    /* 短查询不参与："中国美食"这种本来就是关键词检索，
+       把"该国得分最高的一条"提上来反而会把最相关的挤掉。 */
+    if (String(q || '').length < 10) return hits;
+    var at2 = -1;
+    for (var j = 0; j < hits.length; j++) {
+      var dj = (hits[j] && hits[j][0]) || {};
+      if (String(dj.iso || '').toUpperCase() === iso && dj.kind !== 'country') { at2 = j; break; }
+    }
+    if (at2 > 0) hits.unshift(hits.splice(at2, 1)[0]);
     return hits;
   }
 
@@ -3528,10 +3566,20 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
          五个问题，若拿国家名当主标题，五行会整齐地重复"沙特阿拉伯"，
          等于把最有用的信息（到底命中了什么）全藏了起来。 */
       var isCountry = d.kind === 'country';
-      item.appendChild(srIcon(isCountry ? 'country' : 'doc'));
+      /* brief 是"国家简介"那条：标题写国名就够，"朝鲜 简介"多两个字
+         不增加信息量，还把它顶到第一条时显得像条公文。 */
+      var headText = isCountry ? (d.name || '')
+                   : (d.kind === 'brief' ? (d.name || d.q || '') : (d.q || d.name || ''));
+      item.appendChild(srIcon(isCountry || d.kind === 'brief' ? 'country' : 'doc'));
       var txt = el('div', 'sr-txt');
-      var nm = el('div', 'sr-name', isCountry ? (d.name || '') : (d.q || d.name || ''));
-      if (isCountry && !d.noTag) nm.appendChild(el('span', 'sr-tag', '基础'));
+      var nm = el('div', 'sr-name', headText);
+      if (isCountry) {
+        if (!d.noTag) nm.appendChild(el('span', 'sr-tag', '基础'));
+      } else if (d.name && String(d.q || '').indexOf(d.name) < 0) {
+        /* 问句里没带国名时才补一枚（"首都是哪里？"）。
+           像"朝鲜人说什么语言？"本身已经说明是朝鲜，再挂一枚纯属噪音。 */
+        nm.appendChild(el('span', 'sr-tag', d.name));
+      }
       txt.appendChild(nm);
       var sub = d.a || '';
       if (sub) txt.appendChild(el('div', 'sr-sub', sub));
@@ -3588,6 +3636,8 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
     var tgt = targetIso(iso);
     openDetail(tgt, cardOf(tgt), false);
     setSearch(false);              // 选中即收起，视线回到地球
+    /* 框里保留用户敲的词，让他自己清 —— 程序顺手清空会丢掉上下文，
+       想改一个字重搜还得整句重打。 */
     if (qInput) qInput.blur();
 
     /* 港澳台这类没有独立档案、归到主权国的地区：开主人国的档案之后，
@@ -3604,6 +3654,29 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
     var nm = d.name || '';
     /* 基础档案那种条目（国家本身）没有"命中段落"可言，只在带话题词时才定位 */
     if (d.kind === 'country' && !focus) return;
+
+    /* 框里敲的就是这个国名（"朝鲜"），点的又是它的简介条目：
+       到这里就够了，别再拿问句去正文里找段落 —— 回车会滚到"语言"那一节，
+       看着像跳错了地方。点具体问答（kind=qa）仍然滚到对应那段。
+       港澳台例外：开的不是它自己的卡，必须滚到提到它的那一段。 */
+    var typed = qInput ? qInput.value.trim() : '';
+    var cq = findCountryInQuery(typed);
+    if (cq && !cq.rest && d.kind === 'brief' &&
+        tgt.toUpperCase() === String(cq.iso || '').toUpperCase()) return;
+
+    /* 搜的是地区（"中国香港"→ 开的是中国卡）：必须滚到正文里提到它的那一段。
+       第一条往往是该国随便一条问答，拿它的答案定位会滚到语言/地理段，
+       跟用户要找的东西无关。 */
+    if (!focus && cq) {
+      var region = '';
+      if (tgt.toUpperCase() !== String(cq.iso || '').toUpperCase()) {
+        region = String(cq.name || '').replace(/^中国/, '');
+      } else {
+        var rm = String(cq.rest || '').match(/^(香港|澳门|台湾)/);
+        if (rm) region = rm[1];
+      }
+      if (region.length >= 2) focus = { probe: region, extra: '' };
+    }
     /* 开的是自己那张卡，且输入的就是国名本身 → 不滚（整份档案都是它）。
        港澳台不适用：开的是中国卡，输入框里写的就是"中国澳门"，
        这时反而必须滚到提到澳门的那一段，否则就是"搜了没反应"。 */
@@ -4080,8 +4153,13 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
        举一个例子比写十个字有用。 */
     var PH_LONG = '试试这么问：法国人吃什么？ 埃及有什么宗教？';
     qInput.addEventListener('focus', function () {
-      if (!searchWrap.classList.contains('open')) setSearch(true, true);
-      if (!qInput.value) qInput.placeholder = PH_LONG;
+      /* 有字就恢复这轮搜索的结果，别拿 236 国全量列表盖掉它 ——
+         否则用户按回车会选中全量列表的第一条（"中国"），
+         看上去就像"搜了朝鲜却跳到中国"。 */
+      var v = qInput.value.trim();
+      if (!searchWrap.classList.contains('open')) setSearch(true, !v);
+      if (v.length >= 2) { qRes.hidden = false; renderResults(v); }
+      if (!v) qInput.placeholder = PH_LONG;
     });
     qInput.addEventListener('blur', function () {
       qInput.placeholder = '';
@@ -4134,6 +4212,9 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
          不然手快的人按回车会撞在防抖窗口里。 */
       if (e.key === 'Enter') {
         e.preventDefault();
+        /* 面板现在是 236 国全量列表（还没输入）时，回车不该随手打开
+           列表第一条（"中国"）—— 那不是一次搜索，只是浏览。 */
+        if (searchWrap.classList.contains('list-open')) return;
         var v = qInput.value.trim();
         var first = qRes.querySelector('.sr-item');
         if (!first && v.length >= 2) {
