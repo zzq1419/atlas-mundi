@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-09-AB">
+<meta name="build" content="2026-11-09-AC">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -1983,9 +1983,13 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
   function setAsset(node, rel, ver) {
     if (!node.__assetBound) {
       node.__assetBound = true;
+      node.addEventListener('load', function () {
+        if (node.__assetTimer) { clearTimeout(node.__assetTimer); node.__assetTimer = null; }
+      });
       node.addEventListener('error', function () {
         var cur = node.__assetRel;
-        if (cur && node.getAttribute('src') !== cur) {
+        if (cur && !node.__assetFellBack) {
+          node.__assetFellBack = true;
           OBS_MISS[assetDir(cur)] = true;
           node.src = cur;                    // 回退到仓库相对路径
           return;
@@ -1994,8 +1998,24 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
       });
     }
     node.__assetRel = rel;
+    node.__assetFellBack = false;
     if (!rel) { node.removeAttribute('src'); return; }
-    node.src = assetSrc(rel, ver);
+    var src = assetSrc(rel, ver);
+    node.src = src;
+    if (src.indexOf(OBS_BASE) !== 0) return;   // 本来就走同源，没有备用可切
+    /* OBS 不一定"报错"，也可能"一直不返回"（弱网、代理绕路、桶欠费）。
+       那种情况不会有 error 事件，图就永远空着、也不会回退。3 秒还没拿到
+       就主动切回仓库相对路径 —— 宁可慢一点，也别留个白框。
+       OBS 正常 0.4 秒，Pages 1.5 秒，这个阈值不会误伤。 */
+    if (node.__assetTimer) clearTimeout(node.__assetTimer);
+    node.__assetTimer = setTimeout(function () {
+      node.__assetTimer = null;
+      if (node.__assetFellBack) return;
+      if (node.complete && node.naturalWidth > 0) return;
+      node.__assetFellBack = true;
+      OBS_MISS[assetDir(rel)] = true;
+      node.src = rel;
+    }, 3000);
   }
 
   function el(tag, cls, text) {
