@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-10-AC">
+<meta name="build" content="2026-11-10-AD">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -1474,6 +1474,10 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
 #tools{transition:opacity .3s ease}
 #map2d.on ~ #tools{opacity:0;pointer-events:none}
 
+/* 点选查询模式的光标：金色准星，和时间指示的旗子同一套视觉语言。
+   中间的 18 18 是热区，正好落在十字交点上。 */
+#globe-stage.probe-mode{cursor:url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='36' height='36' viewBox='0 0 36 36'%3E%3Ccircle cx='18' cy='18' r='8.5' fill='none' stroke='%23f6c85c' stroke-width='1.8'/%3E%3Cpath d='M18 4v6M18 26v6M4 18h6M26 18h6' stroke='%23f6c85c' stroke-width='1.8' stroke-linecap='round'/%3E%3Ccircle cx='18' cy='18' r='1.8' fill='%23ffe9b3'/%3E%3C/svg%3E") 18 18, crosshair}
+
 /* ---------- 专题图层图例（右下角） ----------
    和左下角工具栏一左一右，只在开了气候/地形时出现。
    半透明玻璃底，压在地球上但不抢画面。 */
@@ -1531,6 +1535,13 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
   #layer-legend .lg-key{flex-basis:34px;font-size:11px}
   #layer-legend .lg-item{font-size:11px}
   #layer-legend .lg-item i{width:11px;height:11px}
+}
+
+/* 点选气泡里的色块：跟图例同款，直接把"这一点的颜色"和名字对上 */
+.tp-sw{
+  display:inline-block;width:11px;height:11px;border-radius:2.5px;
+  margin-left:5px;vertical-align:-1px;
+  box-shadow:inset 0 0 0 1px rgba(0,0,0,.35);
 }
 
 /* 浅底上的顶栏文字要转深色，否则品牌名是一块白字浮在米白上 */
@@ -1930,6 +1941,15 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
       <path d="M12 6.8V12l3.4 2.1"/>
     </svg>
     <span class="tl">时间指示</span>
+  </button>
+  <!-- 点选查询：只在气候/地形图层打开时出现（JS 控制 display） -->
+  <button class="tool-btn" id="btn-probe" type="button" aria-label="点选查询气候或海拔" aria-pressed="false" style="display:none">
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <circle cx="12" cy="12" r="5"/>
+      <path d="M12 2.6v4.4M12 17v4.4M2.6 12H7M17 12h4.4"/>
+      <circle cx="12" cy="12" r="1.15" fill="currentColor" stroke="none"/>
+    </svg>
+    <span class="tl">点选查询</span>
   </button>
   </div>
 </div>
@@ -5218,15 +5238,6 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
       '    }',
       '    col = mix(day, night, nightK);',
       '  }',
-      /* ---------- 专题图层（气候 / 地形） ----------
-         放在昼夜混合之后：开了图层就是要"看这张图"，不该再被夜面压暗。
-         alpha 参与混合 —— 气候图的海洋是 alpha=0，于是海面继续用卫星影像，
-         只有陆地被染成气候色；地形图不透明，整颗球变成高程着色。 */
-      '  if (uLayerMix > 0.001) {',
-      '    vec4 lc = texture2D(uLayerMap, vUv);',
-      '    vec3 lay = s2l(lc.rgb);',
-      '    col = mix(col, lay, lc.a * uLayerMix);',
-      '  }',
       // 边缘大气：Fresnel 越靠轮廓越亮，模拟散射
       '  float rim = pow(1.0 - facing, 3.8);',
       // 夜面把蓝色边缘光收掉大半，否则整个轮廓糊成一圈蓝雾
@@ -5251,6 +5262,16 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
       '  vec3 aces = (col * (2.51 * col + 0.03)) / (col * (2.43 * col + 0.59) + 0.14);',
       '  col = mix(col, aces, uTone);',
       '  col = pow(max(col, 0.0), vec3(1.06));',
+      /* ---------- 专题图层（气候 / 地形） ----------
+         必须放在**调色之后**：ACES + 提饱和 + pow(1.06) 会把图层压暗，
+         地球上的颜色就和图例的色块对不上了（用户一眼就看出来了）。
+         放在最后 → 输出正好等于贴图原色。
+         limb 保留边缘收暗，球不至于看起来像一张贴纸。
+         alpha 参与混合：气候图海洋 alpha=0，海面继续用卫星影像。 */
+      '  if (uLayerMix > 0.001) {',
+      '    vec4 lc = texture2D(uLayerMap, vUv);',
+      '    col = mix(col, s2l(lc.rgb) * limb, lc.a * uLayerMix);',
+      '  }',
       '  gl_FragColor = vec4(l2s(col) * uFade, 1.0);',
       '}'
     ].join('\n');
@@ -6739,6 +6760,119 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
       }, 180);
     };
 
+    /* ---------- 点选查询：气候 / 海拔 ----------
+       两张索引图都放仓库、同源加载：OBS 没配 CORS，跨域图画进 canvas 会把
+       canvas 污染，getImageData 直接抛错。
+       气候图直接查颜色（14 个色值取最近），地形查 Terrarium 编码的高程图。 */
+    var PROBE_COLORS = [
+      [26, 107, 60, '热带雨林'], [47, 138, 79, '热带季风'], [163, 184, 74, '热带草原'],
+      [223, 174, 99, '热沙漠'], [214, 195, 154, '冷沙漠'],
+      [210, 154, 88, '热草原'], [191, 168, 125, '冷草原'],
+      [184, 162, 75, '地中海气候'], [122, 178, 115, '亚热带湿润'], [106, 167, 154, '温带海洋性'],
+      [91, 144, 166, '温带大陆性'], [74, 122, 158, '亚寒带'],
+      [159, 169, 181, '苔原'], [223, 231, 239, '冰盖']
+    ];
+    var probeClim = null, probeElev = null, probeQ = null;
+
+    function probeImg(src, done) {
+      var img = new Image();
+      img.onload = function () {
+        var c = document.createElement('canvas');
+        c.width = img.width; c.height = img.height;
+        var x = c.getContext('2d');
+        x.drawImage(img, 0, 0);
+        done({ ctx: x, w: img.width, h: img.height });
+      };
+      img.onerror = function () { done(null); };
+      img.src = src;
+    }
+
+    function ensureProbe(cb) {
+      if (probeClim && probeElev) { cb(); return; }
+      if (probeQ) { probeQ.push(cb); return; }
+      probeQ = [cb];
+      var left = 2;
+      function one() {
+        if (--left) return;
+        var q = probeQ; probeQ = null;
+        q.forEach(function (f) { f(); });
+      }
+      probeImg('assets/tex/climate.webp', function (o) { probeClim = o; one(); });
+      probeImg('assets/tex/elev.png', function (o) { probeElev = o; one(); });
+    }
+
+    function llToPixel(o, lon, lat) {
+      var x = Math.floor((lon + 180) / 360 * o.w);
+      var y = Math.floor((90 - lat) / 180 * o.h);
+      return [Math.max(0, Math.min(o.w - 1, x)), Math.max(0, Math.min(o.h - 1, y))];
+    }
+
+    function probeColorAt(lon, lat) {
+      if (!probeClim) return null;
+      var p = llToPixel(probeClim, lon, lat);
+      var d = probeClim.ctx.getImageData(p[0], p[1], 1, 1).data;
+      if (d[3] < 40) return null;                    // 海洋：alpha=0
+      var best = null, bd = 1e9;
+      for (var i = 0; i < PROBE_COLORS.length; i++) {
+        var c = PROBE_COLORS[i];
+        var dd = (d[0] - c[0]) * (d[0] - c[0]) + (d[1] - c[1]) * (d[1] - c[1]) + (d[2] - c[2]) * (d[2] - c[2]);
+        if (dd < bd) { bd = dd; best = c; }
+      }
+      return best;
+    }
+
+    function probeElevAt(lon, lat) {
+      if (!probeElev) return null;
+      var p = llToPixel(probeElev, lon, lat);
+      var d = probeElev.ctx.getImageData(p[0], p[1], 1, 1).data;
+      return d[0] * 256 + d[1] - 32768;
+    }
+
+    /* 点一下：拾取经纬度 → 查数据 → 钉一个气泡（位置跟着球走，见 placePins） */
+    cv.addEventListener('click', function (e) {
+      if (!globe.probeMode) return;
+      if (globe.moved > 6) return;
+      var ll = globe.pickLL(e.clientX, e.clientY);
+      if (!ll) return;
+      rippleAt(e.clientX, e.clientY);
+      keyClick();
+      ensureProbe(function () {
+        var ns = ll.lat >= 0 ? 'N' : 'S', ew = ll.lon >= 0 ? 'E' : 'W';
+        var coord = Math.abs(ll.lat).toFixed(1) + '°' + ns + '　' +
+                    Math.abs(ll.lon).toFixed(1) + '°' + ew;
+        var cn = countryAt(ll.lon, ll.lat);
+        var cname = '';
+        if (cn && cn.iso) {
+          var m = LABEL_META && LABEL_META[String(cn.iso).toUpperCase()];
+          cname = (m && m.n) || (CARDS && CARDS[cn.iso] && CARDS[cn.iso].name_zh) || '';
+        }
+        var html;
+        if (globe.layerName === 'terrain') {
+          var h = probeElevAt(ll.lon, ll.lat);
+          var txt = h == null ? '海拔未知'
+                  : (h >= 0 ? '海拔 ' + Math.round(h).toLocaleString() + ' 米'
+                            : '海面下 ' + Math.abs(Math.round(h)).toLocaleString() + ' 米');
+          html = '<b>' + txt + '</b>' + (cname ? '　' + cname : '') + '<i>' + coord + '</i>';
+        } else {
+          var c = probeColorAt(ll.lon, ll.lat);
+          var sw = c ? '<span class="tp-sw" style="background:rgb(' + c[0] + ',' + c[1] + ',' + c[2] + ')"></span>' : '';
+          html = '<b>' + (c ? c[3] : '海洋') + '</b>' + sw +
+                 (cname ? '　' + cname : '') + '<i>' + coord + '</i>';
+        }
+        var anchor = document.createElement('div');
+        anchor.className = 'tpin-anchor';
+        var d = document.createElement('div');
+        d.className = 'tpin' + (e.clientY < 150 ? ' below' : '');
+        d.innerHTML = '<div class="tp-bubble">' + html + '</div><div class="tp-stem"></div>';
+        anchor.appendChild(d);
+        pinLayer.appendChild(anchor);
+        pins.push({ anchor: anchor, lat: ll.lat, lon: ll.lon });
+        var kids = pinLayer.children;
+        while (kids.length > TPIN_MAX) { pinLayer.removeChild(kids[0]); pins.shift(); }
+        placePins();
+      });
+    });
+
     cv.addEventListener('click', function (e) {
       if (!globe.timeMode) return;
       if (globe.moved > 6) return;            // 拖动过就不算"点了一下"
@@ -6797,6 +6931,8 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
       /* 时间指示模式下这里什么都不做：点哪儿都只是"问时间"，
          不能顺手高亮国界、更不能弹档案。真正处理时间的是另一个监听器。 */
       if (globe.timeMode) return;
+      /* 点选查询模式下同理：点哪儿都只是问数据，不能顺手点开档案 */
+      if (globe.probeMode) return;
       var rect = cv.getBoundingClientRect();
       ndc.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
       ndc.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
@@ -7131,9 +7267,13 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
 
     function lgClose() {
       lgCur = '';
+      globe.layerName = '';
       lgFade(0, 260);
       if (lgEl) { lgEl.classList.remove('on'); lgEl.setAttribute('aria-hidden', 'true'); }
       lgSync();
+      if (globe.setProbe) globe.setProbe(false);
+      if (globe.hideTimePin) globe.hideTimePin();
+      syncProbeBtn();
     }
 
     function lgToggle(name) {
@@ -7143,9 +7283,13 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
         if (!t || !globe.earthMat) return;
         globe.earthMat.uniforms.uLayerMap.value = t;
         lgCur = name;
+        globe.layerName = name;
         lgFade(1, 380);
         lgLegend(name);
         lgSync();
+        syncProbeBtn();
+        /* 换了图层，旧的点选气泡就作废了（同一个点问的已经是另一件事） */
+        if (globe.hideTimePin) globe.hideTimePin();
       });
       if (window.__tipHide) window.__tipHide();
     }
@@ -7157,6 +7301,35 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
       if (btr) btr.addEventListener('click', function () { lgToggle('terrain'); });
       lgSync();
     })();
+
+    /* ---------- 点选查询按钮 ----------
+       只在气候/地形图层打开时出现 —— 没有图层，"这一点是什么气候"无从谈起。
+       点一下进入拾取模式（光标变准星），再点一下退出。 */
+    var bpb = document.getElementById('btn-probe');
+    function setProbe(v) {
+      globe.probeMode = !!v;
+      if (bpb) {
+        bpb.classList.toggle('on', globe.probeMode);
+        bpb.setAttribute('aria-pressed', globe.probeMode ? 'true' : 'false');
+        bpb.setAttribute('data-tip', globe.probeMode ? '退出点选' : '点选查询气候 / 海拔');
+      }
+      var st = document.getElementById('globe-stage');
+      if (st) st.classList.toggle('probe-mode', globe.probeMode);
+      if (window.__tipHide) window.__tipHide();
+    }
+    globe.setProbe = setProbe;
+
+    function syncProbeBtn() {
+      if (!bpb) return;
+      var on = !!lgCur;
+      bpb.style.display = on ? '' : 'none';
+      if (!on && globe.probeMode) setProbe(false);
+    }
+
+    if (bpb) {
+      bpb.addEventListener('click', function () { setProbe(!globe.probeMode); });
+    }
+    syncProbeBtn();
 
     /* 工具栏收纳（只在手机上生效，桌面永远整条展开）。
        原来这里也有一段"收起后只留一颗按钮"的代码，但那个按钮和它的样式
