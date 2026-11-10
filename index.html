@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-10-AN">
+<meta name="build" content="2026-11-10-AP">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -5623,10 +5623,16 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
 
   function tShapeDraw(name, ring) {
     if (!globe.sphere || !ring || !ring.length) return;
-    /* 河流细一档：线要素本来就该比山脉 / 盆地的轮廓细 */
+    /* 河流细一档：线要素本来就该比山脉 / 盆地的轮廓细。
+       0.0017 在 700px 的球上是 1.2px 宽，看着像用马克笔描的；
+       压到 0.0010（约 0.7px）就是地图册上的那种细河线，
+       描边同步收窄到 2 倍，否则深色边比芯还显眼，又会显粗。 */
     var isRiver = tShapeKind(name) === 'river';
-    var R_CORE = isRiver ? 0.0017 : 0.0024;
-    var R_EDGE = R_CORE * 2.15;
+    /* 0.0010 在 650px 的球上只有 0.65px 宽，细过头了 —— 亚像素宽度会被
+       光栅化成一段一段的虚线。0.0013（约 0.85px）是一条连续的细线，
+       和"马克笔"那版（0.0017 / 1.1px）比明显细一档。 */
+    var R_CORE = isRiver ? 0.0013 : 0.0024;
+    var R_EDGE = R_CORE * (isRiver ? 1.7 : 2.15);
 
     /* 数据有两种形状：单段 [[lon,lat],...] 和多段 [[[lon,lat],...],...]。
        河流经常分好几段（干流 + 支流片段），按段画才不会连出横跨大陆的直线。 */
@@ -5662,7 +5668,8 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
       color: TSHAPE_CORE, transparent: true, opacity: 0.98, depthWrite: false
     });
     var M_EDGE = new THREE.MeshBasicMaterial({
-      color: TSHAPE_EDGE, transparent: true, opacity: 0.36, depthWrite: false
+      color: TSHAPE_EDGE, transparent: true,
+      opacity: isRiver ? 0.24 : 0.36, depthWrite: false
     });
     var v = new THREE.Vector3();
 
@@ -5706,23 +5713,45 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
   }
   globe.tShapeApply = tShapeApply;
 
+  /* 预热：图层一打开就把边界数据悄悄拉下来（166KB），
+     这样用户第一次点地形名时是"立刻有线"，而不是等一次网络往返 ——
+     观感上"点了没反应"和"慢半秒"是一回事。 */
+  globe.tShapeWarm = function () { loadShapes(null); };
+
   /* 点名字：第一次选它、再点一次取消；点另一块就换过去。 */
-  globe.toggleTShape = function (name) {
-    if (tShapeName === name) { tShapeClear(); return; }
-    if (tShapeData) {
-      tShapeName = name;
-      tShapeClear();
-      tShapeName = name;
-      tShapeApply();
-      return;
-    }
+  /* 一份数据、一个加载队列。
+     以前是"正在加载就直接 return"，于是预热（图层一打开就开始拉那 166KB）
+     期间点名字会被静默丢掉 —— 又是一个"点了没反应"。现在点下来的请求
+     排在队列里，数据一到就画。 */
+  var tShapeQueue = [];
+  function loadShapes(cb) {
+    if (tShapeData) { if (cb) cb(); return; }
+    if (cb) tShapeQueue.push(cb);
     if (tShapeLoading) return;
     tShapeLoading = true;
-    tShapeName = name;
     fetchGeoData('geo/terrain_shapes.json', function (d) {
       tShapeLoading = false;
       tShapeData = d || {};
-      if (!d) return;
+      var q = tShapeQueue;
+      tShapeQueue = [];
+      q.forEach(function (f) { f(); });
+    });
+  }
+
+  globe.toggleTShape = function (name) {
+    if (tShapeName === name) { tShapeClear(); return; }
+    tShapeName = name;              // 先记下，界面上立刻变"已选"
+    (globe.tlabels || []).forEach(function (L) {
+      if (L.name === name) L.el.classList.add('picked');
+    });
+    loadShapes(function () {
+      if (!tShapeData[name]) {      // 这条没有几何：把选中态退回去
+        tShapeClear();
+        return;
+      }
+      tShapeName = name;
+      tShapeClear();
+      tShapeName = name;
       tShapeApply();
     });
   };
@@ -7714,6 +7743,8 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
     function lgToggle(name) {
       if (lgCur === name) { lgClose(); return; }
       if (!globe.earthMat) return;
+      /* 开图层的同时就把地形边界拉下来，别等用户点名字才开始 */
+      if (globe.tShapeWarm) globe.tShapeWarm();
       lgLoad(name, function (t) {
         if (!t || !globe.earthMat) return;
         globe.earthMat.uniforms.uLayerMap.value = t;
@@ -7740,7 +7771,9 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
       if (lgWarm) return;
       lgWarm = 1;
       lgLoad('climate', function () {
-        lgLoad('terrain', function () {});
+        lgLoad('terrain', function () {
+          if (globe.tShapeWarm) globe.tShapeWarm();
+        });
       });
     }
     globe.lgPrewarm = lgPrewarm;
