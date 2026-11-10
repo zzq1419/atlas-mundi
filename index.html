@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-10-AE">
+<meta name="build" content="2026-11-10-AF">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -1227,6 +1227,14 @@ body.panel-open #globe-stage{
 .tlabel.k-plain{color:rgba(206,232,204,.86)}
 .tlabel.k-desert{color:rgba(240,212,158,.9)}
 .tlabel.k-river{color:rgba(150,208,255,.92);font-style:italic}
+/* 地形名可以点：点开画出这块地貌的边界。悬停给一点青色的呼应，
+   选中后整条变青 —— 和球上那条青线对得上。 */
+.tlabel.tap{cursor:pointer;pointer-events:auto}
+.tlabel.tap:hover{color:#d6f6ff}
+.tlabel.picked{
+  color:#a9eeff;font-weight:600;
+  text-shadow:0 0 2px rgba(0,0,0,.9),0 0 9px rgba(110,220,255,.75),0 1px 3px rgba(0,0,0,.6);
+}
 .mlabel{
   position:absolute;left:0;top:0;
   /* 拖地球的时候鼠标会从地名上划过去。地名是 DOM 文本，浏览器默认会当成
@@ -1323,79 +1331,91 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
    六个标注绕一圈会互相压、还会顶出盘边，整盘占地也比一条 46px 更容易挡球。 */
 #tools{
   position:fixed;left:22px;bottom:22px;z-index:25;
-  display:flex;flex-direction:column;align-items:flex-start;
 }
-/* 只有手机才出现的展开按钮（桌面永远不显示） */
-#tools-toggle{display:none}
+/* 入口：一颗图标。工具从"一条竖列"改成"抽屉"——8 颗按钮竖排以后越加越长，
+   手机上直接吃掉三分之一屏高。 */
+#tools-toggle{
+  width:46px;height:46px;padding:0;border-radius:14px;
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(8,13,21,.78);
+  border:1px solid rgba(140,170,210,.24);
+  box-shadow:0 8px 22px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.05);
+  color:rgba(202,222,248,.9);cursor:pointer;
+  transition:background .18s ease,color .18s ease,border-color .18s ease;
+  -webkit-tap-highlight-color:transparent;
+}
+#tools-toggle svg{
+  width:19px;height:19px;fill:none;stroke:currentColor;
+  stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;
+  transition:transform .4s cubic-bezier(.2,.8,.3,1);
+}
+#tools-toggle:hover{background:rgba(20,32,50,.9);color:#f0f7ff}
+#tools.open #tools-toggle{color:#ffe0a0;border-color:rgba(255,206,112,.42)}
+#tools.open #tools-toggle svg{transform:rotate(90deg)}
 
+/* 抽屉：五组，每组一行小标题 + 一行图标按钮 */
 #tools-body{
-  position:relative;
-  width:46px;
-  display:flex;flex-direction:column;
-  background:rgba(6,10,17,.74);
-  border:1px solid rgba(140,170,210,.22);
-  border-radius:13px;
-  box-shadow:0 10px 26px rgba(0,0,0,.42),inset 0 1px 0 rgba(255,255,255,.04);
+  position:absolute;left:0;bottom:calc(100% + 10px);
+  /* 两列网格：五组排成三行（定位那组跨两列），面板从 450px 高降到 210px 左右，
+     展开时只占左下角一小块，挡不住球。 */
+  display:grid;grid-template-columns:1fr 1fr;gap:9px 10px;
+  width:222px;padding:11px 11px 10px;border-radius:15px;
+  background:rgba(8,13,22,.90);
+  border:1px solid rgba(140,175,220,.22);
+  box-shadow:0 20px 48px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,255,255,.05);
+  -webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);
+  opacity:0;transform:translateY(9px) scale(.97);
+  transform-origin:0 100%;pointer-events:none;
+  transition:opacity .18s ease,transform .22s cubic-bezier(.2,.8,.3,1);
 }
-/* 上下原来各有一条金线收口，中间还有一条金线把动作和开关分开 —— 三条一起看
-   就是用户说的"三条金线，看得好难受"。线在球面这种明暗大变的背景上本来就不稳，全去掉。
-   条的边界交给圆角与 1px 描边。 */
+#tools.open #tools-body{opacity:1;transform:none;pointer-events:auto}
 
+.tg{min-width:0}
+.tg:last-child{grid-column:1/-1}
+.tg h3{
+  margin:0 0 6px;font-size:9.5px;font-weight:500;
+  letter-spacing:.14em;color:rgba(150,182,218,.58);
+}
+.tg-r{display:flex;gap:6px}
+/* 定位组跨两列、三个按钮，居中摆才不显得右边空一大块 */
+.tg:last-child .tg-r{justify-content:center}
+
+/* 按钮：竖排图标 + 名字。名字常显 —— 抽屉里空间够，不用再靠 hover 才发现。 */
 .tool-btn{
-  /* 图标色只在这一处定义，靠变量分状态。
-     原来写成 `.tool-btn.on svg{stroke:金}`，权重 (0,2,1) 被
-     `#tools-body .tool-btn svg` (1,1,1) 压掉 —— 点亮时图标一直是冷蓝的，
-     金圈里躺着一枚蓝图标。改成变量后没有谁能压谁。 */
+  /* 图标色只在这一处定义，靠变量分状态：
+     原来 `.tool-btn.on svg{stroke:金}` 被 `#tools-body .tool-btn svg` 的
+     权重压掉，点亮时图标一直是冷蓝的。 */
   --ico:rgba(200,220,246,.86);
   position:relative;
-  width:100%;height:40px;padding:0;
-  display:flex;align-items:center;justify-content:center;
-  background:transparent;border:0;border-radius:0;
+  width:39px;height:44px;padding:0;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+  background:rgba(255,255,255,.035);
+  border:1px solid rgba(140,175,220,.14);
+  border-radius:10px;
   cursor:pointer;color:var(--ico);
-  transition:background .18s ease;
+  transition:background .16s ease,border-color .16s ease,color .16s ease;
   -webkit-tap-highlight-color:transparent;
 }
 .tool-btn svg{
-  width:18px;height:18px;
+  width:16px;height:16px;
   fill:none;stroke:var(--ico);
   stroke-width:1.55;stroke-linecap:round;stroke-linejoin:round;
-  transition:stroke .18s ease;
+  transition:stroke .16s ease;
 }
-#tools-body .tool-btn:hover{background:rgba(150,185,230,.10);--ico:#eef6ff}
-#tools-body .tool-btn:active{background:rgba(150,185,230,.16)}
-/* 开关之间的 1px 分隔线 */
-#tools-body .tool-btn + .tool-btn{box-shadow:inset 0 1px 0 rgba(140,170,210,.11)}
-/* 六颗按钮之间原来夹着一段 9px 留白（当时为了把"一次性动作"和五个开关分开）。
-   现在六颗都是同一类开关，那段留白就成了唯一的例外：中间不连线、间距也宽一截。
-   直接删掉，靠 `+` 选择器给每两颗之间画同一条 1px 分隔线。 */
-/* 首尾跟着条子的圆角走 */
-#tools-body .tool-btn:first-child{border-radius:12px 12px 0 0}
-#tools-body .tool-btn:last-child{border-radius:0 0 12px 12px}
-
-/* 点亮：左侧 3px 金条 + 图标转金，不发光 */
-#tools-body .tool-btn.on{
+.tool-btn:hover{background:rgba(150,185,230,.12);border-color:rgba(150,185,230,.3);--ico:#eef6ff}
+.tool-btn:active{background:rgba(150,185,230,.2)}
+.tool-btn.on{
   --ico:rgba(255,224,152,.98);
-  background:linear-gradient(90deg,rgba(255,205,110,.13),rgba(255,205,110,.015) 72%);
+  background:linear-gradient(180deg,rgba(255,205,110,.15),rgba(255,205,110,.04));
+  border-color:rgba(255,206,112,.42);
 }
-#tools-body .tool-btn.on::before{
-  content:'';position:absolute;left:0;top:7px;bottom:7px;width:3px;
-  border-radius:0 2px 2px 0;background:rgba(255,206,112,.92);
-}
-
-/* 名字：只在 hover / 键盘聚焦时从右侧浮出（手机上常显，见媒体查询）。
-   原来靠 data-tip 的气泡，手机上根本没有 hover，等于没有说明。 */
+.tool-btn.busy{opacity:.55;pointer-events:none}
 .tl{
-  position:absolute;left:calc(100% + 9px);top:50%;
-  transform:translate(-5px,-50%);
-  padding:4px 9px;border-radius:7px;
-  font-size:12px;line-height:1.2;letter-spacing:.02em;white-space:nowrap;
-  color:#dfeaf8;background:rgba(6,10,17,.93);
-  border:1px solid rgba(140,170,210,.24);
-  box-shadow:0 6px 18px rgba(0,0,0,.4);
-  opacity:0;pointer-events:none;
-  transition:opacity .16s ease,transform .2s cubic-bezier(.2,.8,.3,1);
+  font-size:9px;line-height:1;letter-spacing:.02em;
+  color:rgba(186,208,236,.78);transition:color .16s ease;
 }
-.tool-btn:hover .tl,.tool-btn:focus-visible .tl{opacity:1;transform:translate(0,-50%)}
+.tool-btn.on .tl{color:rgba(255,228,168,.95)}
+
 /* 时间指示模式：光标换成一面小旗子，热点在旗杆脚下 */
 #globe-stage.time-mode{cursor:url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='36' height='36' viewBox='0 0 36 36'%3E%3Cdefs%3E%3ClinearGradient id='f' x1='0' y1='0' x2='.9' y2='1'%3E%3Cstop offset='0' stop-color='%23ffeec2'/%3E%3Cstop offset='.55' stop-color='%23f6c85c'/%3E%3Cstop offset='1' stop-color='%23cd9a2e'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M9 31.4V5' stroke='%23e9c987' stroke-width='1.9' stroke-linecap='round'/%3E%3Ccircle cx='9' cy='4.2' r='1.9' fill='%23ffe9b3'/%3E%3Ccircle cx='8.4' cy='3.7' r='.7' fill='%23fffdf2' opacity='.9'/%3E%3Cpath d='M10.2 5.6c5.4-1.7 8.6 1.5 13.6.1.5 2.9.4 5.8-.3 8.7-5 1.3-8.6-1.5-13.3.2z' fill='url(%23f)' stroke='%23a97a1f' stroke-width='.9'/%3E%3Cpath d='M10.2 5.6c5.4-1.7 8.6 1.5 13.6.1' stroke='%23fff6da' stroke-width='1' fill='none' opacity='.85'/%3E%3Cpath d='M12.6 7.2c-.7 2.2-.9 4.4-.6 6.6M16.4 6.7c-.6 2.3-.7 4.6-.4 6.9' stroke='%23b98a24' stroke-width='.7' fill='none' opacity='.55'/%3E%3C/svg%3E") 9 32, crosshair}
 #globe-stage.time-mode canvas{cursor:inherit}
@@ -1446,13 +1466,27 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
   background:linear-gradient(to bottom,rgba(255,216,140,.95),rgba(255,216,140,.28));
 }
 .tp-bubble{
-  padding:7px 12px 8px;border-radius:10px;margin-bottom:0;   /* 无缝：竖线直接顶到气泡底边 */
+  position:relative;
+  padding:7px 24px 8px 12px;border-radius:10px;margin-bottom:0;   /* 无缝：竖线直接顶到气泡底边 */
   background:rgba(10,16,26,.94);
   border:1px solid rgba(255,215,138,.45);
   box-shadow:0 12px 30px rgba(0,0,0,.55);
   color:#f4e7cd;font-size:12.5px;line-height:1.5;white-space:nowrap;
 }
 .tpin.below .tp-bubble{margin-bottom:0;margin-top:0}
+/* 气泡右上角的小关闭：气泡可能有好几个，得能逐个收掉 */
+.tp-x{
+  position:absolute;right:4px;top:3px;
+  width:16px;height:16px;padding:0;
+  display:flex;align-items:center;justify-content:center;
+  border:0;border-radius:50%;background:transparent;
+  color:rgba(255,225,170,.5);font:400 13px/1 system-ui,sans-serif;
+  cursor:pointer;transition:background .14s ease,color .14s ease;
+  /* 父层 #time-pins 是 pointer-events:none（不然整层会挡住拖球），
+     按钮要单独把它要回来，否则点不到。 */
+  pointer-events:auto;
+}
+.tp-x:hover{background:rgba(255,215,138,.18);color:#ffe6b4}
 .tp-bubble b{color:#ffdb8a;font-weight:600;font-variant-numeric:tabular-nums}
 .tp-bubble i{display:block;font-style:normal;font-size:11px;color:rgba(214,206,186,.72);
   letter-spacing:.04em;margin-top:2px;font-variant-numeric:tabular-nums}
@@ -1765,34 +1799,9 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
     left:calc(20px + env(safe-area-inset-left, 0px));
     bottom:calc(20px + env(safe-area-inset-bottom, 0px));
   }
-  /* 手机上只留一颗按钮。原来 6 个按钮竖着排在左边缘，占掉 282px 屏高（33%），
-     而手机用户最需要的是看球。点开才展开，点空白或再点一次收起。 */
-  #tools-toggle{
-    display:flex;
-    width:46px;height:46px;border-radius:14px;
-    background:rgba(6,10,17,.8);
-    border:1px solid rgba(140,170,210,.26);
-    box-shadow:0 8px 22px rgba(0,0,0,.42);
-  }
-  #tools-body{
-    position:absolute;left:0;bottom:calc(100% + 10px);
-    opacity:0;transform:translateY(10px) scale(.97);
-    transform-origin:50% 100%;
-    pointer-events:none;
-    transition:opacity .18s ease,transform .24s cubic-bezier(.2,.8,.3,1);
-  }
-  #tools.open #tools-body{opacity:1;transform:none;pointer-events:auto}
-  /* 手机没有 hover，名字常显；但不再是 6 个胶囊 —— 那样太吵，
-     改成贴着条子的浅色小字，像标注而不是按钮 */
-  .tl{
-    opacity:1;transform:translate(0,-50%);
-    padding:0;background:none;border:0;box-shadow:none;
-    color:rgba(224,236,252,.80);
-    text-shadow:0 1px 3px rgba(0,0,0,.92),0 0 8px rgba(0,0,0,.6);
-    left:calc(100% + 10px);
-  }
-  /* 触控目标从 40 提到 44 */
-  .tool-btn{height:44px}
+  /* 手机上手指粗，按钮比桌面大一点（44 是触控下限），面板仍走两列 */
+  #tools-body{width:214px;padding:10px 10px 9px;gap:8px 8px}
+  .tool-btn{width:44px;height:46px}
   #dock{bottom:calc(30px + env(safe-area-inset-bottom, 0px))}
 
   /* iOS 上输入框字号小于 16px，聚焦时浏览器会自动把整页放大，而且不缩回来。
@@ -1822,9 +1831,10 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
   .brand-cn{font-size:16px}
   #tools{left:calc(14px + env(safe-area-inset-left, 0px));
          bottom:calc(14px + env(safe-area-inset-bottom, 0px))}
-  /* 横屏高度只有 390，整条 249px 还塞得下，但把行高压到 34px 更从容 */
-  #tools-body .tool-btn{height:34px}
-  #tools-body{width:44px}
+  /* 横屏高度只有 390：两列网格本来就矮，再压一点就行 */
+  #tools-body{width:200px;padding:9px 9px 8px;gap:7px 8px}
+  .tool-btn{width:40px;height:42px}
+  .tg h3{margin-bottom:5px;font-size:9px}
 }
 
 </style>
@@ -1887,96 +1897,134 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
   <div class="dscroll"><div id="d-body"></div></div>
 </aside>
 
-<!-- 左下角只留一个视图开关。国名不再用开关 —— 像地图那样按缩放自动分级；
-     复位也不再要按钮，双击画面即可。 -->
-<!-- 工具栏：只留图标本身。之前外面套了层玻璃面板，在深色球面上显得又厚又重，
-     干脆去掉容器和折叠把手 —— 六个图标直接浮着，鼠标移上去才有反馈。 -->
+<!-- 工具栏：左下角一颗图标，点开是一个分类面板。
+     原来是 8 颗图标竖着排成一条 —— 手机上占掉三分之一屏高，而且越加越长。
+     改成抽屉：一颗入口 + 五组分类，桌面和手机同一套交互。 -->
 <div id="tools">
-  <!-- 手机端才出现的展开按钮：屏幕上只有一颗，点开才是那一列 -->
-  <button class="tool-btn" id="tools-toggle" type="button" aria-label="展开工具" aria-expanded="false">
+  <button id="tools-toggle" type="button" aria-label="打开工具" aria-expanded="false">
     <svg viewBox="0 0 24 24" aria-hidden="true">
-      <path d="M4 7h7M15 7h5M4 12h3M11 12h9M4 17h10M18 17h2"/>
-      <circle cx="13" cy="7" r="1.9"/><circle cx="9" cy="12" r="1.9"/><circle cx="16" cy="17" r="1.9"/>
+      <circle cx="12" cy="12" r="2"/>
+      <path d="M12 4.6v2M12 17.4v2M4.6 12h2M17.4 12h2"/>
+      <circle cx="12" cy="12" r="8.2" stroke-dasharray="2.6 2.4"/>
     </svg>
   </button>
-  <div id="tools-body">
-  <button class="tool-btn" id="btn-china" type="button" aria-label="常驻中国上空" aria-pressed="false">
-    <svg viewBox="0 0 24 24" aria-hidden="true">
-      <circle cx="12" cy="12" r="8.3"/>
-      <circle cx="12" cy="12" r="2.2"/>
-      <path d="M12 1.9v2.2M12 19.9v2.2M1.9 12h2.2M19.9 12h2.2"/>
-    </svg>
-    <span class="tl">常驻中国</span>
-  </button>
-  <button class="tool-btn" id="btn-borders" type="button" aria-label="显示全部国境线" aria-pressed="false">
-    <svg viewBox="0 0 24 24" aria-hidden="true">
-      <!-- 和其它五个统一成"圆底"：之前这里是个方框，和右边的圆形经纬网放一起，
-           一个方一个圆，风格差得太明显（用户原话"区别好大"）。
-           圆里一条虚线弧 —— 地图图例里国界就是画虚线的，而经纬网是实线网格，
-           "虚 vs 实"比"锯齿 vs 网格"更好分；弧线又避开了"直线虚线像电源符号"。 -->
-      <circle cx="12" cy="12" r="8.3"/>
-      <path d="M9.7 4.3c2.1 2.3 2.9 5 2.3 7.7-.5 2.2-1.8 4.1-3.3 5.6"
-            stroke-width="1.9" stroke-dasharray="2.4 2.1"/>
-    </svg>
-    <span class="tl">全部国境线</span>
-  </button>
-  <button class="tool-btn" id="btn-grid" type="button" aria-label="显示经纬线" aria-pressed="false">
-    <svg viewBox="0 0 24 24" aria-hidden="true">
-      <!-- 球 + 横椭圆（纬线）+ 竖椭圆（经线）。正交两个椭圆才是"网格"，
-           一根竖椭圆加两条横线在 18px 下读成"圆里一道竖杠"。 -->
-      <circle cx="12" cy="12" r="8.3"/>
-      <ellipse cx="12" cy="12" rx="8.3" ry="3.5"/>
-      <ellipse cx="12" cy="12" rx="3.6" ry="8.3"/>
-    </svg>
-    <span class="tl">经纬线</span>
-  </button>
-  <button class="tool-btn" id="btn-climate" type="button" aria-label="显示气候带" aria-pressed="false">
-    <svg viewBox="0 0 24 24" aria-hidden="true">
-      <!-- 太阳 + 云：气候的通用符号。18px 下射线要短、数量要少，
-           否则糊成一团光斑。 -->
-      <circle cx="8.6" cy="8.4" r="2.8"/>
-      <path d="M8.6 3.3v1.1M8.6 12.4v1.1M3.5 8.4h1.1M13.7 8.4h-1.1M5 4.8l.8.8M11.4 11.2l.8.8M12.2 4.8l-.8.8M6.2 11.2l-.8.8"/>
-      <path d="M8.3 19.8h8.2a2.5 2.5 0 0 0 .1-5 3.4 3.4 0 0 0-6.6-.5 2.8 2.8 0 0 0-1.7 5.5z"/>
-    </svg>
-    <span class="tl">气候带</span>
-  </button>
-  <button class="tool-btn" id="btn-terrain" type="button" aria-label="显示地形起伏" aria-pressed="false">
-    <svg viewBox="0 0 24 24" aria-hidden="true">
-      <!-- 两座山 + 地平线：地形图的经典画法。 -->
-      <path d="M2.9 18.9l5-7.7 3.2 4.8 3.4-5.7 6.6 8.6z"/>
-      <path d="M2.9 18.9h18.2"/>
-    </svg>
-    <span class="tl">地形</span>
-  </button>
-  <button class="tool-btn" id="btn-night" type="button" aria-label="切换白天 / 夜晚" aria-pressed="false">
-    <svg viewBox="0 0 24 24" aria-hidden="true">
-      <path d="M20.2 14.4A8.5 8.5 0 1 1 9.6 3.8a6.7 6.7 0 0 0 10.6 10.6z"/>
-    </svg>
-    <span class="tl">夜晚模式</span>
-  </button>
-  <button class="tool-btn" id="btn-term" type="button" aria-label="按此刻的太阳位置分出昼夜" aria-pressed="false">
-    <svg viewBox="0 0 24 24" aria-hidden="true">
-      <circle cx="12" cy="12" r="8.3"/>
-      <path d="M12 3.7a8.3 8.3 0 0 1 0 16.6z" fill="currentColor" fill-opacity=".42" stroke="none"/>
-    </svg>
-    <span class="tl">昼夜分界</span>
-  </button>
-  <button class="tool-btn" id="btn-time" type="button" aria-label="时间指示：点地球任意位置看当地时间" aria-pressed="false">
-    <svg viewBox="0 0 24 24" aria-hidden="true">
-      <circle cx="12" cy="12" r="8.3"/>
-      <path d="M12 6.8V12l3.4 2.1"/>
-    </svg>
-    <span class="tl">时间指示</span>
-  </button>
-  <!-- 点选查询：只在气候/地形图层打开时出现（JS 控制 display） -->
-  <button class="tool-btn" id="btn-probe" type="button" aria-label="点选查询气候或海拔" aria-pressed="false" style="display:none">
-    <svg viewBox="0 0 24 24" aria-hidden="true">
-      <circle cx="12" cy="12" r="5"/>
-      <path d="M12 2.6v4.4M12 17v4.4M2.6 12H7M17 12h4.4"/>
-      <circle cx="12" cy="12" r="1.15" fill="currentColor" stroke="none"/>
-    </svg>
-    <span class="tl">点选查询</span>
-  </button>
+  <div id="tools-body" role="dialog" aria-label="工具面板" aria-modal="false">
+
+    <section class="tg">
+      <h3>视图</h3>
+      <div class="tg-r">
+        <button class="tool-btn" id="btn-china" type="button" aria-pressed="false">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="12" r="8.3"/>
+            <circle cx="12" cy="12" r="2.2"/>
+            <path d="M12 1.9v2.2M12 19.9v2.2M1.9 12h2.2M19.9 12h2.2"/>
+          </svg>
+          <span class="tl">中国</span>
+        </button>
+        <button class="tool-btn" id="btn-spin" type="button" aria-pressed="true">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="12" r="5.1"/>
+            <path d="M4.7 9.1a8.4 8.4 0 0 1 14.1-2.6"/>
+            <path d="M19.2 2.9l-.5 3.9-3.9-.5"/>
+            <path d="M19.3 14.9a8.4 8.4 0 0 1-14.1 2.6"/>
+            <path d="M4.8 21.1l.5-3.9 3.9.5"/>
+          </svg>
+          <span class="tl">自转</span>
+        </button>
+      </div>
+    </section>
+
+    <section class="tg">
+      <h3>界线</h3>
+      <div class="tg-r">
+        <button class="tool-btn" id="btn-borders" type="button" aria-pressed="false">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="12" r="8.3"/>
+            <path d="M9.7 4.3c2.1 2.3 2.9 5 2.3 7.7-.5 2.2-1.8 4.1-3.3 5.6"
+                  stroke-width="1.9" stroke-dasharray="2.4 2.1"/>
+          </svg>
+          <span class="tl">国境线</span>
+        </button>
+        <button class="tool-btn" id="btn-grid" type="button" aria-pressed="false">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="12" r="8.3"/>
+            <ellipse cx="12" cy="12" rx="8.3" ry="3.5"/>
+            <ellipse cx="12" cy="12" rx="3.6" ry="8.3"/>
+          </svg>
+          <span class="tl">经纬线</span>
+        </button>
+      </div>
+    </section>
+
+    <section class="tg">
+      <h3>光照</h3>
+      <div class="tg-r">
+        <button class="tool-btn" id="btn-term" type="button" aria-pressed="false">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="12" r="8.3"/>
+            <path d="M12 3.7a8.3 8.3 0 0 1 0 16.6z" fill="currentColor" fill-opacity=".42" stroke="none"/>
+          </svg>
+          <span class="tl">昼夜</span>
+        </button>
+        <button class="tool-btn" id="btn-night" type="button" aria-pressed="false">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M20.2 14.4A8.5 8.5 0 1 1 9.6 3.8a6.7 6.7 0 0 0 10.6 10.6z"/>
+          </svg>
+          <span class="tl">夜晚</span>
+        </button>
+      </div>
+    </section>
+
+    <section class="tg">
+      <h3>图层</h3>
+      <div class="tg-r">
+        <button class="tool-btn" id="btn-climate" type="button" aria-pressed="false">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="8.6" cy="8.4" r="2.8"/>
+            <path d="M8.6 3.3v1.1M8.6 12.4v1.1M3.5 8.4h1.1M13.7 8.4h-1.1M5 4.8l.8.8M11.4 11.2l.8.8M12.2 4.8l-.8.8M6.2 11.2l-.8.8"/>
+            <path d="M8.3 19.8h8.2a2.5 2.5 0 0 0 .1-5 3.4 3.4 0 0 0-6.6-.5 2.8 2.8 0 0 0-1.7 5.5z"/>
+          </svg>
+          <span class="tl">气候</span>
+        </button>
+        <button class="tool-btn" id="btn-terrain" type="button" aria-pressed="false">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M2.9 18.9l5-7.7 3.2 4.8 3.4-5.7 6.6 8.6z"/>
+            <path d="M2.9 18.9h18.2"/>
+          </svg>
+          <span class="tl">地形</span>
+        </button>
+      </div>
+    </section>
+
+    <section class="tg">
+      <h3>定位</h3>
+      <div class="tg-r">
+        <button class="tool-btn" id="btn-time" type="button" aria-pressed="false">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="12" r="8.3"/>
+            <path d="M12 6.8V12l3.4 2.1"/>
+          </svg>
+          <span class="tl">时间</span>
+        </button>
+        <button class="tool-btn" id="btn-probe-clim" type="button" aria-pressed="false">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M10 13.4V5.3a2 2 0 1 1 4 0v8.1a4.1 4.1 0 1 1-4 0z"/>
+            <path d="M12 9.2v6.2"/>
+            <circle cx="12" cy="17.2" r="1.5" fill="currentColor" stroke="none"/>
+          </svg>
+          <span class="tl">气候</span>
+        </button>
+        <button class="tool-btn" id="btn-probe-elev" type="button" aria-pressed="false">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M2.6 19.4l4.3-6.6 2.7 4 2.4-4.1 5.1 6.7z"/>
+            <circle cx="17.4" cy="6.4" r="2.5"/>
+            <path d="M17.4 2.1v1.5M17.4 9.2v1.5M13.1 6.4h1.5M20.2 6.4h1.5"/>
+          </svg>
+          <span class="tl">高度</span>
+        </button>
+      </div>
+    </section>
+
   </div>
 </div>
 
@@ -4446,6 +4494,9 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
     matOn: null, matLit: null, matAll: null,
     active: null,
     autoSpin: true,
+    spinWanted: true,       // 用户意愿：关掉之后连 flyOut 也不恢复
+    pickKind: '',           // 定位模式：'' / 'time' / 'climate' / 'elev'
+    probeKind: '',          // probeMode 打开时具体是 climate 还是 elev
     pinCN: false,          // 「常驻中国」：钉住镜头、冻结自转
     inView: false,
     dragging: false,
@@ -5441,13 +5492,137 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
     data.forEach(function (d) {
       var node = el('div', 'tlabel k-' + d.k, d.n);
       host.appendChild(node);
+      /* 点名字 → 在球上画出这块地貌的边界。按在字上也要能转球，
+         所以 pointerdown 交给拖拽逻辑，松手位移很小才算点击。 */
+      node.addEventListener('pointerdown', function (e) {
+        if (globe.dragDown) globe.dragDown(e);
+      });
+      node.addEventListener('click', function (e) {
+        e.stopPropagation();
+        if (globe.moved > 6) return;
+        if (globe.toggleTShape) globe.toggleTShape(d.n);
+      });
       globe.tlabels.push({
         el: node, lon: d.lon, lat: d.lat, z: d.z || 4,
-        kind: d.k, pri: d.z || 4,
+        kind: d.k, pri: d.z || 4, tap: true,
         v: new THREE.Vector3(), w: node.offsetWidth, h: node.offsetHeight, on: false
       });
     });
   }
+
+  /* ---------- 地形边界 ----------
+     点地形名 → 在球上画出这块山 / 盆地 / 高原的外轮廓。
+     数据来自 Natural Earth 的面要素，构建期抽稀成 0.1° 精度的整数点
+     （geo/terrain_shapes.json，约 200KB，点一次才下载）。
+
+     颜色用青白而不是金色：金色留给地名和「定位」标记，而且地形底图是棕绿
+     暖色，金线压上去几乎看不见。 */
+  var tShapeData = null, tShapeLoading = false, tShapeLine = null, tShapeName = '';
+  var TSHAPE_COLOR = 0x9ff0ff;
+
+  function tShapeClear() {
+    if (tShapeLine) {
+      if (tShapeLine.parent) tShapeLine.parent.remove(tShapeLine);
+      tShapeLine.traverse(function (c) {
+        if (c.geometry) c.geometry.dispose();
+        if (c.material) c.material.dispose();
+      });
+    }
+    tShapeLine = null;
+    if (tShapeName) {
+      (globe.tlabels || []).forEach(function (L) {
+        if (L.el.textContent === tShapeName) L.el.classList.remove('picked');
+      });
+    }
+    tShapeName = '';
+  }
+  globe.tShapeClear = tShapeClear;
+
+  function tShapeDraw(name, ring) {
+    if (!globe.sphere || !ring || ring.length < 3) return;
+    var n = ring.length;
+    /* 闭合判定：面要素首尾点重合，河流不是。坐标是 ×10 的整数，5 就是 0.5°。 */
+    var closed = Math.abs(ring[0][0] - ring[n - 1][0]) < 5 &&
+                 Math.abs(ring[0][1] - ring[n - 1][1]) < 5;
+
+    /* 按"跨换日线就断开"切成若干段折线。
+       不切的话，楚科奇、斐济那种环会在经度上从 +179 跳到 -179，
+       连起来就是横穿整个球面的一条直线。 */
+    var runs = [], cur = [];
+    for (var i = 0; i < n + (closed ? 1 : 0); i++) {
+      var q = ring[i % n];
+      var lon = q[0] / 10, lat = q[1] / 10;
+      if (cur.length) {
+        var prev = cur[cur.length - 1];
+        if (Math.abs(lon - prev[0]) > 180) { runs.push(cur); cur = []; }
+      }
+      cur.push([lon, lat]);
+    }
+    if (cur.length > 1) runs.push(cur);
+    if (!runs.length) return;
+
+    var group = new THREE.Group();
+    group.userData.tshape = true;
+    var MAT = new THREE.MeshBasicMaterial({
+      color: TSHAPE_COLOR, transparent: true, opacity: 0.95, depthWrite: false
+    });
+    var v = new THREE.Vector3();
+
+    /* 用细管（TubeGeometry）而不是 Line：
+       WebGL 的 linewidth 在绝大多数平台被忽略，画出来永远 1px ——
+       球面缩到 700px 宽时这条线几乎看不见。管子的粗细由几何决定，
+       0.0038 个球半径 ≈ 半径 1.5px，才是一条"看得见的线"。 */
+    runs.forEach(function (pts) {
+      if (pts.length < 2) return;
+      var vs = pts.map(function (q) {
+        llToVec3(q[0], q[1], 1.0068, v);
+        return new THREE.Vector3(v.x, v.y, v.z);
+      });
+      var curve = new THREE.CatmullRomCurve3(vs, false, 'catmullrom', 0);
+      var seg = Math.min(Math.max(vs.length * 2, 16), 400);
+      var geo;
+      try {
+        geo = new THREE.TubeGeometry(curve, seg, 0.0038, 4, false);
+      } catch (e) { return; }
+      var mesh = new THREE.Mesh(geo, MAT);
+      mesh.renderOrder = 3;
+      group.add(mesh);
+    });
+    if (!group.children.length) return;
+    tShapeLine = group;
+    globe.sphere.add(group);
+  }
+
+  function tShapeApply() {
+    if (!tShapeName || !tShapeData) return;
+    var ring = tShapeData[tShapeName];
+    if (!ring) return;
+    tShapeDraw(tShapeName, ring);
+    (globe.tlabels || []).forEach(function (L) {
+      if (L.el.textContent === tShapeName) L.el.classList.add('picked');
+    });
+  }
+  globe.tShapeApply = tShapeApply;
+
+  /* 点名字：第一次选它、再点一次取消；点另一块就换过去。 */
+  globe.toggleTShape = function (name) {
+    if (tShapeName === name) { tShapeClear(); return; }
+    if (tShapeData) {
+      tShapeName = name;
+      tShapeClear();
+      tShapeName = name;
+      tShapeApply();
+      return;
+    }
+    if (tShapeLoading) return;
+    tShapeLoading = true;
+    tShapeName = name;
+    fetchAny('geo/terrain_shapes.json').then(function (d) {
+      tShapeData = d || {};
+      tShapeLoading = false;
+      tShapeApply();
+    }).catch(function () { tShapeLoading = false; });
+  };
 
   function updateLabels() {
     /* 图层模式下换一套数据源：国名会让位给地形名（两层同时铺满必然糊成一团） */
@@ -5628,8 +5803,12 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
          只关国家那几个的话，点"北美洲"照样会弹出一张卡片。
          这里写的是内联样式，优先级高于 CSS 的 .time-mode .mlabel 规则，
          所以必须在这拦一道。 */
-      if (globe.timeMode) {
+      var picking = globe.timeMode || globe.probeMode;
+      if (picking) {
         if (L.el.style.pointerEvents !== 'none') L.el.style.pointerEvents = 'none';
+      } else if (L.tap) {
+        /* 地形名可以点：点开在球上画出这块山/盆地的边界 */
+        if (L.el.style.pointerEvents !== 'auto') L.el.style.pointerEvents = 'auto';
       } else if (L.iso && L.el.style.pointerEvents === 'none') {
         L.el.style.pointerEvents = 'auto';
       }
@@ -6732,7 +6911,34 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
 
     var pinLayer = document.getElementById('time-pins');
     var TPIN_MAX = 6;                      // 最多同时钉 6 个，再多就从最早的开始收
-    var pins = [];                         // { anchor, lat, lon } —— 位置靠经纬度每帧重算
+    var pins = [];                         // { anchor, lat, lon, kind } —— 位置靠经纬度每帧重算
+    var PIN_X = '<button class="tp-x" type="button" aria-label="关闭这块气泡">×</button>';
+
+    /* 气泡右上角的 ×：只收掉自己这一块，不动别的。
+       直接改 DOM 会漏掉 pins 数组（它才是每帧投影的依据），两边一起删。 */
+    function bindPinClose(rec, box) {
+      var x = box.querySelector('.tp-x');
+      if (!x) return;
+      x.addEventListener('pointerdown', function (e) { e.stopPropagation(); });
+      x.addEventListener('click', function (e) {
+        e.stopPropagation();
+        var at = pins.indexOf(rec);
+        if (at >= 0) pins.splice(at, 1);
+        rec.anchor.classList.add('out');
+        setTimeout(function () {
+          if (rec.anchor.parentNode) rec.anchor.parentNode.removeChild(rec.anchor);
+        }, 170);
+      });
+    }
+
+    /* 超过上限就收最早的一个。按 pins 数组删 —— 之前按 children 删，
+       加了单独关闭之后两边顺序会不同步，可能删错节点。 */
+    function trimPins() {
+      while (pins.length > TPIN_MAX) {
+        var old = pins.shift();
+        if (old.anchor.parentNode) old.anchor.parentNode.removeChild(old.anchor);
+      }
+    }
 
     function showTimePin(cx, cy, ll) {
       if (!pinLayer) return;
@@ -6760,14 +6966,14 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
           (mm < 10 ? '0' : '') + mm + '</b>　' +
           (t.getUTCMonth() + 1) + '月' + t.getUTCDate() + '日 · ' + offStr +
           '<i>' + Math.abs(ll.lat).toFixed(1) + '°' + ns + '　' +
-          Math.abs(ll.lon).toFixed(1) + '°' + ew + '</i></div>' +
+          Math.abs(ll.lon).toFixed(1) + '°' + ew + '</i>' + PIN_X + '</div>' +
         '<div class="tp-stem"></div>';
       anchor.appendChild(d);
       pinLayer.appendChild(anchor);
-      pins.push({ anchor: anchor, lat: ll.lat, lon: ll.lon });
-
-      var kids = pinLayer.children;
-      while (kids.length > TPIN_MAX) { pinLayer.removeChild(kids[0]); pins.shift(); }
+      var rec = { anchor: anchor, lat: ll.lat, lon: ll.lon, kind: 'time' };
+      pins.push(rec);
+      bindPinClose(rec, d);
+      trimPins();
       placePins();          // 立刻摆到位，别先闪在左上角
     }
 
@@ -6796,6 +7002,21 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
       }
     }
     globe.placePins = placePins;
+
+    /* 按类别收气泡：退出哪种定位就只收哪种留下的。
+       kind 为空 = 全收。必须放在这个作用域里 —— 它要用 pinLayer / pins，
+       工具栏那层闭包看不见这两个变量（之前放在那里，一调就 pinLayer is not defined）。 */
+    globe.clearPins = function (kind) {
+      if (!pinLayer) return;
+      for (var i = pins.length - 1; i >= 0; i--) {
+        if (kind && pins[i].kind !== kind) continue;
+        var a = pins.splice(i, 1)[0].anchor;
+        a.classList.add('out');
+        (function (n) {
+          setTimeout(function () { if (n.parentNode) n.parentNode.removeChild(n); }, 170);
+        })(a);
+      }
+    };
 
     /* 退出旗子模式时全部收掉：先淡出再删，一起消失 */
     globe.hideTimePin = function () {
@@ -6896,7 +7117,7 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
           cname = (m && m.n) || (CARDS && CARDS[cn.iso] && CARDS[cn.iso].name_zh) || '';
         }
         var html;
-        if (globe.layerName === 'terrain') {
+        if (globe.probeKind === 'elev') {
           var h = probeElevAt(ll.lon, ll.lat);
           var txt = h == null ? '海拔未知'
                   : (h >= 0 ? '海拔 ' + Math.round(h).toLocaleString() + ' 米'
@@ -6912,12 +7133,15 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
         anchor.className = 'tpin-anchor';
         var d = document.createElement('div');
         d.className = 'tpin' + (e.clientY < 150 ? ' below' : '');
-        d.innerHTML = '<div class="tp-bubble">' + html + '</div><div class="tp-stem"></div>';
+        d.innerHTML = '<div class="tp-bubble">' + html + PIN_X +
+                      '</div><div class="tp-stem"></div>';
         anchor.appendChild(d);
         pinLayer.appendChild(anchor);
-        pins.push({ anchor: anchor, lat: ll.lat, lon: ll.lon });
-        var kids = pinLayer.children;
-        while (kids.length > TPIN_MAX) { pinLayer.removeChild(kids[0]); pins.shift(); }
+        var rec = { anchor: anchor, lat: ll.lat, lon: ll.lon,
+                    kind: globe.probeKind || 'climate' };
+        pins.push(rec);
+        bindPinClose(rec, d);
+        trimPins();
         placePins();
       });
     });
@@ -7103,7 +7327,7 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
         }
       }
 
-      if (globe.autoSpin && !globe.pinCN && !globe.dragging && !globe.flying &&
+      if (globe.spinWanted !== false && globe.autoSpin && !globe.pinCN && !globe.dragging && !globe.flying &&
           nowMs > globe.idleUntil && !(globe.term && globe.term.on) &&
           !globe.timeMode) {
         /* 自转：0.0009 弧度/帧@60fps ≈ 116 秒一圈（原来 0.0013 = 80 秒，偏快）。
@@ -7254,7 +7478,11 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
       (function next() {
         if (i >= TEX_BASES.length) { cb(null); return; }
         loader.load(TEX_BASES[i++] + LG[name].tex + q, function (t) {
-          t.anisotropy = 4;
+          /* 各向异性拉到设备的极限。气候图在球上是大角度斜视，4 倍过滤把
+             远处的地块糊成一片；16 倍能沿视线方向多采几次，斜面上的分区
+             边界基本能保住 —— 这是"糊"的另一半原因（另一半是缺描边）。 */
+          t.anisotropy = (globe.renderer && globe.renderer.capabilities)
+            ? globe.renderer.capabilities.getMaxAnisotropy() : 4;
           t.generateMipmaps = true;
           t.minFilter = THREE.LinearMipmapLinearFilter;
           t.magFilter = THREE.LinearFilter;
@@ -7324,9 +7552,8 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
       lgFade(0, 260);
       if (lgEl) { lgEl.classList.remove('on'); lgEl.setAttribute('aria-hidden', 'true'); }
       lgSync();
-      if (globe.setProbe) globe.setProbe(false);
-      if (globe.hideTimePin) globe.hideTimePin();
-      syncProbeBtn();
+      /* 关掉图层就没数据可查了，定位模式一起退出（气泡由 setPick 收） */
+      if (globe.setPick) globe.setPick('');
       if (globe.syncLabelLayers) globe.syncLabelLayers();
     }
 
@@ -7341,10 +7568,11 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
         lgFade(1, 380);
         lgLegend(name);
         lgSync();
-        syncProbeBtn();
         if (globe.syncLabelLayers) globe.syncLabelLayers();
-        /* 换了图层，旧的点选气泡就作废了（同一个点问的已经是另一件事） */
-        if (globe.hideTimePin) globe.hideTimePin();
+        /* 换了图层，气候/高度的气泡就作废了（同一个点问的已经是另一件事）。
+           时间气泡与图层无关，留着。 */
+        if (globe.clearPins) { globe.clearPins('climate'); globe.clearPins('elev'); }
+        if (globe.tShapeClear) globe.tShapeClear();
       });
       if (window.__tipHide) window.__tipHide();
     }
@@ -7357,28 +7585,55 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
       lgSync();
     })();
 
-    /* ---------- 点选查询按钮 ----------
-       只在气候/地形图层打开时出现 —— 没有图层，"这一点是什么气候"无从谈起。
-       点一下进入拾取模式（光标变准星），再点一下退出。 */
-    var bpb = document.getElementById('btn-probe');
-    function setProbe(v) {
-      globe.probeMode = !!v;
-      if (bpb) {
-        bpb.classList.toggle('on', globe.probeMode);
-        bpb.setAttribute('aria-pressed', globe.probeMode ? 'true' : 'false');
-        bpb.setAttribute('data-tip', globe.probeMode ? '退出点选' : '点选查询气候 / 海拔');
+    /* ---------- 三种定位：时间 / 气候 / 高度 ----------
+       一个模式一支光标，互斥；再点同一个按钮退出。
+       气候和高度需要对应图层，所以点它们会自动把图层切过去 ——
+       不必"先开图层、再回来找按钮"，任何状态下都能直接定位。 */
+    var PICK_BTNS = {
+      time: document.getElementById('btn-time'),
+      climate: document.getElementById('btn-probe-clim'),
+      elev: document.getElementById('btn-probe-elev')
+    };
+
+    function setPick(kind) {
+      var cur = globe.pickKind || '';
+      if (cur === kind) kind = '';              // 再点一次同一个 = 退出
+      if (cur && cur !== kind && globe.clearPins) globe.clearPins(cur);  // 换模式：旧模式的气泡收掉
+      globe.pickKind = kind || '';
+      globe.timeMode = kind === 'time';
+      globe.probeMode = kind === 'climate' || kind === 'elev';
+      globe.probeKind = globe.probeMode ? kind : '';
+
+      for (var k in PICK_BTNS) {
+        var b = PICK_BTNS[k];
+        if (!b) continue;
+        b.classList.toggle('on', k === kind);
+        b.setAttribute('aria-pressed', k === kind ? 'true' : 'false');
       }
       var st = document.getElementById('globe-stage');
-      if (st) st.classList.toggle('probe-mode', globe.probeMode);
+      if (st) {
+        st.classList.toggle('time-mode', globe.timeMode);
+        st.classList.toggle('probe-mode', globe.probeMode);
+      }
+      /* 定位时要"点哪儿算哪儿"，标签不能接事件 —— 否则点在国名上会弹档案。
+         立刻刷一遍，不等下一帧（那一帧的空窗里手快正好点进去）。 */
+      (globe.labels || []).forEach(function (L) {
+        L.el.style.pointerEvents = (globe.timeMode || globe.probeMode)
+          ? 'none' : (L.iso ? 'auto' : '');
+      });
+      /* 选中气候 / 高度但图层不对：自动切过去（lgToggle 异步下载贴图） */
+      if (kind === 'climate' || kind === 'elev') {
+        var want = kind === 'climate' ? 'climate' : 'terrain';
+        if (lgCur !== want) lgToggle(want);
+      }
       if (window.__tipHide) window.__tipHide();
     }
-    globe.setProbe = setProbe;
+    globe.setPick = setPick;
 
-    function syncProbeBtn() {
-      if (!bpb) return;
-      var on = !!lgCur;
-      bpb.style.display = on ? '' : 'none';
-      if (!on && globe.probeMode) setProbe(false);
+    for (var _pk in PICK_BTNS) {
+      (function (k, b) {
+        if (b) b.addEventListener('click', function () { setPick(k); });
+      })(_pk, PICK_BTNS[_pk]);
     }
 
     /* 图层模式下国名让位给地形名：两层字同时铺满屏幕必然糊成一团。
@@ -7392,10 +7647,6 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
     }
     globe.syncLabelLayers = syncLabelLayers;
 
-    if (bpb) {
-      bpb.addEventListener('click', function () { setProbe(!globe.probeMode); });
-    }
-    syncProbeBtn();
 
     /* 工具栏收纳（只在手机上生效，桌面永远整条展开）。
        原来这里也有一段"收起后只留一颗按钮"的代码，但那个按钮和它的样式
@@ -7412,6 +7663,8 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
         e.stopPropagation();
         setToolsOpen(!toolsWrap.classList.contains('open'));
       });
+      /* 不自动收起：一次可能连着开好几个（国境线 + 经纬线 + 气候），
+         点完就关反而要反复拉开。关法交回给"点球面"和再点一次入口。 */
       /* 点别处收起。放在捕获段，先于地球的 pointerdown 跑 ——
          这样"点球面"既能收起工具条，又照常转球。 */
       document.addEventListener('pointerdown', function (e) {
@@ -7419,8 +7672,10 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
         if (toolsWrap.contains(e.target)) return;
         setToolsOpen(false);
       }, true);
+      /* 桌面也走抽屉（原来桌面永远整条展开、手机才收），
+         所以 resize 不再强制收起 —— 只在小屏变横屏时收一下，省空间。 */
       window.addEventListener('resize', function () {
-        if (window.innerWidth > 760) setToolsOpen(false);
+        if (window.innerHeight < 480) setToolsOpen(false);
       });
     }
 
@@ -7443,6 +7698,20 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
       }
       sync();
     })();
+
+    /* 自转：用户意愿单独存一个 spinWanted。autoSpin 会被飞行、拖动、钉中国
+       这些逻辑临时改，用它当开关会被"飞过去再也没转回来"。 */
+    var bsp = document.getElementById('btn-spin');
+    if (bsp) {
+      bsp.classList.toggle('on', globe.spinWanted !== false);
+      bsp.addEventListener('click', function () {
+        globe.spinWanted = !(globe.spinWanted !== false);
+        bsp.classList.toggle('on', globe.spinWanted);
+        bsp.setAttribute('aria-pressed', globe.spinWanted ? 'true' : 'false');
+        if (globe.spinWanted) globe.idleUntil = performance.now() + 250;
+        if (window.__tipHide) window.__tipHide();
+      });
+    }
 
     var bcn = document.getElementById('btn-china');
     if (bcn) {
@@ -7514,27 +7783,8 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
       });
     }
 
-    /* 时间指示：开关。打开后光标变旗子，点哪儿显示哪儿的地方时；
-       同时把国名标签的事件关掉（CSS 里 .time-mode .mlabel），
-       免得"问个时间"顺手弹出档案。 */
-    var bti = document.getElementById('btn-time');
-    if (bti) {
-      bti.addEventListener('click', function () {
-        globe.timeMode = !globe.timeMode;
-        var st = globeStage();
-        if (st) st.classList.toggle('time-mode', globe.timeMode);
-        bti.classList.toggle('on', globe.timeMode);
-        bti.setAttribute('data-tip', globe.timeMode
-          ? '退出时间指示' : '点地球任意位置看当地时间');
-        /* 立刻把所有标签的点击态刷一遍：光靠下一帧的 updateLabels 也行，
-           但那之间有一帧的空窗，手快的话正好点进去。 */
-        (globe.labels || []).forEach(function (L) {
-          L.el.style.pointerEvents = globe.timeMode ? 'none' : (L.iso ? 'auto' : '');
-        });
-        if (!globe.timeMode && globe.hideTimePin) globe.hideTimePin();
-        if (window.__tipHide) window.__tipHide();
-      });
-    }
+    /* 时间指示的按钮已经和另外两个定位一起绑到 setPick 了，
+       这里不再单独挂开关 —— 三个模式互斥，各点各的会互相打架。 */
   })();
 
   /* 射线法：点是否在多边形内。
