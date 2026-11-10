@@ -7759,6 +7759,10 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
       /* 等地球本体、国名、地形名都到位再预热，别和首屏抢带宽 */
       var kick = function () {
         if (!globe.earthMat) { setTimeout(kick, 700); return; }
+        /* 手机上不预热：两张 4096×2048 贴图传上 GPU 就是 66MB 显存，
+           低端机很容易被系统回收掉整个标签页。手机上还是点开才下，
+           慢一点可以接受，崩掉不行。 */
+        if (window.innerWidth < 760) return;
         lgPrewarm();
       };
       if (window.requestIdleCallback) {
