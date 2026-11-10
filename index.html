@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-10-AH">
+<meta name="build" content="2026-11-10-AI">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -1424,6 +1424,10 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
   opacity:0;pointer-events:none;z-index:6;
   transition:opacity .13s ease,transform .17s cubic-bezier(.2,.8,.3,1);
 }
+/* 最左边那颗的提示框左对齐按钮左边：居中的话会从面板左边界溢出去 */
+.tg-r .tool-btn:first-child .tl{left:0;transform:translate(0,4px)}
+.tg-r .tool-btn:first-child:hover .tl,
+.tg-r .tool-btn:first-child:focus-visible .tl{transform:translate(0,0)}
 .tool-btn:hover .tl,.tool-btn:focus-visible .tl{opacity:1;transform:translate(-50%,0)}
 
 
