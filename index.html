@@ -2186,12 +2186,12 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
     });
   }
 
-  /* 地形边界的加载走 OBS 优先。
+  /* 地形两份数据（名字 + 边界）的加载走 OBS 优先。
      这份文件改一次就想立刻生效，但 fetchAny 的第一站是 jsDelivr 的 @main，
      那边按分支缓存 12 小时 —— 上一轮"改了黄河还是看不见"，除了数据本身
      缺段，另一半原因就是 CDN 还在发旧文件。OBS 是我们自己的桶，
      带构建号请求，改完即生效。失败再退回同源。 */
-  function fetchShapeData(rel, done) {
+  function fetchGeoData(rel, done) {
     var q = BUILD_TAG ? ('?v=' + encodeURIComponent(BUILD_TAG)) : '';
     var bases = [OBS_BASE + rel + q, rel + q];
     var i = 0;
@@ -5717,7 +5717,7 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
     if (tShapeLoading) return;
     tShapeLoading = true;
     tShapeName = name;
-    fetchShapeData('geo/terrain_shapes.json', function (d) {
+    fetchGeoData('geo/terrain_shapes.json', function (d) {
       tShapeLoading = false;
       tShapeData = d || {};
       if (!d) return;
@@ -7534,10 +7534,13 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
     fetchAny('geo/labels.json')
       .then(buildLabels)
       .catch(function () { /* 静默降级：没有地名，球还在 */ });
-    /* 地形名称单独一份，只在气候/地形图层下启用 */
-    fetchAny('geo/terrain_labels.json')
-      .then(buildTerrainLabels)
-      .catch(function () { /* 没有就只是没有地形名 */ });
+    /* 地形名称单独一份，只在气候/地形图层下启用。
+       这份必须和边界数据一样走 OBS：实测 jsDelivr 的 @main 分支缓存会
+       发 12 小时前的旧文件（本地 300 条、CDN 给 265 条，"黄河"这个名字
+       压根没在列表里 —— 用户当然点了没反应）。 */
+    fetchGeoData('geo/terrain_labels.json', function (d) {
+      if (d) buildTerrainLabels(d);
+    });
 
     setActive(null);        // 初始不点亮任何国界
   }
