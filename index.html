@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-10-AG">
+<meta name="build" content="2026-11-10-AH">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -1350,8 +1350,7 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
   transition:transform .4s cubic-bezier(.2,.8,.3,1);
 }
 #tools-toggle:hover{background:rgba(20,32,50,.9);color:#f0f7ff}
-#tools.open #tools-toggle{color:#ffe0a0;border-color:rgba(255,206,112,.42)}
-#tools.open #tools-toggle svg{transform:rotate(90deg)}
+#tools.open #tools-toggle{color:rgba(255,224,152,.98);border-color:rgba(255,206,112,.42)}
 
 /* 抽屉：五组，每组一行小标题 + 一行图标按钮 */
 #tools-body{
@@ -1377,7 +1376,7 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
   letter-spacing:.08em;color:rgba(198,218,242,.92);
 }
 .tg-r{display:flex;gap:6px}
-/* 定位组跨两列、三个按钮，居中摆才不显得右边空一大块 */
+/* 定位组三个按钮跨两列，按正常尺寸排开、居中 */
 .tg:last-child .tg-r{justify-content:center}
 
 /* 按钮：竖排图标 + 名字。名字常显 —— 抽屉里空间够，不用再靠 hover 才发现。 */
@@ -1412,24 +1411,22 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
 .tool-btn.busy{opacity:.55;pointer-events:none}
 /* 名字做成 hover 浮出的提示框（和之前一样）：按钮里只放图标，
    面板才不会被一行行小字塞满。 */
-/* 按钮里的文字只当数据源（读屏和提示框都从这儿取），不直接显示：
-   网格里按钮挨得近，提示框放按钮旁边一定会压住隔壁那颗。 */
-.tl{display:none}
-
-/* 面板外侧的统一提示框：贴着面板右边界浮出，y 跟着 hover 的那颗走。
-   面板右边是空的球面，放这儿谁都不挡。 */
-#tools-tip{
-  position:absolute;left:calc(100% + 10px);top:0;
+/* 提示框：统一浮在按钮正上方，文字写完整（"常驻中国上空"而不是"中国"）。
+   会短暂盖住分组标题 —— 那比压住隔壁按钮好接受得多。 */
+.tl{
+  position:absolute;left:50%;bottom:calc(100% + 6px);
+  transform:translate(-50%,4px);
   padding:5px 10px;border-radius:7px;
-  font-size:11.5px;line-height:1.2;letter-spacing:.02em;white-space:nowrap;
-  color:#e8f2ff;background:rgba(6,10,17,.95);
-  border:1px solid rgba(140,170,210,.3);
-  box-shadow:0 8px 22px rgba(0,0,0,.5);
-  opacity:0;pointer-events:none;
-  transform:translate(-5px,-50%);
-  transition:opacity .13s ease,transform .18s cubic-bezier(.2,.8,.3,1);
+  font-size:11.5px;line-height:1.25;letter-spacing:.01em;white-space:nowrap;
+  color:#eaf3ff;background:rgba(6,10,17,.96);
+  border:1px solid rgba(145,175,215,.3);
+  box-shadow:0 10px 26px rgba(0,0,0,.55);
+  opacity:0;pointer-events:none;z-index:6;
+  transition:opacity .13s ease,transform .17s cubic-bezier(.2,.8,.3,1);
 }
-#tools-tip.on{opacity:1;transform:translate(0,-50%)}
+.tool-btn:hover .tl,.tool-btn:focus-visible .tl{opacity:1;transform:translate(-50%,0)}
+
+
 
 /* 时间指示模式：光标换成一面小旗子，热点在旗杆脚下 */
 #globe-stage.time-mode{cursor:url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='36' height='36' viewBox='0 0 36 36'%3E%3Cdefs%3E%3ClinearGradient id='f' x1='0' y1='0' x2='.9' y2='1'%3E%3Cstop offset='0' stop-color='%23ffeec2'/%3E%3Cstop offset='.55' stop-color='%23f6c85c'/%3E%3Cstop offset='1' stop-color='%23cd9a2e'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M9 31.4V5' stroke='%23e9c987' stroke-width='1.9' stroke-linecap='round'/%3E%3Ccircle cx='9' cy='4.2' r='1.9' fill='%23ffe9b3'/%3E%3Ccircle cx='8.4' cy='3.7' r='.7' fill='%23fffdf2' opacity='.9'/%3E%3Cpath d='M10.2 5.6c5.4-1.7 8.6 1.5 13.6.1.5 2.9.4 5.8-.3 8.7-5 1.3-8.6-1.5-13.3.2z' fill='url(%23f)' stroke='%23a97a1f' stroke-width='.9'/%3E%3Cpath d='M10.2 5.6c5.4-1.7 8.6 1.5 13.6.1' stroke='%23fff6da' stroke-width='1' fill='none' opacity='.85'/%3E%3Cpath d='M12.6 7.2c-.7 2.2-.9 4.4-.6 6.6M16.4 6.7c-.6 2.3-.7 4.6-.4 6.9' stroke='%23b98a24' stroke-width='.7' fill='none' opacity='.55'/%3E%3C/svg%3E") 9 32, crosshair}
@@ -1474,34 +1471,52 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
 @keyframes tpIn{to{opacity:1}}
 .tp-stem{
   width:2px;height:32px;border-radius:1px;
-  background:linear-gradient(to top,rgba(160,225,255,.95),rgba(160,225,255,.26));
-  box-shadow:0 0 7px rgba(110,200,255,.45);
+  background:linear-gradient(to top,rgba(255,216,140,.95),rgba(255,216,140,.28));
+  box-shadow:0 0 7px rgba(255,196,96,.45);
 }
 .tpin.below .tp-stem{
-  background:linear-gradient(to bottom,rgba(160,225,255,.95),rgba(160,225,255,.26));
+  background:linear-gradient(to bottom,rgba(255,216,140,.95),rgba(255,216,140,.28));
 }
 .tp-bubble{
   position:relative;
   padding:7px 12px 8px;border-radius:10px;margin-bottom:0;   /* 无缝：竖线直接顶到气泡底边 */
-  background:rgba(8,16,28,.95);
-  border:1px solid rgba(150,215,255,.5);
-  box-shadow:0 12px 30px rgba(0,0,0,.55),0 0 0 1px rgba(120,200,255,.08);
-  color:#dcecfb;font-size:12.5px;line-height:1.5;white-space:nowrap;
+  background:rgba(10,16,26,.94);
+  border:1px solid rgba(255,215,138,.45);
+  box-shadow:0 12px 30px rgba(0,0,0,.55);
+  color:#f4e7cd;font-size:12.5px;line-height:1.5;white-space:nowrap;
   /* 点一下就关：不再单独做那颗 × */
   pointer-events:auto;cursor:pointer;
   transition:border-color .15s ease,background .15s ease;
 }
-.tp-bubble:hover{border-color:rgba(180,230,255,.8);background:rgba(12,24,40,.96)}
+.tp-bubble:hover{border-color:rgba(255,228,168,.8)}
+/* 气候 / 高度定位的气泡：只换颜色，尺寸、动效、音效和时间定位完全一样 */
+.tpin.k-clim .tp-bubble{
+  background:rgba(8,16,28,.95);
+  border-color:rgba(150,215,255,.5);
+  box-shadow:0 12px 30px rgba(0,0,0,.55),0 0 0 1px rgba(120,200,255,.08);
+  color:#dcecfb;
+}
+.tpin.k-clim .tp-bubble:hover{border-color:rgba(185,232,255,.85);background:rgba(12,24,40,.96)}
+.tpin.k-clim .tp-bubble b{color:#a8e2ff}
+.tpin.k-clim .tp-bubble i{color:rgba(168,198,224,.72)}
+.tpin.k-clim .tp-stem{
+  background:linear-gradient(to top,rgba(160,225,255,.95),rgba(160,225,255,.26));
+  box-shadow:0 0 7px rgba(110,200,255,.45);
+}
+.tpin.k-clim.below .tp-stem{
+  background:linear-gradient(to bottom,rgba(160,225,255,.95),rgba(160,225,255,.26));
+}
+.tpin.k-clim::after{background:#c4ecff;box-shadow:0 0 10px rgba(120,210,255,.9),0 0 0 2px rgba(120,210,255,.16)}
 .tpin.below .tp-bubble{margin-bottom:0;margin-top:0}
 
-.tp-bubble b{color:#a8e2ff;font-weight:600;font-variant-numeric:tabular-nums}
-.tp-bubble i{display:block;font-style:normal;font-size:11px;color:rgba(168,198,224,.72);
+.tp-bubble b{color:#ffdb8a;font-weight:600;font-variant-numeric:tabular-nums}
+.tp-bubble i{display:block;font-style:normal;font-size:11px;color:rgba(214,206,186,.72);
   letter-spacing:.04em;margin-top:2px;font-variant-numeric:tabular-nums}
 /* 落点上的一点亮：竖线就扎在这儿 */
 .tpin::after{
   content:"";position:absolute;left:50%;bottom:-3.5px;width:7px;height:7px;margin-left:-3.5px;
-  border-radius:50%;background:#c4ecff;
-  box-shadow:0 0 10px rgba(120,210,255,.9),0 0 0 2px rgba(120,210,255,.16);
+  border-radius:50%;background:#ffdf9e;
+  box-shadow:0 0 10px rgba(255,196,96,.9),0 0 0 2px rgba(255,196,96,.16);
 }
 .tpin.below::after{bottom:auto;top:-3.5px}
 
@@ -1542,7 +1557,7 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
 
 /* 点选查询模式的光标：金色准星，和时间指示的旗子同一套视觉语言。
    中间的 18 18 是热区，正好落在十字交点上。 */
-#globe-stage.probe-mode{cursor:url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='36' height='36' viewBox='0 0 36 36'%3E%3Ccircle cx='18' cy='18' r='8.5' fill='none' stroke='%23f6c85c' stroke-width='1.8'/%3E%3Cpath d='M18 4v6M18 26v6M4 18h6M26 18h6' stroke='%23f6c85c' stroke-width='1.8' stroke-linecap='round'/%3E%3Ccircle cx='18' cy='18' r='1.8' fill='%23ffe9b3'/%3E%3C/svg%3E") 18 18, crosshair}
+#globe-stage.probe-mode{cursor:url("data:image/svg+xml;charset=utf8,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='36'%20height='36'%20viewBox='0%200%2036%2036'%3E%3Cdefs%3E%3ClinearGradient%20id='f'%20x1='0'%20y1='0'%20x2='.9'%20y2='1'%3E%3Cstop%20offset='0'%20stop-color='#d8f0ff'/%3E%3Cstop%20offset='.55'%20stop-color='#7cc4ee'/%3E%3Cstop%20offset='1'%20stop-color='#3f86b4'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath%20d='M9%2031.4V5'%20stroke='#9fd4f0'%20stroke-width='1.9'%20stroke-linecap='round'/%3E%3Ccircle%20cx='9'%20cy='4.2'%20r='1.9'%20fill='#e6f7ff'/%3E%3Ccircle%20cx='8.4'%20cy='3.7'%20r='.7'%20fill='#ffffff'%20opacity='.9'/%3E%3Cpath%20d='M10.2%205.6c5.4-1.7%208.6%201.5%2013.6.1.5%202.9.4%205.8-.3%208.7-5%201.3-8.6-1.5-13.3.2z'%20fill='url%28#f%29'%20stroke='#2f6f96'%20stroke-width='.9'/%3E%3Cpath%20d='M10.2%205.6c5.4-1.7%208.6%201.5%2013.6.1'%20stroke='#eaf8ff'%20stroke-width='1'%20fill='none'%20opacity='.85'/%3E%3Cpath%20d='M12.6%207.2c-.7%202.2-.9%204.4-.6%206.6M16.4%206.7c-.6%202.3-.7%204.6-.4%206.9'%20stroke='#6fb2d6'%20stroke-width='.7'%20fill='none'%20opacity='.55'/%3E%3C/svg%3E") 9 32, crosshair}
 
 /* ---------- 专题图层图例（右下角） ----------
    和左下角工具栏一左一右，只在开了气候/地形时出现。
@@ -1925,7 +1940,7 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
             <circle cx="12" cy="12" r="2.2"/>
             <path d="M12 1.9v2.2M12 19.9v2.2M1.9 12h2.2M19.9 12h2.2"/>
           </svg>
-          <span class="tl">中国</span>
+          <span class="tl">常驻中国上空</span>
         </button>
         <button class="tool-btn" id="btn-spin" type="button" aria-pressed="true">
           <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -1935,7 +1950,7 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
             <path d="M19.3 14.9a8.4 8.4 0 0 1-14.1 2.6"/>
             <path d="M4.8 21.1l.5-3.9 3.9.5"/>
           </svg>
-          <span class="tl">自转</span>
+          <span class="tl">暂停自转</span>
         </button>
       </div>
     </section>
@@ -1949,7 +1964,7 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
             <path d="M9.7 4.3c2.1 2.3 2.9 5 2.3 7.7-.5 2.2-1.8 4.1-3.3 5.6"
                   stroke-width="1.9" stroke-dasharray="2.4 2.1"/>
           </svg>
-          <span class="tl">国境线</span>
+          <span class="tl">显示全部国境线</span>
         </button>
         <button class="tool-btn" id="btn-grid" type="button" aria-pressed="false">
           <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -1957,7 +1972,7 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
             <ellipse cx="12" cy="12" rx="8.3" ry="3.5"/>
             <ellipse cx="12" cy="12" rx="3.6" ry="8.3"/>
           </svg>
-          <span class="tl">经纬线</span>
+          <span class="tl">显示经纬线</span>
         </button>
       </div>
     </section>
@@ -1970,13 +1985,13 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
             <circle cx="12" cy="12" r="8.3"/>
             <path d="M12 3.7a8.3 8.3 0 0 1 0 16.6z" fill="currentColor" fill-opacity=".42" stroke="none"/>
           </svg>
-          <span class="tl">昼夜</span>
+          <span class="tl">按太阳位置分出昼夜</span>
         </button>
         <button class="tool-btn" id="btn-night" type="button" aria-pressed="false">
           <svg viewBox="0 0 24 24" aria-hidden="true">
             <path d="M20.2 14.4A8.5 8.5 0 1 1 9.6 3.8a6.7 6.7 0 0 0 10.6 10.6z"/>
           </svg>
-          <span class="tl">夜晚</span>
+          <span class="tl">切换夜晚模式</span>
         </button>
       </div>
     </section>
@@ -1990,14 +2005,14 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
             <path d="M8.6 3.3v1.1M8.6 12.4v1.1M3.5 8.4h1.1M13.7 8.4h-1.1M5 4.8l.8.8M11.4 11.2l.8.8M12.2 4.8l-.8.8M6.2 11.2l-.8.8"/>
             <path d="M8.3 19.8h8.2a2.5 2.5 0 0 0 .1-5 3.4 3.4 0 0 0-6.6-.5 2.8 2.8 0 0 0-1.7 5.5z"/>
           </svg>
-          <span class="tl">气候</span>
+          <span class="tl">显示气候带</span>
         </button>
         <button class="tool-btn" id="btn-terrain" type="button" aria-pressed="false">
           <svg viewBox="0 0 24 24" aria-hidden="true">
             <path d="M2.9 18.9l5-7.7 3.2 4.8 3.4-5.7 6.6 8.6z"/>
             <path d="M2.9 18.9h18.2"/>
           </svg>
-          <span class="tl">地形</span>
+          <span class="tl">显示地形起伏</span>
         </button>
       </div>
     </section>
@@ -2010,7 +2025,7 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
             <circle cx="12" cy="12" r="8.3"/>
             <path d="M12 6.8V12l3.4 2.1"/>
           </svg>
-          <span class="tl">时间</span>
+          <span class="tl">时间定位：点任意位置看当地时间</span>
         </button>
         <button class="tool-btn" id="btn-probe-clim" type="button" aria-pressed="false">
           <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -2018,7 +2033,7 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
             <path d="M12 9.2v6.2"/>
             <circle cx="12" cy="17.2" r="1.5" fill="currentColor" stroke="none"/>
           </svg>
-          <span class="tl">气候</span>
+          <span class="tl">气候定位：点任意位置看气候类型</span>
         </button>
         <button class="tool-btn" id="btn-probe-elev" type="button" aria-pressed="false">
           <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -2026,7 +2041,7 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
             <circle cx="17.4" cy="6.4" r="2.5"/>
             <path d="M17.4 2.1v1.5M17.4 9.2v1.5M13.1 6.4h1.5M20.2 6.4h1.5"/>
           </svg>
-          <span class="tl">高度</span>
+          <span class="tl">高度定位：点任意位置看海拔</span>
         </button>
       </div>
     </section>
@@ -6989,7 +7004,7 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
       var anchor = document.createElement('div');
       anchor.className = 'tpin-anchor';
       var d = document.createElement('div');
-      d.className = 'tpin' + (cy < 150 ? ' below' : '');
+      d.className = 'tpin k-time' + (cy < 150 ? ' below' : '');
       d.innerHTML =
         '<div class="tp-bubble"><b>' + (hh < 10 ? '0' : '') + hh + ':' +
           (mm < 10 ? '0' : '') + mm + '</b>　' +
@@ -7071,7 +7086,7 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
       [91, 144, 166, '温带大陆性'], [74, 122, 158, '亚寒带'],
       [159, 169, 181, '苔原'], [223, 231, 239, '冰盖']
     ];
-    var probeClim = null, probeElev = null, probeQ = null;
+    var probeClim = null, probeElev = null, probeQ = { clim: null, elev: null };
 
     function probeImg(src, done) {
       var img = new Image();
@@ -7086,19 +7101,25 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
       img.src = src;
     }
 
-    function ensureProbe(cb) {
-      if (probeClim && probeElev) { cb(); return; }
-      if (probeQ) { probeQ.push(cb); return; }
-      probeQ = [cb];
-      var left = 2;
-      function one() {
-        if (--left) return;
-        var q = probeQ; probeQ = null;
-        q.forEach(function (f) { f(); });
-      }
-      probeImg('assets/tex/climate.webp', function (o) { probeClim = o; one(); });
-      probeImg('assets/tex/elev.png', function (o) { probeElev = o; one(); });
+    /* 按需加载：查气候就只等 climate，别让 2.8MB 的高程图把第一次点击拖住 ——
+       "第一颗气泡要卡一两秒"就是原来"两张图都加载完才回调"造成的。 */
+    function ensureProbe(kind, cb) {
+      var key = (kind === 'elev') ? 'elev' : 'clim';
+      var have = (key === 'elev') ? probeElev : probeClim;
+      if (have) { cb(); return; }
+      if (probeQ[key]) { probeQ[key].push(cb); return; }
+      probeQ[key] = [cb];
+      probeImg(key === 'elev' ? 'assets/tex/elev.png' : 'assets/tex/climate.webp',
+               function (o) {
+        if (key === 'elev') probeElev = o; else probeClim = o;
+        var q = probeQ[key]; probeQ[key] = null;
+        (q || []).forEach(function (f) { f(); });
+      });
     }
+    /* 进模式就先拉图，点下去通常已经就绪 */
+    globe.preloadProbe = function (kind) {
+      ensureProbe(kind === 'elev' ? 'elev' : 'climate', function () {});
+    };
 
     function llToPixel(o, lon, lat) {
       var x = Math.floor((lon + 180) / 360 * o.w);
@@ -7135,7 +7156,7 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
       if (!ll) return;
       rippleAt(e.clientX, e.clientY);
       keyClick();
-      ensureProbe(function () {
+      ensureProbe(globe.probeKind, function () {
         var ns = ll.lat >= 0 ? 'N' : 'S', ew = ll.lon >= 0 ? 'E' : 'W';
         var coord = Math.abs(ll.lat).toFixed(1) + '°' + ns + '　' +
                     Math.abs(ll.lon).toFixed(1) + '°' + ew;
@@ -7161,8 +7182,10 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
         var anchor = document.createElement('div');
         anchor.className = 'tpin-anchor';
         var d = document.createElement('div');
-        d.className = 'tpin' + (e.clientY < 150 ? ' below' : '');
-        d.innerHTML = '<div class="tp-bubble">' + html
+        d.className = 'tpin k-clim' + (e.clientY < 150 ? ' below' : '');
+        /* 上一版删掉 × 按钮时把这里的 + 一起删了，气泡 HTML 是断的 ——
+           只有半个 div，竖线和小尾巴都不见了。 */
+        d.innerHTML = '<div class="tp-bubble">' + html +
                       '</div><div class="tp-stem"></div>';
         anchor.appendChild(d);
         pinLayer.appendChild(anchor);
@@ -7477,7 +7500,7 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
       climate: {
         title: '气候带',
         tex: 'climate.webp',
-        src: 'Köppen 分类 · WorldClim 2.1 生物气候变量',
+        src: 'Köppen-Geiger 分类 · Kottek et al. 2006（0.5° 栅格，30 类）',
         rows: [
           ['热带', [['#1a6b3c', '雨林'], ['#2f8a4f', '季风'], ['#a3b84a', '草原']]],
           ['干旱', [['#dfae63', '热沙漠'], ['#d6c39a', '冷沙漠'], ['#d29a58', '热草原'], ['#bfa87d', '冷草原']]],
@@ -7653,6 +7676,7 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
       });
       /* 三种定位是独立的查询工具，不改变当前看的图层 ——
          在地球仪模式下也能问"这里是气候/海拔"，只是不给图看。 */
+      if (globe.probeMode && globe.preloadProbe) globe.preloadProbe(kind);
       if (window.__tipHide) window.__tipHide();
     }
     globe.setPick = setPick;
@@ -7700,38 +7724,10 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
       /* 不自动收起：一次可能连着开好几个（国境线 + 经纬线 + 气候），
          点完就关反而要反复拉开。关法交回给"点球面"和再点一次入口。 */
 
-      /* 悬浮提示：从按钮里读文字，把面板外侧那颗提示框挪到对应高度。
-         按钮自带 .tl 是 display:none，只当数据源 —— 网格里按钮挨得近，
-         提示框挂在按钮旁边必然压住隔壁那颗。 */
-      var tipEl = document.createElement('div');
-      tipEl.id = 'tools-tip';
-      document.getElementById('tools-body').appendChild(tipEl);
-      document.getElementById('tools-body').addEventListener('pointerover', function (e) {
-        var b = e.target.closest ? e.target.closest('.tool-btn') : null;
-        var t = b && b.querySelector('.tl');
-        if (!t) { tipEl.classList.remove('on'); return; }
-        var bb = b.getBoundingClientRect();
-        var pb = document.getElementById('tools-body').getBoundingClientRect();
-        tipEl.textContent = t.textContent;
-        tipEl.style.top = (bb.top - pb.top + bb.height / 2) + 'px';
-        tipEl.classList.add('on');
-      });
-      document.getElementById('tools-body').addEventListener('pointerout', function (e) {
-        if (!e.relatedTarget || !e.relatedTarget.closest ||
-            !e.relatedTarget.closest('.tool-btn')) tipEl.classList.remove('on');
-      });
-      /* 点别处收起。放在捕获段，先于地球的 pointerdown 跑 ——
-         这样"点球面"既能收起工具条，又照常转球。 */
-      document.addEventListener('pointerdown', function (e) {
-        if (!toolsWrap.classList.contains('open')) return;
-        if (toolsWrap.contains(e.target)) return;
-        setToolsOpen(false);
-      }, true);
-      /* 桌面也走抽屉（原来桌面永远整条展开、手机才收），
-         所以 resize 不再强制收起 —— 只在小屏变横屏时收一下，省空间。 */
-      window.addEventListener('resize', function () {
-        if (window.innerHeight < 480) setToolsOpen(false);
-      });
+      /* 只有点入口按钮才开合。
+         原来还挂了"点别处自动收起"，结果一拖球、一点球面面板就没了 ——
+         用户要的是自己控制：开了就一直开着。 */
+
     }
 
     /* 开关状态同步给读屏：这五个是 aria-pressed 开关，复位那颗是动作，不参与。
@@ -7763,6 +7759,8 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
         globe.spinWanted = !(globe.spinWanted !== false);
         bsp.classList.toggle('on', globe.spinWanted);
         bsp.setAttribute('aria-pressed', globe.spinWanted ? 'true' : 'false');
+        var stx = bsp.querySelector('.tl');
+        if (stx) stx.textContent = globe.spinWanted ? '暂停自转' : '开启自转';
         if (globe.spinWanted) globe.idleUntil = performance.now() + 250;
         if (window.__tipHide) window.__tipHide();
       });
