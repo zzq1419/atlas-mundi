@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-10-AD">
+<meta name="build" content="2026-11-10-AE">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -1202,6 +1202,31 @@ body.panel-open #globe-stage{
      它只影响合成方式，不改布局与绘制，标签的避让、裁剪、点击都照旧。 */
   will-change:transform;
 }
+/* ---------- 地形标签（气候 / 地形图层专用） ----------
+   和国名共用同一套投影 + 避让，只换数据源和样式。
+   图层打开时国名整层藏起来（visibility，不是 display —— 还要靠它量宽高）。 */
+#tlabels{
+  position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:5;
+  visibility:hidden;will-change:transform;
+}
+.tlabel{
+  position:absolute;left:0;top:0;
+  -webkit-user-select:none;-moz-user-select:none;user-select:none;
+  white-space:nowrap;opacity:0;
+  font-size:11.5px;letter-spacing:.03em;
+  color:rgba(236,244,255,.9);
+  -webkit-text-stroke:.4px rgba(0,0,0,.55);
+  paint-order:stroke fill;
+  text-shadow:0 0 1px rgba(0,0,0,.88),0 0 4px rgba(0,0,0,.58),0 1px 2px rgba(0,0,0,.45);
+  transition:none;
+}
+.tlabel.k-mtn{color:rgba(246,238,222,.94);font-weight:600}
+.tlabel.k-peak{color:#fff3d6;font-weight:600;letter-spacing:.06em}
+.tlabel.k-plateau{color:rgba(238,224,196,.9)}
+.tlabel.k-basin{color:rgba(214,232,206,.86)}
+.tlabel.k-plain{color:rgba(206,232,204,.86)}
+.tlabel.k-desert{color:rgba(240,212,158,.9)}
+.tlabel.k-river{color:rgba(150,208,255,.92);font-style:italic}
 .mlabel{
   position:absolute;left:0;top:0;
   /* 拖地球的时候鼠标会从地名上划过去。地名是 DOM 文本，浏览器默认会当成
@@ -1809,6 +1834,7 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
      所以这里用 fixed 铺满视口，其余 UI 全部浮在它上面。 -->
 <div id="globe-stage" style="user-select:none;-webkit-user-select:none">
   <div id="labels"></div>
+  <div id="tlabels"></div>
   <div class="globe-msg" id="globe-msg">正在加载地表数据…</div>
 </div>
 
@@ -5402,8 +5428,31 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
     if (L.el.style.pointerEvents !== 'none') L.el.style.pointerEvents = 'none';
   }
 
+  /* ---------- 地形标签 ----------
+     山脉 / 高原 / 盆地 / 平原 / 沙漠 / 河流 / 名峰，结构对齐国名标签
+     （el / lon / lat / z / v / w / h / on），updateLabels 直接复用同一套
+     投影、球缘裁剪和矩形避让 —— 不必再写一份。 */
+  function buildTerrainLabels(data) {
+    var host = document.getElementById('tlabels');
+    if (!host || !data) return;
+    host.innerHTML = '';
+    globe.tlabels = [];
+    if (!_lp) _lp = new THREE.Vector3();
+    data.forEach(function (d) {
+      var node = el('div', 'tlabel k-' + d.k, d.n);
+      host.appendChild(node);
+      globe.tlabels.push({
+        el: node, lon: d.lon, lat: d.lat, z: d.z || 4,
+        kind: d.k, pri: d.z || 4,
+        v: new THREE.Vector3(), w: node.offsetWidth, h: node.offsetHeight, on: false
+      });
+    });
+  }
+
   function updateLabels() {
-    var arr = globe.labels;
+    /* 图层模式下换一套数据源：国名会让位给地形名（两层同时铺满必然糊成一团） */
+    var arr = (globe.layerName && globe.tlabels && globe.tlabels.length)
+              ? globe.tlabels : globe.labels;
     if (!arr || !arr.length) return;
     var stage = globeStage();
     if (!stage) return;
@@ -7108,6 +7157,10 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
     fetchAny('geo/labels.json')
       .then(buildLabels)
       .catch(function () { /* 静默降级：没有地名，球还在 */ });
+    /* 地形名称单独一份，只在气候/地形图层下启用 */
+    fetchAny('geo/terrain_labels.json')
+      .then(buildTerrainLabels)
+      .catch(function () { /* 没有就只是没有地形名 */ });
 
     setActive(null);        // 初始不点亮任何国界
   }
@@ -7274,6 +7327,7 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
       if (globe.setProbe) globe.setProbe(false);
       if (globe.hideTimePin) globe.hideTimePin();
       syncProbeBtn();
+      if (globe.syncLabelLayers) globe.syncLabelLayers();
     }
 
     function lgToggle(name) {
@@ -7288,6 +7342,7 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
         lgLegend(name);
         lgSync();
         syncProbeBtn();
+        if (globe.syncLabelLayers) globe.syncLabelLayers();
         /* 换了图层，旧的点选气泡就作废了（同一个点问的已经是另一件事） */
         if (globe.hideTimePin) globe.hideTimePin();
       });
@@ -7325,6 +7380,17 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
       bpb.style.display = on ? '' : 'none';
       if (!on && globe.probeMode) setProbe(false);
     }
+
+    /* 图层模式下国名让位给地形名：两层字同时铺满屏幕必然糊成一团。
+       用 visibility 而不是 display —— 量宽高还要靠它排版。 */
+    function syncLabelLayers() {
+      var a = document.getElementById('labels');
+      var b = document.getElementById('tlabels');
+      var on = !!globe.layerName;
+      if (a) a.style.visibility = on ? 'hidden' : '';
+      if (b) b.style.visibility = on ? 'visible' : 'hidden';
+    }
+    globe.syncLabelLayers = syncLabelLayers;
 
     if (bpb) {
       bpb.addEventListener('click', function () { setProbe(!globe.probeMode); });
