@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-10-AM">
+<meta name="build" content="2026-11-10-AN">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -1342,10 +1342,10 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
 #tools-toggle{
   width:46px;height:46px;padding:0;border-radius:14px;
   display:flex;align-items:center;justify-content:center;
-  background:rgba(9,12,17,.80);
-  border:1px solid rgba(255,206,120,.22);
+  background:rgba(8,13,21,.78);
+  border:1px solid rgba(140,170,210,.24);
   box-shadow:0 8px 22px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.05);
-  color:rgba(255,213,145,.9);cursor:pointer;
+  color:rgba(202,222,248,.9);cursor:pointer;
   transition:background .18s ease,color .18s ease,border-color .18s ease;
   -webkit-tap-highlight-color:transparent;
 }
@@ -1354,7 +1354,7 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
   stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;
   transition:transform .4s cubic-bezier(.2,.8,.3,1);
 }
-#tools-toggle:hover{background:rgba(28,24,16,.9);color:#fff1d2;border-color:rgba(255,206,112,.34)}
+#tools-toggle:hover{background:rgba(20,32,50,.9);color:#f0f7ff}
 #tools.open #tools-toggle{color:#ffd98a;border-color:rgba(255,206,112,.42)}
 
 /* 抽屉：五组，每组一行小标题 + 一行图标按钮 */
@@ -1364,8 +1364,8 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
      展开时只占左下角一小块，挡不住球。 */
   display:grid;grid-template-columns:1fr 1fr;gap:9px 10px;
   width:222px;padding:11px 11px 10px;border-radius:15px;
-  background:rgba(11,13,17,.92);
-  border:1px solid rgba(255,206,120,.18);
+  background:rgba(8,13,22,.90);
+  border:1px solid rgba(140,175,220,.22);
   box-shadow:0 20px 48px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,255,255,.05);
   -webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);
   opacity:0;transform:translateY(9px) scale(.97);
@@ -1378,7 +1378,7 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
 .tg:last-child{grid-column:1/-1}
 .tg h3{
   margin:0 0 6px;font-size:11px;font-weight:600;
-  letter-spacing:.08em;color:rgba(255,224,172,.86);
+  letter-spacing:.08em;color:rgba(198,218,242,.92);
 }
 .tg-r{display:flex;gap:6px}
 /* 定位组三个按钮跨两列，按正常尺寸排开、居中 */
@@ -1389,12 +1389,14 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
   /* 图标色只在这一处定义，靠变量分状态：
      原来 `.tool-btn.on svg{stroke:金}` 被 `#tools-body .tool-btn svg` 的
      权重压掉，点亮时图标一直是冷蓝的。 */
+  /* 只有图标是金色（用户要的那一处），面板的底、描边、标题一律保持原样 ——
+     整块改暖会连"面板属于深色系"这个基调一起动掉。 */
   --ico:rgba(255,213,145,.9);
   position:relative;
   width:44px;height:44px;padding:0;
   display:flex;align-items:center;justify-content:center;
-  background:rgba(255,246,232,.035);
-  border:1px solid rgba(255,205,140,.16);
+  background:rgba(255,255,255,.035);
+  border:1px solid rgba(140,175,220,.14);
   border-radius:10px;
   cursor:pointer;color:var(--ico);
   transition:background .16s ease,border-color .16s ease,color .16s ease;
@@ -1406,8 +1408,8 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
   stroke-width:1.55;stroke-linecap:round;stroke-linejoin:round;
   transition:stroke .16s ease;
 }
-.tool-btn:hover{background:rgba(255,205,120,.12);border-color:rgba(255,206,112,.34);--ico:#fff1d2}
-.tool-btn:active{background:rgba(255,205,120,.2)}
+.tool-btn:hover{background:rgba(150,185,230,.12);border-color:rgba(150,185,230,.3);--ico:#fff1d2}
+.tool-btn:active{background:rgba(150,185,230,.2)}
 .tool-btn.on{
   --ico:rgba(255,224,152,.98);
   background:linear-gradient(180deg,rgba(255,205,110,.15),rgba(255,205,110,.04));
@@ -5563,7 +5565,7 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
     globe.tlabels = [];
     if (!_lp) _lp = new THREE.Vector3();
     data.forEach(function (d) {
-      var node = el('div', 'tlabel k-' + d.k, d.n);
+      var node = el('div', 'tlabel k-' + d.k + ' tap', d.n);
       host.appendChild(node);
       /* 点名字 → 在球上画出这块地貌的边界。按在字上也要能转球，
          所以 pointerdown 交给拖拽逻辑，松手位移很小才算点击。 */
@@ -5907,8 +5909,15 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
          这里写的是内联样式，优先级高于 CSS 的 .time-mode .mlabel 规则，
          所以必须在这拦一道。 */
       /* 图层模式下国名一层不让点 —— 原来只挡了"开了全部国境线"那种情况，
-         结果直接在地形/气候图层里还能点开国家档案卡。 */
-      var picking = globe.timeMode || globe.probeMode || !!globe.layerName;
+         结果直接在地形/气候图层里还能点开国家档案卡。
+
+         **但地形名必须例外**：地形名本来就只在图层模式下出现，
+         原来这里把"图层开着"当成了"所有标签都不接事件"，于是地形名
+         从上线起就没有一次真的被点中过 —— 命中测试被 pointer-events:none
+         挡在浏览器那一层，挂在元素上的 click 监听根本不会被触发
+         （用 element.click() 测试却能"通过"，所以之前一直没查出来）。 */
+      var picking = globe.timeMode || globe.probeMode ||
+                    (!!globe.layerName && !L.tap);
       if (picking) {
         if (L.el.style.pointerEvents !== 'none') L.el.style.pointerEvents = 'none';
       } else if (L.tap) {
@@ -7153,37 +7162,17 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
        不用从颜色反猜（官方配色和我们的柔和配色改一次就得重标一次，太脆）。 */
     var PROBE_CLASSES = [
       null,
-      ['热带雨林', 26, 107, 60],   // Af
-      ['热带季风', 47, 138, 79],   // Am
-      ['热带草原（夏干）', 163, 184, 74],   // As
-      ['热带草原', 163, 184, 74],   // Aw
-      ['热草原', 210, 154, 88],   // BSh
-      ['冷草原', 191, 168, 125],   // BSk
-      ['热沙漠', 223, 174, 99],   // BWh
-      ['冷沙漠', 214, 195, 154],   // BWk
-      ['亚热带湿润', 122, 178, 115],   // Cfa
-      ['温带海洋性', 106, 167, 154],   // Cfb
-      ['亚寒带海洋性', 106, 167, 154],   // Cfc
-      ['地中海气候（热夏）', 184, 162, 75],   // Csa
-      ['地中海气候', 184, 162, 75],   // Csb
-      ['地中海气候（冷夏）', 184, 162, 75],   // Csc
-      ['亚热带冬干（热夏）', 122, 178, 115],   // Cwa
-      ['亚热带冬干（暖夏）', 122, 178, 115],   // Cwb
-      ['亚热带冬干（冷夏）', 122, 178, 115],   // Cwc
-      ['温带大陆性（热夏）', 91, 144, 166],   // Dfa
-      ['温带大陆性', 91, 144, 166],   // Dfb
-      ['亚寒带', 74, 122, 158],   // Dfc
-      ['极冷亚寒带', 74, 122, 158],   // Dfd
-      ['大陆性夏干（热夏）', 91, 144, 166],   // Dsa
-      ['大陆性夏干（暖夏）', 91, 144, 166],   // Dsb
-      ['大陆性夏干（冷夏）', 74, 122, 158],   // Dsc
-      ['大陆性夏干（极冷）', 74, 122, 158],   // Dsd
-      ['大陆性冬干（热夏）', 91, 144, 166],   // Dwa
-      ['大陆性冬干（暖夏）', 91, 144, 166],   // Dwb
-      ['大陆性冬干（冷夏）', 74, 122, 158],   // Dwc
-      ['大陆性冬干（极冷）', 74, 122, 158],   // Dwd
-      ['苔原', 159, 169, 181],   // ET
-      ['冰盖', 223, 231, 239]    // EF
+      ['热带雨林气候', 23, 102, 58],   // 1
+      ['热带草原气候', 176, 182, 84],   // 2
+      ['热带季风气候', 47, 138, 79],   // 3
+      ['热带沙漠气候', 223, 171, 99],   // 4
+      ['亚热带季风气候', 121, 191, 110],   // 5
+      ['地中海气候', 194, 163, 77],   // 6
+      ['温带季风气候', 90, 156, 140],   // 7
+      ['温带海洋性气候', 77, 143, 178],   // 8
+      ['温带大陆性气候', 122, 142, 168],   // 9
+      ['寒带气候', 213, 223, 233],   // 10
+      ['高原山地气候', 165, 150, 173]    // 11
     ];
     var probeClim = null, probeElev = null, probeQ = { clim: null, elev: null };
 
@@ -7604,13 +7593,16 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
       climate: {
         title: '气候带',
         tex: 'climate.png',
-        src: 'Köppen-Geiger 分类 · Kottek et al. 2006 / Rubel et al. 2017（5 弧分；图例 14 型，查询 31 亚类）',
+        src: 'Köppen-Geiger 分类归并为初中地理 11 种气候类型 · Kottek et al. 2006 / Rubel et al. 2017（5 弧分）',
+        /* 图例就是初中地理（人教版）那 11 种气候类型，图上只会出现这 11 个颜色 —— 
+           不再按柯本的 31 个亚类各给一色（那样既有图例列不下的杂色，
+           球面缩到 700px 也是一盘散沙）。 */
         rows: [
-          ['热带', [['#1a6b3c', '雨林'], ['#2f8a4f', '季风'], ['#a3b84a', '草原']]],
-          ['干旱', [['#dfae63', '热沙漠'], ['#d6c39a', '冷沙漠'], ['#d29a58', '热草原'], ['#bfa87d', '冷草原']]],
-          ['温带', [['#b8a24b', '地中海'], ['#7ab273', '湿润'], ['#6aa79a', '海洋性']]],
-          ['寒温带', [['#5b90a6', '大陆性'], ['#4a7a9e', '亚寒带']]],
-          ['极地', [['#9fa9b5', '苔原'], ['#dfe7ef', '冰盖']]]
+          ['热带', [['#17663a', '雨林'], ['#b0b654', '草原'], ['#2f8a4f', '季风'], ['#dfab63', '沙漠']]],
+          ['亚热带', [['#79bf6e', '季风'], ['#c2a34d', '地中海']]],
+          ['温带', [['#5a9c8c', '季风'], ['#4d8fb2', '海洋性'], ['#7a8ea8', '大陆性']]],
+          ['寒带', [['#d5dfe9', '寒带']]],
+          ['高原', [['#a596ad', '高原山地']]]
         ]
       },
       terrain: {
