@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-10-AA">
+<meta name="build" content="2026-11-10-AB">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -1479,55 +1479,58 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
    半透明玻璃底，压在地球上但不抢画面。 */
 #layer-legend{
   position:fixed;right:18px;bottom:34px;z-index:36;
-  width:236px;padding:12px 14px 11px;border-radius:13px;
-  background:rgba(9,18,31,.80);
-  border:1px solid rgba(140,175,220,.22);
-  box-shadow:0 14px 34px rgba(0,0,0,.45);
+  width:268px;padding:12px 14px 11px;border-radius:13px;
+  background:rgba(7,15,27,.86);
+  border:1px solid rgba(150,185,230,.26);
+  box-shadow:0 14px 34px rgba(0,0,0,.5);
   backdrop-filter:blur(12px);
-  color:rgba(212,230,250,.9);font-size:11.5px;line-height:1.5;
+  color:rgba(226,240,255,.94);font-size:12px;line-height:1.5;
   opacity:0;transform:translateY(10px);pointer-events:none;
   transition:opacity .28s ease,transform .28s ease;
 }
 #layer-legend.on{opacity:1;transform:none;pointer-events:auto}
-#layer-legend .lg-head{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+#layer-legend .lg-head{display:flex;align-items:center;gap:8px;margin-bottom:9px}
 #layer-legend .lg-title{
-  font-size:12.5px;font-weight:600;letter-spacing:.03em;color:#eef6ff;
+  font-size:13.5px;font-weight:600;letter-spacing:.04em;color:#f2f8ff;
 }
 #layer-legend .lg-close{
   margin-left:auto;width:20px;height:20px;padding:0;border:0;border-radius:50%;
-  background:transparent;color:rgba(170,200,230,.6);cursor:pointer;
-  font-size:15px;line-height:1;display:flex;align-items:center;justify-content:center;
+  background:transparent;color:rgba(180,208,236,.7);cursor:pointer;
+  font-size:16px;line-height:1;display:flex;align-items:center;justify-content:center;
 }
-#layer-legend .lg-close:hover{background:rgba(150,190,235,.14);color:#eaf3ff}
-#layer-legend .lg-row{display:flex;align-items:center;gap:8px;margin:6px 0 2px}
+#layer-legend .lg-close:hover{background:rgba(150,190,235,.16);color:#fff}
+/* 一行 = 组名 + 该组所有色块（每个色块后面直接跟名字，扫一眼就能对上） */
+#layer-legend .lg-line{display:flex;align-items:flex-start;gap:8px;margin:5px 0}
 #layer-legend .lg-key{
-  flex:0 0 42px;text-align:right;color:rgba(190,214,240,.78);
-  font-size:11px;letter-spacing:.02em;
+  flex:0 0 40px;padding-top:1px;text-align:right;
+  color:rgba(196,220,246,.8);font-size:11.5px;letter-spacing:.02em;
 }
-#layer-legend .lg-chips{display:flex;gap:3px}
-#layer-legend .lg-chips i{
-  display:block;width:15px;height:10px;border-radius:2.5px;
-  box-shadow:inset 0 0 0 1px rgba(0,0,0,.18);
+#layer-legend .lg-grid{flex:1;display:flex;flex-wrap:wrap;gap:3px 9px}
+#layer-legend .lg-item{
+  display:inline-flex;align-items:center;gap:4px;
+  font-size:11.5px;color:rgba(232,244,255,.92);white-space:nowrap;
 }
-#layer-legend .lg-note{
-  margin:2px 0 0 50px;color:rgba(160,190,220,.55);font-size:10px;
+#layer-legend .lg-item i{
+  display:block;width:12px;height:12px;border-radius:2.5px;
+  box-shadow:inset 0 0 0 1px rgba(0,0,0,.28), 0 0 0 1px rgba(255,255,255,.06);
 }
 #layer-legend .lg-band{
-  height:10px;margin:4px 0 5px;border-radius:3px;
-  box-shadow:inset 0 0 0 1px rgba(0,0,0,.2);
+  height:12px;margin:5px 0 6px;border-radius:3px;
+  box-shadow:inset 0 0 0 1px rgba(0,0,0,.28);
 }
 #layer-legend .lg-ticks{
   display:flex;justify-content:space-between;
-  color:rgba(160,190,220,.6);font-size:9.5px;letter-spacing:.02em;
+  color:rgba(190,214,240,.78);font-size:10.5px;letter-spacing:.02em;
 }
 #layer-legend .lg-src{
-  margin-top:9px;padding-top:8px;border-top:1px solid rgba(140,175,220,.14);
-  color:rgba(150,180,212,.5);font-size:9.5px;line-height:1.45;
+  margin-top:9px;padding-top:8px;border-top:1px solid rgba(150,185,230,.16);
+  color:rgba(164,192,220,.62);font-size:10px;line-height:1.5;
 }
 @media (max-width:760px){
-  #layer-legend{right:10px;bottom:10px;width:200px;padding:10px 11px 9px;font-size:11px}
-  #layer-legend .lg-key{flex-basis:36px}
-  #layer-legend .lg-chips i{width:13px;height:9px}
+  #layer-legend{right:10px;bottom:24px;width:232px;padding:10px 11px 9px;font-size:11.5px}
+  #layer-legend .lg-key{flex-basis:34px;font-size:11px}
+  #layer-legend .lg-item{font-size:11px}
+  #layer-legend .lg-item i{width:11px;height:11px}
 }
 
 /* 浅底上的顶栏文字要转深色，否则品牌名是一块白字浮在米白上 */
@@ -7034,11 +7037,11 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
         tex: 'climate.webp',
         src: 'Köppen 分类 · WorldClim 2.1 生物气候变量',
         rows: [
-          ['热带', ['#1a6b3c', '#2f8a4f', '#a3b84a'], '雨林 / 季风 / 草原'],
-          ['干旱', ['#dfae63', '#d6c39a', '#d29a58', '#bfa87d'], '热沙漠 / 冷沙漠 / 热草原 / 冷草原'],
-          ['温带', ['#b8a24b', '#7ab273', '#6aa79a'], '地中海 / 湿润 / 海洋性'],
-          ['寒温带', ['#5b90a6', '#4a7a9e'], '大陆性 / 亚寒带'],
-          ['极地', ['#9fa9b5', '#dfe7ef'], '苔原 / 冰盖']
+          ['热带', [['#1a6b3c', '雨林'], ['#2f8a4f', '季风'], ['#a3b84a', '草原']]],
+          ['干旱', [['#dfae63', '热沙漠'], ['#d6c39a', '冷沙漠'], ['#d29a58', '热草原'], ['#bfa87d', '冷草原']]],
+          ['温带', [['#b8a24b', '地中海'], ['#7ab273', '湿润'], ['#6aa79a', '海洋性']]],
+          ['寒温带', [['#5b90a6', '大陆性'], ['#4a7a9e', '亚寒带']]],
+          ['极地', [['#9fa9b5', '苔原'], ['#dfe7ef', '冰盖']]]
         ]
       },
       terrain: {
@@ -7056,9 +7059,12 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
       if (lgTex[name]) { cb(lgTex[name]); return; }
       var loader = new THREE.TextureLoader();
       var i = 0;
+      /* 必须带版本号：OBS 上的对象带 7 天 Cache-Control，换了贴图不换 URL
+         的话浏览器一直用旧的（用户会以为"改了没生效"）。 */
+      var q = BUILD_TAG ? ('?v=' + encodeURIComponent(BUILD_TAG)) : '';
       (function next() {
         if (i >= TEX_BASES.length) { cb(null); return; }
-        loader.load(TEX_BASES[i++] + LG[name].tex, function (t) {
+        loader.load(TEX_BASES[i++] + LG[name].tex + q, function (t) {
           t.anisotropy = 4;
           t.generateMipmaps = true;
           t.minFilter = THREE.LinearMipmapLinearFilter;
@@ -7091,10 +7097,10 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
       h += '<div class="lg-head"><span class="lg-title">' + cfg.title + '</span>' +
            '<button class="lg-close" type="button" aria-label="关闭图例">×</button></div>';
       (cfg.rows || []).forEach(function (r) {
-        h += '<div class="lg-row"><span class="lg-key">' + r[0] + '</span><span class="lg-chips">' +
-             r[1].map(function (c) { return '<i style="background:' + c + '"></i>'; }).join('') +
-             '</span></div>';
-        h += '<div class="lg-note">' + r[2] + '</div>';
+        h += '<div class="lg-line"><span class="lg-key">' + r[0] + '</span><span class="lg-grid">' +
+             r[1].map(function (x) {
+               return '<span class="lg-item"><i style="background:' + x[0] + '"></i>' + x[1] + '</span>';
+             }).join('') + '</span></div>';
       });
       if (cfg.band) {
         h += '<div class="lg-band" style="background:linear-gradient(90deg,' + cfg.band.join(',') + ')"></div>';
