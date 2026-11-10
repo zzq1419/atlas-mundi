@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-09-AE">
+<meta name="build" content="2026-11-10-AA">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -1474,6 +1474,62 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
 #tools{transition:opacity .3s ease}
 #map2d.on ~ #tools{opacity:0;pointer-events:none}
 
+/* ---------- 专题图层图例（右下角） ----------
+   和左下角工具栏一左一右，只在开了气候/地形时出现。
+   半透明玻璃底，压在地球上但不抢画面。 */
+#layer-legend{
+  position:fixed;right:18px;bottom:34px;z-index:36;
+  width:236px;padding:12px 14px 11px;border-radius:13px;
+  background:rgba(9,18,31,.80);
+  border:1px solid rgba(140,175,220,.22);
+  box-shadow:0 14px 34px rgba(0,0,0,.45);
+  backdrop-filter:blur(12px);
+  color:rgba(212,230,250,.9);font-size:11.5px;line-height:1.5;
+  opacity:0;transform:translateY(10px);pointer-events:none;
+  transition:opacity .28s ease,transform .28s ease;
+}
+#layer-legend.on{opacity:1;transform:none;pointer-events:auto}
+#layer-legend .lg-head{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+#layer-legend .lg-title{
+  font-size:12.5px;font-weight:600;letter-spacing:.03em;color:#eef6ff;
+}
+#layer-legend .lg-close{
+  margin-left:auto;width:20px;height:20px;padding:0;border:0;border-radius:50%;
+  background:transparent;color:rgba(170,200,230,.6);cursor:pointer;
+  font-size:15px;line-height:1;display:flex;align-items:center;justify-content:center;
+}
+#layer-legend .lg-close:hover{background:rgba(150,190,235,.14);color:#eaf3ff}
+#layer-legend .lg-row{display:flex;align-items:center;gap:8px;margin:6px 0 2px}
+#layer-legend .lg-key{
+  flex:0 0 42px;text-align:right;color:rgba(190,214,240,.78);
+  font-size:11px;letter-spacing:.02em;
+}
+#layer-legend .lg-chips{display:flex;gap:3px}
+#layer-legend .lg-chips i{
+  display:block;width:15px;height:10px;border-radius:2.5px;
+  box-shadow:inset 0 0 0 1px rgba(0,0,0,.18);
+}
+#layer-legend .lg-note{
+  margin:2px 0 0 50px;color:rgba(160,190,220,.55);font-size:10px;
+}
+#layer-legend .lg-band{
+  height:10px;margin:4px 0 5px;border-radius:3px;
+  box-shadow:inset 0 0 0 1px rgba(0,0,0,.2);
+}
+#layer-legend .lg-ticks{
+  display:flex;justify-content:space-between;
+  color:rgba(160,190,220,.6);font-size:9.5px;letter-spacing:.02em;
+}
+#layer-legend .lg-src{
+  margin-top:9px;padding-top:8px;border-top:1px solid rgba(140,175,220,.14);
+  color:rgba(150,180,212,.5);font-size:9.5px;line-height:1.45;
+}
+@media (max-width:760px){
+  #layer-legend{right:10px;bottom:10px;width:200px;padding:10px 11px 9px;font-size:11px}
+  #layer-legend .lg-key{flex-basis:36px}
+  #layer-legend .lg-chips i{width:13px;height:9px}
+}
+
 /* 浅底上的顶栏文字要转深色，否则品牌名是一块白字浮在米白上 */
 #map2d.paper ~ #topbar .brand-cn{color:#26313f;text-shadow:0 1px 0 rgba(255,255,255,.6)}
 /* 白点阵在米白底上直接消失。试过 invert(1) 反相成黑点 —— 不行：
@@ -1834,6 +1890,24 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
     </svg>
     <span class="tl">经纬线</span>
   </button>
+  <button class="tool-btn" id="btn-climate" type="button" aria-label="显示气候带" aria-pressed="false">
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <!-- 太阳 + 云：气候的通用符号。18px 下射线要短、数量要少，
+           否则糊成一团光斑。 -->
+      <circle cx="8.6" cy="8.4" r="2.8"/>
+      <path d="M8.6 3.3v1.1M8.6 12.4v1.1M3.5 8.4h1.1M13.7 8.4h-1.1M5 4.8l.8.8M11.4 11.2l.8.8M12.2 4.8l-.8.8M6.2 11.2l-.8.8"/>
+      <path d="M8.3 19.8h8.2a2.5 2.5 0 0 0 .1-5 3.4 3.4 0 0 0-6.6-.5 2.8 2.8 0 0 0-1.7 5.5z"/>
+    </svg>
+    <span class="tl">气候带</span>
+  </button>
+  <button class="tool-btn" id="btn-terrain" type="button" aria-label="显示地形起伏" aria-pressed="false">
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <!-- 两座山 + 地平线：地形图的经典画法。 -->
+      <path d="M2.9 18.9l5-7.7 3.2 4.8 3.4-5.7 6.6 8.6z"/>
+      <path d="M2.9 18.9h18.2"/>
+    </svg>
+    <span class="tl">地形</span>
+  </button>
   <button class="tool-btn" id="btn-night" type="button" aria-label="切换白天 / 夜晚" aria-pressed="false">
     <svg viewBox="0 0 24 24" aria-hidden="true">
       <path d="M20.2 14.4A8.5 8.5 0 1 1 9.6 3.8a6.7 6.7 0 0 0 10.6 10.6z"/>
@@ -1856,6 +1930,9 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
   </button>
   </div>
 </div>
+
+<!-- 专题图层图例：开气候/地形时出现，内容由 JS 填（两种图层结构不同） -->
+<div id="layer-legend" role="region" aria-label="图层图例" aria-hidden="true"></div>
 
 <!-- 时间标记的容器：每次点击往里放一个 .tpin（气泡 + 竖线），不接收事件 -->
 <div id="time-pins" aria-hidden="true"></div>
@@ -5000,6 +5077,12 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
       uNormalScale: { value: 1.25 },
       uRelief: { value: 2.1 },
       uShade: { value: 1.0 },
+      /* 专题图层（气候 / 地形）：uLayerMap 是等距柱状贴图，uLayerMix 做淡入。
+         uLayerMix=0 时整段不参与计算，行为和没有这个功能之前一模一样。
+         气候贴图海洋处 alpha=0，于是海面仍透出底下的卫星影像；
+         地形贴图不透明，整颗球换成地图册式的高程着色。 */
+      uLayerMap: { value: null },
+      uLayerMix: { value: 0 },
       uSpec: { value: 0.7 },
       uSpecPow: { value: 26.0 },
       uTone: { value: 0.9 },
@@ -5045,6 +5128,8 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
       'uniform float uSpecPow;',
       'uniform float uTone;',
       'uniform vec3 uLight;',
+      'uniform sampler2D uLayerMap;',
+      'uniform float uLayerMix;',
       'varying vec2 vUv;',
       'varying vec3 vN;',
       'varying vec3 vNL;',
@@ -5129,6 +5214,15 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
       '      nightK = max(nightMix, (1.0 - dayK) * uTermOn);',
       '    }',
       '    col = mix(day, night, nightK);',
+      '  }',
+      /* ---------- 专题图层（气候 / 地形） ----------
+         放在昼夜混合之后：开了图层就是要"看这张图"，不该再被夜面压暗。
+         alpha 参与混合 —— 气候图的海洋是 alpha=0，于是海面继续用卫星影像，
+         只有陆地被染成气候色；地形图不透明，整颗球变成高程着色。 */
+      '  if (uLayerMix > 0.001) {',
+      '    vec4 lc = texture2D(uLayerMap, vUv);',
+      '    vec3 lay = s2l(lc.rgb);',
+      '    col = mix(col, lay, lc.a * uLayerMix);',
       '  }',
       // 边缘大气：Fresnel 越靠轮廓越亮，模拟散射
       '  float rim = pow(1.0 - facing, 3.8);',
@@ -6928,6 +7022,135 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
         if (window.__tipHide) window.__tipHide();
       });
     }
+
+    /* ---------- 专题图层：气候带 / 地形 ----------
+       两张等距柱状贴图，叠在地球着色器上（uLayerMap + uLayerMix）。
+       气候图的海洋是 alpha=0，所以海面仍透出卫星影像，只有陆地被染色；
+       地形图不透明，整颗球换成地图册式的高程着色。
+       贴图懒加载：点开才下，不占首屏带宽。 */
+    var LG = {
+      climate: {
+        title: '气候带',
+        tex: 'climate.webp',
+        src: 'Köppen 分类 · WorldClim 2.1 生物气候变量',
+        rows: [
+          ['热带', ['#1a6b3c', '#2f8a4f', '#a3b84a'], '雨林 / 季风 / 草原'],
+          ['干旱', ['#dfae63', '#d6c39a', '#d29a58', '#bfa87d'], '热沙漠 / 冷沙漠 / 热草原 / 冷草原'],
+          ['温带', ['#b8a24b', '#7ab273', '#6aa79a'], '地中海 / 湿润 / 海洋性'],
+          ['寒温带', ['#5b90a6', '#4a7a9e'], '大陆性 / 亚寒带'],
+          ['极地', ['#9fa9b5', '#dfe7ef'], '苔原 / 冰盖']
+        ]
+      },
+      terrain: {
+        title: '地形',
+        tex: 'terrain.webp',
+        src: 'Natural Earth HYP 高程着色（1:5000 万）',
+        band: ['#2c5c8a', '#8fc0dc', '#6f9c5a', '#a8b06a', '#c8a878', '#b8a890', '#eef4f9'],
+        ticks: ['海面', '500', '1500', '3000', '5000 m']
+      }
+    };
+    var lgEl = document.getElementById('layer-legend');
+    var lgTex = {}, lgCur = '', lgAnim = 0, lgMix = 0;
+
+    function lgLoad(name, cb) {
+      if (lgTex[name]) { cb(lgTex[name]); return; }
+      var loader = new THREE.TextureLoader();
+      var i = 0;
+      (function next() {
+        if (i >= TEX_BASES.length) { cb(null); return; }
+        loader.load(TEX_BASES[i++] + LG[name].tex, function (t) {
+          t.anisotropy = 4;
+          t.generateMipmaps = true;
+          t.minFilter = THREE.LinearMipmapLinearFilter;
+          t.magFilter = THREE.LinearFilter;
+          t.needsUpdate = true;
+          lgTex[name] = t;
+          cb(t);
+        }, undefined, next);
+      })();
+    }
+
+    function lgFade(to, dur) {
+      var from = lgMix, t0 = performance.now();
+      cancelAnimationFrame(lgAnim);
+      (function step() {
+        var k = Math.min(1, (performance.now() - t0) / dur);
+        var e = k < 0.5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;
+        lgMix = from + (to - from) * e;
+        if (globe.earthMat) globe.earthMat.uniforms.uLayerMix.value = lgMix;
+        if (k < 1) { lgAnim = requestAnimationFrame(step); }
+        else if (to === 0 && globe.earthMat) {
+          globe.earthMat.uniforms.uLayerMap.value = null;
+        }
+      })();
+    }
+
+    function lgLegend(name) {
+      if (!lgEl) return;
+      var cfg = LG[name], h = '';
+      h += '<div class="lg-head"><span class="lg-title">' + cfg.title + '</span>' +
+           '<button class="lg-close" type="button" aria-label="关闭图例">×</button></div>';
+      (cfg.rows || []).forEach(function (r) {
+        h += '<div class="lg-row"><span class="lg-key">' + r[0] + '</span><span class="lg-chips">' +
+             r[1].map(function (c) { return '<i style="background:' + c + '"></i>'; }).join('') +
+             '</span></div>';
+        h += '<div class="lg-note">' + r[2] + '</div>';
+      });
+      if (cfg.band) {
+        h += '<div class="lg-band" style="background:linear-gradient(90deg,' + cfg.band.join(',') + ')"></div>';
+        h += '<div class="lg-ticks">' + cfg.ticks.map(function (t) { return '<span>' + t + '</span>'; }).join('') + '</div>';
+      }
+      h += '<div class="lg-src">' + cfg.src + '</div>';
+      lgEl.innerHTML = h;
+      lgEl.classList.add('on');
+      lgEl.setAttribute('aria-hidden', 'false');
+      var cx = lgEl.querySelector('.lg-close');
+      if (cx) cx.addEventListener('click', lgClose);
+    }
+
+    function lgSync() {
+      var bcl = document.getElementById('btn-climate');
+      var btr = document.getElementById('btn-terrain');
+      if (bcl) {
+        bcl.classList.toggle('on', lgCur === 'climate');
+        bcl.setAttribute('aria-pressed', lgCur === 'climate' ? 'true' : 'false');
+        bcl.setAttribute('data-tip', lgCur === 'climate' ? '关闭气候带' : '显示气候带');
+      }
+      if (btr) {
+        btr.classList.toggle('on', lgCur === 'terrain');
+        btr.setAttribute('aria-pressed', lgCur === 'terrain' ? 'true' : 'false');
+        btr.setAttribute('data-tip', lgCur === 'terrain' ? '关闭地形' : '显示地形');
+      }
+    }
+
+    function lgClose() {
+      lgCur = '';
+      lgFade(0, 260);
+      if (lgEl) { lgEl.classList.remove('on'); lgEl.setAttribute('aria-hidden', 'true'); }
+      lgSync();
+    }
+
+    function lgToggle(name) {
+      if (lgCur === name) { lgClose(); return; }
+      if (!globe.earthMat) return;
+      lgLoad(name, function (t) {
+        if (!t || !globe.earthMat) return;
+        globe.earthMat.uniforms.uLayerMap.value = t;
+        lgCur = name;
+        lgFade(1, 380);
+        lgLegend(name);
+        lgSync();
+      });
+      if (window.__tipHide) window.__tipHide();
+    }
+
+    (function () {
+      var bcl = document.getElementById('btn-climate');
+      var btr = document.getElementById('btn-terrain');
+      if (bcl) bcl.addEventListener('click', function () { lgToggle('climate'); });
+      if (btr) btr.addEventListener('click', function () { lgToggle('terrain'); });
+      lgSync();
+    })();
 
     /* 工具栏收纳（只在手机上生效，桌面永远整条展开）。
        原来这里也有一段"收起后只留一颗按钮"的代码，但那个按钮和它的样式
