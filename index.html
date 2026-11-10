@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-10-AQ">
+<meta name="build" content="2026-11-10-AR">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -1387,11 +1387,10 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
 /* 按钮：竖排图标 + 名字。名字常显 —— 抽屉里空间够，不用再靠 hover 才发现。 */
 .tool-btn{
   /* 图标色只在这一处定义，靠变量分状态：
-     原来 `.tool-btn.on svg{stroke:金}` 被 `#tools-body .tool-btn svg` 的
-     权重压掉，点亮时图标一直是冷蓝的。 */
-  /* 只有图标是金色（用户要的那一处），面板的底、描边、标题一律保持原样 ——
-     整块改暖会连"面板属于深色系"这个基调一起动掉。 */
-  --ico:rgba(255,213,145,.9);
+     默认冷白（就是全站按钮的常态色），点开（.on）才转金。
+     以前写的是 `.tool-btn.on svg{stroke:金}`，被 `.tool-btn svg{stroke:var(--ico)}`
+     按元素选择器的权重压掉，所以点亮了图标还是蓝的 —— 改到变量这一层才对。 */
+  --ico:rgba(200,220,246,.86);
   position:relative;
   width:44px;height:44px;padding:0;
   display:flex;align-items:center;justify-content:center;
@@ -1408,7 +1407,7 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
   stroke-width:1.55;stroke-linecap:round;stroke-linejoin:round;
   transition:stroke .16s ease;
 }
-.tool-btn:hover{background:rgba(150,185,230,.12);border-color:rgba(150,185,230,.3);--ico:#fff1d2}
+.tool-btn:hover{background:rgba(150,185,230,.12);border-color:rgba(150,185,230,.3);--ico:#eef6ff}
 .tool-btn:active{background:rgba(150,185,230,.2)}
 .tool-btn.on{
   --ico:rgba(255,224,152,.98);
