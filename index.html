@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-10-AI">
+<meta name="build" content="2026-11-10-AJ">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -1209,6 +1209,11 @@ body.panel-open #globe-stage{
   position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:5;
   visibility:hidden;will-change:transform;
 }
+/* 图层模式（气候 / 地形）下国名只做标注，整层连同每个标签都不接事件。
+   逐帧用 inline style 设 pointer-events 会漏掉被避让掉的标签 —— 它们
+   opacity:0 但仍然可点，点上去照样弹国家档案卡。这里用 !important 兜死。 */
+body.layer-mode #labels,
+body.layer-mode #labels .mlabel{pointer-events:none!important}
 .tlabel{
   position:absolute;left:0;top:0;
   -webkit-user-select:none;-moz-user-select:none;user-select:none;
@@ -1350,7 +1355,7 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
   transition:transform .4s cubic-bezier(.2,.8,.3,1);
 }
 #tools-toggle:hover{background:rgba(20,32,50,.9);color:#f0f7ff}
-#tools.open #tools-toggle{color:rgba(255,224,152,.98);border-color:rgba(255,206,112,.42)}
+#tools.open #tools-toggle{color:#ffd98a;border-color:rgba(255,206,112,.42)}
 
 /* 抽屉：五组，每组一行小标题 + 一行图标按钮 */
 #tools-body{
@@ -1561,7 +1566,9 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
 
 /* 点选查询模式的光标：金色准星，和时间指示的旗子同一套视觉语言。
    中间的 18 18 是热区，正好落在十字交点上。 */
-#globe-stage.probe-mode{cursor:url("data:image/svg+xml;charset=utf8,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='36'%20height='36'%20viewBox='0%200%2036%2036'%3E%3Cdefs%3E%3ClinearGradient%20id='f'%20x1='0'%20y1='0'%20x2='.9'%20y2='1'%3E%3Cstop%20offset='0'%20stop-color='#d8f0ff'/%3E%3Cstop%20offset='.55'%20stop-color='#7cc4ee'/%3E%3Cstop%20offset='1'%20stop-color='#3f86b4'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath%20d='M9%2031.4V5'%20stroke='#9fd4f0'%20stroke-width='1.9'%20stroke-linecap='round'/%3E%3Ccircle%20cx='9'%20cy='4.2'%20r='1.9'%20fill='#e6f7ff'/%3E%3Ccircle%20cx='8.4'%20cy='3.7'%20r='.7'%20fill='#ffffff'%20opacity='.9'/%3E%3Cpath%20d='M10.2%205.6c5.4-1.7%208.6%201.5%2013.6.1.5%202.9.4%205.8-.3%208.7-5%201.3-8.6-1.5-13.3.2z'%20fill='url%28#f%29'%20stroke='#2f6f96'%20stroke-width='.9'/%3E%3Cpath%20d='M10.2%205.6c5.4-1.7%208.6%201.5%2013.6.1'%20stroke='#eaf8ff'%20stroke-width='1'%20fill='none'%20opacity='.85'/%3E%3Cpath%20d='M12.6%207.2c-.7%202.2-.9%204.4-.6%206.6M16.4%206.7c-.6%202.3-.7%204.6-.4%206.9'%20stroke='#6fb2d6'%20stroke-width='.7'%20fill='none'%20opacity='.55'/%3E%3C/svg%3E") 9 32, crosshair}
+/* canvas 自己也有 cursor:grab，父级设了也没用 —— 必须点到 canvas 上 */
+#globe-stage.time-mode canvas,#globe-stage.probe-mode canvas{cursor:inherit}
+#globe-stage.probe-mode{cursor:url("data:image/svg+xml;charset=utf8,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='36'%20height='36'%20viewBox='0%200%2036%2036'%3E%3Cdefs%3E%3ClinearGradient%20id='f'%20x1='0'%20y1='0'%20x2='.9'%20y2='1'%3E%3Cstop%20offset='0'%20stop-color='%23d8f0ff'/%3E%3Cstop%20offset='.55'%20stop-color='%237cc4ee'/%3E%3Cstop%20offset='1'%20stop-color='%233f86b4'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath%20d='M9%2031.4V5'%20stroke='%239fd4f0'%20stroke-width='1.9'%20stroke-linecap='round'/%3E%3Ccircle%20cx='9'%20cy='4.2'%20r='1.9'%20fill='%23e6f7ff'/%3E%3Ccircle%20cx='8.4'%20cy='3.7'%20r='.7'%20fill='%23ffffff'%20opacity='.9'/%3E%3Cpath%20d='M10.2%205.6c5.4-1.7%208.6%201.5%2013.6.1.5%202.9.4%205.8-.3%208.7-5%201.3-8.6-1.5-13.3.2z'%20fill='url%28%23f%29'%20stroke='%232f6f96'%20stroke-width='.9'/%3E%3Cpath%20d='M10.2%205.6c5.4-1.7%208.6%201.5%2013.6.1'%20stroke='%23eaf8ff'%20stroke-width='1'%20fill='none'%20opacity='.85'/%3E%3Cpath%20d='M12.6%207.2c-.7%202.2-.9%204.4-.6%206.6M16.4%206.7c-.6%202.3-.7%204.6-.4%206.9'%20stroke='%236fb2d6'%20stroke-width='.7'%20fill='none'%20opacity='.55'/%3E%3C/svg%3E") 9 32, crosshair}
 
 /* ---------- 专题图层图例（右下角） ----------
    和左下角工具栏一左一右，只在开了气候/地形时出现。
@@ -5564,32 +5571,40 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
   globe.tShapeClear = tShapeClear;
 
   function tShapeDraw(name, ring) {
-    if (!globe.sphere || !ring || ring.length < 3) return;
-    /* 河流用更细的线：河流是线要素，本来就该比山脉轮廓细一档 */
+    if (!globe.sphere || !ring || !ring.length) return;
+    /* 河流用更细的线：线要素本来就该比山脉轮廓细一档 */
     var kind = '';
     (globe.tlabels || []).forEach(function (L) {
       if (L.el.textContent === name) kind = L.kind;
     });
     var RAD = kind === 'river' ? 0.0009 : 0.0015;
-    var n = ring.length;
-    /* 闭合判定：面要素首尾点重合，河流不是。坐标是 ×10 的整数，5 就是 0.5°。 */
-    var closed = Math.abs(ring[0][0] - ring[n - 1][0]) < 5 &&
-                 Math.abs(ring[0][1] - ring[n - 1][1]) < 5;
 
-    /* 按"跨换日线就断开"切成若干段折线。
-       不切的话，楚科奇、斐济那种环会在经度上从 +179 跳到 -179，
-       连起来就是横穿整个球面的一条直线。 */
-    var runs = [], cur = [];
-    for (var i = 0; i < n + (closed ? 1 : 0); i++) {
-      var q = ring[i % n];
-      var lon = q[0] / 10, lat = q[1] / 10;
-      if (cur.length) {
-        var prev = cur[cur.length - 1];
-        if (Math.abs(lon - prev[0]) > 180) { runs.push(cur); cur = []; }
+    /* 数据有两种形状：单段 [[lon,lat],...] 和多段 [[[lon,lat],...],...]。
+       河流经常分好几段（干流 + 支流片段），按段画才不会连出横跨大陆的直线。 */
+    var segs = (Array.isArray(ring[0]) && Array.isArray(ring[0][0])) ? ring : [ring];
+
+    var runs = [];
+    segs.forEach(function (seg) {
+      var n = seg.length;
+      if (n < 2) return;
+      /* 闭合判定：面要素首尾点重合，河流不是。坐标是 ×10 的整数，5 就是 0.5°。 */
+      var closed = n > 3 &&
+        Math.abs(seg[0][0] - seg[n - 1][0]) < 5 &&
+        Math.abs(seg[0][1] - seg[n - 1][1]) < 5;
+      /* 再按"跨换日线就断开"切片：不切的话楚科奇、斐济那种环会在经度上
+         从 +179 跳到 -179，连起来就是横穿整个球面的一条直线。 */
+      var cur = [];
+      for (var i = 0; i < n + (closed ? 1 : 0); i++) {
+        var q = seg[i % n];
+        var lon = q[0] / 10, lat = q[1] / 10;
+        if (cur.length) {
+          var prev = cur[cur.length - 1];
+          if (Math.abs(lon - prev[0]) > 180) { runs.push(cur); cur = []; }
+        }
+        cur.push([lon, lat]);
       }
-      cur.push([lon, lat]);
-    }
-    if (cur.length > 1) runs.push(cur);
+      if (cur.length > 1) runs.push(cur);
+    });
     if (!runs.length) return;
 
     var group = new THREE.Group();
@@ -5839,8 +5854,9 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
          只关国家那几个的话，点"北美洲"照样会弹出一张卡片。
          这里写的是内联样式，优先级高于 CSS 的 .time-mode .mlabel 规则，
          所以必须在这拦一道。 */
-      var picking = globe.timeMode || globe.probeMode ||
-                    (!!globe.layerName && !!globe.allBordersOn);
+      /* 图层模式下国名一层不让点 —— 原来只挡了"开了全部国境线"那种情况，
+         结果直接在地形/气候图层里还能点开国家档案卡。 */
+      var picking = globe.timeMode || globe.probeMode || !!globe.layerName;
       if (picking) {
         if (L.el.style.pointerEvents !== 'none') L.el.style.pointerEvents = 'none';
       } else if (L.tap) {
@@ -7081,14 +7097,24 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
     /* ---------- 点选查询：气候 / 海拔 ----------
        两张索引图都放仓库、同源加载：OBS 没配 CORS，跨域图画进 canvas 会把
        canvas 污染，getImageData 直接抛错。
-       气候图直接查颜色（14 个色值取最近），地形查 Terrarium 编码的高程图。 */
-    var PROBE_COLORS = [
-      [26, 107, 60, '热带雨林'], [47, 138, 79, '热带季风'], [163, 184, 74, '热带草原'],
-      [223, 174, 99, '热沙漠'], [214, 195, 154, '冷沙漠'],
-      [210, 154, 88, '热草原'], [191, 168, 125, '冷草原'],
-      [184, 162, 75, '地中海气候'], [122, 178, 115, '亚热带湿润'], [106, 167, 154, '温带海洋性'],
-      [91, 144, 166, '温带大陆性'], [74, 122, 158, '亚寒带'],
-      [159, 169, 181, '苔原'], [223, 231, 239, '冰盖']
+       气候查的是 climate_idx.png —— 每像素直接存类别编号（1~31，0=海洋），
+       不用从颜色反猜（官方配色和我们的柔和配色改一次就得重标一次，太脆）。 */
+    var PROBE_CLASSES = [
+      null,
+      ['热带雨林', 26, 107, 60], ['热带季风', 47, 138, 79],
+      ['热带草原（夏干）', 140, 172, 80], ['热带草原', 163, 184, 74],
+      ['热草原', 210, 154, 88], ['冷草原', 191, 168, 125],
+      ['热沙漠', 223, 174, 99], ['冷沙漠', 214, 195, 154],
+      ['亚热带湿润', 122, 178, 115], ['温带海洋性', 106, 167, 154], ['亚寒带海洋性', 92, 150, 140],
+      ['地中海气候（热夏）', 203, 172, 58], ['地中海气候', 184, 162, 75], ['地中海气候（冷夏）', 162, 148, 70],
+      ['亚热带冬干（热夏）', 142, 196, 108], ['亚热带冬干（暖夏）', 126, 182, 104], ['亚热带冬干（冷夏）', 110, 166, 96],
+      ['温带大陆性（热夏）', 91, 144, 166], ['温带大陆性', 74, 122, 158],
+      ['亚寒带', 60, 100, 145], ['极冷亚寒带', 50, 85, 130],
+      ['大陆性夏干（热夏）', 150, 124, 180], ['大陆性夏干（暖夏）', 136, 111, 168],
+      ['大陆性夏干（冷夏）', 121, 97, 156], ['大陆性夏干（极冷）', 110, 88, 145],
+      ['大陆性冬干（热夏）', 113, 143, 200], ['大陆性冬干（暖夏）', 101, 129, 188],
+      ['大陆性冬干（冷夏）', 89, 115, 172], ['大陆性冬干（极冷）', 78, 100, 158],
+      ['苔原', 159, 169, 181], ['冰盖', 223, 231, 239]
     ];
     var probeClim = null, probeElev = null, probeQ = { clim: null, elev: null };
 
@@ -7113,7 +7139,7 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
       if (have) { cb(); return; }
       if (probeQ[key]) { probeQ[key].push(cb); return; }
       probeQ[key] = [cb];
-      probeImg(key === 'elev' ? 'assets/tex/elev.png' : 'assets/tex/climate.webp',
+      probeImg(key === 'elev' ? 'assets/tex/elev.png' : 'assets/tex/climate_idx.png',
                function (o) {
         if (key === 'elev') probeElev = o; else probeClim = o;
         var q = probeQ[key]; probeQ[key] = null;
@@ -7135,14 +7161,11 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
       if (!probeClim) return null;
       var p = llToPixel(probeClim, lon, lat);
       var d = probeClim.ctx.getImageData(p[0], p[1], 1, 1).data;
-      if (d[3] < 40) return null;                    // 海洋：alpha=0
-      var best = null, bd = 1e9;
-      for (var i = 0; i < PROBE_COLORS.length; i++) {
-        var c = PROBE_COLORS[i];
-        var dd = (d[0] - c[0]) * (d[0] - c[0]) + (d[1] - c[1]) * (d[1] - c[1]) + (d[2] - c[2]) * (d[2] - c[2]);
-        if (dd < bd) { bd = dd; best = c; }
-      }
-      return best;
+      var v = d[0];                                  // 灰度就是类别编号
+      if (!v) return null;                           // 0 = 海洋
+      var c = PROBE_CLASSES[v];
+      if (!c) return null;
+      return [c[1], c[2], c[3], c[0]];
     }
 
     function probeElevAt(lon, lat) {
@@ -7262,6 +7285,11 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
       if (globe.timeMode) return;
       /* 点选查询模式下同理：点哪儿都只是问数据，不能顺手点开档案 */
       if (globe.probeMode) return;
+      /* 图层模式（气候 / 地形）下点球面什么都不做。
+         原来这里没拦，国名标签虽然 pointer-events:none，点击就落到
+         canvas，射线一命中某个国家就弹档案卡 —— 在地形模式点撒哈拉
+         弹出一张「乍得」，就是这么来的。 */
+      if (globe.layerName) return;
       var rect = cv.getBoundingClientRect();
       ndc.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
       ndc.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
@@ -7504,7 +7532,7 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
       climate: {
         title: '气候带',
         tex: 'climate.webp',
-        src: 'Köppen-Geiger 分类 · Kottek et al. 2006（0.5° 栅格，30 类）',
+        src: 'Köppen-Geiger 分类 · Kottek et al. 2006 / Rubel et al. 2017（5 弧分，31 类）',
         rows: [
           ['热带', [['#1a6b3c', '雨林'], ['#2f8a4f', '季风'], ['#a3b84a', '草原']]],
           ['干旱', [['#dfae63', '热沙漠'], ['#d6c39a', '冷沙漠'], ['#d29a58', '热草原'], ['#bfa87d', '冷草原']]],
@@ -7701,9 +7729,9 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
          地形名收起（两层字同时铺满必然糊）。但图层模式下的国名只做标注，
          不给点击：想看国家请先关掉图层。 */
       var showCountry = !layerOn || !!globe.allBordersOn;
+      document.body.classList.toggle('layer-mode', layerOn);
       if (a) {
         a.style.visibility = showCountry ? '' : 'hidden';
-        a.style.pointerEvents = (layerOn && globe.allBordersOn) ? 'none' : '';
       }
       if (b) b.style.visibility = (layerOn && !globe.allBordersOn) ? 'visible' : 'hidden';
     }
