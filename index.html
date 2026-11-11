@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-10-AR">
+<meta name="build" content="2026-11-11-AS">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -1355,7 +1355,10 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
   transition:transform .4s cubic-bezier(.2,.8,.3,1);
 }
 #tools-toggle:hover{background:rgba(20,32,50,.9);color:#f0f7ff}
-#tools.open #tools-toggle{color:#ffd98a;border-color:rgba(255,206,112,.42)}
+#tools.open #tools-toggle{
+  color:#ffe4a6;border-color:rgba(255,206,112,.58);
+  background:linear-gradient(180deg,rgba(255,205,110,.30),rgba(180,130,40,.16));
+}
 
 /* 抽屉：五组，每组一行小标题 + 一行图标按钮 */
 #tools-body{
@@ -1410,9 +1413,13 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
 .tool-btn:hover{background:rgba(150,185,230,.12);border-color:rgba(150,185,230,.3);--ico:#eef6ff}
 .tool-btn:active{background:rgba(150,185,230,.2)}
 .tool-btn.on{
-  --ico:rgba(255,224,152,.98);
-  background:linear-gradient(180deg,rgba(255,205,110,.15),rgba(255,205,110,.04));
-  border-color:rgba(255,206,112,.42);
+  /* 三件事必须同时发生：图标金 + 内底暖 + 描边金。
+     只加描边（.15 的淡金）在深色底上根本看不出来 —— 用户会说"里面和没打开一样"。
+     内底对齐 .view-btn.on 的暖黑观感，只是这里是半透明叠在抽屉底上。 */
+  --ico:#ffe4a6;
+  background:linear-gradient(180deg,rgba(255,205,110,.30),rgba(180,130,40,.16));
+  border-color:rgba(255,206,112,.58);
+  box-shadow:inset 0 1px 0 rgba(255,236,196,.14);
 }
 .tool-btn.busy{opacity:.55;pointer-events:none}
 /* 名字做成 hover 浮出的提示框（和之前一样）：按钮里只放图标，
@@ -5586,55 +5593,65 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
 
   /* ---------- 地形边界 ----------
      点地形名 → 在球上画出这块山 / 盆地 / 高原的外轮廓，或者这条河的河道。
-     数据来自 Natural Earth 的矢量要素，构建期用 Douglas-Peucker 抽稀成
-     0.1° 精度的整数点（geo/terrain_shapes.json，约 160KB，点一次才下载）。 */
-  var tShapeData = null, tShapeLoading = false, tShapeLine = null, tShapeName = '';
-  /* 亮芯 + 深墨描边两条同心细管。地形底图是大面积浅色（沙 / 雪 / 浅绿），
-     原来那条 0x9ff0ff 单色线压在上面几乎看不见 —— 这就是"点了没线"的主因。
-     外面套一圈半透明深墨，浅底靠深圈分层次，切回卫星底图时靠亮芯跳出来。 */
-  var TSHAPE_CORE = 0x9beeff, TSHAPE_EDGE = 0x062a3a;
+     数据来自 Natural Earth 的矢量要素，构建期用 Douglas-Peucker 抽稀、并把
+     首尾相接的碎段串成一整条（geo/terrain_shapes.json，约 160KB，懒加载）。
 
-  function tShapeKind(name) {
-    var k = '';
-    (globe.tlabels || []).forEach(function (L) {
-      if (L.name === name) k = L.kind;
+     两条硬约束，都是用户踩出来的：
+     · **线宽必须是屏幕 1px**。以前用 TubeGeometry 按球半径定粗细，拉近以后
+       一条河能有七八个像素宽，"和手画上去的一样"。WebGL 的 Line 宽度恒为
+       1 设备像素、不随缩放变粗，正是"和地图上一样细"。
+     · **可以同时存在多条**。点黄河再点长江，黄河那条要留着 —— 只有再点
+       同一条（或切图层）才消失，而且是淡出，不是"啪"地没掉。 */
+  var tShapeData = null, tShapeLoading = false;
+  var tShapeSel = {};                    // 名字 -> THREE.Group（可同时多条）
+  var TSHAPE_COLOR = 0x1fd0f0;
+  var TSHAPE_FADE = 220;                 // 淡出时长（ms）
+
+  function tShapeDispose(g) {
+    if (g.parent) g.parent.remove(g);
+    g.traverse(function (c) {
+      if (c.geometry) c.geometry.dispose();
+      if (c.material) c.material.dispose();
     });
-    return k;
+  }
+
+  /* 淡出：先把材质透明度降到 0，再拆几何。
+     切图层/退出图层时用这个，线条是"化掉"的，不会突然消失。 */
+  function tShapeFadeOut(g) {
+    var mats = [];
+    g.traverse(function (c) { if (c.material) mats.push(c.material); });
+    mats.forEach(function (m) { m.userData.o0 = m.opacity; });
+    var t0 = performance.now();
+    (function step() {
+      var k = Math.min(1, (performance.now() - t0) / TSHAPE_FADE);
+      var a = 1 - k;
+      mats.forEach(function (m) { m.opacity = m.userData.o0 * a; });
+      if (k < 1) requestAnimationFrame(step);
+      else tShapeDispose(g);
+    })();
+  }
+
+  function tShapeMark(name, on) {
+    (globe.tlabels || []).forEach(function (L) {
+      if (L.name === name) L.el.classList[on ? 'add' : 'remove']('picked');
+    });
+  }
+
+  function tShapeRemove(name) {
+    var g = tShapeSel[name];
+    delete tShapeSel[name];
+    tShapeMark(name, false);
+    if (g) tShapeFadeOut(g);
   }
 
   function tShapeClear() {
-    if (tShapeLine) {
-      if (tShapeLine.parent) tShapeLine.parent.remove(tShapeLine);
-      tShapeLine.traverse(function (c) {
-        if (c.geometry) c.geometry.dispose();
-        if (c.material) c.material.dispose();
-      });
-    }
-    tShapeLine = null;
-    if (tShapeName) {
-      (globe.tlabels || []).forEach(function (L) {
-        if (L.name === tShapeName) L.el.classList.remove('picked');
-      });
-    }
-    tShapeName = '';
+    Object.keys(tShapeSel).forEach(tShapeRemove);
   }
   globe.tShapeClear = tShapeClear;
 
   function tShapeDraw(name, ring) {
     if (!globe.sphere || !ring || !ring.length) return;
-    /* 河流细一档：线要素本来就该比山脉 / 盆地的轮廓细。
-       0.0017 在 700px 的球上是 1.2px 宽，看着像用马克笔描的；
-       压到 0.0010（约 0.7px）就是地图册上的那种细河线，
-       描边同步收窄到 2 倍，否则深色边比芯还显眼，又会显粗。 */
-    var isRiver = tShapeKind(name) === 'river';
-    /* 0.0010 在 650px 的球上只有 0.65px 宽，细过头了 —— 亚像素宽度会被
-       光栅化成一段一段的虚线。0.0013（约 0.85px）是一条连续的细线，
-       和"马克笔"那版（0.0017 / 1.1px）比明显细一档。 */
-    var R_CORE = isRiver ? 0.0013 : 0.0024;
-    var R_EDGE = R_CORE * (isRiver ? 1.7 : 2.15);
-
-    /* 数据有两种形状：单段 [[lon,lat],...] 和多段 [[[lon,lat],...],...]。
-       河流经常分好几段（干流 + 支流片段），按段画才不会连出横跨大陆的直线。 */
+    /* 数据有两种形状：单段 [[lon,lat],...] 和多段 [[[lon,lat],...],...] */
     var segs = (Array.isArray(ring[0]) && Array.isArray(ring[0][0])) ? ring : [ring];
 
     var runs = [];
@@ -5645,8 +5662,7 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
       var closed = n > 3 &&
         Math.abs(seg[0][0] - seg[n - 1][0]) < 5 &&
         Math.abs(seg[0][1] - seg[n - 1][1]) < 5;
-      /* 再按"跨换日线就断开"切片：不切的话楚科奇、斐济那种环会在经度上
-         从 +179 跳到 -179，连起来就是横穿整个球面的一条直线。 */
+      /* 跨换日线要断开，否则楚科奇、斐济那种环会横穿整个球面 */
       var cur = [];
       for (var i = 0; i < n + (closed ? 1 : 0); i++) {
         var q = seg[i % n];
@@ -5663,65 +5679,31 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
 
     var group = new THREE.Group();
     group.userData.tshape = true;
-    var M_CORE = new THREE.MeshBasicMaterial({
-      color: TSHAPE_CORE, transparent: true, opacity: 0.98, depthWrite: false
-    });
-    var M_EDGE = new THREE.MeshBasicMaterial({
-      color: TSHAPE_EDGE, transparent: true,
-      opacity: isRiver ? 0.24 : 0.36, depthWrite: false
+    group.userData.name = name;
+    var MAT = new THREE.LineBasicMaterial({
+      color: TSHAPE_COLOR, transparent: true, opacity: 0.95,
+      depthWrite: false, depthTest: true
     });
     var v = new THREE.Vector3();
 
-    /* 用细管（TubeGeometry）而不是 Line：WebGL 的 linewidth 在绝大多数平台
-       被忽略，画出来永远 1px，球面缩到 700px 宽时几乎看不见。粗细只能由
-       几何决定。每条线画两遍 —— 外面深墨、里面亮青，浅底深底都读得出。 */
     runs.forEach(function (pts) {
       if (pts.length < 2) return;
       var vs = pts.map(function (q) {
-        llToVec3(q[0], q[1], 1.0068, v);
+        llToVec3(q[0], q[1], 1.004, v);   // 略高于球面，避免和地形贴图 z-fighting
         return new THREE.Vector3(v.x, v.y, v.z);
       });
-      /* centripetal 而不是 catmullrom(tension 0)：多点折线用后者会在急弯处
-         过冲，长江三峡那种拐点会甩出一个小钩子。 */
-      var curve = new THREE.CatmullRomCurve3(vs, false, 'centripetal');
-      var tseg = Math.max(6, Math.min(pts.length - 1, 520));
-      [R_EDGE, R_CORE].forEach(function (rad, idx) {
-        var geo;
-        try {
-          geo = new THREE.TubeGeometry(curve, tseg, rad, 5, false);
-        } catch (e) { return; }
-        var mesh = new THREE.Mesh(geo, idx ? M_CORE : M_EDGE);
-        /* 描边先画、亮芯压在上面，避免同一深度上互相遮 */
-        mesh.renderOrder = idx ? 5 : 4;
-        group.add(mesh);
-      });
+      var geo = new THREE.BufferGeometry().setFromPoints(vs);
+      var line = new THREE.Line(geo, MAT);
+      line.renderOrder = 6;
+      group.add(line);
     });
     if (!group.children.length) return;
-    tShapeLine = group;
     globe.sphere.add(group);
+    tShapeSel[name] = group;
+    tShapeMark(name, true);
   }
 
-  function tShapeApply() {
-    if (!tShapeName || !tShapeData) return;
-    var ring = tShapeData[tShapeName];
-    if (!ring) return;
-    tShapeDraw(tShapeName, ring);
-    (globe.tlabels || []).forEach(function (L) {
-      if (L.name === tShapeName) L.el.classList.add('picked');
-    });
-  }
-  globe.tShapeApply = tShapeApply;
-
-  /* 预热：图层一打开就把边界数据悄悄拉下来（166KB），
-     这样用户第一次点地形名时是"立刻有线"，而不是等一次网络往返 ——
-     观感上"点了没反应"和"慢半秒"是一回事。 */
-  globe.tShapeWarm = function () { loadShapes(null); };
-
-  /* 点名字：第一次选它、再点一次取消；点另一块就换过去。 */
-  /* 一份数据、一个加载队列。
-     以前是"正在加载就直接 return"，于是预热（图层一打开就开始拉那 166KB）
-     期间点名字会被静默丢掉 —— 又是一个"点了没反应"。现在点下来的请求
-     排在队列里，数据一到就画。 */
+  /* 一份数据、一个加载队列：预热期间点下来的请求排队，数据到了就画。 */
   var tShapeQueue = [];
   function loadShapes(cb) {
     if (tShapeData) { if (cb) cb(); return; }
@@ -5736,22 +5718,17 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
       q.forEach(function (f) { f(); });
     });
   }
+  globe.tShapeWarm = function () { loadShapes(null); };
 
+  /* 点名字：没画就画上，已经画了就收掉 —— 多条可以同时存在。 */
   globe.toggleTShape = function (name) {
-    if (tShapeName === name) { tShapeClear(); return; }
-    tShapeName = name;              // 先记下，界面上立刻变"已选"
-    (globe.tlabels || []).forEach(function (L) {
-      if (L.name === name) L.el.classList.add('picked');
-    });
+    if (tShapeSel[name]) { tShapeRemove(name); return; }
+    tShapeMark(name, true);              // 先给即时反馈
     loadShapes(function () {
-      if (!tShapeData[name]) {      // 这条没有几何：把选中态退回去
-        tShapeClear();
-        return;
-      }
-      tShapeName = name;
-      tShapeClear();
-      tShapeName = name;
-      tShapeApply();
+      if (!tShapeData[name]) { tShapeMark(name, false); return; }
+      /* 连点同一条、在数据到达前又取消的情况：以最新状态为准 */
+      if (tShapeSel[name]) return;
+      tShapeDraw(name, tShapeData[name]);
     });
   };
 
@@ -7737,6 +7714,8 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
       /* 定位不再跟着图层走：查的是本地索引图，关掉图层照样能问 */
       if (globe.syncBorderColor) globe.syncBorderColor();
       if (globe.syncLabelLayers) globe.syncLabelLayers();
+      /* 关了图层，之前画的地形线就没意义了 —— 淡出收掉，不要留在地球上 */
+      if (globe.tShapeClear) globe.tShapeClear();
     }
 
     function lgToggle(name) {
