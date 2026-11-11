@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-11-AU">
+<meta name="build" content="2026-11-11-AW">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -7684,6 +7684,7 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
       climate: {
         title: '气候带',
         tex: 'climate.png',
+        texLo: 'climate-lo.png',
         src: 'Köppen-Geiger 分类归并为初中地理 11 种气候类型 · Kottek et al. 2006 / Rubel et al. 2017（5 弧分）',
         /* 图例就是初中地理（人教版）那 11 种气候类型，图上只会出现这 11 个颜色 —— 
            不再按柯本的 31 个亚类各给一色（那样既有图例列不下的杂色，
@@ -7699,11 +7700,21 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
       terrain: {
         title: '地形',
         tex: 'terrain.webp',
+        texLo: 'terrain-lo.webp',
         src: 'Natural Earth HYP 高程着色（1:5000 万）',
         band: ['#2c5c8a', '#8fc0dc', '#6f9c5a', '#a8b06a', '#c8a878', '#b8a890', '#eef4f9'],
         ticks: ['0', '500', '1500', '3000', '5000 m']
       }
     };
+    /* 贴图分辨率：桌面吃 8K（放大后不再是一格一格的马赛克），窄屏 / 低内存
+       设备退回 4K —— 一张 8K RGBA 上 GPU 就是 134MB，手机容易被系统回收。
+       同时看一眼 GPU 的 maxTextureSize，老显卡撑不住 8K 也走 4K。 */
+    var LG_HI = (window.innerWidth >= 900) &&
+                !(navigator.deviceMemory && navigator.deviceMemory < 4);
+    function lgMaxTexSize() {
+      return (globe.renderer && globe.renderer.capabilities &&
+              globe.renderer.capabilities.maxTextureSize) || 4096;
+    }
     var lgEl = document.getElementById('layer-legend');
     var lgTex = {}, lgCur = '', lgAnim = 0, lgMix = 0;
 
@@ -7714,9 +7725,11 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
       /* 必须带版本号：OBS 上的对象带 7 天 Cache-Control，换了贴图不换 URL
          的话浏览器一直用旧的（用户会以为"改了没生效"）。 */
       var q = BUILD_TAG ? ('?v=' + encodeURIComponent(BUILD_TAG)) : '';
+      var useLo = !LG_HI || lgMaxTexSize() < 8192;
+      var file = (useLo && LG[name].texLo) ? LG[name].texLo : LG[name].tex;
       (function next() {
         if (i >= TEX_BASES.length) { cb(null); return; }
-        loader.load(TEX_BASES[i++] + LG[name].tex + q, function (t) {
+        loader.load(TEX_BASES[i++] + file + q, function (t) {
           /* 各向异性拉到设备的极限。气候图在球上是大角度斜视，4 倍过滤把
              远处的地块糊成一片；16 倍能沿视线方向多采几次，斜面上的分区
              边界基本能保住 —— 这是"糊"的另一半原因（另一半是缺描边）。 */
