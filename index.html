@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-11-AT">
+<meta name="build" content="2026-11-11-AU">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -1356,8 +1356,8 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
 }
 #tools-toggle:hover{background:rgba(20,32,50,.9);color:#f0f7ff}
 #tools.open #tools-toggle{
-  color:#ffe4a6;border-color:rgba(255,206,112,.58);
-  background:linear-gradient(180deg,rgba(255,205,110,.30),rgba(180,130,40,.16));
+  color:#f7d79a;border-color:rgba(255,206,112,.46);
+  background:linear-gradient(180deg,rgba(255,205,110,.20),rgba(180,130,40,.09));
 }
 
 /* 抽屉：五组，每组一行小标题 + 一行图标按钮 */
@@ -1416,10 +1416,10 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
   /* 三件事必须同时发生：图标金 + 内底暖 + 描边金。
      只加描边（.15 的淡金）在深色底上根本看不出来 —— 用户会说"里面和没打开一样"。
      内底对齐 .view-btn.on 的暖黑观感，只是这里是半透明叠在抽屉底上。 */
-  --ico:#ffe4a6;
-  background:linear-gradient(180deg,rgba(255,205,110,.30),rgba(180,130,40,.16));
-  border-color:rgba(255,206,112,.58);
-  box-shadow:inset 0 1px 0 rgba(255,236,196,.14);
+  --ico:#f7d79a;
+  background:linear-gradient(180deg,rgba(255,205,110,.20),rgba(180,130,40,.09));
+  border-color:rgba(255,206,112,.46);
+  box-shadow:inset 0 1px 0 rgba(255,236,196,.10);
 }
 .tool-btn.busy{opacity:.55;pointer-events:none}
 /* 名字做成 hover 浮出的提示框（和之前一样）：按钮里只放图标，
@@ -5604,12 +5604,58 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
        同一条（或切图层）才消失，而且是淡出，不是"啪"地没掉。 */
   var tShapeData = null, tShapeLoading = false;
   var tShapeSel = {};                    // 名字 -> THREE.Group（可同时多条）
-  var TSHAPE_COLOR = 0x1fd0f0;
+  var TSHAPE_COLOR = 0x18c9e8;
   var TSHAPE_FADE = 220;                 // 淡出时长（ms）
+  /* 目标**屏幕**宽度（CSS px）。1px 的 Line 用户嫌细，几何定宽又会随缩放变粗，
+     所以走"管子 + 每帧按相机距离重算半径"这条路：
+     半径 = 目标像素 × 该处 1 像素对应的世界长度 ÷ 2。 */
+  var TSHAPE_PX = 1.7;
+  var TSHAPE_RBASE = 0.0012;             // 构造几何时的基准半径
+  var TSHAPE_RSEG = 5;                   // 管子横截面边数
+  var tShapeTubes = [];                  // 需要每帧调粗细的管子
+  var tShapeLastWant = 0;
+
+  /* 每帧（在 renderer.render 之前）调用：把每条管子缩放到目标屏幕宽度。
+     顶点排布是 TubeGeometry 的 (环 × 横截面) 网格，所以按环取中心、
+     用单位偏移重新摆一次即可 —— 纯乘加，不重建几何。 */
+  function tShapeUpdateWidth(camera, renderer) {
+    if (!tShapeTubes.length) return;
+    var h = (renderer.domElement && renderer.domElement.clientHeight) || 800;
+    var camZ = camera.position.length();
+    var fov = camera.fov * Math.PI / 180;
+    /* 球面（半径 1）处 1 个世界单位对应多少像素。相机到球面距离用 camZ - 1，
+       透视缩放就是 2·tan(fov/2)·d / 屏高。 */
+    var perPx = 2 * Math.tan(fov / 2) * Math.max(0.05, camZ - 1) / h;
+    var want = TSHAPE_PX * perPx * 0.5;
+    want = Math.max(0.00028, Math.min(0.02, want));
+    /* 变化小于 1.5% 就不动，避免每帧无谓改写几万个顶点 */
+    if (tShapeLastWant && Math.abs(want - tShapeLastWant) / tShapeLastWant < 0.015) return;
+    tShapeLastWant = want;
+    for (var m = 0; m < tShapeTubes.length; m++) {
+      var mesh = tShapeTubes[m];
+      var geo = mesh.geometry;
+      if (!geo || !geo.attributes.position) continue;
+      var pos = geo.attributes.position, arr = pos.array;
+      var ud = mesh.userData, cen = ud.centers, uni = ud.unit;
+      var rv = ud.ringVerts;
+      for (var i = 0, n = pos.count; i < n; i++) {
+        var ci = ((i / rv) | 0) * 3;
+        var o = i * 3;
+        arr[o]     = cen[ci]     + uni[o]     * want;
+        arr[o + 1] = cen[ci + 1] + uni[o + 1] * want;
+        arr[o + 2] = cen[ci + 2] + uni[o + 2] * want;
+      }
+      pos.needsUpdate = true;
+      geo.computeBoundingSphere();
+    }
+  }
+  globe.tShapeUpdateWidth = tShapeUpdateWidth;
 
   function tShapeDispose(g) {
     if (g.parent) g.parent.remove(g);
     g.traverse(function (c) {
+      var k = tShapeTubes.indexOf(c);
+      if (k >= 0) tShapeTubes.splice(k, 1);
       if (c.geometry) c.geometry.dispose();
       if (c.material) c.material.dispose();
     });
@@ -5680,9 +5726,8 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
     var group = new THREE.Group();
     group.userData.tshape = true;
     group.userData.name = name;
-    var MAT = new THREE.LineBasicMaterial({
-      color: TSHAPE_COLOR, transparent: true, opacity: 0.95,
-      depthWrite: false, depthTest: true
+    var MAT = new THREE.MeshBasicMaterial({
+      color: TSHAPE_COLOR, transparent: true, opacity: 0.95, depthWrite: false
     });
     var v = new THREE.Vector3();
 
@@ -5692,10 +5737,46 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
         llToVec3(q[0], q[1], 1.004, v);   // 略高于球面，避免和地形贴图 z-fighting
         return new THREE.Vector3(v.x, v.y, v.z);
       });
-      var geo = new THREE.BufferGeometry().setFromPoints(vs);
-      var line = new THREE.Line(geo, MAT);
-      line.renderOrder = 6;
-      group.add(line);
+      var curve = new THREE.CatmullRomCurve3(vs, false, 'centripetal');
+      var tseg = Math.max(8, Math.min(pts.length - 1, 420));
+      var geo;
+      try {
+        geo = new THREE.TubeGeometry(curve, tseg, TSHAPE_RBASE, TSHAPE_RSEG, false);
+      } catch (e) { return; }
+
+      /* 把顶点拆成「环心 + 单位径向偏移」，供每帧等比缩放（见 tShapeUpdateWidth）。
+         环心直接取每一圈顶点的重心，比再算一遍曲线参数更稳。 */
+      var pos = geo.attributes.position;
+      var ringVerts = TSHAPE_RSEG + 1;
+      var rings = Math.ceil(pos.count / ringVerts);
+      var centers = new Float32Array(rings * 3);
+      var unit = new Float32Array(pos.count * 3);
+      var a = pos.array;
+      for (var r = 0; r < rings; r++) {
+        var s0 = r * ringVerts, cx = 0, cy = 0, cz = 0, cnt = 0;
+        for (var j = 0; j < ringVerts; j++) {
+          var o = (s0 + j) * 3;
+          if (s0 + j >= pos.count) break;
+          cx += a[o]; cy += a[o + 1]; cz += a[o + 2]; cnt++;
+        }
+        if (!cnt) continue;
+        cx /= cnt; cy /= cnt; cz /= cnt;
+        centers[r * 3] = cx; centers[r * 3 + 1] = cy; centers[r * 3 + 2] = cz;
+        for (var j2 = 0; j2 < ringVerts; j2++) {
+          var oo = (s0 + j2) * 3;
+          if (s0 + j2 >= pos.count) break;
+          unit[oo]     = (a[oo]     - cx) / TSHAPE_RBASE;
+          unit[oo + 1] = (a[oo + 1] - cy) / TSHAPE_RBASE;
+          unit[oo + 2] = (a[oo + 2] - cz) / TSHAPE_RBASE;
+        }
+      }
+      var mesh = new THREE.Mesh(geo, MAT);
+      mesh.userData.centers = centers;
+      mesh.userData.unit = unit;
+      mesh.userData.ringVerts = ringVerts;
+      mesh.renderOrder = 6;
+      tShapeTubes.push(mesh);
+      group.add(mesh);
     });
     if (!group.children.length) return;
     globe.sphere.add(group);
@@ -7496,6 +7577,8 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
         tilt.rotation.x = Math.max(-lim2, Math.min(lim2, tilt.rotation.x));
       }
       if (pins.length) placePins();
+      /* 地形线按相机距离重算粗细：任何缩放级别都是同一个屏幕宽度 */
+      tShapeUpdateWidth(camera, renderer);
       renderer.render(scene, camera);
       /* 每帧都更新。
          之前为了省集显的开销，飞行/拖拽时降到了 30 次/秒 —— 那是错的：
