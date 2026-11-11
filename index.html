@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-11-AS">
+<meta name="build" content="2026-11-11-AT">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -5864,10 +5864,13 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
          的位移反复抢位 —— 屏幕上就是"一闪一闪"。
          新出现的标签（L.on 为 false）仍然要求完全不重叠，保证不会挤成一坨。 */
       var area = L.w * L.h, cover = 0;
+      /* 两个标签之间留 5px 空隙：只判"矩形相交"的话，青藏高原 / 通天河
+         这种位置相邻的会紧贴在一起印成"青藏高原通天河"，看着像串行了。 */
+      var GAPP = 5;
       for (var k = 0; k < placed.length; k++) {
         var q = placed[k];
-        var ox = Math.min(rx + L.w, q[2]) - Math.max(rx, q[0]);
-        var oy = Math.min(ry + L.h, q[3]) - Math.max(ry, q[1]);
+        var ox = Math.min(rx + L.w, q[2] + GAPP) - Math.max(rx, q[0] - GAPP);
+        var oy = Math.min(ry + L.h, q[3] + GAPP) - Math.max(ry, q[1] - GAPP);
         if (ox > 0 && oy > 0) cover += ox * oy;
         if (!L.on && cover > 0) break;
       }
