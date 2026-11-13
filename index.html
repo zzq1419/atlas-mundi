@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-11-AW">
+<meta name="build" content="2026-11-13-AX">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -2590,8 +2590,10 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
   function loadCards() {
     if (CARDS_LOADING) return;
     CARDS_LOADING = true;
-    var q = BUILD_TAG ? ('?v=' + encodeURIComponent(BUILD_TAG)) : '';
-    var urls = [OBS_BASE + 'data/cards.json' + q, 'data/cards.json' + q];
+    /* 不挂构建号：cards.json 有 944KB，每次发版换 URL 就等于让所有回访用户
+       重下一遍。OBS 上这个文件是 `no-cache, must-revalidate` + ETag，
+       没改就回 304（不产生流出流量），改了自动拿到新内容。 */
+    var urls = [OBS_BASE + 'data/cards.json', 'data/cards.json'];
     var i = 0;
     (function next() {
       if (i >= urls.length) { CARDS_LOADING = false; return; }
@@ -5007,6 +5009,19 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
      卡也卡在用户预期之内；球一出现就是最终画质，之后不再有任何贴图切换。
      网络太慢（5.2 秒下不完 8K）才回退到"先出 4K"，迟到的 8K 等手停再挂。 */
   var TEX_BASES = [OBS_BASE + 'assets/tex/', 'assets/tex/'];
+
+  /* 贴图版本号 = 文件内容的 md5 前 8 位，由 scripts/stamp_tex_ver.py 写进来。
+     别再用全局 BUILD_TAG：那玩意儿每次发版都变，哪怕只改了一行 CSS，
+     回访用户也要把 2MB 贴图整套重下一遍 —— 华为云流量告警就是这么来的。
+     内容哈希只在图片真的重新生成时才变，没变的图永远命中缓存。 */
+  var TEX_VER = {
+    /* TEX_VER:start */
+    'climate-lo.png': '39eadfb4',
+    'climate.png': 'b011d715',
+    'terrain-lo.webp': '1439af05',
+    'terrain.webp': '124b640d',
+    /* TEX_VER:end */
+  };
 
   /* 单文件多源尝试：OBS 失败退仓库同域 */
   function loadTex(loader, name, ok, fail) {
@@ -7724,9 +7739,10 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
       var i = 0;
       /* 必须带版本号：OBS 上的对象带 7 天 Cache-Control，换了贴图不换 URL
          的话浏览器一直用旧的（用户会以为"改了没生效"）。 */
-      var q = BUILD_TAG ? ('?v=' + encodeURIComponent(BUILD_TAG)) : '';
       var useLo = !LG_HI || lgMaxTexSize() < 8192;
       var file = (useLo && LG[name].texLo) ? LG[name].texLo : LG[name].tex;
+      var ver = TEX_VER[file] || BUILD_TAG;
+      var q = ver ? ('?v=' + encodeURIComponent(ver)) : '';
       (function next() {
         if (i >= TEX_BASES.length) { cb(null); return; }
         loader.load(TEX_BASES[i++] + file + q, function (t) {
