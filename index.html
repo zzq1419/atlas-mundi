@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-13-AX">
+<meta name="build" content="2026-11-13-AY">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -1529,6 +1529,24 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
   background:linear-gradient(to bottom,rgba(160,225,255,.95),rgba(160,225,255,.26));
 }
 .tpin.k-clim::after{background:#c4ecff;box-shadow:0 0 10px rgba(120,210,255,.9),0 0 0 2px rgba(120,210,255,.16)}
+/* 实时气温：天蓝（白天的天空色），比气候定位的冰蓝更"天气"一点 */
+.tpin.k-temp .tp-bubble{
+  background:rgba(8,24,44,.95);
+  border-color:rgba(96,180,255,.46);
+  box-shadow:0 12px 30px rgba(0,0,0,.55),0 0 0 1px rgba(96,180,255,.08);
+  color:#dcecfb;
+}
+.tpin.k-temp .tp-bubble:hover{border-color:rgba(130,205,255,.82);background:rgba(11,32,56,.96)}
+.tpin.k-temp .tp-bubble b{color:#bfe4ff;font-size:14px}
+.tpin.k-temp .tp-bubble i{color:rgba(150,190,225,.75)}
+.tpin.k-temp .tp-stem{
+  background:linear-gradient(to top,rgba(120,195,255,.95),rgba(120,195,255,.26));
+  box-shadow:0 0 7px rgba(90,175,255,.45);
+}
+.tpin.k-temp.below .tp-stem{
+  background:linear-gradient(to bottom,rgba(120,195,255,.95),rgba(120,195,255,.26));
+}
+.tpin.k-temp::after{background:#9fd4ff;box-shadow:0 0 10px rgba(90,175,255,.9),0 0 0 2px rgba(90,175,255,.16)}
 .tpin.below .tp-bubble{margin-bottom:0;margin-top:0}
 
 .tp-bubble b{color:#ffdb8a;font-weight:600;font-variant-numeric:tabular-nums}
@@ -1983,10 +2001,10 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
       <h3>界线</h3>
       <div class="tg-r">
         <button class="tool-btn" id="btn-borders" type="button" aria-pressed="false">
+          <!-- 一张摊开的地图 + 两道路虚线接缝：地图被分成几块 = 国界 -->
           <svg viewBox="0 0 24 24" aria-hidden="true">
-            <circle cx="12" cy="12" r="8.3"/>
-            <path d="M9.7 4.3c2.1 2.3 2.9 5 2.3 7.7-.5 2.2-1.8 4.1-3.3 5.6"
-                  stroke-width="1.9" stroke-dasharray="2.4 2.1"/>
+            <path d="M3.4 6.5l5.4-2.2 6.3 2.4 5.5-2.2v13.2l-5.5 2.2-6.3-2.4-5.4 2.2z"/>
+            <path d="M8.8 4.3v13.2M15.1 6.7v13.2" stroke-dasharray="2.1 1.9"/>
           </svg>
           <span class="tl">显示全部国境线</span>
         </button>
@@ -2052,10 +2070,12 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
           <span class="tl">时间定位：点任意位置看当地时间</span>
         </button>
         <button class="tool-btn" id="btn-probe-clim" type="button" aria-pressed="false">
+          <!-- 地球 + 两道气候带 + 定位点：一眼看出"查这一点属于哪个气候带"。
+               以前是温度计，和"气温"撞脸，谁都不像。 -->
           <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M10 13.4V5.3a2 2 0 1 1 4 0v8.1a4.1 4.1 0 1 1-4 0z"/>
-            <path d="M12 9.2v6.2"/>
-            <circle cx="12" cy="17.2" r="1.5" fill="currentColor" stroke="none"/>
+            <circle cx="11.6" cy="12" r="8"/>
+            <path d="M4.6 8.9h14M4.6 15.1h14" stroke-width="2.6" stroke-linecap="round"/>
+            <circle cx="15.2" cy="12" r="1.5" fill="currentColor" stroke="none"/>
           </svg>
           <span class="tl">气候定位：点任意位置看气候类型</span>
         </button>
@@ -2066,6 +2086,16 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
             <path d="M17.4 2.1v1.5M17.4 9.2v1.5M13.1 6.4h1.5M20.2 6.4h1.5"/>
           </svg>
           <span class="tl">高度定位：点任意位置看海拔</span>
+        </button>
+        <button class="tool-btn" id="btn-probe-temp" type="button" aria-pressed="false">
+          <!-- 温度计 + 右边两道热浪：实时气温 -->
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M9.4 13.4V5.4a1.9 1.9 0 1 1 3.8 0v8a3.9 3.9 0 1 1-3.8 0z"/>
+            <path d="M11.3 9.2v5.8"/>
+            <circle cx="11.3" cy="16.9" r="1.4" fill="currentColor" stroke="none"/>
+            <path d="M16.4 8.6c1 1 1 2.4 0 3.4M18.4 6.6c2 2 2 5.4 0 7.4"/>
+          </svg>
+          <span class="tl">气温定位：点任意位置看实时气温</span>
         </button>
       </div>
     </section>
@@ -7313,6 +7343,99 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
       ensureProbe(kind === 'elev' ? 'elev' : 'climate', function () {});
     };
 
+    /* ---------- 实时气温：Open-Meteo ----------
+       免 key、支持跨域，按点查比拉一整张全球温度场靠谱得多（那种要几百次请求）。
+       结果按 0.5° 网格缓存 10 分钟：同一个城市连点几下只发一次请求。 */
+    var TEMP_CACHE = {}, TEMP_Q = {};
+    var WMO_ZH = {
+      0: '晴', 1: '晴间多云', 2: '多云', 3: '阴',
+      45: '雾', 48: '雾凇',
+      51: '毛毛雨', 53: '毛毛雨', 55: '毛毛雨', 56: '冻毛毛雨', 57: '冻毛毛雨',
+      61: '小雨', 63: '中雨', 65: '大雨', 66: '冻雨', 67: '冻雨',
+      71: '小雪', 73: '中雪', 75: '大雪', 77: '雪粒',
+      80: '阵雨', 81: '阵雨', 82: '强阵雨', 85: '阵雪', 86: '阵雪',
+      95: '雷阵雨', 96: '雷阵雨伴冰雹', 99: '雷阵雨伴冰雹'
+    };
+
+    function tempKey(lon, lat) {
+      return (Math.round(lat * 2) / 2) + ',' + (Math.round(lon * 2) / 2);
+    }
+
+    function fetchTemp(lon, lat, cb) {
+      var k = tempKey(lon, lat);
+      var hit = TEMP_CACHE[k];
+      if (hit && Date.now() - hit.at < 600000) { cb(hit.d); return; }
+      if (TEMP_Q[k]) { TEMP_Q[k].push(cb); return; }
+      TEMP_Q[k] = [cb];
+      var done = function (d) {
+        var q = TEMP_Q[k]; delete TEMP_Q[k];
+        (q || []).forEach(function (f) { f(d); });
+      };
+      var url = 'https://api.open-meteo.com/v1/forecast?latitude=' + lat.toFixed(3) +
+        '&longitude=' + lon.toFixed(3) +
+        '&current=temperature_2m,apparent_temperature,weather_code,wind_speed_10m,relative_humidity_2m' +
+        '&timezone=auto&wind_speed_unit=kmh';
+      var ctl = window.AbortController ? new AbortController() : null;
+      var timer = setTimeout(function () { if (ctl) ctl.abort(); }, 9000);
+      fetch(url, ctl ? { signal: ctl.signal } : undefined)
+        .then(function (r) {
+          if (!r.ok) throw new Error('HTTP ' + r.status);
+          return r.json();
+        })
+        .then(function (j) {
+          clearTimeout(timer);
+          var c = (j && j.current) || {};
+          if (c.temperature_2m == null) throw new Error('no data');
+          var d = { t: c.temperature_2m, at: c.apparent_temperature, code: c.weather_code,
+                    wind: c.wind_speed_10m, rh: c.relative_humidity_2m };
+          TEMP_CACHE[k] = { d: d, at: Date.now() };
+          done(d);
+        })
+        .catch(function () { clearTimeout(timer); done(null); });
+    }
+
+    /* undefined = 查询中，null = 失败，对象 = 成功 */
+    function tempBubble(d, coord) {
+      if (d === null) return '<b>暂时查不到</b><i>' + coord + '</i>';
+      if (d === undefined) return '<b>查询中…</b><i>' + coord + '</i>';
+      var t = d.t == null ? '—' : (Math.round(d.t * 10) / 10).toFixed(1) + '℃';
+      var sky = WMO_ZH[d.code] || '';
+      var bits = [];
+      if (d.at != null) bits.push('体感 ' + Math.round(d.at) + '℃');
+      if (d.wind != null) bits.push('风 ' + Math.round(d.wind) + ' km/h');
+      if (d.rh != null) bits.push('湿度 ' + Math.round(d.rh) + '%');
+      /* 分两行写：一行塞"温度+天气"，一行塞指标，坐标单独一行 ——
+         全挤在一条里气泡会横贯半个屏幕，点靠近边缘时直接被裁掉。 */
+      return '<b>' + t + '</b>' + (sky ? '　' + sky : '') +
+             (bits.length ? '<i>' + bits.join(' · ') + '</i>' : '') +
+             '<i>' + coord + '</i>';
+    }
+
+    function showTempPin(cy, ll) {
+      if (!pinLayer) return;
+      var ns = ll.lat >= 0 ? 'N' : 'S', ew = ll.lon >= 0 ? 'E' : 'W';
+      var coord = Math.abs(ll.lat).toFixed(1) + '°' + ns + '　' +
+                  Math.abs(ll.lon).toFixed(1) + '°' + ew;
+      var anchor = document.createElement('div');
+      anchor.className = 'tpin-anchor';
+      var d = document.createElement('div');
+      d.className = 'tpin k-temp' + (cy < 150 ? ' below' : '');
+      d.innerHTML = '<div class="tp-bubble">' + tempBubble(undefined, coord) +
+                    '</div><div class="tp-stem"></div>';
+      anchor.appendChild(d);
+      pinLayer.appendChild(anchor);
+      var rec = { anchor: anchor, lat: ll.lat, lon: ll.lon, kind: 'temp' };
+      pins.push(rec);
+      bindPinClose(rec, d);
+      trimPins();
+      placePins();                       // 先摆到位，别闪在左上角
+      var bubble = d.querySelector('.tp-bubble');
+      fetchTemp(ll.lon, ll.lat, function (data) {
+        if (!bubble || !bubble.parentNode) return;   // 这段时间里已经被收掉了
+        bubble.innerHTML = tempBubble(data, coord);
+      });
+    }
+
     function llToPixel(o, lon, lat) {
       var x = Math.floor((lon + 180) / 360 * o.w);
       var y = Math.floor((90 - lat) / 180 * o.h);
@@ -7345,6 +7468,8 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
       if (!ll) return;
       rippleAt(e.clientX, e.clientY, 'clim');
       keyClick();
+      /* 气温走网络（Open-Meteo），不依赖那两张本地索引图 */
+      if (globe.probeKind === 'temp') { showTempPin(e.clientY, ll); return; }
       ensureProbe(globe.probeKind, function () {
         var ns = ll.lat >= 0 ? 'N' : 'S', ew = ll.lon >= 0 ? 'E' : 'W';
         var coord = Math.abs(ll.lat).toFixed(1) + '°' + ns + '　' +
@@ -7900,7 +8025,8 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
     var PICK_BTNS = {
       time: document.getElementById('btn-time'),
       climate: document.getElementById('btn-probe-clim'),
-      elev: document.getElementById('btn-probe-elev')
+      elev: document.getElementById('btn-probe-elev'),
+      temp: document.getElementById('btn-probe-temp')
     };
 
     function setPick(kind) {
@@ -7909,7 +8035,7 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
       if (cur && cur !== kind && globe.clearPins) globe.clearPins(cur);  // 换模式：旧模式的气泡收掉
       globe.pickKind = kind || '';
       globe.timeMode = kind === 'time';
-      globe.probeMode = kind === 'climate' || kind === 'elev';
+      globe.probeMode = kind === 'climate' || kind === 'elev' || kind === 'temp';
       globe.probeKind = globe.probeMode ? kind : '';
 
       for (var k in PICK_BTNS) {
