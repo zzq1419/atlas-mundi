@@ -1,0 +1,8 @@
+{
+ "at": "2026-11-13T21:51:39+0800",
+ "step": 10,
+ "min": -44.0,
+ "max": 37.8,
+ "points": 612,
+ "source": "Open-Meteo current temperature_2m"
+}

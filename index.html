@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-13-AY">
+<meta name="build" content="2026-11-13-AZ">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -2056,6 +2056,16 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
           </svg>
           <span class="tl">显示地形起伏</span>
         </button>
+        <button class="tool-btn" id="btn-temp-layer" type="button" aria-pressed="false">
+          <!-- 半圆仪表 + 指针：读数是"温度/热力"，和定位里的温度计区分开 -->
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M4.2 17.4a8 8 0 0 1 16 0"/>
+            <path d="M12 17.4l4.4-4.8"/>
+            <circle cx="12" cy="17.4" r="1.3" fill="currentColor" stroke="none"/>
+            <path d="M4.6 20.4h3M10.5 20.4h3M16.4 20.4h3"/>
+          </svg>
+          <span class="tl">显示实时气温</span>
+        </button>
       </div>
     </section>
 
@@ -2070,12 +2080,11 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
           <span class="tl">时间定位：点任意位置看当地时间</span>
         </button>
         <button class="tool-btn" id="btn-probe-clim" type="button" aria-pressed="false">
-          <!-- 地球 + 两道气候带 + 定位点：一眼看出"查这一点属于哪个气候带"。
-               以前是温度计，和"气温"撞脸，谁都不像。 -->
+          <!-- 气温曲线 + 降水柱：课本里"气候"就是这张图，比任何抽象符号都直白 -->
           <svg viewBox="0 0 24 24" aria-hidden="true">
-            <circle cx="11.6" cy="12" r="8"/>
-            <path d="M4.6 8.9h14M4.6 15.1h14" stroke-width="2.6" stroke-linecap="round"/>
-            <circle cx="15.2" cy="12" r="1.5" fill="currentColor" stroke="none"/>
+            <path d="M4.2 19.4h15.6"/>
+            <path d="M7 19.4v-4.2M10.6 19.4v-6.4M14.2 19.4v-3.2" stroke-width="1.9"/>
+            <path d="M5.6 11.2c1.6 0 2 2.2 3.5 2.2s1.9-2.6 3.4-2.6 1.8 1.7 3.2 1.7 1.7-1.3 2.9-1.3"/>
           </svg>
           <span class="tl">气候定位：点任意位置看气候类型</span>
         </button>
@@ -2088,12 +2097,11 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
           <span class="tl">高度定位：点任意位置看海拔</span>
         </button>
         <button class="tool-btn" id="btn-probe-temp" type="button" aria-pressed="false">
-          <!-- 温度计 + 右边两道热浪：实时气温 -->
+          <!-- 就一支温度计：别再加热浪之类的装饰，16px 下只会糊成一团 -->
           <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M9.4 13.4V5.4a1.9 1.9 0 1 1 3.8 0v8a3.9 3.9 0 1 1-3.8 0z"/>
-            <path d="M11.3 9.2v5.8"/>
-            <circle cx="11.3" cy="16.9" r="1.4" fill="currentColor" stroke="none"/>
-            <path d="M16.4 8.6c1 1 1 2.4 0 3.4M18.4 6.6c2 2 2 5.4 0 7.4"/>
+            <path d="M12 13.6V5.2a2.1 2.1 0 1 1 4.2 0v8.4a4.2 4.2 0 1 1-4.2 0z"/>
+            <path d="M14.1 8.6v6.6"/>
+            <circle cx="14.1" cy="17.6" r="1.6" fill="currentColor" stroke="none"/>
           </svg>
           <span class="tl">气温定位：点任意位置看实时气温</span>
         </button>
@@ -5048,6 +5056,7 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
     /* TEX_VER:start */
     'climate-lo.png': '39eadfb4',
     'climate.png': 'b011d715',
+    'temp.webp': 'dc0c15ce',
     'terrain-lo.webp': '1439af05',
     'terrain.webp': '124b640d',
     /* TEX_VER:end */
@@ -5861,7 +5870,7 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
   function updateLabels() {
     /* 图层模式下换一套数据源：国名让位给地形名（两层同时铺满必然糊成一团）。
        但开了"全部国境线"就得反过来 —— 判国家要靠国名，地形名这时收起来。 */
-    var useTerrain = !!(globe.layerName && !globe.allBordersOn &&
+    var useTerrain = !!(globe.layerName && globe.layerName !== 'temp' && !globe.allBordersOn &&
                         globe.tlabels && globe.tlabels.length);
     var arr = useTerrain ? globe.tlabels : globe.labels;
     if (!arr || !arr.length) return;
@@ -7837,6 +7846,16 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
           ['高原', [['#a596ad', '高原山地']]]
         ]
       },
+      temp: {
+        title: '实时气温',
+        tex: 'temp.webp',
+        /* 气温是"快照"不是毫秒级实时：构建期拉一次全球格点（Open-Meteo），
+           前端当普通贴图加载，秒开。更新时间写在下面这行里。 */
+        src: 'Open-Meteo 实时 2m 气温 · 10° 网格插值',
+        band: ['#3a206e 0%', '#2f6cbe 18%', '#55c8be 38%', '#8fd05f 56%',
+               '#f2d24e 72%', '#f0993c 86%', '#d63a2a 100%'],
+        ticks: ['-30℃', '-15℃', '0℃', '12℃', '24℃', '35℃+']
+      },
       terrain: {
         title: '地形',
         tex: 'terrain.webp',
@@ -7923,6 +7942,20 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
         h += '<div class="lg-ticks">' + cfg.ticks.map(function (t) { return '<span>' + t + '</span>'; }).join('') + '</div>';
       }
       h += '<div class="lg-src">' + cfg.src + '</div>';
+      /* 气温是快照：把生成时间补到来源行，用户一眼知道数据有多新 */
+      if (name === 'temp') {
+        fetch('assets/tex/temp.json', { cache: 'no-cache' })
+          .then(function (r) { return r.ok ? r.json() : null; })
+          .then(function (m) {
+            if (!m || !m.at || name !== lgCur) return;
+            var src = lgEl.querySelector('.lg-src');
+            if (!src) return;
+            var t = String(m.at).replace(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}).*$/, '$1-$2-$3 $4:$5');
+            src.innerHTML = cfg.src + '<br>数据时间 ' + t +
+              ' · ' + m.min + '℃ ~ ' + m.max + '℃';
+          })
+          .catch(function () {});
+      }
       lgEl.innerHTML = h;
       lgEl.classList.add('on');
       lgEl.setAttribute('aria-hidden', 'false');
@@ -7942,6 +7975,12 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
         btr.classList.toggle('on', lgCur === 'terrain');
         btr.setAttribute('aria-pressed', lgCur === 'terrain' ? 'true' : 'false');
         __setTip(btr, lgCur === 'terrain' ? '关闭地形' : '显示地形');
+      }
+      var btp = document.getElementById('btn-temp-layer');
+      if (btp) {
+        btp.classList.toggle('on', lgCur === 'temp');
+        btp.setAttribute('aria-pressed', lgCur === 'temp' ? 'true' : 'false');
+        __setTip(btp, lgCur === 'temp' ? '关闭实时气温' : '显示实时气温');
       }
     }
 
@@ -7999,8 +8038,10 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
     (function () {
       var bcl = document.getElementById('btn-climate');
       var btr = document.getElementById('btn-terrain');
+      var btp = document.getElementById('btn-temp-layer');
       if (bcl) bcl.addEventListener('click', function () { lgToggle('climate'); });
       if (btr) btr.addEventListener('click', function () { lgToggle('terrain'); });
+      if (btp) btp.addEventListener('click', function () { lgToggle('temp'); });
       lgSync();
       /* 等地球本体、国名、地形名都到位再预热，别和首屏抢带宽 */
       var kick = function () {
@@ -8077,12 +8118,15 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
       /* 开了"全部国境线"就得知道哪条线是哪国 —— 这时国名要让位回来，
          地形名收起（两层字同时铺满必然糊）。但图层模式下的国名只做标注，
          不给点击：想看国家请先关掉图层。 */
-      var showCountry = !layerOn || !!globe.allBordersOn;
+      /* 气温图层是"天气图"，底下的地形名（山脉/盆地）没什么意义，
+         换成国名更容易定位。 */
+      var tempLayer = globe.layerName === 'temp';
+      var showCountry = !layerOn || !!globe.allBordersOn || tempLayer;
       document.body.classList.toggle('layer-mode', layerOn);
       if (a) {
         a.style.visibility = showCountry ? '' : 'hidden';
       }
-      if (b) b.style.visibility = (layerOn && !globe.allBordersOn) ? 'visible' : 'hidden';
+      if (b) b.style.visibility = (layerOn && !globe.allBordersOn && !tempLayer) ? 'visible' : 'hidden';
     }
     globe.syncLabelLayers = syncLabelLayers;
 
