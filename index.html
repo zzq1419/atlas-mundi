@@ -2291,7 +2291,7 @@ body.quiz-on #labels-canvas{display:none!important}
   position:fixed;left:18px;top:calc(72px + env(safe-area-inset-top, 0px));
   z-index:36;
   width:300px;padding:14px 16px 13px;border-radius:14px;
-  height:calc(100vh - 92px - env(safe-area-inset-top, 0px));
+  height:calc(100vh - 172px - env(safe-area-inset-top, 0px));
   overflow-y:auto;overflow-x:hidden;
   overscroll-behavior:contain;scrollbar-width:thin;
   scrollbar-color:rgba(140,175,220,.16) transparent;
@@ -2311,7 +2311,7 @@ body.quiz-on #labels-canvas{display:none!important}
   scrollbar-width:none;
   /* 12 类本来就放得下：让面板贴着内容收住，别在下面吊一截空底。
      窗口实在矮时才受 max-height 限制，此时由 lgFitExam 收紧行距。 */
-  height:auto;max-height:calc(100vh - 92px - env(safe-area-inset-top, 0px));
+  height:auto;max-height:calc(100vh - 172px - env(safe-area-inset-top, 0px));
 }
 #layer-legend.lg-exam12::-webkit-scrollbar{display:none}
 #layer-legend::-webkit-scrollbar{width:6px}
@@ -2378,6 +2378,11 @@ body.quiz-on #labels-canvas{display:none!important}
 #layer-legend.lg-xtight .lg-col .lg-key{padding:1px 0}
 #layer-legend.lg-xtight .lg-line.lg-col + .lg-line.lg-col .lg-key{margin-top:5px}
 #layer-legend.lg-xtight .lg-col .lg-grid{gap:0;padding-top:6px}
+/* 再矮的窗口（600 以下）最后一档：宁可字小一点，也要让 12 类都露出来 */
+#layer-legend.lg-ultratight .lg-col .lg-item{padding:2px 6px;font-size:11px}
+#layer-legend.lg-ultratight .lg-col .lg-key{padding:0;font-size:10px}
+#layer-legend.lg-ultratight .lg-line.lg-col + .lg-line.lg-col .lg-key{margin-top:3px}
+#layer-legend.lg-ultratight .lg-col .lg-grid{gap:0;padding-top:4px}
 #layer-legend .lg-col .lg-item{
   width:100%;justify-content:flex-start;padding:8px 8px;border-radius:7px;
   font-size:12.5px;line-height:1.35;
@@ -2669,7 +2674,7 @@ body.quiz-on #labels-canvas{display:none!important}
     left:calc(10px + env(safe-area-inset-left, 0px));
     top:calc(66px + env(safe-area-inset-top, 0px));
     width:min(228px, calc(100vw - 80px));
-    max-height:calc(100dvh - 158px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+    max-height:calc(100dvh - 172px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
   }
   body.panel-open #globe-stage{transform:translateY(-11%)}
   #footline{display:none}
@@ -12860,7 +12865,7 @@ body.quiz-on #labels-canvas{display:none!important}
     var lgExamPanelH = 0, lgExamFit = '';
     function lgFitExam() {
       if (!lgEl) return;
-      lgEl.classList.remove('lg-tight', 'lg-xtight');
+      lgEl.classList.remove('lg-tight', 'lg-xtight', 'lg-ultratight');
       if (lgCur !== 'climate') { lgEl.style.height = ''; return; }
       if (!climExam) {
         if (lgExamPanelH) lgEl.style.height = lgExamPanelH + 'px';
@@ -12872,8 +12877,10 @@ body.quiz-on #labels-canvas{display:none!important}
       lgEl.style.height = '';
       if (lgEl.scrollHeight > lgEl.clientHeight) lgEl.classList.add('lg-tight');
       if (lgEl.scrollHeight > lgEl.clientHeight) lgEl.classList.add('lg-xtight');
-      lgExamFit = lgEl.classList.contains('lg-xtight') ? 'lg-xtight'
-                : (lgEl.classList.contains('lg-tight') ? 'lg-tight' : '');
+      if (lgEl.scrollHeight > lgEl.clientHeight) lgEl.classList.add('lg-ultratight');
+      lgExamFit = lgEl.classList.contains('lg-ultratight') ? 'lg-ultratight'
+                : (lgEl.classList.contains('lg-xtight') ? 'lg-xtight'
+                : (lgEl.classList.contains('lg-tight') ? 'lg-tight' : ''));
       lgExamPanelH = lgEl.offsetHeight;
     }
     if (window.addEventListener) window.addEventListener('resize', lgFitExam);
