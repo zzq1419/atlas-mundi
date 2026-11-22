@@ -2307,7 +2307,12 @@ body.quiz-on #labels-canvas{display:none!important}
   transition:opacity .28s ease,transform .28s ease;
 }
 /* 教材 12 类本来就放得下，连滚动条的槽都不要露出来 */
-#layer-legend.lg-exam12{scrollbar-width:none}
+#layer-legend.lg-exam12{
+  scrollbar-width:none;
+  /* 12 类本来就放得下：让面板贴着内容收住，别在下面吊一截空底。
+     窗口实在矮时才受 max-height 限制，此时由 lgFitExam 收紧行距。 */
+  height:auto;max-height:calc(100vh - 92px - env(safe-area-inset-top, 0px));
+}
 #layer-legend.lg-exam12::-webkit-scrollbar{display:none}
 #layer-legend::-webkit-scrollbar{width:6px}
 /* 滚动条平时几乎看不见；鼠标移到面板上（或正拖着）才浮出来 */
@@ -2358,9 +2363,19 @@ body.quiz-on #labels-canvas{display:none!important}
   color:rgba(208,230,252,.9);
 }
 #layer-legend .lg-col:first-of-type .lg-key{padding-top:2px}
-#layer-legend .lg-col .lg-grid{flex-direction:column;flex-wrap:nowrap;gap:2px}
+/* 组名与第一行之间必须留一点气口：选中/悬停那一行的边框是实线，
+   贴着组名时会直接压到「热带」两个字上。 */
+#layer-legend .lg-col .lg-grid{flex-direction:column;flex-wrap:nowrap;gap:2px;padding-top:8px}
+/* 窗口比较矮时逐级收紧：不是为了藏滚动条，是真的让 12 类全部显示出来。
+   lg-exam12 只负责不画那条槽；这里负责内容不溢出。 */
+#layer-legend.lg-tight .lg-col .lg-item{padding:5px 8px;font-size:12px}
+#layer-legend.lg-tight .lg-col .lg-key{padding:2px 0 1px;font-size:12px}
+#layer-legend.lg-tight .lg-col .lg-grid{gap:1px;padding-top:7px}
+#layer-legend.lg-xtight .lg-col .lg-item{padding:3px 7px;font-size:11.5px}
+#layer-legend.lg-xtight .lg-col .lg-key{padding:1px 0;font-size:12px}
+#layer-legend.lg-xtight .lg-col .lg-grid{gap:0;padding-top:6px}
 #layer-legend .lg-col .lg-item{
-  width:100%;justify-content:flex-start;padding:9px 8px;border-radius:7px;
+  width:100%;justify-content:flex-start;padding:8px 8px;border-radius:7px;
   font-size:12.5px;line-height:1.35;
 }
 #layer-legend .lg-col .lg-item em{margin-left:auto;padding-left:10px;font-size:10.5px}
@@ -12829,6 +12844,18 @@ body.quiz-on #labels-canvas{display:none!important}
 
     /* 图例面板是共用的：气候/地形一块，洋流一块，两块能同时开着。
        name 为空（没开任何贴图图层）时只画洋流那半块。 */
+    /* 教材 12 类必须全部露出来。窗口高度因设备/浏览器而差很多，
+       固定一套行高总会在某个高度上把「高原山地」切掉 —— 这里按实际
+       可用高度逐级收紧行距，直到 12 项一屏放完。 */
+    function lgFitExam() {
+      if (!lgEl) return;
+      lgEl.classList.remove('lg-tight', 'lg-xtight');
+      if (lgCur !== 'climate' || !climExam) return;
+      if (lgEl.scrollHeight > lgEl.clientHeight) lgEl.classList.add('lg-tight');
+      if (lgEl.scrollHeight > lgEl.clientHeight) lgEl.classList.add('lg-xtight');
+    }
+    if (window.addEventListener) window.addEventListener('resize', lgFitExam);
+
     function lgLegend(name) {
       if (!lgEl) return;
       var cfg = name ? LG[name] : null, h = '';
@@ -12877,6 +12904,7 @@ body.quiz-on #labels-canvas{display:none!important}
       lgEl.innerHTML = h;
       lgEl.classList.add('on');
       lgEl.classList.toggle('lg-exam12', name === 'climate' && climExam);
+      lgFitExam();
       lgEl.setAttribute('aria-hidden', 'false');
       var cx = lgEl.querySelector('.lg-close');
       if (cx) cx.addEventListener('click', lgClose);
