@@ -12857,18 +12857,23 @@ body.quiz-on #labels-canvas{display:none!important}
     /* 教材那一栏是贴着内容收高度的，柯本 30 类放不下只能滚 ——
        但两栏的外框要一样长，不能切过去面板忽然长出一截。
        开气候层时先渲染教材，记下它的实际高度，切柯本时沿用。 */
-    var lgExamPanelH = 0;
+    var lgExamPanelH = 0, lgExamFit = '';
     function lgFitExam() {
       if (!lgEl) return;
       lgEl.classList.remove('lg-tight', 'lg-xtight');
       if (lgCur !== 'climate') { lgEl.style.height = ''; return; }
       if (!climExam) {
         if (lgExamPanelH) lgEl.style.height = lgExamPanelH + 'px';
+        /* 窗口矮的时候教材会自动收紧行距，柯本必须跟着收 ——
+           否则切过去每一行和悬停框都突然变大一圈。 */
+        if (lgExamFit) lgEl.classList.add(lgExamFit);
         return;
       }
       lgEl.style.height = '';
       if (lgEl.scrollHeight > lgEl.clientHeight) lgEl.classList.add('lg-tight');
       if (lgEl.scrollHeight > lgEl.clientHeight) lgEl.classList.add('lg-xtight');
+      lgExamFit = lgEl.classList.contains('lg-xtight') ? 'lg-xtight'
+                : (lgEl.classList.contains('lg-tight') ? 'lg-tight' : '');
       lgExamPanelH = lgEl.offsetHeight;
     }
     if (window.addEventListener) window.addEventListener('resize', lgFitExam);
