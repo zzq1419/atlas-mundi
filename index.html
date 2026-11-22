@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-22-EM">
+<meta name="build" content="2026-11-22-EN">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -12080,6 +12080,7 @@ body.climate-layer-on #tools{z-index:44}
     }
 
     globe.solarToggle = solarToggle;
+
     globe.solarTick = solarTick;
     window.__solarToggle = solarToggle;
     window.__solarDbg = solar;          // 调试/验收用：控制台可改 solar.speed、solar.sky.visible
@@ -12400,9 +12401,12 @@ body.climate-layer-on #tools{z-index:44}
       if (!globe.solarOn && globe.earthMat && globe.term) {
         var tgT = globe.term.on ? 1 : 0;
         var mxT = (typeof globe.term.mix === 'number') ? globe.term.mix : tgT;
-        mxT += (tgT - mxT) * (1 - Math.pow(0.975, dtf));   // 约 2 秒铺满
+        /* dtf 必须截断：掉帧时 dtf 可能是 18，一步就跳 36%，看起来就是"最后猛跳一下" */
+        var kT = Math.min(2.5, dtf);
+        mxT += (tgT - mxT) * (1 - Math.pow(0.975, kT));   // 约 2 秒铺满
         if (Math.abs(tgT - mxT) < 0.002) mxT = tgT;
         globe.term.mix = mxT;
+        globe.term.anim = Math.abs(tgT - mxT) > 0.01;
         globe.earthMat.uniforms.uTermOn.value = mxT;
       }
 
@@ -12431,6 +12435,7 @@ body.climate-layer-on #tools{z-index:44}
       /* 淡入没播完就别挂：5.2 秒超时之后球才开始浮出来，8K 恰好在这时到 ——
          一次 134MB 的 texImage2D 落在动画中间，就是最明显的那一下卡。 */
       if (globe.tex8kReady && globe.fadeDone && !globe.dragging && !globe.flying &&
+          !(globe.term && globe.term.anim) &&          /* 昼夜动画播放时不传 8K，避免卡一帧 */
           nowMs - (globe.lastInput || 0) > 900) bind8k();
 
       if (globe.earthMat) {
@@ -13084,7 +13089,7 @@ body.climate-layer-on #tools{z-index:44}
       h += '<div class="lg-line"><span class="lg-key">寒流</span><span class="lg-grid">' +
            '<span class="lg-item"><i style="background:' + OC_COLD + '"></i>蓝箭头 · 降温减湿</span></span></div>';
       h += '<div class="lg-line"><span class="lg-key">流向</span><span class="lg-grid">' +
-           '<span class="lg-item">箭头固定指方向 · 光带亮块顺流推进</span></span></div>';
+           '<span class="lg-item">箭头固定指方向，随季节南北平移</span></span></div>';
       /* 季节这一行是动态的：切了按钮，图例要跟着说清现在看的是哪一季 */
       h += '<div class="lg-line"><span class="lg-key">季风</span><span class="lg-grid">' +
            '<span class="lg-item lg-wr" id="lg-season-val">' + ocSeasonTip() + '</span></span></div>';
@@ -13308,8 +13313,8 @@ body.climate-layer-on #tools{z-index:44}
     /* 箭头尺寸都按世界坐标给（球半径 = 1）。默认视距下球半径约 300px，
        所以 0.082 长约 25px、间距 0.19 约 57px —— 课本上"一串短箭头"的疏密；
        缩得太小就看不出箭头，太大又成了粗带子。 */
-    var OC_A_LEN = 0.070;          // 锥体长度（沿流向）
-    var OC_A_R = 0.0125;           // 锥底半径 → 全宽 0.025，长宽比 2.8:1，细长才像矢量箭头
+    var OC_A_LEN = 0.062;          // 锥体长度（沿流向）
+    var OC_A_R = 0.0100;           // 锥底半径 → 全宽 0.02，与光带宽度对齐，不再比带子宽一圈
     var OC_A_FLAT = 0.34;          // 法向压扁系数：锥体"趴"在球面上
     var ocZoomK = 1;               // 屏幕定宽系数：拉近时按比例收，别糊满一屏
     /* 洋流的间距：光带已经把"流路在哪"讲清楚了，箭头只负责隔一段点一下方向。
@@ -14365,7 +14370,7 @@ body.climate-layer-on #tools{z-index:44}
        WB_ARR_STEM 是杆占总长的比例，剩下 30% 是三角尖。 */
     var WB_ARR_STEM = 0.62;
     var WB_ARR_WS = 0.0068;        // 杆半宽（全宽 0.0136，屏幕上约 5 px —— 教科书的杆就这么细）
-    var WB_ARR_WH = 0.0215;        // 三角尖底半宽（全宽 0.043，约杆宽的 3.2 倍）
+    var WB_ARR_WH = 0.0138;        // 三角尖底半宽（全宽 0.0276，约杆宽 2 倍；3.2 倍时像三角铁）
                                    // 风带收窄到 15° 后行距只剩 4.3°，尖底再宽就会
                                    // 跨到相邻那行里去，三行糊成一片
     /* 箭头从一段弧的 WB_ARR_T0 处起步、箭尖落在弧的末端（T1 = 1）。
@@ -14678,19 +14683,13 @@ body.climate-layer-on #tools{z-index:44}
           /* 和箭头同样的取段规则：带子只铺在有箭头的那一段上。
              不筛的话带子是箭头的一倍，满屏暗黄的弯月牙会被读成"缺了尖的箭头"。 */
           if (si % WB_ARR_EVERY !== 0) return;
-          /* 只取段的头 24%：这一截在箭头起点（16%）之前，露在尾部外面，
-             看起来就是"带子从箭头后面钻进去"。铺满整段的话会伸出箭尖之外。 */
-          var tail = wbHead(cur, 0.24);
-          /* 层与层在纬度上会压到一起，半径各差 0.0002 免得同面打架；
-             最高一层 1.0035+0.0004 仍低于箭头（1.0045）。 */
-          paths.push({
-            cur: tail, col: col, ph: (ri * 0.37 + si * 0.211) % 1, uvScale: 1,
-            r: WB_RIB_R + (cur.row || 0) * 0.0002,
-            taperTail: 0.75                 // 露在箭头外面的那头收成尖，不留方块
-          });
+          /* 这一段原来会在箭头尾部铺一小截"拖尾光带"，想着让带子"从箭头后面钻进去"。
+             实际效果是：那块比杆还宽，收尖时被挤成三角形、不收尖就是一个方块，
+             两种都像箭头后面粘了块东西。风带本来就不需要连续光带，
+             只留箭头更干净 —— 所以这里不再铺拖尾（paths 保持为空）。 */
         });
       });
-      if (!paths.length) return;
+      if (!paths.length) return null;   // 风带只有箭头，没有光带
       var g = ocRibbonGeo(paths, WB_RIB_HW, WB_RIB_R);
       if (!g) return;
       wbRibMat = ocRibbonMat(wbOp, false);   // 风吹过陆地天经地义，不接陆地遮罩
