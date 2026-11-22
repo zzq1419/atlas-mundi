@@ -2291,7 +2291,7 @@ body.quiz-on #labels-canvas{display:none!important}
   position:fixed;left:18px;top:calc(72px + env(safe-area-inset-top, 0px));
   z-index:36;
   width:300px;padding:14px 16px 13px;border-radius:14px;
-  max-height:calc(100vh - 92px - env(safe-area-inset-top, 0px));
+  height:calc(100vh - 92px - env(safe-area-inset-top, 0px));
   overflow-y:auto;overflow-x:hidden;
   overscroll-behavior:contain;scrollbar-width:thin;
   scrollbar-color:rgba(140,175,220,.16) transparent;
@@ -2339,23 +2339,28 @@ body.quiz-on #labels-canvas{display:none!important}
   color:rgba(196,220,246,.8);font-size:11.5px;letter-spacing:.02em;
 }
 #layer-legend .lg-grid{flex:1;display:flex;flex-wrap:wrap;gap:3px 9px}
-/* 柯本口径的组名长一档，给它多留 12px，免得「C 亚热带」折成两行 */
-#layer-legend .lg-line.lg-k5 .lg-key{flex:0 0 52px}
+/* 柯本口径的组名长一档，给它多留 12px，免得「C 亚热带」折成两行。
+   注意：竖排后 .lg-key 是列方向，flex-basis 会变成"高度"——
+   这条 52px 的规则曾经把每个组名撑成 52px 高，看起来就是一大段空白，
+   所以竖排的气候图例不再给它加 lg-k5 类。 */
 /* ---------- 气候实验室：一列一项 ----------
    组名当小标题（左对齐、压暗），每类独占一行：色块在左、名字居中、
-   占比靠右。整行都是点击热区，不用瞄着那个 12px 的色块点。 */
+   占比靠右。整行都是点击热区，不用瞄着那个 12px 的色块点。
+   面板现在有固定高度，行高按"教材 12 类刚好铺满一栏"来定，
+   两种口径的左侧栏一样长，不再下面吊一截空底。 */
 #layer-legend .lg-col{flex-direction:column;align-items:stretch;gap:0;margin:0}
 #layer-legend .lg-col .lg-key{
-  flex:none;text-align:left;padding:3px 0 1px;
-  font-size:10px;letter-spacing:.12em;color:rgba(160,190,220,.62);
+  flex:none;text-align:left;padding:6px 0 2px;
+  font-size:11px;letter-spacing:.1em;color:rgba(160,190,220,.62);
 }
-#layer-legend .lg-col:first-of-type .lg-key{padding-top:0}
-#layer-legend .lg-col .lg-grid{flex-direction:column;flex-wrap:nowrap;gap:2px}
+#layer-legend .lg-col:first-of-type .lg-key{padding-top:2px}
+#layer-legend .lg-col .lg-grid{flex-direction:column;flex-wrap:nowrap;gap:3px}
 #layer-legend .lg-col .lg-item{
-  width:100%;justify-content:flex-start;padding:4px 7px;border-radius:7px;line-height:1.3;
+  width:100%;justify-content:flex-start;padding:11px 8px;border-radius:7px;
+  font-size:13.5px;line-height:1.35;
 }
-#layer-legend .lg-col .lg-item em{margin-left:auto;padding-left:10px}
-#layer-legend .lg-col .lg-pick i{flex:0 0 12px}
+#layer-legend .lg-col .lg-item em{margin-left:auto;padding-left:10px;font-size:11px}
+#layer-legend .lg-col .lg-pick i{flex:0 0 13px;width:13px;height:13px}
 #layer-legend .lg-item{
   display:inline-flex;align-items:center;gap:4px;
   font-size:11.5px;color:rgba(232,244,255,.92);white-space:nowrap;
@@ -2417,7 +2422,7 @@ body.quiz-on #labels-canvas{display:none!important}
 #layer-legend .lg-code{font-size:11px;letter-spacing:.02em;cursor:help}
 /* 柯本竖排一项一行，300px 有地方了：代码后面补中文名，学生不用背代码 */
 #layer-legend .lg-zh{
-  margin-left:8px;font-size:11px;color:rgba(206,226,248,.72);
+  margin-left:8px;font-size:12.5px;color:rgba(206,226,248,.78);
   min-width:0;overflow:hidden;text-overflow:ellipsis;
 }
 #layer-legend .lg-band{
@@ -12822,8 +12827,7 @@ body.quiz-on #labels-canvas{display:none!important}
            切了教材/柯本之后不重算就还是上一套。 */
         ((name === 'climate') ? climRows() : (cfg.rows || [])).forEach(function (r) {
           /* 气候这块竖排成一列（lg-col）；柯本口径的组名长一档，多留 12px */
-          var cls = (name === 'climate')
-            ? ' lg-col' + (climExam ? '' : ' lg-k5') : '';
+          var cls = name === 'climate' ? ' lg-col' : '';
           h += '<div class="lg-line' + cls + '"><span class="lg-key">' + r[0] + '</span><span class="lg-grid">' +
                r[1].map(function (x) {
                  /* 气候这一块每一项都是按钮 —— 点一下球面上只留这一类，
@@ -12898,11 +12902,15 @@ body.quiz-on #labels-canvas{display:none!important}
         : LG.climate.koppenTex;
       lgLegend('climate');            // 先把 chips 与图例换成新口径
       loadTexFile(file, function (t) {
-        if (!t || !globe.earthMat) return;
-        try {
-          if (globe.renderer && globe.renderer.initTexture) globe.renderer.initTexture(t);
-        } catch (e) { /* 老版本 three 没有，交给首帧 */ }
+        if (!t || !globe.earthMat || climExam !== exam || lgCur !== 'climate') return;
         globe.earthMat.uniforms.uLayerMap.value = t;
+        /* 上传/生成 mipmap 很占主线程，挪到手停下来以后；
+           图例胶囊和列表在上面已经换完了，不会让用户干等。 */
+        whenIdle(function () {
+          try {
+            if (globe.renderer && globe.renderer.initTexture) globe.renderer.initTexture(t);
+          } catch (e) { /* 老版本 three 没有，交给首帧 */ }
+        });
         if (globe.syncBorderColor) globe.syncBorderColor();
         /* 旧气泡是按上一套口径算出来的类型名，留着会自相矛盾 */
         if (globe.clearPins) globe.clearPins('climate');
@@ -12999,29 +13007,29 @@ body.quiz-on #labels-canvas{display:none!important}
       if (globe.closeTools) globe.closeTools();
       /* 开图层的同时就把地形边界拉下来，别等用户点名字才开始 */
       if (globe.tShapeWarm) globe.tShapeWarm();
+      /* 先把不依赖贴图的 UI 全部切过去：工具抽屉、按钮按下态、图例、标签组。
+         原来这一整段都挤在贴图回调里，8K 下载 + 解码 + initTexture 动辄几百毫秒，
+         点下去什么都没变，用户只会以为按钮坏了。 */
+      lgCur = name;
+      globe.layerName = name;
+      climSolo = '';
+      climSoloApply();
+      lgLegend(name);
+      lgSync();
+      if (globe.refreshTActive) globe.refreshTActive();
+      if (globe.syncLabelLayers) globe.syncLabelLayers();
       lgLoad(name, function (t) {
-        if (!t || !globe.earthMat) return;
-        lgUpload(name);          // 用户主动点开，这一下就传，别让第一帧空着
-        /* 实验室的索引图只有 237KB，开图层时顺手拉下来 —— 否则第一次点图例
-           要等它下完，用户会以为"点了没反应"。 */
-        if (name === 'climate') climIdxLoad(function () {});
+        if (!t || !globe.earthMat || lgCur !== name) return;
         globe.earthMat.uniforms.uLayerMap.value = t;
-        lgCur = name;
-        globe.layerName = name;
-        /* 换图层（气候 ⇄ 地形）先清掉上一层的单类隔离 */
-        climSolo = '';
-        climSoloApply();
         /* 分区描边：只有气候层用；索引图已经在缓存里就当场打开 */
         globe.earthMat.uniforms.uEdgeOn.value =
           (name === 'climate' && climIdxTex) ? 1 : 0;
         lgFade(1, 380);
-        lgLegend(name);
-        lgSync();
+        /* 上传 8K 是一次几百毫秒的同步阻塞，挪到手停下来之后 ——
+           先让按钮和图例立刻给反馈，贴图随后淡入。 */
+        whenIdle(function () { lgUpload(name); });
+        if (name === 'climate') climIdxLoad(function () {});
         if (globe.syncBorderColor) globe.syncBorderColor();
-        if (globe.refreshTActive) globe.refreshTActive();
-        if (globe.syncLabelLayers) globe.syncLabelLayers();
-        /* 换了图层，气候/高度的气泡就作废了（同一个点问的已经是另一件事）。
-           时间气泡与图层无关，留着。 */
         if (globe.clearPins) { globe.clearPins('climate'); globe.clearPins('elev'); }
         if (globe.tShapeClear) globe.tShapeClear();
       });
@@ -13043,12 +13051,20 @@ body.quiz-on #labels-canvas{display:none!important}
           });
         });
       };
+      /* 第三批：切换口径要用的柯本贴图 + 实验室的索引图。
+         这两个原来都是"点下去才下"，柯本 763KB / 索引 237KB，
+         点切换时球面要空等一下；首屏空闲时提前拉好，切换就只是换 uniform。 */
+      var step3 = function () {
+        loadTexFile(LG.climate.koppenTex, function () {});
+        climIdxLoad(function () {});
+      };
       lgLoad('climate', function () {
         /* 两张 8K 贴图连着上传 = 连续两次几百毫秒的阻塞，中间照样是
            "卡一下、又卡一下"。上传各自等一次空闲，下载隔 800ms 错开。 */
         whenIdle(function () {
           lgUpload('climate');
           setTimeout(step2, 800);
+          setTimeout(step3, 1600);
         });
       });
     }
