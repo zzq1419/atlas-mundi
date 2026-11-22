@@ -2311,7 +2311,7 @@ body.quiz-on #labels-canvas{display:none!important}
   scrollbar-width:none;
   /* 12 类本来就放得下：让面板贴着内容收住，别在下面吊一截空底。
      窗口实在矮时才受 max-height 限制，此时由 lgFitExam 收紧行距。 */
-  height:auto;max-height:calc(100vh - 172px - env(safe-area-inset-top, 0px));
+  height:auto;max-height:calc(100vh - 60px - env(safe-area-inset-top, 0px));
 }
 #layer-legend.lg-exam12::-webkit-scrollbar{display:none}
 #layer-legend::-webkit-scrollbar{width:6px}
@@ -2384,7 +2384,8 @@ body.quiz-on #labels-canvas{display:none!important}
 #layer-legend.lg-ultratight .lg-line.lg-col + .lg-line.lg-col .lg-key{margin-top:3px}
 #layer-legend.lg-ultratight .lg-col .lg-grid{gap:0;padding-top:4px}
 #layer-legend .lg-col .lg-item{
-  width:100%;justify-content:flex-start;padding:8px 8px;border-radius:7px;
+  width:100%;justify-content:flex-start;padding:var(--rowpad, 8px) 8px;border-radius:7px;
+  margin-bottom:var(--rowgap, 0px);
   font-size:12.5px;line-height:1.35;
 }
 #layer-legend .lg-col .lg-item em{margin-left:auto;padding-left:10px;font-size:10.5px}
@@ -2674,7 +2675,7 @@ body.quiz-on #labels-canvas{display:none!important}
     left:calc(10px + env(safe-area-inset-left, 0px));
     top:calc(66px + env(safe-area-inset-top, 0px));
     width:min(228px, calc(100vw - 80px));
-    max-height:calc(100dvh - 172px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+    max-height:calc(100dvh - 60px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
   }
   body.panel-open #globe-stage{transform:translateY(-11%)}
   #footline{display:none}
@@ -12862,25 +12863,48 @@ body.quiz-on #labels-canvas{display:none!important}
     /* 教材那一栏是贴着内容收高度的，柯本 30 类放不下只能滚 ——
        但两栏的外框要一样长，不能切过去面板忽然长出一截。
        开气候层时先渲染教材，记下它的实际高度，切柯本时沿用。 */
-    var lgExamPanelH = 0, lgExamFit = '';
+    var lgExamPanelH = 0, lgExamFit = '', lgExamPad = '8px', lgExamGap = '0px';
     function lgFitExam() {
       if (!lgEl) return;
       lgEl.classList.remove('lg-tight', 'lg-xtight', 'lg-ultratight');
+      lgEl.style.setProperty('--rowpad', '8px');
+      lgEl.style.setProperty('--rowgap', '0px');
       if (lgCur !== 'climate') { lgEl.style.height = ''; return; }
+
+      /* 面板一直长到离左下工具栏 10px —— 把左边这块地方用满，
+         不再在底下空一大截。工具栏入口是实测出来的，比写死 vh 靠谱。 */
+      var tools = document.getElementById('tools-toggle');
+      var floorY = tools ? tools.getBoundingClientRect().top : window.innerHeight - 68;
+      var target = Math.max(240, Math.floor(floorY - 10 - lgEl.getBoundingClientRect().top));
+      lgEl.style.height = target + 'px';
+
       if (!climExam) {
-        if (lgExamPanelH) lgEl.style.height = lgExamPanelH + 'px';
-        /* 窗口矮的时候教材会自动收紧行距，柯本必须跟着收 ——
-           否则切过去每一行和悬停框都突然变大一圈。 */
         if (lgExamFit) lgEl.classList.add(lgExamFit);
+        lgEl.style.setProperty('--rowpad', lgExamPad);
+        lgEl.style.setProperty('--rowgap', lgExamGap);
         return;
       }
-      lgEl.style.height = '';
       if (lgEl.scrollHeight > lgEl.clientHeight) lgEl.classList.add('lg-tight');
       if (lgEl.scrollHeight > lgEl.clientHeight) lgEl.classList.add('lg-xtight');
       if (lgEl.scrollHeight > lgEl.clientHeight) lgEl.classList.add('lg-ultratight');
       lgExamFit = lgEl.classList.contains('lg-ultratight') ? 'lg-ultratight'
                 : (lgEl.classList.contains('lg-xtight') ? 'lg-xtight'
                 : (lgEl.classList.contains('lg-tight') ? 'lg-tight' : ''));
+      /* 把多出来的高度退回给条目间距：12 项铺到面板底部，
+         不再让最后一项和工具栏之间空一大块。收紧档位下也照样适用。 */
+      /* 内容比面板短时 scrollHeight 会被浏览器钳到 clientHeight，量不出余量，
+         所以直接量最后一个条目的实际底边。 */
+      var items = lgEl.querySelectorAll('.lg-pick');
+      var n = items.length, extra = 0;
+      if (n) {
+        var padB = parseFloat(getComputedStyle(lgEl).paddingBottom) || 0;
+        var contentBottom = items[n - 1].getBoundingClientRect().bottom -
+                            lgEl.getBoundingClientRect().top - padB;
+        extra = Math.max(0, lgEl.clientHeight - contentBottom - 14);
+      }
+      lgEl.style.setProperty('--rowgap', (extra > 2 && n) ? Math.max(0, Math.floor(extra / n)) + 'px' : '0px');
+      lgExamPad = lgEl.style.getPropertyValue('--rowpad') || '8px';
+      lgExamGap = lgEl.style.getPropertyValue('--rowgap') || '0px';
       lgExamPanelH = lgEl.offsetHeight;
     }
     if (window.addEventListener) window.addEventListener('resize', lgFitExam);
