@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-22-EO">
+<meta name="build" content="2026-11-22-EP">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -6754,6 +6754,9 @@ body.climate-layer-on #tools{z-index:44}
     raf: 0,
     labels: null,
     nightTarget: 0,       // 0=昼夜，1=全夜
+    /* （验收用）把 globe 暴露出去，方便用无头浏览器按帧采样 uTermOn / 自转，
+       和 window.__solarDbg 同一用途，不影响运行时行为。 */
+    __dbg: 0,
     texReady: false,
     fadeStart: 0,         // 淡入起点（performance.now），0 表示已完成
     fadeDone: false,      // 淡入动画彻底结束（见 whenFaded）
@@ -6853,6 +6856,8 @@ body.climate-layer-on #tools{z-index:44}
     out.set(-r * sp * Math.cos(theta), r * Math.cos(phi), r * sp * Math.sin(theta));
     return out;
   }
+
+  window.__globe = globe;      // （验收用）控制台/无头脚本可直接读状态
 
   /* 把一条边按 ≤2° 插值成折线，避免弦切进球体 */
   function pushEdge(a, b, r, arr) {
@@ -11411,6 +11416,11 @@ body.climate-layer-on #tools{z-index:44}
         if (globe.term) {
           var keepTerm = !s.termOff;
           globe.term.on = keepTerm;
+          /* 主模式的缓动状态必须跟着钉住：否则回到主模式时 mix 还是进太阳系
+             之前的旧值，会把刚写好的 uniform 拉回去再铺一遍（一次多余的整套
+             昼夜动画）。t0 置空 = 下一次开关从当前值重新起跑。 */
+          globe.term.mix = keepTerm ? 1 : 0;
+          globe.term.t0 = null;
           if (globe.earthMat) {
             globe.earthMat.uniforms.uTermOn.value = keepTerm ? 1 : 0;
             /* 夜面补光是给"缩到四十像素的小球"用的，主模式必须是 0 */
@@ -12397,16 +12407,43 @@ body.climate-layer-on #tools{z-index:44}
 
       /* 帧率无关的指数逼近：60fps 下系数 0.12，144fps 下自动变小，
          否则高刷屏上"飞近国家"会瞬间到位、看不到过程。 */
-      /* 昼夜分界缓动：约 1.1 秒铺满，和转场的节奏一致 */
+      /* 昼夜分界缓动：固定 1.9 秒的时间轴，easeInOutCubic 收尾。
+         原来是指数逼近（每帧乘 0.975）——数学上永远差最后一点，末段每帧位移
+         已经小于一个像素，只能靠"差 < 0.002 就吸附到目标"来结束。那一下吸附
+         就是用户看到的"速度都趋近 0 了，还快速跳了一小步"：眼睛已经认定它停了，
+         最后这一下反而成了唯一的可见位移。
+         时间轴在 p=1 时**精确等于**目标值，之后不再写 uniform，没有残余步。 */
       if (!globe.solarOn && globe.earthMat && globe.term) {
-        var tgT = globe.term.on ? 1 : 0;
-        var mxT = (typeof globe.term.mix === 'number') ? globe.term.mix : tgT;
-        /* dtf 必须截断：掉帧时 dtf 可能是 18，一步就跳 36%，看起来就是"最后猛跳一下" */
-        var kT = Math.min(2.5, dtf);
-        mxT += (tgT - mxT) * (1 - Math.pow(0.975, kT));   // 约 2 秒铺满
-        if (Math.abs(tgT - mxT) < 0.002) mxT = tgT;
-        globe.term.mix = mxT;
-        globe.term.anim = Math.abs(tgT - mxT) > 0.01;
+        var Tg = globe.term;
+        var tgT = Tg.on ? 1 : 0;
+        var mxT = (typeof Tg.mix === 'number') ? Tg.mix : tgT;
+        /* 起跑点 / 目标变了（首次、或中途反向）就从**当前值**重新起跑：
+           from 取 mxT 而不是 0/1，所以反转时不会有一下突跳。 */
+        if (typeof Tg.t0 !== 'number' || Tg.goal !== tgT) {
+          Tg.t0 = nowMs; Tg.from = mxT; Tg.goal = tgT; Tg.lastMs = nowMs;
+          /* 起手就已经在目标上（首屏、或连点两下回到原态）：不用播，
+             否则白白占掉 1.9 秒，还连带把 8K 上传往后推。 */
+          Tg.acc = (mxT === tgT) ? 1900 : 0;
+          /* 动画期间（含中途反向）先别让 8K 上传，走完那一刻再落到真实时刻 */
+          Tg.settleAt = (mxT === tgT) ? 0 : Infinity;
+        }
+        /* 按"有效时间"累计而不是墙钟：单帧最多算 50ms。
+           掉一帧（切标签页、纹理上传、系统卡顿）时，墙钟会一次差好几百毫秒，
+           阴影一步跨掉十分之一，眼睛看到的又是一次小跳。压低单帧上限后，
+           动画只会"稍微走长一点"，但每一帧的位移都连续。 */
+        var dStep = nowMs - (Tg.lastMs || nowMs);
+        Tg.lastMs = nowMs;
+        Tg.acc = (Tg.acc || 0) + Math.max(0, Math.min(50, dStep));
+        var pr = Math.min(1, Tg.acc / 1900);
+        var pe = pr < 0.5 ? 4 * pr * pr * pr
+                          : 1 - Math.pow(-2 * pr + 2, 3) / 2;   // easeInOutCubic
+        mxT = Tg.from + (tgT - Tg.from) * pe;
+        if (pr >= 1) mxT = tgT;                                 // 精确落位
+        Tg.mix = mxT;
+        /* 只在"刚刚走完"那一帧记下停稳时刻（每帧都写会让 8K 永远等不到）。 */
+        var wasAnim = Tg.anim;
+        Tg.anim = pr < 1;
+        if (wasAnim && !Tg.anim) Tg.settleAt = nowMs;
         globe.earthMat.uniforms.uTermOn.value = mxT;
       }
 
@@ -12434,8 +12471,13 @@ body.climate-layer-on #tools{z-index:44}
          否则用户拖到一半正好命中上传，就是"拖拽途中卡一下"。 */
       /* 淡入没播完就别挂：5.2 秒超时之后球才开始浮出来，8K 恰好在这时到 ——
          一次 134MB 的 texImage2D 落在动画中间，就是最明显的那一下卡。 */
+      /* 昼夜阴影停稳之后还要再等 1.2 秒才让 8K 上传：一次 134MB 的
+         texImage2D 会卡掉几十~几百毫秒，如果正好落在阴影"刚刚停住"那一帧，
+         用户看到的就是"明明已经停了又跳一下"（成因与缓动本身无关，
+         是这帧掉帧后自转/惯性补步造成的）。 */
       if (globe.tex8kReady && globe.fadeDone && !globe.dragging && !globe.flying &&
-          !(globe.term && globe.term.anim) &&          /* 昼夜动画播放时不传 8K，避免卡一帧 */
+          !(globe.term && (globe.term.anim ||
+            (globe.term.settleAt && nowMs - globe.term.settleAt < 1200))) &&
           nowMs - (globe.lastInput || 0) > 900) bind8k();
 
       if (globe.earthMat) {
@@ -12634,11 +12676,22 @@ body.climate-layer-on #tools{z-index:44}
   (function bindTools() {
     var bni = document.getElementById('btn-night');
     if (bni) {
-      bni.addEventListener('click', function () {
-        globe.nightTarget = globe.nightTarget > 0.5 ? 0 : 1;
-        var on = globe.nightTarget > 0.5;
+      /* 夜晚模式：整颗球切成夜景贴图（城市灯光）。
+         和"昼夜分界"是互斥的两套东西 —— 都开着的话 nightK 被
+         mix(day,night,nightK) 取成 1，晨昏线根本看不见，按钮却还亮着，
+         用户会以为分界线坏了。所以任何一方打开都把另一方关掉。 */
+      var setNightOn = function (on) {
+        globe.nightTarget = on ? 1 : 0;
         bni.classList.toggle('on', on);
+        bni.setAttribute('aria-pressed', on ? 'true' : 'false');
         __setTip(bni, on ? '回到白天模式' : '切换到夜晚模式');
+      };
+      /* 给昼夜分界按钮用（跨闭包，挂到 globe 上） */
+      globe.setNightOn = setNightOn;
+      bni.addEventListener('click', function () {
+        var on = !(globe.nightTarget > 0.5);
+        setNightOn(on);
+        if (on && globe.term && globe.term.on && globe.setTermOn) globe.setTermOn(false);
         if (window.__tipHide) window.__tipHide();
       });
     }
@@ -15082,9 +15135,9 @@ body.climate-layer-on #tools{z-index:44}
       var elOpts = document.getElementById('quiz-opts');
       var elFb = document.getElementById('quiz-fb');
       var elNext = document.getElementById('quiz-next');
-      var elScore = document.getElementById('quiz-score');
+      var elScore = document.getElementById('quiz-score');
       var elHint = document.getElementById('quiz-hint');
-      var QUIZ_N = 5;
+      var QUIZ_N = 5;
       var QUIZ_HINT = {"CN":"长城与京杭大运河都是两千年前就动工的巨型工程","IN":"恒河被当作圣河，沿岸城市清晨都有人下河沐浴","US":"五十个州横跨四个时区，大峡谷与黄石都在境内","ID":"一万七千多座岛屿横跨赤道，火山数量全球最多","PK":"印度河自北向南贯穿全境，灌溉出大片棉田","BR":"亚马孙雨林的大半在境内，狂欢节每年吸引全球游客","NG":"非洲人口最多，石油与诺莱坞电影同时出名","BD":"两条大河在此汇成三角洲，雨季有大半国土被淹","RU":"横跨十一个时区，贝加尔湖储着全球两成淡水","MX":"玉米最早在这里被驯化，玛雅与阿兹特克遗址遍布","JP":"樱花季从南往北推进，新干线把本州串成一条线","ET":"咖啡的原产地，东非大裂谷从境内穿过","PH":"七千多座岛屿，台风每年从太平洋在此登陆","EG":"尼罗河两岸之外全是沙漠，金字塔已矗立四千多年","VN":"湄公河三角洲的稻田一年三熟，国土狭长贴海","TR":"一条海峡把国土分成欧亚两半，棉花堡是温泉钙华","DE":"莱茵河沿岸的葡萄园与城堡，汽车工业闻名","IR":"波斯波利斯的石阶上刻着两千五百年前的使节队伍","TH":"湄南河平原的水稻一年三熟，佛寺遍布城乡","FR":"面包、奶酪与葡萄酒是餐桌的三大骨架","GB":"工业革命从这里的煤矿与纺织厂开始","IT":"靴形半岛上的火山与古城，文艺复兴从佛罗伦萨发端","ZA":"两洋在好望角交汇，黄金与钻石矿深达数千米","TZ":"乞力马扎罗山顶终年积雪，草原上角马年年迁徙","MM":"伊洛瓦底江边立着上千座佛塔，清晨有热气球升空","KE":"东非大裂谷纵贯南北，角马每年在马拉河涉水","KR":"造船与半导体撑起出口，首都圈住着一半人口","CO":"咖啡带沿安第斯山坡铺开，鲜花出口居世界第二","ES":"南部的安达卢西亚是斗牛与弗拉门戈的故乡","AR":"潘帕斯草原上牧牛，探戈从港口区兴起","UA":"黑土地占国土大半，素有欧洲粮仓之称","UG":"尼罗河从维多利亚湖流出，源头就在境内","DZ":"撒哈拉占国土八成，天然气经海底管道输往欧洲","SD":"青尼罗河与白尼罗河在首都汇成一条大河","IQ":"两河之间的美索不达米亚，楔形文字在此发明","AF":"兴都库什山把国土切成南北两半，巴米扬曾有巨佛","PL":"维斯瓦河贯穿全境，肖邦的曲子多写于异乡","CA":"国土面积全球第二，落基山与极光都在境内","MA":"阿特拉斯山的雪水养出柑橘，蓝色小镇贴在山脚","SA":"石油产量长期居前列，麦加每年迎千万朝觐者","UZ":"撒马尔罕的蓝色穹顶曾是丝路商队的中转站","PE":"安第斯山脊上的印加石城，西侧海面是著名渔场","MY":"马六甲海峡最窄处在此，棕榈园连成一片","AO":"大西洋沿岸产油，内陆高原种咖啡","GH":"黄金海岸之名来自殖民时代的金矿，可可出口居前","MZ":"印度洋海岸线绵长，一条海峡以国名命名","YE":"沙漠高原上的泥土高楼有数百年，咖啡最早从这里外销","NP":"珠峰南坡在此，山地占国土七成","VE":"安赫尔瀑布落差近千米，石油储量居世界前列","MG":"岛上的狐猴与猴面包树在别处见不到","CM":"火山与雨林并存，足球在非洲赛场常被提起","CI":"可可产量全球第一，内陆小城曾是殖民时期首都","KP":"半岛北部的山地国家，语言与南方相通","AU":"大堡礁沿岸绵延两千公里，内陆是红色荒漠","NE":"撒哈拉南缘，一条大河在西南角拐过","LK":"印度洋上的泪滴形岛屿，红茶与宝石出名","BF":"旱季漫长，两年一届的电影节在首都举办","ML":"大河在此拐出大弯，廷巴克图的泥砖清真寺曾藏大量手稿","RO":"喀尔巴阡山环抱特兰西瓦尼亚，多瑙河在境内入海","CL":"南北长四千多公里，北部的沙漠是地球上最干的地方之一","MW":"境内大湖占国土五分之一，烟草与渔业是主业","KZ":"草原辽阔，拜科努尔是早期航天发射场","ZM":"一条大河上的瀑布宽近两公里，水雾几十公里外可见","EC":"赤道穿过国土，以西的群岛因达尔文闻名","NL":"四分之一国土低于海平面，靠堤坝与风车排水","SY":"首都号称世界上连续有人居住最久的城市之一","GT":"火山与雨林间的玛雅遗迹，金字塔高过树冠","KH":"吴哥窟的石雕廊道长达数百米，大湖与湄公河相连","SN":"大西洋沿岸的渔港，戈雷岛曾是大西洋奴隶贸易的中转站","TD":"内陆湖在干旱中不断缩小，北部是高原山地","ZW":"石头城遗址的石墙没有用一点灰浆","GN":"西非多条大河从这里发源，铝土矿储量居首","RW":"千丘之国，火山公园里护着山地大猩猩","BJ":"海岸外的古王国以青铜浮雕闻名","TN":"迦太基遗址在临海的山坡，北部种橄榄与小麦","BI":"大湖东岸的山地小国，咖啡是主要出口","BO":"高原上的盐湖雨季变成镜面，海拔四千米仍有人住","BE":"巧克力与啤酒种类繁多，欧盟机构设在首都","CU":"蔗糖与雪茄是传统出口，老城区全是彩色骑楼","HT":"加勒比岛国，法语与克里奥尔语并用","SS":"白尼罗河穿过的沼泽湿地，二〇一一年才独立","DO":"加勒比岛屿，蔗糖与度假海滩是两大产业","GR":"半岛与群岛组成，白色神庙的石柱立在岬角","CZ":"首都的查理大桥连着百塔之城","SE":"北方针叶林与群岛，家具品牌从这里走向世界","PT":"大西洋边的航海起点，瓷砖壁画贴满墙面","SO":"非洲之角，海岸线在非洲最长","JO":"峡谷里藏着玫瑰色石城，死海沿岸是陆地最低点","AZ":"里海西岸的石油城，火庙因地下天然气自燃","AE":"沙漠中长出高楼群，石油与转口贸易并重","HU":"多瑙河把首都分成布达与佩斯两半","HN":"中美洲山地，咖啡与香蕉是主要出口","BY":"平原与沼泽遍布，森林覆盖四成","TJ":"帕米尔高原的大部分在境内，海拔落差极大","IL":"死海西岸，滴灌让沙漠里种出果蔬","AT":"阿尔卑斯山下，音乐厅比银行还多","PG":"岛上语言七百多种，山地部落曾用贝壳交易","CH":"阿尔卑斯山中的永久中立国，钟表与银行出名","TG":"几内亚湾沿岸的狭长国土，磷酸盐是主要出口","SL":"大西洋岸的天然良港，钻石曾引发内战","LA":"湄公河沿岸的内陆国，雨季河水漫上河滩","PY":"两河之间的内陆国，与邻国共有一座巨型水电站","BG":"巴尔干山与黑海海岸，玫瑰油产量全球第一","RS":"多瑙河穿过首都，东正教修道院散布南部","LB":"雪松是国树，山地把国土分成沿海与内陆","LY":"撒哈拉占国土九成，石油出口撑起经济","NI":"湖泊与火山并存，一条运河的设想屡被提起","KG":"天山南北的牧场，高山湖终年不冻","SV":"中美洲面积最小的国家，火山地震频繁","ER":"红海沿岸，一九九三年独立","TM":"沙漠中的天然气坑被点燃后烧了五十多年","DK":"半岛与众多岛屿组成，风电占比全球领先","SG":"城市岛国，港口吞吐量长期居世界前列","FI":"湖泊与森林，冬季北部有极光","SK":"喀尔巴阡山间的城堡，汽车组装业发达","CD":"雨林面积居非洲首位，大河下游的水能蕴藏量世界前列","CG":"赤道穿过的雨林，首都隔河与邻国相望","NO":"峡湾与北海油田，冬季沿海有极光","CR":"火山与云雾林，没有常备军队"};
       var quiz = { pool: [], queue: [], right: 0, total: 0, answer: null,
                    borderIso: null, locked: true, finished: false };
@@ -15149,7 +15202,7 @@ body.climate-layer-on #tools{z-index:44}
         if (elOpts) elOpts.innerHTML = '';
         if (elFb) elFb.innerHTML = '';
         if (elNext) { elNext.hidden = true; elNext.textContent = '下一题 →'; }
-        if (elAsk) elAsk.textContent = '正在抽取国家…';
+        if (elAsk) elAsk.textContent = '正在抽取国家…';
         if (elHint) elHint.hidden = true;
         getMeta(function (meta) {
           if (!open) return;                 // 面板已经关了，别再往下跑
@@ -15253,7 +15306,7 @@ body.climate-layer-on #tools{z-index:44}
         clearBorder();
         quiz.locked = true; quiz.finished = true;
         if (elOpts) elOpts.innerHTML = '';
-        if (elAsk) elAsk.textContent = '本轮 ' + QUIZ_N + ' 题已完成';
+        if (elAsk) elAsk.textContent = '本轮 ' + QUIZ_N + ' 题已完成';
         if (elHint) elHint.hidden = true;
         if (elFb) {
           elFb.innerHTML = '';
@@ -15460,6 +15513,9 @@ body.climate-layer-on #tools{z-index:44}
         btm.setAttribute('aria-pressed', T.on ? 'true' : 'false');
         __setTip(btm, T.on
           ? '关闭昼夜分界' : '按此刻的太阳位置分出昼夜两半');
+        /* 互斥：整球都是夜景时晨昏线是画不出来的，先把夜晚模式关掉。
+           放在"材质就绪"判断之前 —— 首屏几秒内点也可能发生。 */
+        if (T.on && globe.nightTarget > 0.5 && globe.setNightOn) globe.setNightOn(false);
         if (T.on && globe.setSpinWanted) globe.setSpinWanted(false);
         if (!globe.earthMat) return;
         /* 太阳系里这个按钮是**被代管**的（进去时自动点亮，见 solarToggle）。
