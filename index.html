@@ -2294,7 +2294,7 @@ body.quiz-on #labels-canvas{display:none!important}
   max-height:calc(100vh - 92px - env(safe-area-inset-top, 0px));
   overflow-y:auto;overflow-x:hidden;
   overscroll-behavior:contain;scrollbar-width:thin;
-  scrollbar-color:rgba(140,175,220,.4) transparent;
+  scrollbar-color:rgba(140,175,220,.16) transparent;
   background:rgba(7,15,27,.88);
   border:1px solid rgba(150,185,230,.24);
   box-shadow:0 14px 34px rgba(0,0,0,.5);
@@ -2304,7 +2304,14 @@ body.quiz-on #labels-canvas{display:none!important}
   transition:opacity .28s ease,transform .28s ease;
 }
 #layer-legend::-webkit-scrollbar{width:6px}
-#layer-legend::-webkit-scrollbar-thumb{background:rgba(140,175,220,.4);border-radius:3px}
+/* 滚动条平时几乎看不见；鼠标移到面板上（或正拖着）才浮出来 */
+#layer-legend::-webkit-scrollbar-thumb{
+  background:rgba(140,175,220,.16);border-radius:3px;
+  transition:background .18s;
+}
+#layer-legend:hover::-webkit-scrollbar-thumb,
+#layer-legend:active::-webkit-scrollbar-thumb{background:rgba(140,175,220,.42)}
+#layer-legend::-webkit-scrollbar-thumb:active{background:rgba(140,175,220,.62)}
 #layer-legend.on{opacity:1;transform:none;pointer-events:auto}
 /* 标题（口径胶囊 + 关闭）吸顶：柯本 30 类要滚的时候也能随时换口径/关掉 */
 #layer-legend .lg-head{
@@ -2368,16 +2375,18 @@ body.quiz-on #labels-canvas{display:none!important}
   color:rgba(168,196,224,.72);
 }
 /* ---------- 气候实验室：图例项即按钮 ----------
-   默认长得和原来完全一样（色块 + 名字），hover 才露出"可以点"的样子。
-   选中态必须三件事一起变：文字转金、内底转暖、描边转金加粗 ——
-   在这层玻璃底上只改一处，用户根本看不出哪一项是按下的。 */
+   默认和文字一样安静；hover / 选中都是"压深"，不做任何提亮 ——
+   浅底一闪再变深太跳，而且会抢球面上的配色。选中另外多一条本色细线。 */
 #layer-legend .lg-pick{
   border:1px solid transparent;background:transparent;border-radius:6px;
   padding:1px 5px 1px 4px;margin:-1px 0;font:inherit;cursor:pointer;
-  transition:background .16s,border-color .16s,color .16s;
+  transition:background .14s,border-color .14s;
 }
-#layer-legend .lg-pick:hover{background:rgba(150,190,235,.14);border-color:rgba(150,190,235,.34)}
-#layer-legend .lg-pick:focus-visible{outline:none;border-color:rgba(150,190,235,.6)}
+#layer-legend .lg-pick:hover,#layer-legend .lg-pick:focus-visible{
+  outline:none;
+  background:linear-gradient(180deg,rgba(2,6,13,.62),rgba(2,6,13,.32));
+  border-color:rgba(150,185,230,.14);
+}
 /* 选中态：不用金色，也不让它变亮 —— 直接把这一行压深（比面板底色更沉），
    左边留一条这一类的本色细线。看着像"这一格按了下去"，球面上的配色不受干扰。 */
 #layer-legend .lg-pick.on{
@@ -2395,12 +2404,15 @@ body.quiz-on #labels-canvas{display:none!important}
   background:rgba(150,185,230,.10);
 }
 #layer-legend .lg-mode button{
-  border:0;background:transparent;color:rgba(190,214,240,.7);
+  border:1px solid transparent;background:transparent;color:rgba(190,214,240,.7);
   font:inherit;font-size:10.5px;line-height:1.3;padding:2px 7px;
-  border-radius:5px;cursor:pointer;transition:background .16s,color .16s;
+  border-radius:5px;cursor:pointer;transition:background .14s,border-color .14s,color .14s;
 }
-#layer-legend .lg-mode button:hover{color:#e8f3ff}
-#layer-legend .lg-mode button.on{background:rgba(150,190,235,.24);color:#f4f9ff}
+/* 口径胶囊跟图例行同一套语言：按下、悬停都压深，不提亮 */
+#layer-legend .lg-mode button:hover,#layer-legend .lg-mode button.on{
+  background:linear-gradient(180deg,rgba(2,6,13,.78),rgba(2,6,13,.44));
+  border-color:rgba(150,185,230,.16);color:#f4f9ff;
+}
 /* 柯本模式的图例只标代码（Af / BSk / Dwa），全名在 title 里 */
 #layer-legend .lg-code{font-size:11px;letter-spacing:.02em;cursor:help}
 /* 柯本竖排一项一行，300px 有地方了：代码后面补中文名，学生不用背代码 */
@@ -2421,7 +2433,8 @@ body.quiz-on #labels-canvas{display:none!important}
   color:rgba(164,192,220,.62);font-size:10px;line-height:1.5;
 }
 @media (max-width:760px){
-  #layer-legend{right:10px;bottom:24px;width:232px;padding:10px 11px 9px;font-size:11.5px}
+  /* 左栏的位置/高度由上面的移动端规则统一给，这里只管字号 */
+  #layer-legend{padding:10px 11px 9px;font-size:11.5px}
   #layer-legend .lg-key{flex-basis:34px;font-size:11px}
   #layer-legend .lg-item{font-size:11px}
   #layer-legend .lg-item i{width:11px;height:11px}
@@ -7439,6 +7452,8 @@ body.quiz-on #labels-canvas{display:none!important}
          当遮罩用，选中的类保持原色、其余压到 10% 透出来当参照。
          uSoloOn = 0 时整段不参与计算，行为和没有这个功能之前一模一样。 */
       uLayerIdx: { value: null },
+      uIdxPx: { value: new THREE.Vector2(1 / 4096, 1 / 2048) },
+      uEdgeOn: { value: 0 },
       uSoloOn: { value: 0 },
       uSoloN: { value: 0 },
       uSoloH: { value: 0 },
@@ -7495,6 +7510,8 @@ body.quiz-on #labels-canvas{display:none!important}
       'uniform sampler2D uLayerMap;',
       'uniform float uLayerMix;',
       'uniform sampler2D uLayerIdx;',
+      'uniform vec2 uIdxPx;',
+      'uniform float uEdgeOn;',
       'uniform float uSoloOn;',
       'uniform float uSoloN;',
       'uniform float uSoloH;',
@@ -7538,9 +7555,14 @@ body.quiz-on #labels-canvas{display:none!important}
          在光来的那一侧加一块小而亮的高光（Blinn-Phong，指数 46 = 很紧的一点）。
          这是"球是立体的"最有效的暗示 —— 一块会移动的亮斑，
          比任何明暗渐变更像真的。 */
+      /* 放大到低分辨率贴图不够用的时候（tpp 很小、8K 又还没接上），
+         sea 遮罩是从低清图上按方块取出来的，海面高光会变成一块带像素格子的
+         "黑影方块"贴在球上（转到左栏背后尤其明显）。这时把高光收掉，
+         等 tpp 变大或 8K 接上再恢复 —— 高光只是立体感的点缀，不值得留个方块。 */
       '  float sea = smoothstep(0.012, 0.075, day.b - day.r);',
       '  vec3 Hv = normalize(Lv + v);',
-      '  float spec = pow(max(dot(n, Hv), 0.0), uSpecPow) * sea * uSpec;',
+      '  float specGate = max(smoothstep(2.0, 4.5, tpp), k);',
+      '  float spec = pow(max(dot(n, Hv), 0.0), uSpecPow) * sea * uSpec * mix(0.08, 1.0, specGate);',
       '  day += vec3(0.42, 0.56, 0.78) * spec;',
       /* ---------- 地形法线（起伏） ----------
          贴图本身是"平"的：山脉和沙漠一样亮，只能靠颜色区分。
@@ -7626,7 +7648,12 @@ body.quiz-on #labels-canvas{display:none!important}
          高原山地（H）在教材口径里不是柯本类别，是构建时烘在 G 通道的标记：
          选它时按 G 判，选别的类时把高原像素排除掉（否则青藏高原会因为
          R 上仍是 Dwc 而被算进亚寒带针叶林里）。 */
-      '    float soloK = 1.0;',
+      '    vec3 layerCol = s2l(lc.rgb);',
+      /* ---------- 单类隔离（气候实验室） ----------
+         索引图给的是每个像素的柯本序号。选中一类时**不退回卫星底图**：
+         整张气候图还在，选中的保持原色，其余洗到很淡的浅色（像地图册的
+         淡底），这一类的分布一眼就能从满球淡色里挑出来。
+         高原山地（H）在教材口径里不是柯本类别，是构建时烘在 G 通道的标记。 */
       '    if (uSoloOn > 0.5) {',
       '      vec4 ix = texture2D(uLayerIdx, vUv);',
       '      float cid = floor(ix.r * 255.0 + 0.5);',
@@ -7640,9 +7667,35 @@ body.quiz-on #labels-canvas{display:none!important}
       '        }',
       '        if (uSoloExam > 0.5 && gpl > 127.5) hit = 0.0;',
       '      }',
-      '      soloK = mix(0.10, 1.0, hit);',
+      '      layerCol = mix(mix(layerCol, vec3(1.0), 0.78), layerCol, hit);',
       '    }',
-      '    col = mix(col, s2l(lc.rgb) * limb, lc.a * uLayerMix * soloK);',
+      /* ---------- 分区描边 ----------
+         旧版气候图每块之间有细细的深色线，边界很清楚。新版贴图为了远景不闪
+         用了线性+ mipmap，线被糊掉了 —— 这里直接从索引图判相邻像素是否同类，
+         在两类之间压一条 1px 左右的深色线（跨换日线由 ClampToEdge 兜住）。 */
+      '    if (uEdgeOn > 0.5) {',
+      '      vec2 ex = uIdxPx;',
+      '      float edgeFade = smoothstep(0.35, 1.2, tpp);',
+      '      vec4 i0 = texture2D(uLayerIdx, vUv);',
+      '      float c0 = floor(i0.r * 255.0 + 0.5);',
+      '      float g0 = step(127.5, i0.g * 255.0);',
+      '      float edge = 0.0;',
+      '      vec4 ep;',
+      '      ep = texture2D(uLayerIdx, vUv + vec2(ex.x, 0.0));',
+      '      if (abs(floor(ep.r * 255.0 + 0.5) - c0) > 0.5 ||',
+      '          abs(step(127.5, ep.g * 255.0) - g0) > 0.5) edge = 1.0;',
+      '      ep = texture2D(uLayerIdx, vUv - vec2(ex.x, 0.0));',
+      '      if (abs(floor(ep.r * 255.0 + 0.5) - c0) > 0.5 ||',
+      '          abs(step(127.5, ep.g * 255.0) - g0) > 0.5) edge = 1.0;',
+      '      ep = texture2D(uLayerIdx, vUv + vec2(0.0, ex.y));',
+      '      if (abs(floor(ep.r * 255.0 + 0.5) - c0) > 0.5 ||',
+      '          abs(step(127.5, ep.g * 255.0) - g0) > 0.5) edge = 1.0;',
+      '      ep = texture2D(uLayerIdx, vUv - vec2(0.0, ex.y));',
+      '      if (abs(floor(ep.r * 255.0 + 0.5) - c0) > 0.5 ||',
+      '          abs(step(127.5, ep.g * 255.0) - g0) > 0.5) edge = 1.0;',
+      '      layerCol = mix(layerCol, vec3(0.035, 0.055, 0.085), edge * 0.62 * edgeFade);',
+      '    }',
+      '    col = mix(col, layerCol * limb, lc.a * uLayerMix);',
       '  }',
       '  gl_FragColor = vec4(l2s(col) * uFade, 1.0);',
       '}'
@@ -7799,7 +7852,7 @@ body.quiz-on #labels-canvas{display:none!important}
       });
       globe.tlabels.push({
         el: node, name: d.n, lon: d.lon, lat: d.lat, z: d.z || 4,
-        kind: d.k, pri: d.z || 4, tap: true,
+        kind: d.k, terrain: true, pri: d.z || 4, tap: true,
         v: new THREE.Vector3(), w: node.offsetWidth, h: node.offsetHeight, on: false
       });
     });
@@ -8188,7 +8241,15 @@ body.quiz-on #labels-canvas{display:none!important}
       /* 滞回：已经显示出来的标签，要掉到门槛以下 0.09 才撤。
          没有这条时，飞行中 nz 连续变化，边缘的小国会一帧显示一帧隐藏，
          屏幕上就是一片乱闪。 */
-      else show = nzEff >= L.z - (L.on ? 0.09 : 0.03);
+      else {
+        /* 地形名（山脉 / 河流 / 高原 / 盆地 …）要放大一些才露头：
+           它们的 z 只有 1~6，聚焦时 nzEff 会被 centerBoost 顶高 2 档，
+           一进图层就"撒哈拉、黄河、阿尔卑斯"全冒出来，太急。
+           这里把门槛整体抬 1.2 档，并把聚焦加成压到 35%。 */
+        var zEff = L.terrain ? (L.z || 4) + 1.2 : L.z;
+        var nEff = L.terrain ? (nz + centerBoost * 0.35) : nzEff;
+        show = nEff >= zEff - (L.on ? 0.09 : 0.03);
+      }
       if (!show) { hideLabel(L); continue; }
 
       /* 只留"正对镜头的那一面"。之前阈值 0.14 太松，球edge一圈的国家名
@@ -12573,6 +12634,13 @@ body.quiz-on #labels-canvas{display:none!important}
           t.generateMipmaps = false;
           t.needsUpdate = true;
           climIdxTex = t;
+          if (globe.earthMat && t.image && t.image.width) {
+            globe.earthMat.uniforms.uIdxPx.value.set(1 / t.image.width, 1 / t.image.height);
+          }
+          /* 描边只在气候层开着时参与；索引图到位再打开，避免采样器空着闪一下 */
+          if (lgCur === 'climate' && globe.earthMat) {
+            globe.earthMat.uniforms.uEdgeOn.value = 1;
+          }
           cb(t);
         }, undefined, next);
       })();
@@ -12745,7 +12813,10 @@ body.quiz-on #labels-canvas{display:none!important}
       if (!lgEl) return;
       var cfg = name ? LG[name] : null, h = '';
       if (cfg) {
-        h += '<div class="lg-head"><span class="lg-title">' + cfg.title + '</span>' +
+        /* 出处不放成面板底部那行小字：既像提示语、又白占一栏高度。
+           挪到标题的 title 上，想查的人自己悬停。 */
+        var srcTxt = (name === 'climate' && !climExam) ? cfg.koppenSrc : cfg.src;
+        h += '<div class="lg-head"><span class="lg-title" title="' + srcTxt + '">' + cfg.title + '</span>' +
              (name === 'climate' ? climChips() : '') +
              '<button class="lg-close" type="button" aria-label="关闭图例">×</button></div>';
         /* climate 的图例要按当前口径现算：rows 是在 LG 初始化时求值的静态数组，
@@ -12774,8 +12845,7 @@ body.quiz-on #labels-canvas{display:none!important}
           h += '<div class="lg-band" style="background:linear-gradient(90deg,' + cfg.band.join(',') + ')"></div>';
           h += '<div class="lg-ticks">' + cfg.ticks.map(function (t) { return '<span>' + t + '</span>'; }).join('') + '</div>';
         }
-        h += '<div class="lg-src">' +
-             (name === 'climate' && !climExam ? cfg.koppenSrc : cfg.src) + '</div>';
+        /* 底部不再摆出处文字，见标题 title */
       }
       if (ocOn) h += ocLegendHTML();
       if (mnOn) h += mnLegendHTML();
@@ -12852,7 +12922,7 @@ body.quiz-on #labels-canvas{display:none!important}
 
     function ocLegendHTML() {
       var h = '';
-      h += '<div class="lg-head oc-head"><span class="lg-title">洋流</span></div>';
+      h += '<div class="lg-head oc-head"><span class="lg-title" title="22 支常年洋流 · 北印度洋随季风换向；春秋转换期方向不定，暂略去">洋流</span></div>';
       h += '<div class="lg-line"><span class="lg-key">暖流</span><span class="lg-grid">' +
            '<span class="lg-item"><i style="background:' + OC_WARM + '"></i>红箭头 · 增温增湿</span></span></div>';
       h += '<div class="lg-line"><span class="lg-key">寒流</span><span class="lg-grid">' +
@@ -12862,7 +12932,7 @@ body.quiz-on #labels-canvas{display:none!important}
       /* 季节这一行是动态的：切了按钮，图例要跟着说清现在看的是哪一季 */
       h += '<div class="lg-line"><span class="lg-key">季风</span><span class="lg-grid">' +
            '<span class="lg-item lg-wr" id="lg-season-val">' + ocSeasonTip() + '</span></span></div>';
-      h += '<div class="lg-src">22 支常年洋流 · 北印度洋随季风换向（索马里沿岸夏寒冬暖）；春秋转换期方向不定，暂略去</div>';
+      /* 底部不再摆说明文字 */
       return h;
     }
 
@@ -12910,6 +12980,7 @@ body.quiz-on #labels-canvas{display:none!important}
       /* 关图层 = 关掉"只看某一类"，否则下次开起来会莫名其妙还是隔离状态 */
       climSolo = '';
       climSoloApply();
+      if (globe.earthMat) globe.earthMat.uniforms.uEdgeOn.value = 0;
       lgFade(0, 260);
       if (lgEl) { lgEl.classList.remove('on'); lgEl.setAttribute('aria-hidden', 'true'); }
       lgSync();
@@ -12941,6 +13012,9 @@ body.quiz-on #labels-canvas{display:none!important}
         /* 换图层（气候 ⇄ 地形）先清掉上一层的单类隔离 */
         climSolo = '';
         climSoloApply();
+        /* 分区描边：只有气候层用；索引图已经在缓存里就当场打开 */
+        globe.earthMat.uniforms.uEdgeOn.value =
+          (name === 'climate' && climIdxTex) ? 1 : 0;
         lgFade(1, 380);
         lgLegend(name);
         lgSync();
