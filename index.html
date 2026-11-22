@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-22-EF">
+<meta name="build" content="2026-11-22-EG">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -2314,6 +2314,13 @@ body.quiz-on #labels-canvas{display:none!important}
   height:auto;max-height:calc(100vh - 60px - env(safe-area-inset-top, 0px));
 }
 #layer-legend.lg-exam12::-webkit-scrollbar{display:none}
+/* 只有气候实验室那一栏放左边；地形、洋流等仍是原来的右下角位置。
+   用户点开地形时期待它待在原处，不能因为改了气候图例就整体搬家。 */
+#layer-legend:not(.lg-climate){
+  left:auto;right:18px;top:auto;bottom:34px;
+  width:296px;height:auto;padding:12px 14px 11px;border-radius:13px;
+  max-height:calc(100vh - 120px);
+}
 #layer-legend::-webkit-scrollbar{width:6px}
 /* 滚动条平时几乎看不见；鼠标移到面板上（或正拖着）才浮出来 */
 #layer-legend::-webkit-scrollbar-thumb{
@@ -2671,11 +2678,16 @@ body.quiz-on #labels-canvas{display:none!important}
   #detail.open{transform:none}
   /* 图例在手机上同样贴左边，但别顶到标题栏、也别压住左下的工具栏：
      高度按 100dvh 算，滚动交给面板自己。 */
-  #layer-legend{
+  #layer-legend.lg-climate{
     left:calc(10px + env(safe-area-inset-left, 0px));
     top:calc(66px + env(safe-area-inset-top, 0px));
     width:min(228px, calc(100vw - 80px));
     max-height:calc(100dvh - 60px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+  }
+  #layer-legend:not(.lg-climate){
+    left:auto;right:calc(10px + env(safe-area-inset-right, 0px));
+    top:auto;bottom:calc(24px + env(safe-area-inset-bottom, 0px));
+    width:232px;max-height:calc(100dvh - 120px);
   }
   body.panel-open #globe-stage{transform:translateY(-11%)}
   #footline{display:none}
@@ -12962,6 +12974,7 @@ body.quiz-on #labels-canvas{display:none!important}
       }
       lgEl.innerHTML = h;
       lgEl.classList.add('on');
+      lgEl.classList.toggle('lg-climate', name === 'climate');
       lgEl.classList.toggle('lg-exam12', name === 'climate' && climExam);
       lgFitExam();
       lgEl.setAttribute('aria-hidden', 'false');
