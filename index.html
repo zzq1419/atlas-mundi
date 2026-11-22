@@ -2306,6 +2306,9 @@ body.quiz-on #labels-canvas{display:none!important}
   opacity:0;transform:translateY(10px);pointer-events:none;
   transition:opacity .28s ease,transform .28s ease;
 }
+/* 教材 12 类本来就放得下，连滚动条的槽都不要露出来 */
+#layer-legend.lg-exam12{scrollbar-width:none}
+#layer-legend.lg-exam12::-webkit-scrollbar{display:none}
 #layer-legend::-webkit-scrollbar{width:6px}
 /* 滚动条平时几乎看不见；鼠标移到面板上（或正拖着）才浮出来 */
 #layer-legend::-webkit-scrollbar-thumb{
@@ -2350,14 +2353,14 @@ body.quiz-on #labels-canvas{display:none!important}
    两种口径的左侧栏一样长，不再下面吊一截空底。 */
 #layer-legend .lg-col{flex-direction:column;align-items:stretch;gap:0;margin:0}
 #layer-legend .lg-col .lg-key{
-  flex:none;text-align:left;padding:6px 0 2px;line-height:1.25;
+  flex:none;text-align:left;padding:4px 0 2px;line-height:1.25;
   font-size:13px;font-weight:600;letter-spacing:.06em;
   color:rgba(208,230,252,.9);
 }
 #layer-legend .lg-col:first-of-type .lg-key{padding-top:2px}
-#layer-legend .lg-col .lg-grid{flex-direction:column;flex-wrap:nowrap;gap:3px}
+#layer-legend .lg-col .lg-grid{flex-direction:column;flex-wrap:nowrap;gap:2px}
 #layer-legend .lg-col .lg-item{
-  width:100%;justify-content:flex-start;padding:11px 8px;border-radius:7px;
+  width:100%;justify-content:flex-start;padding:9px 8px;border-radius:7px;
   font-size:12.5px;line-height:1.35;
 }
 #layer-legend .lg-col .lg-item em{margin-left:auto;padding-left:10px;font-size:10.5px}
@@ -7153,6 +7156,9 @@ body.quiz-on #labels-canvas{display:none!important}
   var TEX_VER = {
     /* TEX_VER:start */
     'climate-koppen.webp': '52b0e232',
+    /* 两张 94/97KB 的缩略图：点下按钮先铺上去，8K 到了再悄悄换掉 */
+    'climate-koppen-tiny.webp': '8edfe1f6',
+    'climate-tiny.webp': 'c17cc8e9',
     'climate-lo.webp': '04ca2ba6',
     'climate.webp': 'bf19be1f',
     'climate_idx.png': '9985acdc',
@@ -12764,6 +12770,15 @@ body.quiz-on #labels-canvas{display:none!important}
       })();
     }
 
+    /* 两张 94KB 的缩略图尽早开始下：不等首屏淡入，也不等 requestIdleCallback
+       （它最多能拖 6 秒）。用户常常在首屏还没安顿好时就点气候按钮，
+       那时候必须已经有东西能立刻铺上去。THREE 是异步进来的，所以要等它。 */
+    (function tinyKick() {
+      if (typeof THREE === 'undefined') { setTimeout(tinyKick, 100); return; }
+      loadTexFile('climate-tiny.webp', function () {});
+      loadTexFile('climate-koppen-tiny.webp', function () {});
+    })();
+
     function lgLoad(name, cb) {
       if (lgTex[name]) { cb(lgTex[name]); return; }
       var useLo = !LG_HI || lgMaxTexSize() < 8192;
@@ -12861,6 +12876,7 @@ body.quiz-on #labels-canvas{display:none!important}
       }
       lgEl.innerHTML = h;
       lgEl.classList.add('on');
+      lgEl.classList.toggle('lg-exam12', name === 'climate' && climExam);
       lgEl.setAttribute('aria-hidden', 'false');
       var cx = lgEl.querySelector('.lg-close');
       if (cx) cx.addEventListener('click', lgClose);
@@ -12902,6 +12918,9 @@ body.quiz-on #labels-canvas{display:none!important}
         ? ((!LG_HI || lgMaxTexSize() < 8192) ? 'climate-lo.webp' : 'climate.webp')
         : LG.climate.koppenTex;
       lgLegend('climate');            // 先把 chips 与图例换成新口径
+      /* 口径切换同理：先用小图把颜色换掉，大图到了再换，球面不用空等 */
+      var tiny = lgFile[exam ? 'climate-tiny.webp' : 'climate-koppen-tiny.webp'];
+      if (tiny) globe.earthMat.uniforms.uLayerMap.value = tiny;
       loadTexFile(file, function (t) {
         if (!t || !globe.earthMat || climExam !== exam || lgCur !== 'climate') return;
         globe.earthMat.uniforms.uLayerMap.value = t;
@@ -13019,13 +13038,20 @@ body.quiz-on #labels-canvas{display:none!important}
       lgSync();
       if (globe.refreshTActive) globe.refreshTActive();
       if (globe.syncLabelLayers) globe.syncLabelLayers();
+      /* 有缩略图就先铺上：按钮按下和图例出现的同一帧，球面也跟着变色，
+         不再等 1.2MB 的 8K 下载完才开始。 */
+      var tiny = (name === 'climate') ? lgFile['climate-tiny.webp'] : null;
+      if (tiny && globe.earthMat) {
+        globe.earthMat.uniforms.uLayerMap.value = tiny;
+        lgFade(1, 380);
+      }
       lgLoad(name, function (t) {
         if (!t || !globe.earthMat || lgCur !== name) return;
         globe.earthMat.uniforms.uLayerMap.value = t;
         /* 分区描边：只有气候层用；索引图已经在缓存里就当场打开 */
         globe.earthMat.uniforms.uEdgeOn.value =
           (name === 'climate' && climIdxTex) ? 1 : 0;
-        lgFade(1, 380);
+        if (!tiny) lgFade(1, 380);
         /* 上传 8K 是一次几百毫秒的同步阻塞，挪到手停下来之后 ——
            先让按钮和图例立刻给反馈，贴图随后淡入。 */
         whenIdle(function () { lgUpload(name); });
@@ -13053,20 +13079,17 @@ body.quiz-on #labels-canvas{display:none!important}
         });
       };
       /* 第三批：切换口径要用的柯本贴图 + 实验室的索引图。
-         这两个原来都是"点下去才下"，柯本 763KB / 索引 237KB，
-         点切换时球面要空等一下；首屏空闲时提前拉好，切换就只是换 uniform。 */
+         下载不等空闲 —— 鼠标只要在页面上动，whenIdle 就会一直往后推
+         （20s 超时才放行），用户点了才发现贴图还没开始下。
+         真正需要挑时机的只有 initTexture 那一下同步上传。 */
       var step3 = function () {
         loadTexFile(LG.climate.koppenTex, function () {});
         climIdxLoad(function () {});
       };
       lgLoad('climate', function () {
-        /* 两张 8K 贴图连着上传 = 连续两次几百毫秒的阻塞，中间照样是
-           "卡一下、又卡一下"。上传各自等一次空闲，下载隔 800ms 错开。 */
-        whenIdle(function () {
-          lgUpload('climate');
-          setTimeout(step2, 800);
-          setTimeout(step3, 1600);
-        });
+        whenIdle(function () { lgUpload('climate'); });
+        setTimeout(step2, 400);
+        setTimeout(step3, 800);
       });
     }
     globe.lgPrewarm = lgPrewarm;
