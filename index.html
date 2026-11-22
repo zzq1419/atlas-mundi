@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-22-ED">
+<meta name="build" content="2026-11-22-EE">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -296,6 +296,13 @@
   body.solar-on #labels-canvas,body.solar-on #tools,body.solar-on #search-wrap,
   body.solar-on #detail,body.solar-on #q-res,body.solar-on #hud,
   body.solar-on #globe-msg{display:none !important}
+  /* 环流三层（洋流 / 季风带 / 气压带与风带）全是**地球专用**的叠加层，
+     它们的图例 #layer-legend 和共用季节胶囊 #season-pick 也一样。
+     进太阳系时不收掉的话，右侧会一直挂着一块"洋流·季风带·气压带"的图例、
+     左上角挂一排春分夏至 —— 和太阳系一个字都对不上（build EE 修）。
+     用 display:none 不影响退出还原：图层开关状态没动，退出后 .on 类回来，
+     图例和季节胶囊自己就回来了。 */
+  body.solar-on #layer-legend,body.solar-on #season-pick{display:none !important}
   /* 国名/地形名是 DOM 层，跟着"球体缩放"走 —— 转场里地球被缩到 0.0001，
      所有标签的投影点会一起挤到画面正中，看起来就是中间糊着"美国 法国"
      几个大字。所以太阳系里整层收掉，转场期间也收（由 solarTick 挂
@@ -313,21 +320,28 @@
   body.pcard-open #solar-credit{opacity:0}
   /* 出口：工具栏在太阳系模式里整体让位，按钮也就跟着消失了，
      光靠 Esc 等于把用户关在里面。右上角留一个小圆按钮，只画一个 ×，不写字。 */
+  /* 和档案卡的 .dclose、灯箱的 .lb-x 统一：默认**只画一个 ×，不画圆圈**，
+     圆圈（描边 + 内底）是 hover / 键盘聚焦时才浮现的那一层。
+     底色透明、描边透明，但图标本身不能一起压暗 —— 它浮在星空上，
+     颜色太淡就找不着了，所以给图标一点投影兜底。 */
   #solar-exit{position:fixed;top:18px;right:18px;z-index:60;
-    width:38px;height:38px;border-radius:50%;display:none;
+    width:34px;height:34px;border-radius:50%;display:none;
     align-items:center;justify-content:center;padding:0;
-    color:rgba(210,228,248,.82);background:rgba(255,255,255,.05);
-    border:1px solid rgba(148,182,224,.22);cursor:pointer;font-family:inherit;
-    transition:color .2s ease,background .2s ease,border-color .2s ease,opacity .3s ease}
+    color:rgba(216,232,250,.84);background:transparent;
+    border:1px solid transparent;cursor:pointer;font-family:inherit;
+    transition:color .2s ease,background .2s ease,border-color .2s ease,
+               transform .16s ease,opacity .3s ease}
   body.solar-on #solar-exit{display:flex}
   /* 星球档案卡打开时把"退出太阳系"整颗收掉（用户要求）：卡片里已经有自己的
      × 用来退出特写，右上角再来一颗圆 × 会让人分不清哪个关什么。
      必须写在这一行**之后** —— 两条选择器特异性相同，靠顺序决胜。 */
   body.pcard-open #solar-exit{display:none}
-  #solar-exit:hover{color:#eef4fe;background:rgba(255,255,255,.1);
-    border-color:rgba(148,182,224,.5)}
-  #solar-exit svg{width:18px;height:18px;fill:none;stroke:currentColor;
-    stroke-width:2.1;stroke-linecap:round}
+  #solar-exit:hover,#solar-exit:focus-visible{
+    color:#eef4fe;background:rgba(148,182,224,.16);
+    border-color:rgba(148,182,224,.6);transform:scale(1.05)}
+  #solar-exit:active{transform:scale(.96)}
+  #solar-exit svg{width:17px;height:17px;fill:none;stroke:currentColor;
+    stroke-width:2.1;stroke-linecap:round;filter:drop-shadow(0 1px 4px rgba(0,0,0,.6))}
   #rotate-hint .rh-t{font-size:17px;color:#f0f4fb}
   #rotate-hint .rh-s{font-size:12.5px;line-height:1.7;color:rgba(196,216,244,.72)}
   #rotate-hint button{
@@ -435,13 +449,26 @@
     font-size:12.5px;line-height:1.6;color:#c6d3e8;padding:0 9vw;
   }
   #lightbox .lb-cap i{color:#8595ad;font-style:normal}
+  /* 同样统一成"只有 ×，悬停才出现圆圈"（和 .dclose / #solar-exit 一致）。
+     这一颗浮在**照片上面**，照片可能是亮白的天空，纯透明底会让 × 直接消失，
+     所以图标带一层柔和投影，再加一圈极淡的暗晕把轮廓托出来 ——
+     这样既不是"一直挂一个圆圈"，也不会在亮图上找不着。 */
   #lightbox .lb-x{
-    position:absolute;top:16px;right:18px;width:38px;height:38px;border-radius:12px;
+    position:absolute;top:16px;right:18px;width:34px;height:34px;border-radius:50%;
     display:flex;align-items:center;justify-content:center;cursor:pointer;
-    color:#e8eefb;font-size:19px;line-height:1;
-    background:rgba(12,18,30,.62);border:1px solid rgba(255,255,255,.18);
+    color:rgba(238,244,255,.9);
+    background:transparent;border:1px solid transparent;
+    transition:color .2s ease,background .2s ease,border-color .2s ease,transform .16s ease;
   }
-  #lightbox .lb-x:hover{background:rgba(24,34,52,.8)}
+  #lightbox .lb-x:hover,#lightbox .lb-x:focus-visible{
+    color:#fff;background:rgba(148,182,224,.2);
+    border-color:rgba(148,182,224,.6);transform:scale(1.05)}
+  #lightbox .lb-x:active{transform:scale(.96)}
+  /* 和 .dclose svg 同宽同描边；投影是这一颗独有的 —— 它可能浮在一张亮白的照片
+     上（比如月面、木星云顶），纯描边会糊掉，加一层柔和暗影把轮廓托住。 */
+  #lightbox .lb-x svg{width:17px;height:17px;fill:none;stroke:currentColor;
+    stroke-width:2.1;stroke-linecap:round;
+    filter:drop-shadow(0 1px 4px rgba(0,0,0,.85))}
   .cap{font-size:12px;color:var(--ink-dim);margin-top:9px;line-height:1.65}
   .cap.dim{
     color:var(--ink-faint);
@@ -1689,7 +1716,7 @@ body.solar-on #globe-stage{transform:none !important;transition:none !important}
 .dclose:hover,.dclose:focus-visible{color:#fff;border-color:rgba(148,182,224,.6);
   background:rgba(148,182,224,.16);transform:scale(1.05)}
 .dclose:active{transform:scale(.96)}
-  .dclose svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2.1;stroke-linecap:round}
+  .dclose svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:2.1;stroke-linecap:round}
   #d-sub:empty{display:none}
 
 /* 面板里空间窄，详情原本的两列网格改为单列。
@@ -3594,7 +3621,12 @@ body.quiz-on #labels-canvas{display:none!important}
     LB.id = 'lightbox';
     LBimg = el('img', 'lb-img');
     LBcap = el('div', 'lb-cap');
-    var x = el('div', 'lb-x', '✕');
+    /* ✕ 用和档案卡 .dclose / 退出太阳系 #solar-exit **同一个 SVG 路径**画。
+       原来这里是一个文本字符 '✕'，字号 19px 时字重和那两枚 SVG 明显不同，
+       三颗按钮放在一起一眼能看出不是一套。改成 href 相同的 path 就彻底一致了。 */
+    var x = el('div', 'lb-x');
+    x.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true">' +
+                  '<path d="M6.6 6.6 17.4 17.4M17.4 6.6 6.6 17.4"/></svg>';
     LB.appendChild(LBimg);
     LB.appendChild(LBcap);
     LB.appendChild(x);
