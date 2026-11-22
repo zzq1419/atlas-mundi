@@ -2283,22 +2283,35 @@ body.quiz-on #labels-canvas{display:none!important}
 #globe-stage.time-mode canvas,#globe-stage.probe-mode canvas{cursor:inherit}
 #globe-stage.probe-mode{cursor:url("data:image/svg+xml;charset=utf8,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='36'%20height='36'%20viewBox='0%200%2036%2036'%3E%3Cdefs%3E%3ClinearGradient%20id='f'%20x1='0'%20y1='0'%20x2='.9'%20y2='1'%3E%3Cstop%20offset='0'%20stop-color='%23d8f0ff'/%3E%3Cstop%20offset='.55'%20stop-color='%237cc4ee'/%3E%3Cstop%20offset='1'%20stop-color='%233f86b4'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath%20d='M9%2031.4V5'%20stroke='%239fd4f0'%20stroke-width='1.9'%20stroke-linecap='round'/%3E%3Ccircle%20cx='9'%20cy='4.2'%20r='1.9'%20fill='%23e6f7ff'/%3E%3Ccircle%20cx='8.4'%20cy='3.7'%20r='.7'%20fill='%23ffffff'%20opacity='.9'/%3E%3Cpath%20d='M10.2%205.6c5.4-1.7%208.6%201.5%2013.6.1.5%202.9.4%205.8-.3%208.7-5%201.3-8.6-1.5-13.3.2z'%20fill='url%28%23f%29'%20stroke='%232f6f96'%20stroke-width='.9'/%3E%3Cpath%20d='M10.2%205.6c5.4-1.7%208.6%201.5%2013.6.1'%20stroke='%23eaf8ff'%20stroke-width='1'%20fill='none'%20opacity='.85'/%3E%3Cpath%20d='M12.6%207.2c-.7%202.2-.9%204.4-.6%206.6M16.4%206.7c-.6%202.3-.7%204.6-.4%206.9'%20stroke='%236fb2d6'%20stroke-width='.7'%20fill='none'%20opacity='.55'/%3E%3C/svg%3E") 9 32, crosshair}
 
-/* ---------- 专题图层图例（右下角） ----------
-   和左下角工具栏一左一右，只在开了气候/地形时出现。
-   半透明玻璃底，压在地球上但不抢画面。 */
+/* ---------- 专题图层图例（左侧竖列） ----------
+   挪到左边竖着排：气候这一块每一项都是可点的按钮，横排成两三列时
+   眼睛要在 30 个色块里找一个，手指也容易点到隔壁。
+   位置避开左上的标题/搜索、左下的工具栏；内容超过一屏时面板自己滚。 */
 #layer-legend{
-  position:fixed;right:18px;bottom:34px;z-index:36;
-  width:296px;padding:12px 14px 11px;border-radius:13px;
-  background:rgba(7,15,27,.86);
-  border:1px solid rgba(150,185,230,.26);
+  position:fixed;left:18px;top:calc(72px + env(safe-area-inset-top, 0px));
+  z-index:36;
+  width:300px;padding:14px 16px 13px;border-radius:14px;
+  max-height:calc(100vh - 92px - env(safe-area-inset-top, 0px));
+  overflow-y:auto;overflow-x:hidden;
+  overscroll-behavior:contain;scrollbar-width:thin;
+  scrollbar-color:rgba(140,175,220,.4) transparent;
+  background:rgba(7,15,27,.88);
+  border:1px solid rgba(150,185,230,.24);
   box-shadow:0 14px 34px rgba(0,0,0,.5);
   backdrop-filter:blur(12px);
-  color:rgba(226,240,255,.94);font-size:12px;line-height:1.5;
+  color:rgba(226,240,255,.94);font-size:12.5px;line-height:1.55;
   opacity:0;transform:translateY(10px);pointer-events:none;
   transition:opacity .28s ease,transform .28s ease;
 }
+#layer-legend::-webkit-scrollbar{width:6px}
+#layer-legend::-webkit-scrollbar-thumb{background:rgba(140,175,220,.4);border-radius:3px}
 #layer-legend.on{opacity:1;transform:none;pointer-events:auto}
-#layer-legend .lg-head{display:flex;align-items:center;gap:8px;margin-bottom:9px}
+/* 标题（口径胶囊 + 关闭）吸顶：柯本 30 类要滚的时候也能随时换口径/关掉 */
+#layer-legend .lg-head{
+  display:flex;align-items:center;gap:8px;margin-bottom:9px;
+  position:sticky;top:-12px;z-index:2;padding:10px 0 7px;
+  background:linear-gradient(180deg,rgba(7,15,27,.99) 72%,rgba(7,15,27,0));
+}
 /* 洋流块和上面的图层块同排时中间要一条分隔线；
    只有洋流一块（它是第一个子元素）时不要这根线。 */
 #layer-legend .oc-head,#layer-legend .mn-head,#layer-legend .wb-head{margin-top:12px;padding-top:10px;border-top:1px solid rgba(150,185,230,.16)}
@@ -2319,6 +2332,23 @@ body.quiz-on #labels-canvas{display:none!important}
   color:rgba(196,220,246,.8);font-size:11.5px;letter-spacing:.02em;
 }
 #layer-legend .lg-grid{flex:1;display:flex;flex-wrap:wrap;gap:3px 9px}
+/* 柯本口径的组名长一档，给它多留 12px，免得「C 亚热带」折成两行 */
+#layer-legend .lg-line.lg-k5 .lg-key{flex:0 0 52px}
+/* ---------- 气候实验室：一列一项 ----------
+   组名当小标题（左对齐、压暗），每类独占一行：色块在左、名字居中、
+   占比靠右。整行都是点击热区，不用瞄着那个 12px 的色块点。 */
+#layer-legend .lg-col{flex-direction:column;align-items:stretch;gap:0;margin:0}
+#layer-legend .lg-col .lg-key{
+  flex:none;text-align:left;padding:9px 0 3px;
+  font-size:10px;letter-spacing:.12em;color:rgba(160,190,220,.62);
+}
+#layer-legend .lg-col:first-of-type .lg-key{padding-top:2px}
+#layer-legend .lg-col .lg-grid{flex-direction:column;flex-wrap:nowrap;gap:2px}
+#layer-legend .lg-col .lg-item{
+  width:100%;justify-content:flex-start;padding:4px 7px;border-radius:7px;line-height:1.3;
+}
+#layer-legend .lg-col .lg-item em{margin-left:auto;padding-left:10px}
+#layer-legend .lg-col .lg-pick i{flex:0 0 12px}
 #layer-legend .lg-item{
   display:inline-flex;align-items:center;gap:4px;
   font-size:11.5px;color:rgba(232,244,255,.92);white-space:nowrap;
@@ -2337,6 +2367,27 @@ body.quiz-on #labels-canvas{display:none!important}
   font-style:normal;margin-left:1px;font-size:10px;letter-spacing:0;
   color:rgba(168,196,224,.72);
 }
+/* ---------- 气候实验室：图例项即按钮 ----------
+   默认长得和原来完全一样（色块 + 名字），hover 才露出"可以点"的样子。
+   选中态必须三件事一起变：文字转金、内底转暖、描边转金加粗 ——
+   在这层玻璃底上只改一处，用户根本看不出哪一项是按下的。 */
+#layer-legend .lg-pick{
+  border:1px solid transparent;background:transparent;border-radius:6px;
+  padding:1px 5px 1px 4px;margin:-1px 0;font:inherit;cursor:pointer;
+  transition:background .16s,border-color .16s,color .16s;
+}
+#layer-legend .lg-pick:hover{background:rgba(150,190,235,.14);border-color:rgba(150,190,235,.34)}
+#layer-legend .lg-pick:focus-visible{outline:none;border-color:rgba(150,190,235,.6)}
+/* 选中态：不用金色，也不让它变亮 —— 直接把这一行压深（比面板底色更沉），
+   左边留一条这一类的本色细线。看着像"这一格按了下去"，球面上的配色不受干扰。 */
+#layer-legend .lg-pick.on{
+  color:#f4f9ff;
+  background:linear-gradient(180deg,rgba(2,6,13,.62),rgba(2,6,13,.32));
+  border-color:rgba(150,185,230,.14);
+  box-shadow:inset 2px 0 0 var(--c, #8fb6dd);
+}
+#layer-legend .lg-pick.on i{box-shadow:inset 0 0 0 1px rgba(0,0,0,.38),0 0 0 1px rgba(255,255,255,.16)}
+#layer-legend .lg-pick.on em{color:rgba(214,232,250,.86)}
 /* 口径切换：标题右边两个小胶囊。做得小是故意的 —— 它是"换个看法"，
    不是主操作，抢了视觉焦点反而让人以为要选一个才能看。 */
 #layer-legend .lg-mode{
@@ -2352,6 +2403,11 @@ body.quiz-on #labels-canvas{display:none!important}
 #layer-legend .lg-mode button.on{background:rgba(150,190,235,.24);color:#f4f9ff}
 /* 柯本模式的图例只标代码（Af / BSk / Dwa），全名在 title 里 */
 #layer-legend .lg-code{font-size:11px;letter-spacing:.02em;cursor:help}
+/* 柯本竖排一项一行，300px 有地方了：代码后面补中文名，学生不用背代码 */
+#layer-legend .lg-zh{
+  margin-left:8px;font-size:11px;color:rgba(206,226,248,.72);
+  min-width:0;overflow:hidden;text-overflow:ellipsis;
+}
 #layer-legend .lg-band{
   height:12px;margin:5px 0 6px;border-radius:3px;
   box-shadow:inset 0 0 0 1px rgba(0,0,0,.28);
@@ -2563,6 +2619,14 @@ body.quiz-on #labels-canvas{display:none!important}
     transform:translateY(calc(100% + 20px));
   }
   #detail.open{transform:none}
+  /* 图例在手机上同样贴左边，但别顶到标题栏、也别压住左下的工具栏：
+     高度按 100dvh 算，滚动交给面板自己。 */
+  #layer-legend{
+    left:calc(10px + env(safe-area-inset-left, 0px));
+    top:calc(66px + env(safe-area-inset-top, 0px));
+    width:min(228px, calc(100vw - 80px));
+    max-height:calc(100dvh - 158px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+  }
   body.panel-open #globe-stage{transform:translateY(-11%)}
   #footline{display:none}
 
@@ -7371,6 +7435,15 @@ body.quiz-on #labels-canvas{display:none!important}
          地形贴图不透明，整颗球换成地图册式的高程着色。 */
       uLayerMap: { value: null },
       uLayerMix: { value: 0 },
+      /* 气候实验室的「单类隔离」：索引图（R = 柯本序号 + 1，G = 高原标记）
+         当遮罩用，选中的类保持原色、其余压到 10% 透出来当参照。
+         uSoloOn = 0 时整段不参与计算，行为和没有这个功能之前一模一样。 */
+      uLayerIdx: { value: null },
+      uSoloOn: { value: 0 },
+      uSoloN: { value: 0 },
+      uSoloH: { value: 0 },
+      uSoloExam: { value: 1 },
+      uSolo: { value: [0, 0, 0, 0, 0, 0, 0, 0] },
       uSpec: { value: 0.7 },
       uSpecPow: { value: 26.0 },
       uTone: { value: 0.9 },
@@ -7421,6 +7494,12 @@ body.quiz-on #labels-canvas{display:none!important}
       'uniform vec3 uLight;',
       'uniform sampler2D uLayerMap;',
       'uniform float uLayerMix;',
+      'uniform sampler2D uLayerIdx;',
+      'uniform float uSoloOn;',
+      'uniform float uSoloN;',
+      'uniform float uSoloH;',
+      'uniform float uSoloExam;',
+      'uniform float uSolo[8];',
       'varying vec2 vUv;',
       'varying vec3 vN;',
       'varying vec3 vNL;',
@@ -7541,7 +7620,29 @@ body.quiz-on #labels-canvas{display:none!important}
          alpha 参与混合：气候图海洋 alpha=0，海面继续用卫星影像。 */
       '  if (uLayerMix > 0.001) {',
       '    vec4 lc = texture2D(uLayerMap, vUv);',
-      '    col = mix(col, s2l(lc.rgb) * limb, lc.a * uLayerMix);',
+      /* ---------- 单类隔离（气候实验室） ----------
+         索引图给的是每个像素的柯本序号，选了某一类就只让这一类保持原色，
+         其余压到 10% —— 既看得到它的分布，又留着大陆轮廓当参照。
+         高原山地（H）在教材口径里不是柯本类别，是构建时烘在 G 通道的标记：
+         选它时按 G 判，选别的类时把高原像素排除掉（否则青藏高原会因为
+         R 上仍是 Dwc 而被算进亚寒带针叶林里）。 */
+      '    float soloK = 1.0;',
+      '    if (uSoloOn > 0.5) {',
+      '      vec4 ix = texture2D(uLayerIdx, vUv);',
+      '      float cid = floor(ix.r * 255.0 + 0.5);',
+      '      float gpl = floor(ix.g * 255.0 + 0.5);',
+      '      float hit = 0.0;',
+      '      if (uSoloH > 0.5) {',
+      '        hit = step(127.5, gpl);',
+      '      } else {',
+      '        for (int i = 0; i < 8; i++) {',
+      '          if (float(i) < uSoloN && abs(cid - uSolo[i]) < 0.5) hit = 1.0;',
+      '        }',
+      '        if (uSoloExam > 0.5 && gpl > 127.5) hit = 0.0;',
+      '      }',
+      '      soloK = mix(0.10, 1.0, hit);',
+      '    }',
+      '    col = mix(col, s2l(lc.rgb) * limb, lc.a * uLayerMix * soloK);',
       '  }',
       '  gl_FragColor = vec4(l2s(col) * uFade, 1.0);',
       '}'
@@ -12421,7 +12522,9 @@ body.quiz-on #labels-canvas{display:none!important}
         return GR.map(function (g) {
           return [g[0], P.koppen.filter(function (k) { return k.g === g[1]; })
             .map(function (k) {
-              return [k.hex, '<span class="lg-code" title="' + k.zh + '">' + k.c + '</span>'];
+              return [k.hex, '<span class="lg-code" title="' + k.zh + '">' + k.c + '</span>' +
+                             '<span class="lg-zh">' + k.zh + '</span>',
+                      'k' + k.i];
             })];
         }).filter(function (r) { return r[1].length > 0; });
       }
@@ -12441,9 +12544,81 @@ body.quiz-on #labels-canvas{display:none!important}
           if (!o) return null;
           var label = o.e.short || o.e.zh;
           if (o.s != null) label += '<em>' + o.s + '%</em>';
-          return [o.e.hex, label];
+          return [o.e.hex, label, o.e.c];
         }).filter(Boolean)];
       }).filter(function (r) { return r[1].length > 0; });
+    }
+
+    /* ---------- 气候实验室：点图例，一个一个看分布 ----------
+       索引图每个像素存的就是柯本序号，所以"只留这一类"完全可以在着色器里做，
+       不用为 12 类各烘一张贴图（那是 12 × 1.2MB 的下载量）。
+       选中的类保持原色，其余压到 10% —— 既看清分布，又留着大陆轮廓当参照。 */
+    var climSolo = '';            // '' = 全部；'Dwa' 教材某类；'k24' 柯本某一类；'H' 高原
+    var climIdxTex = null, climIdxFail = 0;
+
+    function climIdxLoad(cb) {
+      if (climIdxTex) { cb(climIdxTex); return; }
+      if (climIdxFail) { cb(null); return; }
+      var loader = new THREE.TextureLoader();
+      var ver = TEX_VER['climate_idx.png'] || BUILD_TAG;
+      var q = ver ? ('?v=' + encodeURIComponent(ver)) : '';
+      var i = 0;
+      (function next() {
+        if (i >= TEX_BASES.length) { climIdxFail = 1; cb(null); return; }
+        loader.load(TEX_BASES[i++] + 'climate_idx.png' + q, function (t) {
+          /* 索引图绝对不能插值：3 和 4 之间混出来的 3.5 不属于任何一类；
+             也不生成 mipmap —— 缩小时的 mip 同样是"平均出来的序号"。 */
+          t.minFilter = THREE.NearestFilter;
+          t.magFilter = THREE.NearestFilter;
+          t.generateMipmaps = false;
+          t.needsUpdate = true;
+          climIdxTex = t;
+          cb(t);
+        }, undefined, next);
+      })();
+    }
+
+    /* 图例里那一项 → 它在索引图 R 通道上的取值（R = 柯本序号 + 1）。 */
+    function climSoloIds(code) {
+      var P = window.CLIMATE_PAL, out = [];
+      if (!P) return out;
+      if (code.charAt(0) === 'k') { out.push(parseInt(code.slice(1), 10) + 1); return out; }
+      P.exam.forEach(function (e) {
+        if (e.c !== code) return;
+        (e.ids || []).forEach(function (i) { out.push(i + 1); });
+      });
+      return out;
+    }
+
+    function climSoloApply() {
+      var u = globe.earthMat && globe.earthMat.uniforms;
+      if (!u) return;
+      if (!climSolo || lgCur !== 'climate') {
+        u.uSoloOn.value = 0; u.uSoloN.value = 0; u.uSoloH.value = 0;
+        return;
+      }
+      var ids = climSoloIds(climSolo);
+      u.uSoloExam.value = climExam ? 1 : 0;
+      u.uSoloH.value = (climSolo === 'H') ? 1 : 0;
+      u.uSoloN.value = Math.min(8, ids.length);
+      for (var i = 0; i < 8; i++) u.uSolo.value[i] = ids[i] || 0;
+      climIdxLoad(function (t) {
+        if (!t || !globe.earthMat) return;
+        var uu = globe.earthMat.uniforms;
+        uu.uLayerIdx.value = t;
+        /* 下载这段时间里用户可能已经点了别的类、或者把图层关了 —— 只有状态
+           还是"看这一类、图层还开着"才真正打开，否则球面会卡在半隔离的样子。 */
+        if (climSolo && lgCur === 'climate') uu.uSoloOn.value = 1;
+      });
+      /* 索引图还没到时先不打开：采样器空着会让整层闪黑一下 */
+      u.uSoloOn.value = u.uLayerIdx.value ? 1 : 0;
+    }
+
+    function climSoloPick(code) {
+      if (lgCur !== 'climate' || !code) return;
+      climSolo = (climSolo === code) ? '' : code;
+      climSoloApply();
+      lgLegend('climate');        // 重画一遍，把选中态标出来
     }
 
     var LG = {
@@ -12576,8 +12751,22 @@ body.quiz-on #labels-canvas{display:none!important}
         /* climate 的图例要按当前口径现算：rows 是在 LG 初始化时求值的静态数组，
            切了教材/柯本之后不重算就还是上一套。 */
         ((name === 'climate') ? climRows() : (cfg.rows || [])).forEach(function (r) {
-          h += '<div class="lg-line"><span class="lg-key">' + r[0] + '</span><span class="lg-grid">' +
+          /* 气候这块竖排成一列（lg-col）；柯本口径的组名长一档，多留 12px */
+          var cls = (name === 'climate')
+            ? ' lg-col' + (climExam ? '' : ' lg-k5') : '';
+          h += '<div class="lg-line' + cls + '"><span class="lg-key">' + r[0] + '</span><span class="lg-grid">' +
                r[1].map(function (x) {
+                 /* 气候这一块每一项都是按钮 —— 点一下球面上只留这一类，
+                    再点一次（或点"回到全部"）还原。地形只有一根色带，不参与。 */
+                 if (name === 'climate') {
+                   var code = x[2] || '';
+                   var sel = !!(code && code === climSolo);
+                   return '<button type="button" class="lg-item lg-pick' +
+                          (sel ? ' on' : '') +
+                          '" data-solo="' + code + '" style="--c:' + x[0] + '"' +
+                          ' aria-pressed="' + (sel ? 'true' : 'false') + '">' +
+                          '<i style="background:' + x[0] + '"></i>' + x[1] + '</button>';
+                 }
                  return '<span class="lg-item"><i style="background:' + x[0] + '"></i>' + x[1] + '</span>';
                }).join('') + '</span></div>';
         });
@@ -12601,6 +12790,14 @@ body.quiz-on #labels-canvas{display:none!important}
       lgEl.setAttribute('aria-hidden', 'false');
       var cx = lgEl.querySelector('.lg-close');
       if (cx) cx.addEventListener('click', lgClose);
+      /* 图例里可点的两类：口径胶囊、气候类型。都按整块重画后的最新 DOM 重新绑，
+         不缓存节点 —— 图例是 innerHTML 重写的，缓存下来必然指向已经消失的元素。 */
+      var picks = lgEl.querySelectorAll('.lg-pick');
+      for (var pi = 0; pi < picks.length; pi++) {
+        picks[pi].addEventListener('click', function (ev) {
+          climSoloPick(ev.currentTarget.getAttribute('data-solo') || '');
+        });
+      }
       var mbs = lgEl.querySelectorAll('.lg-mode button');
       for (var mi = 0; mi < mbs.length; mi++) {
         mbs[mi].addEventListener('click', function (ev) {
@@ -12623,6 +12820,10 @@ body.quiz-on #labels-canvas{display:none!important}
     function climSetMode(exam) {
       if (climExam === exam || !globe.earthMat) return;
       climExam = (window.__climExam = exam);
+      /* 两套口径的图例项不是同一批 key（教材是类型代码、柯本是 k+序号），
+         切过去还留着旧的选中态就会出现"选中的那一项不存在" */
+      climSolo = '';
+      climSoloApply();
       var file = exam
         ? ((!LG_HI || lgMaxTexSize() < 8192) ? 'climate-lo.webp' : 'climate.webp')
         : LG.climate.koppenTex;
@@ -12706,6 +12907,9 @@ body.quiz-on #labels-canvas{display:none!important}
       if (wbOn) wbApply(false);
       lgCur = '';
       globe.layerName = '';
+      /* 关图层 = 关掉"只看某一类"，否则下次开起来会莫名其妙还是隔离状态 */
+      climSolo = '';
+      climSoloApply();
       lgFade(0, 260);
       if (lgEl) { lgEl.classList.remove('on'); lgEl.setAttribute('aria-hidden', 'true'); }
       lgSync();
@@ -12720,14 +12924,23 @@ body.quiz-on #labels-canvas{display:none!important}
     function lgToggle(name) {
       if (lgCur === name) { lgClose(); return; }
       if (!globe.earthMat) return;
+      /* 图例占左边一大块，和工具抽屉同侧 —— 先把抽屉收起来，别让面板压住按钮。
+         放在最前面：等贴图加载完再收，那几百毫秒里用户已经看到两块叠在一起了。 */
+      if (globe.closeTools) globe.closeTools();
       /* 开图层的同时就把地形边界拉下来，别等用户点名字才开始 */
       if (globe.tShapeWarm) globe.tShapeWarm();
       lgLoad(name, function (t) {
         if (!t || !globe.earthMat) return;
         lgUpload(name);          // 用户主动点开，这一下就传，别让第一帧空着
+        /* 实验室的索引图只有 237KB，开图层时顺手拉下来 —— 否则第一次点图例
+           要等它下完，用户会以为"点了没反应"。 */
+        if (name === 'climate') climIdxLoad(function () {});
         globe.earthMat.uniforms.uLayerMap.value = t;
         lgCur = name;
         globe.layerName = name;
+        /* 换图层（气候 ⇄ 地形）先清掉上一层的单类隔离 */
+        climSolo = '';
+        climSoloApply();
         lgFade(1, 380);
         lgLegend(name);
         lgSync();
@@ -14795,6 +15008,9 @@ body.quiz-on #labels-canvas{display:none!important}
         toolsToggle.setAttribute('aria-expanded', v ? 'true' : 'false');
         toolsToggle.setAttribute('aria-label', v ? '收起工具' : '展开工具');
       };
+      /* 图例现在占左边一大块，和抽屉在同一侧 —— 开图层时由那边调它先收起来，
+         否则 240px 的面板正好压在工具按钮上。 */
+      globe.closeTools = function () { setToolsOpen(false); };
       /* 定位要用的两张索引图（气候 208KB / 高程 2.8MB）在抽屉拉开时就开始下。
          原来是"第一次点气候定位"才去拉，气泡要干等大半秒才冒出来 ——
          抽屉一开就说明用户要动这些工具了，这时候抢带宽不会影响首屏。 */
