@@ -12864,24 +12864,30 @@ body.quiz-on #labels-canvas{display:none!important}
        但两栏的外框要一样长，不能切过去面板忽然长出一截。
        开气候层时先渲染教材，记下它的实际高度，切柯本时沿用。 */
     var lgExamPanelH = 0, lgExamFit = '', lgExamPad = '8px', lgExamGap = '0px';
-    function lgFitExam() {
+    function lgFitExam(force) {
       if (!lgEl) return;
       lgEl.classList.remove('lg-tight', 'lg-xtight', 'lg-ultratight');
       lgEl.style.setProperty('--rowpad', '8px');
       lgEl.style.setProperty('--rowgap', '0px');
       if (lgCur !== 'climate') { lgEl.style.height = ''; return; }
 
-      /* 面板一直长到离左下工具栏 10px —— 把左边这块地方用满，
-         不再在底下空一大截。工具栏入口是实测出来的，比写死 vh 靠谱。 */
-      var tools = document.getElementById('tools-toggle');
-      var floorY = tools ? tools.getBoundingClientRect().top : window.innerHeight - 68;
-      var target = Math.max(240, Math.floor(floorY - 10 - lgEl.getBoundingClientRect().top));
+      /* 高度只在开图层/窗口尺寸变化时量一次。点某一条气候会整块重画图例，
+         如果那时再量工具栏，抽屉动画或布局的几像素抖动就会让面板
+         忽长忽短（点了就变长 10px）。 */
+      var target = lgExamPanelH;
+      if (force || !target) {
+        /* 工具栏入口固定 bottom:22px + 高 46px，直接用视口算，
+           不读它的 rect —— 抽屉开合动画中读会飘出 10px 的抖动。 */
+        var floorY = window.innerHeight - 68;
+        target = Math.max(240, Math.floor(floorY - 10 - lgEl.offsetTop));
+      }
       lgEl.style.height = target + 'px';
 
       if (!climExam) {
         if (lgExamFit) lgEl.classList.add(lgExamFit);
         lgEl.style.setProperty('--rowpad', lgExamPad);
         lgEl.style.setProperty('--rowgap', lgExamGap);
+        lgExamPanelH = target;
         return;
       }
       if (lgEl.scrollHeight > lgEl.clientHeight) lgEl.classList.add('lg-tight');
@@ -12900,14 +12906,14 @@ body.quiz-on #labels-canvas{display:none!important}
         var padB = parseFloat(getComputedStyle(lgEl).paddingBottom) || 0;
         var contentBottom = items[n - 1].getBoundingClientRect().bottom -
                             lgEl.getBoundingClientRect().top - padB;
-        extra = Math.max(0, lgEl.clientHeight - contentBottom - 14);
+        extra = Math.max(0, lgEl.clientHeight - contentBottom - 24);
       }
       lgEl.style.setProperty('--rowgap', (extra > 2 && n) ? Math.max(0, Math.floor(extra / n)) + 'px' : '0px');
       lgExamPad = lgEl.style.getPropertyValue('--rowpad') || '8px';
       lgExamGap = lgEl.style.getPropertyValue('--rowgap') || '0px';
-      lgExamPanelH = lgEl.offsetHeight;
+      lgExamPanelH = target;
     }
-    if (window.addEventListener) window.addEventListener('resize', lgFitExam);
+    if (window.addEventListener) window.addEventListener('resize', function () { lgFitExam(true); });
 
     function lgLegend(name) {
       if (!lgEl) return;
