@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-22-EG">
+<meta name="build" content="2026-11-22-EH">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -2316,6 +2316,9 @@ body.quiz-on #labels-canvas{display:none!important}
 #layer-legend.lg-exam12::-webkit-scrollbar{display:none}
 /* 只有气候实验室那一栏放左边；地形、洋流等仍是原来的右下角位置。
    用户点开地形时期待它待在原处，不能因为改了气候图例就整体搬家。 */
+/* 气候图例开着时，工具栏整组压在侧栏之上 —— 用户不用先关图例
+   就能切模式、开自转或昼夜分界。两个浮层同在左侧，层级必须明确。 */
+body.climate-layer-on #tools{z-index:44}
 #layer-legend:not(.lg-climate){
   left:auto;right:18px;top:auto;bottom:34px;
   width:296px;height:auto;padding:12px 14px 11px;border-radius:13px;
@@ -13064,6 +13067,9 @@ body.quiz-on #labels-canvas{display:none!important}
     }
 
     function lgSync() {
+      if (document.body) {
+        document.body.classList.toggle('climate-layer-on', lgCur === 'climate');
+      }
       var bcl = document.getElementById('btn-climate');
       var btr = document.getElementById('btn-terrain');
       if (bcl) {
