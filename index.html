@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-23-HL">
+<meta name="build" content="2026-11-23-HM">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -397,34 +397,51 @@
     border:1px solid var(--line);border-radius:12px;background:#070b14;
   }
 
-  .dimg-wrap .dimg{
-    display:block;width:100%;height:100%;object-fit:cover;position:relative;z-index:1;
+  /* 一张照片 = 一层 .dshot：模糊底 + 清晰图，同生同灭。
+     竖图的左右留白不再是两块死黑，而是**这张图自己**的放大虚化版；
+     换图时叠的也是整层，所以留白里不会出现"新图配旧底"这种杂交画面。 */
+  .dimg-wrap .dshot{
+    position:absolute;inset:0;z-index:1;
     /* 0.45s 太长：图在 ~300ms 就位，再淡入半秒，观感就是"切一张卡一下"。
        0.26s 在深色面板上仍然柔和，但不会拖。 */
     opacity:0;transition:opacity .26s ease;
   }
-  .dimg-wrap.loaded .dimg{opacity:1}
+  .dimg-wrap.loaded .dshot{opacity:1}
   /* 已在内存里的图（预取过）直接显示，不做淡入 ——
      深色底上那 0.26s 的淡入，观感就是"点一下闪一下"。 */
-  .dimg-wrap .dimg.now{transition:none}
-  /* 换图时的第二张：绝对定位压在上面，旧的留到新的画出来再撤 */
-  .dimg-wrap .dimg.overlay{position:absolute;inset:0;z-index:2;transition:none}
+  .dimg-wrap .dshot.now{transition:none}
+  /* 模糊底：把这张图 cover 铺满、糊掉，再整体放大 2 倍。
+     放大这一步是关键 —— blur 会把元素自己的四条边糊成半透明，直接铺在框里
+     就是四周一圈"发暗的渐晕"（越靠边越黑，等于把死黑换成了黑边）。
+     先糊再放大，糊边被推到框外面，框里就是干净的一片虚化色。
+     模糊半径要跟框走：投影模式那个 1100px 宽框用同一档只会糊掉细节、
+     还留着建筑轮廓（像块脏印子），所以那边单独放大到 3.2 倍。
+     亮度 .5、饱和度 1.2：它是背景，不能跟照片抢视线；压暗后颜色容易发闷，
+     靠饱和度补回来。 */
+  .dimg-wrap .dshot-bg{
+    position:absolute;inset:0;background-position:center;background-size:cover;
+    transform:scale(2);
+    filter:blur(24px) saturate(1.2) brightness(.5);
+  }
+  body.class-mode .dimg-wrap .dshot-bg{transform:scale(3.2);filter:blur(30px) saturate(1.2) brightness(.5)}
+  .dimg-wrap .dshot .dimg{
+    display:block;position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+  }
   /* 竖构图（埃菲尔铁塔 760×1406、长城烽燧之类）：框改成竖的、整张装进去，
      不再拿 16:10 的死框去裁 —— 那正是"塔被拉平看不到全貌"的来源。
-     底色写成**不透明**（原来 rgba(0,0,0,.28) 叠在 #070b14 上，肉眼看是同一个颜色）：
-     换图时压在上面的新图也要拿这个色当留白底，半透明的话旧图会从两侧条缝里透出来。 */
+     底色写成**不透明**：换图时压在上面的新层也拿它当兜底，半透明的话旧图会透出来。 */
   .dimg-wrap.fit{background:#05080e}
-  .dimg-wrap.fit .dimg{object-fit:contain}
+  .dimg-wrap.fit .dshot .dimg{object-fit:contain}
   .dimg-wrap.blank{
     display:flex;align-items:center;justify-content:center;
     font-size:12.5px;color:var(--ink-faint);text-align:center;padding:12px;
     background:linear-gradient(160deg,#0d1322,#0a0f1c);
   }
-  .dimg-wrap.blank .dimg{display:none}
+  .dimg-wrap.blank .dshot{display:none}
   /* 点击看大图：图能装下的框才有意义（blank/加载中不给手型，免得点了没反应） */
   .dimg-wrap.loaded{cursor:zoom-in}
   .dimg-wrap .zoomhint{
-    position:absolute;right:9px;bottom:9px;width:26px;height:26px;border-radius:8px;
+    position:absolute;right:9px;bottom:9px;width:26px;height:26px;border-radius:8px;z-index:3;
     display:flex;align-items:center;justify-content:center;
     color:#e2ebfa;background:rgba(8,12,22,.55);
     -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);
@@ -3899,16 +3916,35 @@ body.climate-layer-on #tools{z-index:44}
     var imgs = d.landmark_images || [];
     if (imgs.length) {
       var picWrap = el('div', 'dimg-wrap loading');
-      var pic = el('img', 'dimg');
-      /* 解码放到渲染线程之外。卡片首图普遍 1200×800 上下，同步解码
-         一次要 30~50ms —— 正好落在面板滑入、镜头起飞的那一帧上，
-         用户看到的就是"点一下顿一下"。decoding=async 让浏览器把解码
-         挪到别的线程，主线程只负责布局。 */
-      pic.decoding = 'async';
-      /* 主图是"点进来第一眼要看的东西"，缩略图只是胶片带。
-         没这一行，Chrome 把 6 张图的请求按同级排队，主图会被自己的缩略图拖着走。 */
-      try { pic.setAttribute('fetchpriority', 'high'); } catch (e) {}
-      picWrap.appendChild(pic);
+      /* 一张照片 = 一层 .dshot：模糊底 + 清晰图。
+         竖图的左右留白用它自己的放大虚化版填满（见 .dshot-bg），
+         换图时整层叠上去 —— 留白和照片永远同源，不会一个换了一个没换。 */
+      function makeShot(portrait) {
+        var cell = el('div', 'dshot');
+        var img = el('img', 'dimg');
+        /* 解码放到渲染线程之外。卡片首图普遍 1200×800 上下，同步解码
+           一次要 30~50ms —— 正好落在面板滑入、镜头起飞的那一帧上，
+           用户看到的就是"点一下顿一下"。decoding=async 让浏览器把解码
+           挪到别的线程，主线程只负责布局。 */
+        img.decoding = 'async';
+        /* 主图是"点进来第一眼要看的东西"，缩略图只是胶片带。
+           没这一行，Chrome 把 6 张图的请求按同级排队，主图会被自己的缩略图拖着走。 */
+        try { img.setAttribute('fetchpriority', 'high'); } catch (e) {}
+        /* 框型写在行内，不靠框上的 .fit：正在退场的那张旧图不该被新图的设置改动。 */
+        img.style.objectFit = portrait ? 'contain' : 'cover';
+        cell.__img = img;
+        if (portrait) cell.appendChild(makeBlur(cell));
+        cell.appendChild(img);
+        return cell;
+      }
+      function makeBlur(cell) {
+        var bg = el('div', 'dshot-bg');
+        cell.__bg = bg;
+        return bg;
+      }
+      var picCell = makeShot(false);
+      var pic = picCell.__img;
+      picWrap.appendChild(picCell);
       /* 放大提示 + 点击查看大图 */
       picWrap.appendChild(el('div', 'zoomhint', '⤢'));
       picWrap.addEventListener('click', function () {
@@ -3952,44 +3988,44 @@ body.climate-layer-on #tools{z-index:44}
            再跳成 4/5，用户看到的就是"先闪成全屏、再变竖图"。
            cards.json 里带 portrait 标记（build_cards 按 1080x1398 算好的），
            加载前就能决定，不跳。 */
-        var swap = picWrap.classList.contains('loaded') && pic && pic.parentNode === picWrap;
+        var portrait = isPortraitImage(it);
+        var swap = picWrap.classList.contains('loaded') && picCell && picCell.parentNode === picWrap;
         var wasFit = picWrap.classList.contains('fit');   // 旧图当时是按哪种框型画的
-        picWrap.classList.toggle('fit', isPortraitImage(it));
+        picWrap.classList.toggle('fit', portrait);
         picWrap.classList.remove('blank');
 
-        /* 换图 = 叠一张新的上去，旧的原地留到新图真的画出来为止。
+        /* 换图 = 整层换掉，旧的原地留到新的一层真的画出来为止。
            直接改同一只 <img> 的 src，浏览器的当前帧会立刻作废，
            中间空出来的 1~2 帧露出的就是框底色 —— 竖图两侧那圈留白
            正是这样"从正常变黑再变回来"的（普通横图看着就是闪一下黑）。
-           叠图之后任何一帧都有一张完整的在位图，不会有空帧。 */
-        var incoming = swap ? el('img', 'dimg overlay now') : pic;
+           叠一层之后任何一帧都有一张完整的在位照片，不会有空帧。 */
+        var incoming, incomingImg;
         if (swap) {
+          incoming = makeShot(portrait);
+          incomingImg = incoming.__img;
+          /* 换图这一层必须硬切。.dshot 上带着 0.26s 的淡入（首图用），
+             不关掉的话新旧两张会在 260ms 里叠着混合 —— 用户看到的就是
+             "闪的那一张既不是旧的也不是新的"。 */
+          incoming.style.transition = 'none';
           incoming.style.opacity = '0';
-          /* .fit 是挂在**框**上的类，一改就把框里还在场的那张旧图也一起改了
-             object-fit：横图切竖图时，旧横图会当场从"铺满"缩成"装整张"，
-             四周空出深色条 —— 用户看到的就是"才显示新图之前闪了一张别的图"；
-             竖图切横图更糟，旧竖图会被突然放大裁掉一圈。
-             旧图形状是用户此刻正在看的样子，必须钉死，让框型只作用于新图。
-             新图这边同样要给一层**不透明**底色：contain 的左右留白是透明的，
-             底下还压着旧图，那两三条缝里露出来的就是旧图。 */
-          pic.style.objectFit = wasFit ? 'contain' : 'cover';
-          var frameBg = '';
-          try { frameBg = getComputedStyle(picWrap).backgroundColor; } catch (e) {}
-          if (frameBg) incoming.style.background = frameBg;
           /* 首图那套骨架类如果还没被 340ms 定时器摘掉（点得快时它会因为序号对不上
-             直接 return，永远留在框上），这里顺手清掉：换图时旧图是完整的，
-             不需要骨架，留着只会让 .loading 的背景色跟竖图留白打架。 */
+             直接 return，永远留在框上），这里顺手清掉。 */
           picWrap.classList.remove('loading', 'revealed');
-          picWrap.appendChild(incoming);        // .overlay 是绝对定位，压在上面
+          picWrap.appendChild(incoming);        // 后面加的在上层，绝对定位
         } else {
+          incoming = picCell;
+          incomingImg = pic;
+          /* 第一张：把框型和模糊底补上（cell 是先建好的，那时候还不知道横竖） */
+          incomingImg.style.objectFit = portrait ? 'contain' : 'cover';
+          if (portrait && !incoming.__bg) incoming.insertBefore(makeBlur(incoming), incomingImg);
           picWrap.classList.remove('loaded');
           picWrap.classList.add('loading');
           /* 预取过（已在内存）就免淡入；没预取才淡 0.26s */
-          pic.classList.toggle('now', !!it.__ready);
+          incoming.classList.toggle('now', !!it.__ready);
         }
-        incoming.alt = it.caption_zh || it.caption || d.name_zh;
-        incoming.decoding = 'async';
-        try { incoming.setAttribute('fetchpriority', 'high'); } catch (e) {}
+        incomingImg.alt = it.caption_zh || it.caption || d.name_zh;
+        incomingImg.decoding = 'async';
+        try { incomingImg.setAttribute('fetchpriority', 'high'); } catch (e) {}
 
         /* load 只说明"字节齐了"，不说明"能画了"。
            下面 commit() 里对命中缓存的新图会**同步**调一次 onload，那一刻
@@ -3998,12 +4034,17 @@ body.climate-layer-on #tools{z-index:44}
            用户看到的就是"不知道闪了张什么，然后才出这张图"。
            所以显形这一步统一挂到 decode() 后面：解码完成 = 一画就是图。
            手动那次和浏览器真正的 load 会各来一遍，用 __shown 只认第一次。 */
-        incoming.onload = function () {
+        incomingImg.onload = function () {
           if (seq !== picSeq) { if (swap) incoming.remove(); return; }
-          if (incoming.__shown) return;
-          incoming.__shown = true;
+          if (incomingImg.__shown) return;
+          incomingImg.__shown = true;
           var paint = function () {
             if (seq !== picSeq) { if (swap) incoming.remove(); return; }
+            /* 模糊底用**已经确认能取到**的那个地址（OBS 挂了会自动退到仓库相对路径，
+               这里拿 currentSrc 正好是最终生效的那个），不必再走一遍双源逻辑。 */
+            if (incoming.__bg && incomingImg.currentSrc) {
+              incoming.__bg.style.backgroundImage = 'url("' + incomingImg.currentSrc + '")';
+            }
             if (!swap) {
               picWrap.classList.add('revealed');   // 扫光开始淡出（照片同时淡入）
               picWrap.classList.add('loaded');
@@ -4016,13 +4057,14 @@ body.climate-layer-on #tools{z-index:44}
                 }, 340);
               })(seq);
             } else {
-              /* 新图确实可画了：让它显形，旧图等两张帧之后再退场 */
+              /* 新的一层确实可画了：让它显形，旧的一层等两帧之后再退场 */
               incoming.style.opacity = '1';
-              var oldPic = pic;
-              pic = incoming;
+              var oldCell = picCell;
+              picCell = incoming;
+              pic = incomingImg;
               requestAnimationFrame(function () {
                 requestAnimationFrame(function () {
-                  if (oldPic !== pic && oldPic.parentNode === picWrap) picWrap.removeChild(oldPic);
+                  if (oldCell !== picCell && oldCell.parentNode === picWrap) picWrap.removeChild(oldCell);
                 });
               });
             }
@@ -4031,17 +4073,23 @@ body.climate-layer-on #tools{z-index:44}
             /* 兜底：cards.json 里没有 portrait 的老数据，仍按实际尺寸补一次。
                有标记的不会走到这里改变框型，所以不会跳。 */
             if (it.portrait == null && !(it.size && it.size.detail)) {
-              picWrap.classList.toggle('fit', incoming.naturalHeight > incoming.naturalWidth * 1.15);
+              var tall = incomingImg.naturalHeight > incomingImg.naturalWidth * 1.15;
+              picWrap.classList.toggle('fit', tall);
+              incomingImg.style.objectFit = tall ? 'contain' : 'cover';
+              if (tall && !incoming.__bg) incoming.insertBefore(makeBlur(incoming), incomingImg);
+              if (incoming.__bg && incomingImg.currentSrc) {
+                incoming.__bg.style.backgroundImage = 'url("' + incomingImg.currentSrc + '")';
+              }
             }
           };
           /* decode() 可能因为 src 变化/解码失败而 reject，那就照常往下走，
              让 error → 回退同域 → blank 那条链去处理，不能卡死在透明上。 */
-          if (incoming.decode) incoming.decode().then(paint, paint);
+          if (incomingImg.decode) incomingImg.decode().then(paint, paint);
           else paint();
         };
-        incoming.__onfail = function () {
+        incomingImg.__onfail = function () {
           /* 换图失败：旧图还好好的，不能因为新的一张坏了就把整块清空
-             （.blank 会把所有 .dimg 都 display:none）。框型退回旧图那套，
+             （.blank 会把所有照片层都 display:none）。框型退回旧图那套，
              题注也退回去，屏幕上看到的和刚才一模一样。 */
           if (swap) {
             incoming.remove();
@@ -4057,9 +4105,9 @@ body.climate-layer-on #tools{z-index:44}
            连"换 src 那一下"都让它落在图片已经可画的状态上。 */
         var target = it.url || it.thumb_url;
         function commit() {
-          setAsset(incoming, target, it.v);
+          setAsset(incomingImg, target, it.v);
           // 换到同一张图时浏览器不会重新触发 load，loaded 就永远加不上，图是透明
-          if (incoming.complete && incoming.naturalWidth) incoming.onload();
+          if (incomingImg.complete && incomingImg.naturalWidth) incomingImg.onload();
         }
         if (it.__ready) {
           commit();
