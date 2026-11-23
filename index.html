@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-23-GX">
+<meta name="build" content="2026-11-23-GY">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -870,7 +870,9 @@
     color:rgba(230,238,250,.9);cursor:pointer;
     transition:background .2s cubic-bezier(.22,.61,.36,1),border-color .2s ease,
       transform .2s cubic-bezier(.22,.61,.36,1),box-shadow .2s ease}
-  .sr-sug-chip:hover{background:rgba(255,255,255,.088);border-color:rgba(216,178,106,.3);
+  /* 悬停和"最近看过"那一排同一套：只提一档中性白底 + 一线冷白描边，
+     不用金色 —— 一排按钮里只有一个是金边，看着像"选中"，其实只是路过。 */
+  .sr-sug-chip:hover{background:rgba(255,255,255,.082);border-color:rgba(148,182,224,.26);
     color:#f6f9ff;transform:translateY(-1px);box-shadow:0 2px 8px rgba(0,0,0,.16)}
   .sr-sug-chip:active{transform:translateY(0);background:rgba(255,255,255,.07)}
   .sr-sug-chip.ghost{background:rgba(255,255,255,.028);color:rgba(188,204,226,.82)}
