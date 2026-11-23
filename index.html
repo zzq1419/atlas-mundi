@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-23-EQ">
+<meta name="build" content="2026-11-23-GP">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -7223,6 +7223,7 @@ body.climate-layer-on #tools{z-index:44}
     'temp.webp': 'dc0c15ce',
     'terrain-lo.webp': '1439af05',
     'terrain.webp': '124b640d',
+    'terrain-shade.webp': '8cbfd7e9',
     /* TEX_VER:end */
   };
 
@@ -7518,6 +7519,14 @@ body.climate-layer-on #tools{z-index:44}
          地形贴图不透明，整颗球换成地图册式的高程着色。 */
       uLayerMap: { value: null },
       uLayerMix: { value: 0 },
+      /* 地形起伏（地形图层专用）。
+         uShadeMap 是构建时按 assets/tex/elev.png 烘出来的山体阴影图
+         （方位 315°、高度角 45° 的标准 GIS hillshade，海洋压成中性 0.5）。
+         地形图本身只有分层设色，面积一块块是平的，看不出"这是山、那是盆地"；
+         乘一层山影以后山脊受光、谷地背光，起伏立刻就出来了。
+         占位是一张 1×1 的 128 灰：hs=0.5 时乘 1.0，等于没开。 */
+      uShadeMap: { value: null },
+      uTerrK: { value: 0 },         // 地形图层专用强度（跟随 uLayerMix，但只在 terrain 时非 0）
       /* 气候实验室的「单类隔离」：索引图（R = 柯本序号 + 1，G = 高原标记）
          当遮罩用，选中的类保持原色、其余压到 10% 透出来当参照。
          uSoloOn = 0 时整段不参与计算，行为和没有这个功能之前一模一样。 */
@@ -7534,6 +7543,13 @@ body.climate-layer-on #tools{z-index:44}
       uTone: { value: 0.9 },
       uLight: { value: new THREE.Vector3(0, 0, 1) }
     };
+
+    /* 山影贴图没到之前先垫一张 1×1 的 128 灰：hs=0.5 → 乘 1.0，
+       地形图颜色一点不变。等 164KB 的 terrain-shade.webp 到了再换掉 ——
+       否则 sampler 拿到默认白纹理（hs=1）会把地形整体提亮一档。 */
+    var flatGray = new THREE.DataTexture(new Uint8Array([128, 128, 128, 255]), 1, 1);
+    flatGray.needsUpdate = true;
+    uniforms.uShadeMap.value = flatGray;
 
     var vert = [
       'varying vec2 vUv;',
@@ -7579,6 +7595,8 @@ body.climate-layer-on #tools{z-index:44}
       'uniform vec3 uLight;',
       'uniform sampler2D uLayerMap;',
       'uniform float uLayerMix;',
+      'uniform sampler2D uShadeMap;',
+      'uniform float uTerrK;',
       'uniform sampler2D uLayerIdx;',
       'uniform vec2 uIdxPx;',
       'uniform float uEdgeOn;',
@@ -7649,8 +7667,11 @@ body.climate-layer-on #tools{z-index:44}
       '    vec3 north = normalize(cross(n, east));',
       '    vec3 nP = normalize(n + (east * nt.x + north * nt.y) * uNormalScale);',
       '    vec3 L = Lv;',
-      '    float rl = (dot(nP, L) - dot(n, L)) * uRelief;',
-      '    day *= clamp(1.0 + rl, 0.52, 1.62);',
+      /* 地形图层里把这层起伏再放大 1.85 倍、上下限也放宽：
+         平时看卫星影像，起伏只是"让球有质感"；切到地形就是来看山的，
+         同样的量会显得太客气。 */
+      '    float rl = (dot(nP, L) - dot(n, L)) * uRelief * (1.0 + 0.85 * uTerrK);',
+      '    day *= clamp(1.0 + rl, mix(0.52, 0.40, uTerrK), mix(1.62, 1.95, uTerrK));',
       '  }',
       '  vec3 col = day;',
       '  float nightK = nightMix;',   // 夜里用多少夜间贴图（0=全白天）
@@ -7771,6 +7792,18 @@ body.climate-layer-on #tools{z-index:44}
       '      layerCol = mix(layerCol, vec3(0.035, 0.055, 0.085), edge * 0.46);',
       '    }',
       '    col = mix(col, layerCol * limb, lc.a * uLayerMix);',
+      /* ---------- 地形山影 ----------
+         地形图是分层设色，单看色块分不出"这是山坡、那是盆地"。
+         这里乘一层预生成的山体阴影（西北 45° 光）：迎光坡提亮、背光坡压暗，
+         起伏立刻读得出来。0.10+1.64*hs 在 hs=0.55 时等于 1.0 ——
+         中性点取 0.55 而不是 0.5，是因为陆地整体朝西南倾斜、迎光面偏多，
+         按 0.5 算青藏高原那一大片会被再提亮一档，白得发飘。
+         hs 0.18~0.77 对应 0.40~1.36，落差够大，不会被分层设色淹没。
+         只在 uTerrK>0（地形图层）时执行，气候图层完全不受影响。 */
+      '    if (uTerrK > 0.001) {',
+      '      float hs = texture2D(uShadeMap, vUv).r;',
+      '      col *= mix(1.0, clamp(0.10 + 1.64 * hs, 0.30, 1.80), uTerrK);',
+      '    }',
       '  }',
       '  gl_FragColor = vec4(l2s(col) * uFade, 1.0);',
       '}'
@@ -12951,6 +12984,44 @@ body.climate-layer-on #tools{z-index:44}
       });
     }
 
+    /* ---------- 地形山影 ----------
+       和 terrain.webp 分开加载：它只有 164KB，但和 8K 地形图抢同一个
+       下载队列会互相拖。先到就先换上，没到就是占位的 0.5 灰（等于没开）。 */
+    var lgShadeTex = null, lgShadeLoading = 0, lgShadeQueue = [];
+    function lgShadeLoad(cb) {
+      if (lgShadeTex) { if (cb) cb(lgShadeTex); return; }
+      if (cb) lgShadeQueue.push(cb);
+      if (lgShadeLoading) return;
+      lgShadeLoading = 1;
+      /* 只走同域：这张图 164KB，和页面同一个 GitHub Pages CDN，
+         没必要先去 OBS 撞一次 404 再回退（那一次往返比下载本身还久）。 */
+      var ver = TEX_VER['terrain-shade.webp'];
+      var url = 'assets/tex/terrain-shade.webp' + (ver ? ('?v=' + ver) : '');
+      new THREE.TextureLoader().load(url, function (t) {
+        lgShadeLoading = 0;
+        /* 等距柱状图横向要能接上（180°E 与 180°W 是同一列），
+           纵向夹边即可 —— 极点那两行本来就是中性灰。
+           山影只做数据不调色，关掉 sRGB 解码，否则 0.5 中性就偏了。 */
+        t.wrapS = THREE.RepeatWrapping;
+        t.wrapT = THREE.ClampToEdgeWrapping;
+        t.generateMipmaps = true;
+        t.minFilter = THREE.LinearMipmapLinearFilter;
+        t.magFilter = THREE.LinearFilter;
+        if (THREE.LinearSRGBColorSpace !== undefined) {
+          t.colorSpace = THREE.LinearSRGBColorSpace;
+        } else if (THREE.LinearEncoding !== undefined) {
+          t.encoding = THREE.LinearEncoding;
+        }
+        t.needsUpdate = true;
+        lgShadeTex = t;
+        if (globe.earthMat) globe.earthMat.uniforms.uShadeMap.value = t;
+        var q = lgShadeQueue; lgShadeQueue = [];
+        q.forEach(function (f) { try { f(lgShadeTex); } catch (e) {} });
+      }, undefined, function () {
+        lgShadeLoading = 0;   // 失败就保持占位灰，下次再试
+      });
+    }
+
     /* 把贴图推上显存（含 mipmap 生成）。8K 一次 300~600ms，只在
        "用户没在动 + 刚点开图层"这两种时机调用。 */
     function lgUpload(name) {
@@ -12974,17 +13045,25 @@ body.climate-layer-on #tools{z-index:44}
       })();
     }
 
+    var lgTerrFading = false;
     function lgFade(to, dur) {
       var from = lgMix, t0 = performance.now();
+      var isTerr = (lgCur === 'terrain') || (to === 0 && lgTerrFading);
       cancelAnimationFrame(lgAnim);
       (function step() {
         var k = Math.min(1, (performance.now() - t0) / dur);
         var e = k < 0.5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;
         lgMix = from + (to - from) * e;
-        if (globe.earthMat) globe.earthMat.uniforms.uLayerMix.value = lgMix;
+        if (globe.earthMat) {
+          globe.earthMat.uniforms.uLayerMix.value = lgMix;
+          /* 地形专用强度跟着淡入淡出走：只有当前图层是地形时非 0，
+             所以气候图层完全不受山影/加强起伏影响。 */
+          globe.earthMat.uniforms.uTerrK.value = isTerr ? lgMix : 0;
+        }
         if (k < 1) { lgAnim = requestAnimationFrame(step); }
-        else if (to === 0 && globe.earthMat) {
-          globe.earthMat.uniforms.uLayerMap.value = null;
+        else if (to === 0) {
+          lgTerrFading = false;
+          if (globe.earthMat) globe.earthMat.uniforms.uLayerMap.value = null;
         }
       })();
     }
@@ -13227,6 +13306,10 @@ body.climate-layer-on #tools{z-index:44}
       if (ocOn) ocApply(false);
       if (mnOn) mnApply(false);
       if (wbOn) wbApply(false);
+      /* lgCur 马上就要被清空，但山影得陪着地形图一起淡出 ——
+         先记下"正在淡出的是地形"，否则 uTerrK 会当场归零，
+         那 260ms 里就是"地形色块还在、立体感先没了"。 */
+      lgTerrFading = (lgCur === 'terrain');
       lgCur = '';
       globe.layerName = '';
       /* 关图层 = 关掉"只看某一类"，否则下次开起来会莫名其妙还是隔离状态 */
@@ -13281,6 +13364,8 @@ body.climate-layer-on #tools{z-index:44}
            先让按钮和图例立刻给反馈，贴图随后淡入。 */
         whenIdle(function () { lgUpload(name); });
         if (name === 'climate') climIdxLoad(function () {});
+        /* 地形：把山影图也备上。164KB，通常已经在预热里下好了。 */
+        if (name === 'terrain') lgShadeLoad(null);
         if (globe.syncBorderColor) globe.syncBorderColor();
         if (globe.clearPins) { globe.clearPins('climate'); globe.clearPins('elev'); }
         if (globe.tShapeClear) globe.tShapeClear();
@@ -13302,6 +13387,7 @@ body.climate-layer-on #tools{z-index:44}
             if (globe.tShapeWarm) globe.tShapeWarm();
           });
         });
+        lgShadeLoad(null);
       };
       /* 第三批：切换口径要用的柯本贴图 + 实验室的索引图。
          下载不等空闲 —— 鼠标只要在页面上动，whenIdle 就会一直往后推
