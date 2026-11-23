@@ -10,9 +10,9 @@ elev.png 的编码（前端 probeElevAt 已用同一套）：
     h = R*256 + G - 32768   （单位：米）
 
 输出 assets/tex/terrain-shade.webp：2048x1024 灰度
-    · 陆地：标准 GIS hillshade（方位 315°、高度角 45°），0..1
+    · 陆地：标准 GIS hillshade（方位 315°、高度角 45°）+ 大尺度地势项（TPI），0..1
     · 海洋：0.5（中性，叠加时不变亮也不变暗）
-shader 里按 col *= 0.55 + 0.9 * hs 使用，hs=0.5 恰好等于 1.0。
+shader 里按 col *= 0.10 + 1.64 * hs 使用（中性点 0.55）。
 """
 import os
 import numpy as np
@@ -58,6 +58,30 @@ hs = (np.cos(zen) * np.cos(slope) +
       np.sin(zen) * np.sin(slope) * np.cos(az - aspect))
 hs = np.clip(hs, 0.0, 1.0)
 
+# --- 局部地势（TPI）：让"高"看起来真的是高的 ---
+# 单方向 hillshade 只回答"这面坡朝哪边"，不回答"这儿比周围高还是低"。
+# 塔里木盆地四周是山脊，山影把四边压暗、中间平坦处留亮 —— 整块就被读成
+# 抬起来的台地；青藏高原则因为面积太大、光又偏西南，反而整片压暗像洼地。
+# 这就是用户说的"盆地看上去是凸起、高原反而像盆地"。
+# 用大半径（约 2400km）的局部均值差（TPI）给一层"绝对地势"：
+#   比周围低（盆地、谷地）→ 压暗；比周围高（高原、山脊）→ 提亮。
+def box_mean(arr, r):
+    """半径 r 的方形窗口均值，走积分图，float64 防累加丢精度。"""
+    a64 = np.pad(arr.astype(np.float64), r, mode='edge')
+    ii = np.cumsum(np.cumsum(a64, axis=0), axis=1)
+    ii = np.pad(ii, ((1, 0), (1, 0)))
+    k = 2 * r + 1
+    total = ii[k:, k:] - ii[:-k, k:] - ii[k:, :-k] + ii[:-k, :-k]
+    return (total / (k * k)).astype(np.float32)
+
+# 半径 40px ≈ 7° ≈ 770km：窗口刚好把盆地的边缘山地包进来，
+# 盆地中心就会稳定落在 -1400~-1600m（半径 120px 时塔里木只剩 -113m，
+# 因为窗口比盆地本身还大，均值和中心一样）。实测 r=40 时：
+#   塔里木 -1623、四川盆地 -1371、青藏高原 +1440、喜马拉雅 +1399、华北平原 -512
+TPI_R = 40
+tpi = h - box_mean(h, TPI_R)
+tpi_n = np.clip(tpi / 1600.0, -1.0, 1.0)     # ±1600m 归一化
+
 # --- 海洋压成中性，深海不该有"山影" ---
 sea = h < 0.0
 hs[sea] = 0.5
@@ -70,6 +94,17 @@ land0 = hs[~sea]
 med = float(np.median(land0))
 hs[~sea] = np.clip(0.5 + (land0 - med) * 4.2, 0.0, 1.0)
 
+# 叠加地势项：盆地/谷地压暗、高原/山脊提亮（在 0..1 的 hs 空间里）。
+# 0.14 时数值上已经拉开（塔里木 0.36 / 青藏 0.63），但看屏幕还是分不出 ——
+# 分层设色本身就"低地黄绿、山地深棕"，低地底色浅、山地底色深，
+# 正好把这层明暗抵掉一半。所以一路加到 0.30，才压得住色带。
+# 正负不对称：低洼要压得狠（要靠它把"盆地像台地"的错觉掰回来），
+# 高处只轻轻提 —— 高原那片本来就是雪线以上的纯白，再提就糊成一片死白，
+# 山脉细节全丢了（0.30 对称那版实测就是这样）。
+_tn = tpi_n[~sea]
+hs[~sea] = np.clip(hs[~sea] + 0.32 * np.clip(_tn, -1, 0)
+                   + 0.11 * np.clip(_tn, 0, 1), 0.0, 1.0)
+
 # --- 极区 cos(lat) → 0，梯度会炸成条纹；按纬度把强度收掉 ---
 latk = np.clip((np.abs(np.linspace(90, -90, H)) - 60.0) / 25.0, 0.0, 1.0)[:, None]
 hs = hs * (1.0 - latk) + 0.5 * latk
@@ -81,3 +116,13 @@ print('hs min/mean/max %.3f %.3f %.3f' % (hs.min(), hs.mean(), hs.max()))
 land = hs[~sea]
 print('land hs p1/p10/p50/p90/p99: %.3f %.3f %.3f %.3f %.3f' % tuple(
     np.percentile(land, [1, 10, 50, 90, 99])))
+
+# 抽查：盆地应当明显比高原暗
+def at(lon, lat):
+    x = int((lon + 180) / 360 * W); y = int((90 - lat) / 180 * H)
+    return hs[y, x]
+for k, (lo, la) in {'塔里木盆地': (83, 39), '四川盆地': (105, 30),
+                    '青藏高原': (88, 33), '黄土高原': (108, 36),
+                    '华北平原': (116, 37)}.items():
+    print('  %s hs=%.3f tpi=%+.0fm' % (k, at(lo, la),
+          tpi[int((90 - la) / 180 * H), int((lo + 180) / 360 * W)]))
