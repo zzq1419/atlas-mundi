@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-23-HA">
+<meta name="build" content="2026-11-23-HB">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -329,17 +329,16 @@
     align-items:center;justify-content:center;padding:0;
     color:rgba(216,232,250,.84);background:transparent;
     border:1px solid transparent;cursor:pointer;font-family:inherit;
-    transition:color .2s ease,background .2s ease,border-color .2s ease,
-               transform .16s ease,opacity .3s ease}
+    transition:color .08s linear,background-color .08s linear,opacity .3s ease}
   body.solar-on #solar-exit{display:flex}
   /* 星球档案卡打开时把"退出太阳系"整颗收掉（用户要求）：卡片里已经有自己的
      × 用来退出特写，右上角再来一颗圆 × 会让人分不清哪个关什么。
      必须写在这一行**之后** —— 两条选择器特异性相同，靠顺序决胜。 */
   body.pcard-open #solar-exit{display:none}
+  /* 跟档案卡那颗叉同一套：悬停只浮出一枚圆形底，不描边、不放大 */
   #solar-exit:hover,#solar-exit:focus-visible{
-    color:#eef4fe;background:rgba(148,182,224,.16);
-    border-color:rgba(148,182,224,.6);transform:scale(1.05)}
-  #solar-exit:active{transform:scale(.96)}
+    color:#eef4fe;background:rgba(148,182,224,.18)}
+  #solar-exit:active{background:rgba(148,182,224,.26)}
   #solar-exit svg{width:17px;height:17px;fill:none;stroke:currentColor;
     stroke-width:2.1;stroke-linecap:round;filter:drop-shadow(0 1px 4px rgba(0,0,0,.6))}
   #rotate-hint .rh-t{font-size:17px;color:#f0f4fb}
@@ -1363,29 +1362,31 @@ body.solar-on #globe-stage{transform:none !important;transition:none !important}
      看着像"卡了一下才开始变"。 */
   transition:border-color .09s linear,background .09s linear,box-shadow .09s linear;
 }
-/* 点开之后形状一点都不变：仍是一枚 22px 的胶囊。
-   上一版把下圆角改成 12px 去"拼"下面的结果卡，点一下框就被掰直了；
-   现在结果卡是独立的一张，浮在下方 8px，两者不再需要拼成一块。 */
-.search-wrap.card-open .search-panel{border-radius:22px}
+/* 展开 = 这枚胶囊的下半截直接长出来，是**一张纸**：
+   上圆角还是 22px（形状没变），下边交给结果卡去收，
+   底色、描边跟下面完全同一档，中间不画第二道横线。
+   边框亮度在这里被钉死成结果卡那一档 —— 否则聚焦时的亮线只围着上半截，
+   一眼就把这块劈成两半。 */
+.search-wrap.card-open .search-panel{
+  border-radius:22px 22px 0 0;
+  background:#070b12;
+  border-color:rgba(126,158,198,.16);
+  border-bottom-color:transparent;
+  box-shadow:none;
+}
 
-/* hover / focus：只把底提一档、描边亮一点，和 Google 那只框一个逻辑 ——
-   没有外发光环。之前那道 2px 的 focus ring 只会围着上半截画，
-   下圆角处露出一道更亮的弧线，看着像框被劈成了两半。 */
-.search-panel:hover{
-  border-color:rgba(150,185,230,.22);
-  background:linear-gradient(180deg,rgba(14,20,32,.96) 0%,rgba(7,12,20,.98) 100%);
-}
-.search-panel:hover .search-icon{stroke:rgba(196,222,252,.86)}
-.search-panel:focus-within{
-  border-color:rgba(158,194,240,.34);
-  background:linear-gradient(180deg,rgba(16,23,36,.97) 0%,rgba(8,13,22,.99) 100%);
-}
+/* hover / focus：只让边框和放大镜亮一点点，框里**不铺任何高亮层**。
+   之前两档都换了一层更亮的渐变底，看着像里面又叠了一块玻璃。 */
+.search-panel:hover{border-color:rgba(150,185,230,.24)}
+.search-panel:hover .search-icon{stroke:rgba(198,222,250,.80)}
+.search-panel:focus-within{border-color:rgba(160,192,232,.34)}
+.search-panel:focus-within .search-icon{stroke:rgba(206,228,252,.9)}
 
 .search-panel .search-icon{
   position:absolute;left:14px;top:50%;transform:translateY(-50%);
   width:16px;height:16px;pointer-events:none;
   fill:none;stroke:rgba(158,190,228,.52);stroke-width:1.8;
-  transition:stroke .26s ease;
+  transition:stroke .09s linear;
   stroke-linecap:round;stroke-linejoin:round;
 }
 
@@ -1438,15 +1439,16 @@ body.solar-on #globe-stage{transform:none !important;transition:none !important}
    内部拆成"可滚动的列表 + 钉在底部的说明行"：Google 那块面板底下
    永远挂着一条"更多近期搜索记录"，而不是要滚到第 235 行才看见。 */
 #q-res{
-  /* 不再是"搜索行的下半截"，而是浮在它下面 8px 的一张独立卡片：
-     两者各留各的圆角，接缝问题从根上没有了。 */
-  position:absolute;top:calc(100% + 8px);left:0;
+  /* 紧贴输入行：它就是这枚胶囊长出来的下半截，中间不留缝。 */
+  position:absolute;top:100%;left:0;
   width:100%;box-sizing:border-box;
   /* 高一点：建议区占掉上半截之后，列表里要能看见中国、印度、美国三行 */
   max-height:min(72vh, 660px);
   display:flex;flex-direction:column;
-  border-radius:16px;
+  border-radius:0 0 16px 16px;
   border:1px solid rgba(126,158,198,.16);
+  /* 上边不画：上半截的底边就是这张纸的分隔线，同色同淡度 */
+  border-top:0;
 
   /* 实色，不能留 alpha：97% 不透明时，地球上那几条金色经纬线和地名标签
      仍然会隐隐透出来（它们对比度太高），读列表像隔着一层毛玻璃。
@@ -2008,9 +2010,12 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
   border-bottom:1px solid rgba(140,170,210,.18)}
 .kit-head strong{font-size:14px;font-weight:600;letter-spacing:.04em;color:#e6eefa}
 .kit-head .kit-sub{margin-left:auto;font-size:12px;color:#9dbddc}
-.kit-x{margin-left:auto;width:32px;height:32px;line-height:30px;text-align:center;
-  border:0;border-radius:50%;background:transparent;color:#c2d8ee;font-size:22px;cursor:pointer;
+.kit-x{margin-left:auto;width:32px;height:32px;padding:0;text-align:center;
+  display:flex;align-items:center;justify-content:center;
+  border:0;border-radius:50%;background:transparent;color:rgba(226,236,250,.62);cursor:pointer;
   transition:background-color .08s linear,color .08s linear}
+.kit-x svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2.1;
+  stroke-linecap:round}
 .kit-x:hover{background:rgba(150,185,230,.2);color:#fff}
 .kit-x:active{background:rgba(150,185,230,.28)}
 .kit-head .kit-sub + .kit-x{margin-left:0}
@@ -3045,7 +3050,11 @@ body.climate-layer-on #tools{z-index:44}
   <header class="kit-head">
     <strong>看图猜国家</strong>
     <span class="kit-sub" id="quiz-score">0 / 0</span>
-    <button class="kit-x" type="button" aria-label="关闭随堂测验">×</button>
+    <!-- 叉的形状跟档案卡那颗一模一样（同一段 SVG、同样 2.1 描边）：
+         之前这里用一个 22px 的"×"字符，笔画粗细和位置都跟别处对不上 -->
+    <button class="kit-x" type="button" aria-label="关闭随堂测验">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.6 6.6 17.4 17.4M17.4 6.6 6.6 17.4"/></svg>
+    </button>
   </header>
   <div class="kit-body">
     <p class="quiz-ask" id="quiz-ask">地球会转到一个国家，猜猜它是谁？</p>
