@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-23-HS">
+<meta name="build" content="2026-11-23-HT">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -11060,10 +11060,18 @@ body.climate-layer-on #tools{z-index:44}
       solar.ambLight = SOLAR_AMB_LIGHT;
 
       /* ---- 太阳：真实贴图 + 边缘变暗 + 两层暖辉光 ---- */
-      /* 贴图必须 Repeat 环绕：着色器里对 uv.x 取 fract 做无缝横移，
-         但采样器如果是 Clamp 模式，接缝两侧的线性过滤会把边缘像素拖出来一条线。 */
+      /* 贴图要 Repeat 环绕：着色器里让 uv.x 一直往前加做无缝横移，
+         采样器若是 Clamp 模式，越界后整条边被拉成一片（曾经那个"只剩一瓣"的 bug）。 */
       var sunTex = planetTex('sun.webp');
       sunTex.wrapS = sunTex.wrapT = THREE.RepeatWrapping;
+      /* 各向异性关掉：这条只对**斜视**的平面有用，太阳是个正对相机的球，
+         球面上几乎每处都是各向同性的；而在 uv 接缝那一列，各向异性采样要沿
+         u 方向多取几个样本、恰好跨过 wrap 边界，硬件在这里的表现各家驱动
+         不一致 —— 多一事不如少一事。 */
+      sunTex.anisotropy = 1;
+      /* 显式标脏：planetTex 是带缓存的，若这条纹理在别处已经上传过，
+         只改 wrapS/anisotropy 不会重新提交采样器状态，上面两行就白写了。 */
+      sunTex.needsUpdate = true;
       solar.sunUni = { uTime: { value: 0 }, uMap: { value: sunTex }, uFade: { value: 0 } };
       var sunMat = new THREE.ShaderMaterial({
         uniforms: solar.sunUni,
@@ -11081,11 +11089,11 @@ body.climate-layer-on #tools{z-index:44}
           'uniform float uTime; uniform sampler2D uMap; uniform float uFade;',
           'varying vec2 vUv; varying vec3 vN; varying vec3 vV;',
           'void main() {',
-          /* 贴图缓慢横移：太阳是流体，静止的贴图看着像塑料球。
-             必须 fract() —— 贴图是 ClampToEdge，直接让 uv.x 一路加下去，
-             几分钟后 uv 全部 >1，整颗球就只剩边缘那一列被拉成一片，
-             看着就像"太阳贴图只有一小瓣是正常的"（这就是那个 bug）。 */
-          '  vec2 uv = vec2(fract(vUv.x + uTime * 0.0042), vUv.y);',
+          /* 贴图不再横移（改用太阳自转，见渲染循环里 s.sun.rotation.y）：
+             uv 永远落在原始的 [0,1] 内，接缝只夹在纹理最左右两列之间，
+             不依赖采样器的 Repeat 环绕 —— 那条贯穿南北的细线就是这么来的。
+             uTime 现在只留给别处用（保留 uniform，避免影响外部引用）。 */
+          '  vec2 uv = vUv;',
           '  vec3 tex = texture2D(uMap, uv).rgb;',
           '  float mu = clamp(dot(normalize(vN), normalize(vV)), 0.0, 1.0);',
           /* 边缘变暗（临边昏暗）：贴图本身没有这层，得自己补 */
@@ -11467,6 +11475,13 @@ body.climate-layer-on #tools{z-index:44}
           p.line.material.opacity = 0.44 * sunK;
           p.line.visible = p.line.material.opacity > 0.002;
         });
+        /* 太阳自转：原来是在片元里让 uv.x 一直往前加（靠 Repeat 环绕做"流动"），
+           但 uv 一旦跨过 1.0 就要靠采样器的 wrap 去接住 —— 接缝那一列到底
+           连续还是不连续，取决于驱动怎么处理跨 wrap 的插值/各向异性过滤。
+           改成让球自己转：采样坐标永远是原始的 vUv ∈ [0,1]，接缝只在纹理
+           最左右那两列之间（那两列本来就几乎同色），不依赖任何采样器行为。
+           转速与原来等效：0.0042 周长/秒。 */
+        s.sun && (s.sun.rotation.y += dtSec * 0.0042 * Math.PI * 2);
         s.sunUni && (s.sunUni.uTime.value = performance.now() / 1000);
 
         /* 日冕流：两层反向转 + 轻微呼吸（再乘 sunK，太阳没亮起来之前不许有光） */
