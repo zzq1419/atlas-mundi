@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-23-GQ">
+<meta name="build" content="2026-11-23-GR">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -7224,6 +7224,7 @@ body.climate-layer-on #tools{z-index:44}
     'terrain-lo.webp': '1439af05',
     'terrain.webp': '124b640d',
     'terrain-shade.webp': 'eed416a2',
+    'terrain-elev.webp': 'cd401017',
     /* TEX_VER:end */
   };
 
@@ -7527,6 +7528,12 @@ body.climate-layer-on #tools{z-index:44}
          占位是一张 1×1 的 128 灰：hs=0.5 时乘 1.0，等于没开。 */
       uShadeMap: { value: null },
       uTerrK: { value: 0 },         // 地形图层专用强度（跟随 uLayerMix，但只在 terrain 时非 0）
+      /* 地形隆起：顶点按高程往外推。uDispK 是"最高处推出去多少（占球半径）"，
+         随地形图层淡入，退出地形时球回到正圆。uElevPx 是 1/贴图尺寸，
+         顶点着色器用它做梯度采样。 */
+      uElevMap: { value: null },
+      uDispK: { value: 0 },
+      uElevPx: { value: new THREE.Vector2(1 / 1024, 1 / 512) },
       /* 气候实验室的「单类隔离」：索引图（R = 柯本序号 + 1，G = 高原标记）
          当遮罩用，选中的类保持原色、其余压到 10% 透出来当参照。
          uSoloOn = 0 时整段不参与计算，行为和没有这个功能之前一模一样。 */
@@ -7550,18 +7557,61 @@ body.climate-layer-on #tools{z-index:44}
     var flatGray = new THREE.DataTexture(new Uint8Array([128, 128, 128, 255]), 1, 1);
     flatGray.needsUpdate = true;
     uniforms.uShadeMap.value = flatGray;
+    /* 高程图同理垫一张全 0：uDispK 没开时本来就乘 0，这里只是防 sampler 为空。 */
+    var flatZero = new THREE.DataTexture(new Uint8Array([0, 0, 0, 255]), 1, 1);
+    flatZero.needsUpdate = true;
+    uniforms.uElevMap.value = flatZero;
 
     var vert = [
       'varying vec2 vUv;',
       'varying vec3 vN;',
       'varying vec3 vNL;',
       'varying vec3 vV;',
+      'uniform sampler2D uElevMap;',
+      'uniform float uDispK;',
+      'uniform vec2 uElevPx;',
       'void main() {',
       '  vUv = uv;',
+      '  vec3 nrm0 = normalize(normal);',
+      /* ---------- 地形隆起 ----------
+         按高程把顶点沿法线往外推。uDispK 由地形图层的淡入驱动，
+         非地形模式恒为 0 —— 那时 pos 和 normal 跟原来一模一样，
+         这段对正常浏览是零影响（只有多一次纹理采样）。
+         高程图 1024×512，0.5 = 球面：陆地往上、海底往下。
+         采样放在 if 里面：非地形模式（uDispK=0）一次纹理都不取，
+         29 万个顶点跑起来和原来 16 万个的开销基本一样。 */
+      '  vec3 pos = position;',
+      '  vec3 nrm = nrm0;',
+      '  if (uDispK > 0.0002) {',
+      '    float e = texture2D(uElevMap, uv).r;',
+      /* 海底最多只放 25% 的位移量，否则海沟一带会把球掐出尖坑。 */
+      '    float disp = clamp((e - 0.5) * 2.0, -0.25, 1.0);',
+      '    pos = position * (1.0 + disp * uDispK);',
+      /* 位移之后法线必须跟着歪，否则隆起只体现在轮廓上、正面还是一张皮。
+         用相邻像素的高程差求切线空间梯度，再换成世界法线：
+           坡往北升 → 法线往南倒，所以是减。 */
+      '    float eR = texture2D(uElevMap, uv + vec2(uElevPx.x, 0.0)).r;',
+      '    float eL = texture2D(uElevMap, uv - vec2(uElevPx.x, 0.0)).r;',
+      '    float eU = texture2D(uElevMap, uv + vec2(0.0, uElevPx.y)).r;',
+      '    float eD = texture2D(uElevMap, uv - vec2(0.0, uElevPx.y)).r;',
+      '    vec3 east = normalize(cross(vec3(0.0, 1.0, 0.0), nrm0));',
+      '    vec3 north = normalize(cross(nrm0, east));',
+      /* 等距柱状投影在纬线上被压缩：同样的 du，赤道跨 1.0、极地只跨 cos(lat)，
+         不除这个因子，高纬的山会朝东西方向拉出条纹。 */
+      '    float cosLat = max(0.15, length(position.xz));',
+      '    float gx = (eR - eL) * uDispK * 230.0 / cosLat;',
+      '    float gy = (eU - eD) * uDispK * 230.0;',
+      /* 梯度封顶：海岸线、山前那一圈高程变化最陡，不封顶就是一圈尖刺
+         （实测 330 的增益下，整条海岸线全是毛）。1.1 ≈ 48° 倾角，
+         已经足够让山坡"立"起来，又不至于把贴图撕成刺猬。 */
+      '    gx = clamp(gx, -1.5, 1.5);',
+      '    gy = clamp(gy, -1.5, 1.5);',
+      '    nrm = normalize(nrm0 - (east * gx + north * gy));',
+      '  }',
       // vNL 是没旋转过的法线：昼夜分界要"钉在地表上"，不能被自转/拖拽带跑
-      '  vNL = normalize(normal);',
-      '  vN = normalize(mat3(modelMatrix) * normal);',
-      '  vec4 wp = modelMatrix * vec4(position, 1.0);',
+      '  vNL = nrm;',
+      '  vN = normalize(mat3(modelMatrix) * nrm);',
+      '  vec4 wp = modelMatrix * vec4(pos, 1.0);',
       '  vV = normalize(cameraPosition - wp.xyz);',
       '  gl_Position = projectionMatrix * viewMatrix * wp;',
       '}'
@@ -7634,8 +7684,20 @@ body.climate-layer-on #tools{z-index:44}
          v 每个像素都不同，等于光源跟着像素乱转，明暗自然出不来。
          uLight 由 CPU 每帧按相机算好（相机上方偏左）。 */
       '  vec3 Lv = normalize(uLight);',
+      /* 地形模式换成固定的"西北光"（世界坐标，方位 315°、高度角 45°）。
+         平时那束光跟着相机走，是为了"白天模式整颗球都亮、又有立体感"；
+         但地形要的是"哪面坡背光"——光跟着相机转，山脊永远没有影子，
+         再高的高原看上去也只是贴图。固定光源之后，西南坡受光、东北坡
+         背光，山脉立刻有了体积。
+         uTerrK=0 时原样不动，其它模式完全不受影响。 */
+      '  vec3 Lterr = normalize(vec3(-0.50, 0.60, 0.62));',
+      '  Lv = normalize(mix(Lv, Lterr, uTerrK));',
       '  float sdot = dot(n, Lv);',
-      '  float shade = mix(1.0 - 0.60 * uShade, 1.0 + 0.20 * uShade,',
+      /* 地形模式下把这一束光的明暗拉开（0.60/0.20 → 0.92/0.34）：
+         平时只求"球有个立体感"，太强会让卫星影像发脏；
+         地形模式要的是"坡的朝向"，光弱了山脊山脊都糊成一片。 */
+      '  float shade = mix(1.0 - mix(0.60, 0.92, uTerrK) * uShade,',
+      '                    1.0 + mix(0.20, 0.34, uTerrK) * uShade,',
       '                    smoothstep(-0.55, 0.85, sdot));',
       '  vec3 day = mix(dA, dB, k) * limb * shade;',
       /* ---------- 海面反光 ----------
@@ -8790,9 +8852,15 @@ body.climate-layer-on #tools{z-index:44}
        "一个透明的球"，比什么都不显示更差。现在加载期间只有星空 + 进度提示，
        贴图到了再把球显示出来。 */
     var fallbackMat = new THREE.MeshBasicMaterial({ color: 0x0e2438 });
-    /* 分段提到 160×100：贴到近处看时轮廓不再是折线。
-       贴图 UV 不受影响，代价只有多几千个三角形。 */
-    var sphere = new THREE.Mesh(new THREE.SphereGeometry(1, 160, 100), fallbackMat);
+    /* 分段 160×100 是"球不看出折线"的底线，但地形隆起需要更密的顶点：
+       位移后的轮廓就是这些顶点连出来的折线，段数不够，大陆边缘全是台阶。
+       实测 512×256 仍有明显棱角，768×384（29.5 万顶点）在 600px 球上
+       每段约 2.5px，1.3 倍超采样之后轮廓才干净。手机屏小、GPU 弱，
+       384×192 折中。顶点着色器只在位移开启时多 4 次采样，代价可接受。 */
+    
+    var SPH_W = (window.innerWidth < 900) ? 384 : 768;
+    var SPH_H = Math.round(SPH_W / 2);
+    var sphere = new THREE.Mesh(new THREE.SphereGeometry(1, SPH_W, SPH_H), fallbackMat);
     sphere.visible = false;
     spin.add(sphere);
 
@@ -8878,6 +8946,10 @@ body.climate-layer-on #tools{z-index:44}
     var atmoOut = new THREE.Mesh(new THREE.SphereGeometry(1.045, 48, 32), globe.atmo[1].mat);
     atmoIn.renderOrder = 4;
     atmoOut.renderOrder = 3;
+    /* 地形隆起会把大陆顶出球面（最高 22% 半径），气壳得跟着放大，
+       否则高原直接穿到大气层外面去。引用存在这里，渲染循环按 uDispK 缩放。 */
+    globe.atmo[0].mesh = atmoIn;
+    globe.atmo[1].mesh = atmoOut;
     window.__atmo = globe.atmo;          // 调试用：命令行里可以直接调参
     window.__globe = globe;
     /* 大气壳必须挂在 tilt 里，不能直接挂 scene。
@@ -9699,7 +9771,20 @@ body.climate-layer-on #tools{z-index:44}
       _ndc.x = ((clientX - r.left) / r.width) * 2 - 1;
       _ndc.y = -((clientY - r.top) / r.height) * 2 + 1;
       _ray.setFromCamera(_ndc, camera);
+      /* 地形隆起时视觉表面比这颗几何球高出约 0.11 个半径，射线要打到
+         "膨胀后的球"上才和眼睛看到的一致 —— 否则在球缘斜视的位置，
+         点名会偏好几度、点到隔壁国家去。这里临时缩放求交再还原。 */
+      var dk = (globe.earthMat && globe.earthMat.uniforms.uDispK)
+        ? globe.earthMat.uniforms.uDispK.value : 0;
+      if (dk > 0.001) {
+        sphere.scale.setScalar(1 + dk * 0.55);
+        sphere.updateMatrixWorld(true);
+      }
       var hit = _ray.intersectObject(sphere, false);
+      if (dk > 0.001) {
+        sphere.scale.setScalar(1);
+        sphere.updateMatrixWorld(true);
+      }
       if (!hit || !hit.length) return null;
       var p = hit[0].point.clone();
       sphere.worldToLocal(p);
@@ -12612,8 +12697,21 @@ body.climate-layer-on #tools{z-index:44}
         if (globe.atmo) {
           var atmoK = (globe.fadeVal == null ? 1 : globe.fadeVal) *
                       (1 - 0.93 * U.nightMix.value);
-          globe.atmo.forEach(function (a) {
-            a.mat.uniforms.uOpacity.value = a.base * atmoK;
+          /* 地形模式下气壳随隆起一起放大：0.9 这个系数是让最外层
+             1.045 刚好包住 1.22 的最高峰（1.045×(1+0.22×0.9)=1.25）。 */
+          var atmoS = 1 + (U.uDispK ? U.uDispK.value : 0) * 0.9;
+          var terrK = U.uTerrK ? U.uTerrK.value : 0;
+          globe.atmo.forEach(function (a, i) {
+            /* 只有外面那层散射跟着放大：它本来就该包住整颗球。
+               里面那层是"贴边亮边"（半径只比球大 0.4%），地形隆起后
+               整层被埋进大陆里，放大成一个孤立的蓝环反而难看 —— 直接淡掉。 */
+            var outer = (i === 1);
+            a.mat.uniforms.uOpacity.value =
+              a.base * atmoK * (outer ? 1 : (1 - 0.92 * terrK));
+            if (a.mesh) {
+              var sc = outer ? atmoS : 1;
+              if (a.mesh.scale.x !== sc) a.mesh.scale.setScalar(sc);
+            }
           });
         }
 
@@ -12987,12 +13085,56 @@ body.climate-layer-on #tools{z-index:44}
     /* ---------- 地形山影 ----------
        和 terrain.webp 分开加载：它只有 164KB，但和 8K 地形图抢同一个
        下载队列会互相拖。先到就先换上，没到就是占位的 0.5 灰（等于没开）。 */
+    /* 地形隆起用的高程图（1024×512 灰度，值 = 海拔/9000）。
+       和山影图同源、同样只走同域，两张一起下。 */
+    var lgElevTex = null, lgElevLoading = 0;
+    function lgElevLoad() {
+      if (lgElevTex || lgElevLoading) return;
+      lgElevLoading = 1;
+      var ver = TEX_VER['terrain-elev.webp'];
+      var url = 'assets/tex/terrain-elev.webp' + (ver ? ('?v=' + ver) : '');
+      /* 不用 TextureLoader 直接挂图：这张是"数据纹理"，走图片解码那条路
+         实测在顶点着色器里采样到全 0（山影图在片元里却正常）。
+         改成 canvas 读像素 → DataTexture，字节可控，也不受 colorSpace 影响。
+         DataTexture 不会自动 flipY，所以像素行要自己翻一遍，
+         否则地形会南北颠倒（山长到海里）。 */
+      var img = new Image();
+      img.onload = function () {
+        lgElevLoading = 0;
+        try {
+          var W2 = img.naturalWidth, H2 = img.naturalHeight;
+          var cv = document.createElement('canvas');
+          cv.width = W2; cv.height = H2;
+          var cx = cv.getContext('2d');
+          cx.drawImage(img, 0, 0);
+          var src = cx.getImageData(0, 0, W2, H2).data;
+          var out = new Uint8Array(W2 * H2 * 4);
+          for (var y = 0; y < H2; y++) {
+            out.set(src.subarray((H2 - 1 - y) * W2 * 4, (H2 - y) * W2 * 4), y * W2 * 4);
+          }
+          var t = new THREE.DataTexture(out, W2, H2, THREE.RGBAFormat);
+          t.wrapS = THREE.RepeatWrapping;
+          t.wrapT = THREE.ClampToEdgeWrapping;
+          t.generateMipmaps = false;
+          t.minFilter = THREE.LinearFilter;
+          t.magFilter = THREE.LinearFilter;
+          if (THREE.NoColorSpace !== undefined) t.colorSpace = THREE.NoColorSpace;
+          t.needsUpdate = true;
+          lgElevTex = t;
+          if (globe.earthMat) globe.earthMat.uniforms.uElevMap.value = t;
+        } catch (e) { lgElevLoading = 0; }
+      };
+      img.onerror = function () { lgElevLoading = 0; };
+      img.src = url;
+    }
+
     var lgShadeTex = null, lgShadeLoading = 0, lgShadeQueue = [];
     function lgShadeLoad(cb) {
       if (lgShadeTex) { if (cb) cb(lgShadeTex); return; }
       if (cb) lgShadeQueue.push(cb);
       if (lgShadeLoading) return;
       lgShadeLoading = 1;
+      lgElevLoad();
       /* 只走同域：这张图 164KB，和页面同一个 GitHub Pages CDN，
          没必要先去 OBS 撞一次 404 再回退（那一次往返比下载本身还久）。 */
       var ver = TEX_VER['terrain-shade.webp'];
@@ -13059,6 +13201,10 @@ body.climate-layer-on #tools{z-index:44}
           /* 地形专用强度跟着淡入淡出走：只有当前图层是地形时非 0，
              所以气候图层完全不受山影/加强起伏影响。 */
           globe.earthMat.uniforms.uTerrK.value = isTerr ? lgMix : 0;
+          /* 隆起幅度：珠峰级推出 22% 球半径。真实比例是万分之十四，
+             不夸张的话屏幕上半个像素都不到；22% 是实测能"一眼看出是立体"
+             的档位（11% 在正视视角几乎看不出，50% 又像被捏歪了）。 */
+          globe.earthMat.uniforms.uDispK.value = isTerr ? lgMix * 0.22 : 0;
         }
         if (k < 1) { lgAnim = requestAnimationFrame(step); }
         else if (to === 0) {

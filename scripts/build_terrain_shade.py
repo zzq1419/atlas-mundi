@@ -111,6 +111,29 @@ hs = hs * (1.0 - latk) + 0.5 * latk
 
 out = Image.fromarray((np.clip(hs, 0, 1) * 255).astype(np.uint8), 'L')
 out.save(DST, format='WEBP', quality=92, method=6)
+
+# ---------- 第二张：供顶点位移用的高程图 ----------
+# 512 列就够：球体顶点是 512 段经向，再细也采不出更多信息；
+# 8 位精度 = 9000/255 ≈ 35m 一级，换算到球半径上是 0.0002 —— 远小于一个像素。
+# 海洋一律 0（不位移），否则马里亚纳海沟会把球压出一个坑。
+ELEV_DST = os.path.join(ROOT, 'assets', 'tex', 'terrain-elev.webp')
+# 存的是"位移系数"而不是海拔：0.5 = 球面本身（海平面就地取球面）。
+#   陆地 0.5 + h/9000*0.5（珠峰 → 1.0）
+#   海洋 固定 0.5
+# 曾经试过让海底也往下走（真实高程），想消掉海岸那道台阶 —— 台阶确实没了，
+# 但代价是整颗球"缩"了一圈，陆地的凸起被包在里面，反而更看不出来。
+# 海岸线本身不跳：h≈0 的陆地就是 0.5，和海面天然接上，台阶只在深海，
+# 而深海在球面上本来就看不见。
+elev_n = np.where(h >= 0.0, 0.5 + 0.5 * h / 9000.0, 0.5)
+elev_n = np.clip(elev_n, 0.0, 1.0)
+eim = Image.fromarray((elev_n * 255).astype(np.uint8), 'L')
+eim = eim.resize((1024, 512), Image.LANCZOS)
+# 2.2 的模糊不是磨皮：海岸线那一圈高程从 0 直接跳到几百米，
+# 顶点法线会在这个 1 像素的台阶上被拉成 90° —— 屏幕上就是一圈尖刺。
+# 位移和法线都只用这张低通图，山脉细节交给山影图，各管一段。
+eim = eim.filter(ImageFilter.GaussianBlur(2.6))
+eim.save(ELEV_DST, format='WEBP', quality=95, method=6)
+print('elev-map', eim.size, 'bytes', os.path.getsize(ELEV_DST))
 print('size', out.size, 'mode', out.mode, 'bytes', os.path.getsize(DST))
 print('hs min/mean/max %.3f %.3f %.3f' % (hs.min(), hs.mean(), hs.max()))
 land = hs[~sea]
