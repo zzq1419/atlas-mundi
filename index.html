@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-23-HD">
+<meta name="build" content="2026-11-23-HE">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -830,26 +830,35 @@
   .sr-sug{padding:14px 16px 18px;border-bottom:1px solid rgba(120,150,190,.1)}
   /* 今天这一条只留标题：左边一枚"日"图标示意今天，右边一枚箭头示意可进，
      不写"今天""看看"四个字，也不写知识点正文 —— 一行高，不抢"可以这样问"的位置 */
+  /* 今天这一条：底不用中性白（在近黑面板上就是一块灰蒙蒙的板子），
+     换成很淡的冷蓝，并给一道同族的细描边把它"托"起来；
+     左边那枚金色日签也提亮一档，一眼能认出这是"今日"。 */
   .sr-daily{display:flex;align-items:center;gap:10px;margin-bottom:12px;padding:8px 12px 8px 9px;
-    border-radius:13px;background:rgba(255,255,255,.055);border:1px solid transparent;
+    border-radius:13px;
+    background:linear-gradient(180deg,rgba(150,185,230,.10) 0%,rgba(150,185,230,.05) 100%);
+    border:1px solid rgba(150,185,230,.14);
     cursor:pointer;
-    transition:background .22s cubic-bezier(.22,.61,.36,1),border-color .22s ease,
-      box-shadow .22s ease,transform .22s cubic-bezier(.22,.61,.36,1)}
-  .sr-daily:hover{background:rgba(255,255,255,.085);border-color:rgba(255,255,255,.07);
-    box-shadow:0 2px 10px rgba(0,0,0,.2);transform:translateY(-1px)}
-  .sr-daily:active{transform:translateY(0);background:rgba(255,255,255,.07)}
+    transition:background .16s ease,border-color .16s ease,
+      box-shadow .16s ease,transform .16s ease}
+  .sr-daily:hover{
+    background:linear-gradient(180deg,rgba(150,185,230,.16) 0%,rgba(150,185,230,.09) 100%);
+    border-color:rgba(150,185,230,.28);
+    box-shadow:0 2px 10px rgba(0,0,0,.22);transform:translateY(-1px)}
+  .sr-daily:active{transform:translateY(0)}
   .sr-daily-ico{flex:0 0 auto;width:28px;height:28px;border-radius:9px;
     display:flex;align-items:center;justify-content:center;
-    background:rgba(216,178,106,.15);color:rgba(244,220,172,.95);
-    transition:background .22s ease}
-  .sr-daily:hover .sr-daily-ico{background:rgba(216,178,106,.24)}
+    background:rgba(216,178,106,.20);color:rgba(250,228,180,1);
+    box-shadow:inset 0 0 0 1px rgba(216,178,106,.18);
+    transition:background .16s ease}
+  .sr-daily:hover .sr-daily-ico{background:rgba(216,178,106,.30)}
   .sr-daily-ico svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.7;
     stroke-linecap:round;stroke-linejoin:round}
   .sr-daily-name{min-width:0;flex:1 1 auto;font-size:13.5px;font-weight:500;
-    color:rgba(240,245,252,.97);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    color:#f2f7ff;letter-spacing:.01em;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .sr-daily-go{flex:0 0 auto;display:flex;align-items:center;justify-content:center;
-    width:15px;height:15px;color:rgba(186,204,230,.5);
-    transition:color .22s ease,transform .22s cubic-bezier(.22,.61,.36,1)}
+    width:15px;height:15px;color:rgba(198,218,242,.66);
+    transition:color .16s ease,transform .16s ease}
   .sr-daily:hover .sr-daily-go{color:rgba(244,220,172,.9);transform:translateX(1.5px)}
   .sr-daily-go svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2;
     stroke-linecap:round;stroke-linejoin:round}
