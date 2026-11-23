@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-23-HK">
+<meta name="build" content="2026-11-23-HL">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -410,8 +410,10 @@
   /* 换图时的第二张：绝对定位压在上面，旧的留到新的画出来再撤 */
   .dimg-wrap .dimg.overlay{position:absolute;inset:0;z-index:2;transition:none}
   /* 竖构图（埃菲尔铁塔 760×1406、长城烽燧之类）：框改成竖的、整张装进去，
-     不再拿 16:10 的死框去裁 —— 那正是"塔被拉平看不到全貌"的来源。 */
-  .dimg-wrap.fit{background:rgba(0,0,0,.28)}
+     不再拿 16:10 的死框去裁 —— 那正是"塔被拉平看不到全貌"的来源。
+     底色写成**不透明**（原来 rgba(0,0,0,.28) 叠在 #070b14 上，肉眼看是同一个颜色）：
+     换图时压在上面的新图也要拿这个色当留白底，半透明的话旧图会从两侧条缝里透出来。 */
+  .dimg-wrap.fit{background:#05080e}
   .dimg-wrap.fit .dimg{object-fit:contain}
   .dimg-wrap.blank{
     display:flex;align-items:center;justify-content:center;
@@ -519,6 +521,9 @@
   .thumb-wrap.loading,.dimg-wrap.loading{
     background:linear-gradient(160deg,#0d1322,#0a0f1c);
   }
+  /* 竖图的框底是 #05080e，比上面那层骨架渐变深；两条都是单类选择器，
+     谁写在后面谁赢 —— 于是竖图留白会比框底亮一档。这条把骨架排除在 .fit 之外。 */
+  .dimg-wrap.loading.fit{background:#05080e}
   /* 扫光不能"啪"地消失：图片 onload 之后如果直接把 .loading 摘掉，
      ::after 那一层瞬间没了，只剩 .dimg-wrap 的深灰底，等 0.26s 淡入走完
      才看见照片 —— 用户看到的就是"先闪一层灰底"。这里先用 .revealed 把
@@ -3934,6 +3939,11 @@ body.climate-layer-on #tools{z-index:44}
       }
 
       function showPic(idx) {
+        /* 点的就是正在看的那一张：什么都不用做。
+           以前会再叠一张同样的图上去，等它 decode 完再撤旧的 —— 白白闪一下。 */
+        if (idx === picIdx && pic && pic.complete && pic.naturalWidth &&
+            picWrap.classList.contains('loaded') && !picWrap.classList.contains('blank')) return;
+        var prevIdx = picIdx;      // 新图挂了要退回这一张
         picIdx = idx;
         var it = imgs[idx];
         var seq = ++picSeq;
@@ -3943,6 +3953,7 @@ body.climate-layer-on #tools{z-index:44}
            cards.json 里带 portrait 标记（build_cards 按 1080x1398 算好的），
            加载前就能决定，不跳。 */
         var swap = picWrap.classList.contains('loaded') && pic && pic.parentNode === picWrap;
+        var wasFit = picWrap.classList.contains('fit');   // 旧图当时是按哪种框型画的
         picWrap.classList.toggle('fit', isPortraitImage(it));
         picWrap.classList.remove('blank');
 
@@ -3954,6 +3965,21 @@ body.climate-layer-on #tools{z-index:44}
         var incoming = swap ? el('img', 'dimg overlay now') : pic;
         if (swap) {
           incoming.style.opacity = '0';
+          /* .fit 是挂在**框**上的类，一改就把框里还在场的那张旧图也一起改了
+             object-fit：横图切竖图时，旧横图会当场从"铺满"缩成"装整张"，
+             四周空出深色条 —— 用户看到的就是"才显示新图之前闪了一张别的图"；
+             竖图切横图更糟，旧竖图会被突然放大裁掉一圈。
+             旧图形状是用户此刻正在看的样子，必须钉死，让框型只作用于新图。
+             新图这边同样要给一层**不透明**底色：contain 的左右留白是透明的，
+             底下还压着旧图，那两三条缝里露出来的就是旧图。 */
+          pic.style.objectFit = wasFit ? 'contain' : 'cover';
+          var frameBg = '';
+          try { frameBg = getComputedStyle(picWrap).backgroundColor; } catch (e) {}
+          if (frameBg) incoming.style.background = frameBg;
+          /* 首图那套骨架类如果还没被 340ms 定时器摘掉（点得快时它会因为序号对不上
+             直接 return，永远留在框上），这里顺手清掉：换图时旧图是完整的，
+             不需要骨架，留着只会让 .loading 的背景色跟竖图留白打架。 */
+          picWrap.classList.remove('loading', 'revealed');
           picWrap.appendChild(incoming);        // .overlay 是绝对定位，压在上面
         } else {
           picWrap.classList.remove('loaded');
@@ -3965,42 +3991,66 @@ body.climate-layer-on #tools{z-index:44}
         incoming.decoding = 'async';
         try { incoming.setAttribute('fetchpriority', 'high'); } catch (e) {}
 
+        /* load 只说明"字节齐了"，不说明"能画了"。
+           下面 commit() 里对命中缓存的新图会**同步**调一次 onload，那一刻
+           位图还在解码队列里：设成不透明的头一两帧，合成器手里没有可画的东西，
+           画出来只有元素的底色 —— 逐帧录屏实测有 80ms 是一整块空框，
+           用户看到的就是"不知道闪了张什么，然后才出这张图"。
+           所以显形这一步统一挂到 decode() 后面：解码完成 = 一画就是图。
+           手动那次和浏览器真正的 load 会各来一遍，用 __shown 只认第一次。 */
         incoming.onload = function () {
           if (seq !== picSeq) { if (swap) incoming.remove(); return; }
-          if (!swap) {
-            picWrap.classList.add('revealed');   // 扫光开始淡出（照片同时淡入）
-            picWrap.classList.add('loaded');
-            picWrap.classList.remove('blank');
-            /* 换图很快时上一张的定时器不能把新图的骨架摘掉，认一下序号 */
-            (function (mySeq) {
-              setTimeout(function () {
-                if (mySeq !== picSeq) return;
-                picWrap.classList.remove('loading', 'revealed');
-              }, 340);
-            })(seq);
-          } else {
-            /* 新图已经解码、也已经进了合成队列：让它显形，旧图下一帧退场 */
-            incoming.style.opacity = '1';
-            var oldPic = pic;
-            pic = incoming;
-            requestAnimationFrame(function () {
+          if (incoming.__shown) return;
+          incoming.__shown = true;
+          var paint = function () {
+            if (seq !== picSeq) { if (swap) incoming.remove(); return; }
+            if (!swap) {
+              picWrap.classList.add('revealed');   // 扫光开始淡出（照片同时淡入）
+              picWrap.classList.add('loaded');
+              picWrap.classList.remove('blank');
+              /* 换图很快时上一张的定时器不能把新图的骨架摘掉，认一下序号 */
+              (function (mySeq) {
+                setTimeout(function () {
+                  if (mySeq !== picSeq) return;
+                  picWrap.classList.remove('loading', 'revealed');
+                }, 340);
+              })(seq);
+            } else {
+              /* 新图确实可画了：让它显形，旧图等两张帧之后再退场 */
+              incoming.style.opacity = '1';
+              var oldPic = pic;
+              pic = incoming;
               requestAnimationFrame(function () {
-                if (oldPic !== pic && oldPic.parentNode === picWrap) picWrap.removeChild(oldPic);
+                requestAnimationFrame(function () {
+                  if (oldPic !== pic && oldPic.parentNode === picWrap) picWrap.removeChild(oldPic);
+                });
               });
-            });
-          }
-          if (globe.startThumbs) globe.startThumbs();
-          if (globe.startPrefetch) globe.startPrefetch();
-          /* 兜底：cards.json 里没有 portrait 的老数据，仍按实际尺寸补一次。
-             有标记的不会走到这里改变框型，所以不会跳。 */
-          if (it.portrait == null && !(it.size && it.size.detail)) {
-            picWrap.classList.toggle('fit', incoming.naturalHeight > incoming.naturalWidth * 1.15);
-          }
+            }
+            if (globe.startThumbs) globe.startThumbs();
+            if (globe.startPrefetch) globe.startPrefetch();
+            /* 兜底：cards.json 里没有 portrait 的老数据，仍按实际尺寸补一次。
+               有标记的不会走到这里改变框型，所以不会跳。 */
+            if (it.portrait == null && !(it.size && it.size.detail)) {
+              picWrap.classList.toggle('fit', incoming.naturalHeight > incoming.naturalWidth * 1.15);
+            }
+          };
+          /* decode() 可能因为 src 变化/解码失败而 reject，那就照常往下走，
+             让 error → 回退同域 → blank 那条链去处理，不能卡死在透明上。 */
+          if (incoming.decode) incoming.decode().then(paint, paint);
+          else paint();
         };
         incoming.__onfail = function () {
+          /* 换图失败：旧图还好好的，不能因为新的一张坏了就把整块清空
+             （.blank 会把所有 .dimg 都 display:none）。框型退回旧图那套，
+             题注也退回去，屏幕上看到的和刚才一模一样。 */
+          if (swap) {
+            incoming.remove();
+            picWrap.classList.toggle('fit', wasFit);
+            setCap(prevIdx);
+            return;
+          }
           picWrap.classList.remove('loading');
           picWrap.classList.add('blank');
-          if (swap) incoming.remove();
         };
 
         /* 先把新地址下到一只离线 Image，解码完再换 src：
