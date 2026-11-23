@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-23-IW">
+<meta name="build" content="2026-11-23-IX">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -8354,26 +8354,36 @@ body.climate-layer-on #tools{z-index:44}
     /* 数据有两种形状：单段 [[lon,lat],...] 和多段 [[[lon,lat],...],...] */
     var segs = (Array.isArray(ring[0]) && Array.isArray(ring[0][0])) ? ring : [ring];
 
+    /* 每个 run 自带闭合标记。闭合环必须交给 closed=true 的曲线自己收口：
+       以前把首点重复加到末尾、再当开曲线画，接缝处两端切线各算各的
+       （实测夹角 106°~162°），管子就在那一点甩出一个小线头。 */
     var runs = [];
     segs.forEach(function (seg) {
-      var n = seg.length;
+      var pts = seg;
+      var n = pts.length;
       if (n < 2) return;
       /* 闭合判定：面要素首尾点重合，河流不是。坐标是 ×10 的整数，5 就是 0.5°。 */
       var closed = n > 3 &&
-        Math.abs(seg[0][0] - seg[n - 1][0]) < 5 &&
-        Math.abs(seg[0][1] - seg[n - 1][1]) < 5;
-      /* 跨换日线要断开，否则楚科奇、斐济那种环会横穿整个球面 */
-      var cur = [];
-      for (var i = 0; i < n + (closed ? 1 : 0); i++) {
-        var q = seg[i % n];
+        Math.abs(pts[0][0] - pts[n - 1][0]) < 5 &&
+        Math.abs(pts[0][1] - pts[n - 1][1]) < 5;
+      /* 去掉重复的首点：closed 曲线会自动接回起点，留着它就是一个零长段，
+         centripetal 参数化会在那里除零、把曲线拧一下。 */
+      if (closed) pts = pts.slice(0, n - 1);
+      /* 跨换日线要断开，否则楚科奇、斐济那种环会横穿整个球面。
+         一旦被拆成多段，各段都只能按开曲线画。 */
+      var cur = [], split = false;
+      for (var i = 0; i < pts.length; i++) {
+        var q = pts[i];
         var lon = q[0] / 10, lat = q[1] / 10;
         if (cur.length) {
           var prev = cur[cur.length - 1];
-          if (Math.abs(lon - prev[0]) > 180) { runs.push(cur); cur = []; }
+          if (Math.abs(lon - prev[0]) > 180) {
+            runs.push({ pts: cur, closed: false }); cur = []; split = true;
+          }
         }
         cur.push([lon, lat]);
       }
-      if (cur.length > 1) runs.push(cur);
+      if (cur.length > 1) runs.push({ pts: cur, closed: closed && !split });
     });
     if (!runs.length) return;
 
@@ -8385,17 +8395,21 @@ body.climate-layer-on #tools{z-index:44}
     });
     var v = new THREE.Vector3();
 
-    runs.forEach(function (pts) {
+    runs.forEach(function (run) {
+      var pts = run.pts;
       if (pts.length < 2) return;
       var vs = pts.map(function (q) {
         llToVec3(q[0], q[1], 1.004, v);   // 略高于球面，避免和地形贴图 z-fighting
         return new THREE.Vector3(v.x, v.y, v.z);
       });
-      var curve = new THREE.CatmullRomCurve3(vs, false, 'centripetal');
-      var tseg = Math.max(8, Math.min(pts.length - 1, 420));
+      var curve = new THREE.CatmullRomCurve3(vs, run.closed, 'centripetal');
+      /* 闭合环只有十几到三十来个控制点，原来给 pts.length-1 段去采一条
+         centripetal 曲线，采样点恰好落在尖角过冲上，线看着"毛"。
+         闭合环给足 4 倍采样；河流点本来就密，维持原密度，不白涨顶点数。 */
+      var tseg = Math.max(24, Math.min(run.closed ? pts.length * 4 : pts.length - 1, 420));
       var geo;
       try {
-        geo = new THREE.TubeGeometry(curve, tseg, TSHAPE_RBASE, TSHAPE_RSEG, false);
+        geo = new THREE.TubeGeometry(curve, tseg, TSHAPE_RBASE, TSHAPE_RSEG, run.closed);
       } catch (e) { return; }
 
       /* 把顶点拆成「环心 + 单位径向偏移」，供每帧等比缩放（见 tShapeUpdateWidth）。
