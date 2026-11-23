@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-23-GY">
+<meta name="build" content="2026-11-23-GZ">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -716,7 +716,7 @@
   .sr-country-row{display:flex;align-items:center;gap:13px;padding:9px 15px}
 
   /* --- 教学层：下拉里的摘要卡 + 右侧面板里的详解卡 --- */
-  .search-wrap.open.tch-open{width:min(560px, 62vw)}
+  /* 宽度不再因为"打开的是知识卡"而单独放宽 —— 展开态本身已经 560 */
   .search-wrap.tch-open #q-res{max-height:70vh}
   .tch{padding:2px 15px 16px}
   .tch-tip{margin:12px 0 2px;padding:7px 10px;border-radius:7px;font-size:11.5px;line-height:1.6;
@@ -1319,7 +1319,10 @@ body.solar-on #globe-stage{transform:none !important;transition:none !important}
   z-index:6;
   transition:width .46s cubic-bezier(.2,.9,.25,1);
 }
-.search-wrap.open{width:min(384px, 46vw)}
+/* 展开就只有一个宽度：和"教材知识卡"那一档对齐（原 384 太窄，
+   去掉字之后又会跳到 560，同一只框在 168/320/384/560 之间来回变）。
+   现在 168 → 560 只发生一次，其余状态宽度都不再动。 */
+.search-wrap.open{width:min(560px, 62vw)}
 
 .search-panel{
   position:absolute;inset:0;z-index:4;
@@ -6341,7 +6344,13 @@ body.climate-layer-on #tools{z-index:44}
        这时插 inline width 只会和它打架 */
     if (window.innerWidth <= 760) { searchWrap.style.width = ''; return; }
     var v = qInput.value || '';
-    if (!v) { searchWrap.style.width = ''; return; }
+    /* 展开态宽度只有 CSS 那一个答案（min(560px,62vw)），不再按是否开着
+       结果卡片给 320/168 的下限 —— 之前打完字 320、开完卡再聚焦 168、
+       删完字又跳 560，同一只框自己抽风。 */
+    if (searchWrap.classList.contains('open') || !v) {
+      searchWrap.style.width = '';
+      return;
+    }
     if (!qMeasure) {
       var cv = document.createElement('canvas');
       qMeasure = cv.getContext ? cv.getContext('2d') : null;
@@ -6355,11 +6364,10 @@ body.climate-layer-on #tools{z-index:44}
     /* 上限分两档：结果卡片摊开时按原来的 384/46vw（再宽就把地球压没了）；
        收起后只是一枚胶囊，可以放宽到 560/62vw —— 点完联想留下的整条问句
        才有机会完整显示，而不是又变回"只看得见前半截"。 */
-    var listOpen = qRes && !qRes.hidden;
-    var max = listOpen ? Math.min(384, window.innerWidth * 0.46)
-                       : Math.min(560, window.innerWidth * 0.62);
-    var min = listOpen ? 320 : 168;
-    searchWrap.style.width = Math.round(Math.max(min, Math.min(max, need))) + 'px';
+    /* 只剩"收起但留着问句"这一种情况需要按内容放宽：
+       168 装不下整条问句，会只露前半截。上限就是展开宽度。 */
+    var max = Math.min(560, window.innerWidth * 0.62);
+    searchWrap.style.width = Math.round(Math.max(168, Math.min(max, need))) + 'px';
   }
 
   window.addEventListener('resize', function () { fitSearchWidth(); });
@@ -6432,6 +6440,13 @@ body.climate-layer-on #tools{z-index:44}
          逐字改宽还沿用它会像橡皮筋，这里临时压到 .16s（失焦时还原）。 */
       searchWrap.style.transitionDuration = '.16s';
       fitSearchWidth();
+      /* 一个字一个字删到空：别留一只"展开着但什么都没有"的空框 ——
+         占位提示和 236 国列表一起回来，和刚点开时同一个样子。 */
+      if (!qInput.value) {
+        qInput.placeholder = PH_LONG;
+        setSearch(true, true);
+        return;
+      }
       qTimer = setTimeout(function () {
         if (v.length < 2) { qRes.hidden = true; qRes.innerHTML = ''; return; }
         renderResults(v);
