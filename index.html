@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-23-HG">
+<meta name="build" content="2026-11-23-HK">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -407,6 +407,8 @@
   /* 已在内存里的图（预取过）直接显示，不做淡入 ——
      深色底上那 0.26s 的淡入，观感就是"点一下闪一下"。 */
   .dimg-wrap .dimg.now{transition:none}
+  /* 换图时的第二张：绝对定位压在上面，旧的留到新的画出来再撤 */
+  .dimg-wrap .dimg.overlay{position:absolute;inset:0;z-index:2;transition:none}
   /* 竖构图（埃菲尔铁塔 760×1406、长城烽燧之类）：框改成竖的、整张装进去，
      不再拿 16:10 的死框去裁 —— 那正是"塔被拉平看不到全貌"的来源。 */
   .dimg-wrap.fit{background:rgba(0,0,0,.28)}
@@ -3940,43 +3942,88 @@ body.climate-layer-on #tools{z-index:44}
            再跳成 4/5，用户看到的就是"先闪成全屏、再变竖图"。
            cards.json 里带 portrait 标记（build_cards 按 1080x1398 算好的），
            加载前就能决定，不跳。 */
+        var swap = picWrap.classList.contains('loaded') && pic && pic.parentNode === picWrap;
         picWrap.classList.toggle('fit', isPortraitImage(it));
-        picWrap.classList.remove('loaded', 'blank');
-        picWrap.classList.add('loading');
-        /* 预取过（已在内存）就免淡入；没预取才淡 0.26s，避免"闪" */
-        pic.classList.toggle('now', !!it.__ready);
-        picWrap.classList.remove('blank');   // 上一张失败留下的 blank 要清掉，否则 display:none 一直挂着
-        pic.alt = it.caption_zh || it.caption || d.name_zh;
-        pic.onload = function () {
-          picWrap.classList.add('revealed');     // 扫光开始淡出（照片同时淡入）
-          picWrap.classList.add('loaded');
-          picWrap.classList.remove('blank');
-          /* 换图很快时上一张的定时器不能把新图的骨架摘掉，认一下序号 */
-          (function (mySeq) {
-            setTimeout(function () {
-              if (mySeq !== picSeq) return;
-              picWrap.classList.remove('loading', 'revealed');
-            }, 340);
-          })(seq);
+        picWrap.classList.remove('blank');
+
+        /* 换图 = 叠一张新的上去，旧的原地留到新图真的画出来为止。
+           直接改同一只 <img> 的 src，浏览器的当前帧会立刻作废，
+           中间空出来的 1~2 帧露出的就是框底色 —— 竖图两侧那圈留白
+           正是这样"从正常变黑再变回来"的（普通横图看着就是闪一下黑）。
+           叠图之后任何一帧都有一张完整的在位图，不会有空帧。 */
+        var incoming = swap ? el('img', 'dimg overlay now') : pic;
+        if (swap) {
+          incoming.style.opacity = '0';
+          picWrap.appendChild(incoming);        // .overlay 是绝对定位，压在上面
+        } else {
+          picWrap.classList.remove('loaded');
+          picWrap.classList.add('loading');
+          /* 预取过（已在内存）就免淡入；没预取才淡 0.26s */
+          pic.classList.toggle('now', !!it.__ready);
+        }
+        incoming.alt = it.caption_zh || it.caption || d.name_zh;
+        incoming.decoding = 'async';
+        try { incoming.setAttribute('fetchpriority', 'high'); } catch (e) {}
+
+        incoming.onload = function () {
+          if (seq !== picSeq) { if (swap) incoming.remove(); return; }
+          if (!swap) {
+            picWrap.classList.add('revealed');   // 扫光开始淡出（照片同时淡入）
+            picWrap.classList.add('loaded');
+            picWrap.classList.remove('blank');
+            /* 换图很快时上一张的定时器不能把新图的骨架摘掉，认一下序号 */
+            (function (mySeq) {
+              setTimeout(function () {
+                if (mySeq !== picSeq) return;
+                picWrap.classList.remove('loading', 'revealed');
+              }, 340);
+            })(seq);
+          } else {
+            /* 新图已经解码、也已经进了合成队列：让它显形，旧图下一帧退场 */
+            incoming.style.opacity = '1';
+            var oldPic = pic;
+            pic = incoming;
+            requestAnimationFrame(function () {
+              requestAnimationFrame(function () {
+                if (oldPic !== pic && oldPic.parentNode === picWrap) picWrap.removeChild(oldPic);
+              });
+            });
+          }
           if (globe.startThumbs) globe.startThumbs();
           if (globe.startPrefetch) globe.startPrefetch();
           /* 兜底：cards.json 里没有 portrait 的老数据，仍按实际尺寸补一次。
              有标记的不会走到这里改变框型，所以不会跳。 */
           if (it.portrait == null && !(it.size && it.size.detail)) {
-            picWrap.classList.toggle('fit', pic.naturalHeight > pic.naturalWidth * 1.15);
+            picWrap.classList.toggle('fit', incoming.naturalHeight > incoming.naturalWidth * 1.15);
           }
         };
-        pic.__onfail = function () {
+        incoming.__onfail = function () {
           picWrap.classList.remove('loading');
           picWrap.classList.add('blank');
+          if (swap) incoming.remove();
         };
-        /* 直接上主图。
-           原来先挂缩略图、等主图预载好再替换，视觉上是"先糊一下再变清晰"——
-           用户明确不要这个过渡。OBS 上主图 50~150KB、0.2 秒就到，
-           这点等待比"糊一下"舒服。缩略图只在底下那条胶片带里用。 */
-        setAsset(pic, it.url || it.thumb_url, it.v);
-        // 换到同一张图时浏览器不会重新触发 load，loaded 就永远加不上，图是透明
-        if (pic.complete && pic.naturalWidth) pic.onload();
+
+        /* 先把新地址下到一只离线 Image，解码完再换 src：
+           连"换 src 那一下"都让它落在图片已经可画的状态上。 */
+        var target = it.url || it.thumb_url;
+        function commit() {
+          setAsset(incoming, target, it.v);
+          // 换到同一张图时浏览器不会重新触发 load，loaded 就永远加不上，图是透明
+          if (incoming.complete && incoming.naturalWidth) incoming.onload();
+        }
+        if (it.__ready) {
+          commit();
+        } else {
+          var pre = new Image();
+          pre.onload = function () {
+            it.__ready = true;
+            if (seq !== picSeq) return;
+            commit();
+          };
+          /* 预载失败也照常提交：让 <img> 自己走 error → 回退同域 → blank 那条链 */
+          pre.onerror = function () { if (seq === picSeq) commit(); };
+          pre.src = assetSrc(target, it.v);
+        }
         setCap(idx);
       }
 
