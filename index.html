@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-23-GS">
+<meta name="build" content="2026-11-23-GT">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -7225,7 +7225,6 @@ body.climate-layer-on #tools{z-index:44}
     'terrain.webp': '124b640d',
     'terrain-shade.webp': 'eed416a2',
     'terrain-elev.webp': 'fe1f0aec',
-    'terrain-contour.webp': 'b5fddba1',
     /* TEX_VER:end */
   };
 
@@ -7533,8 +7532,6 @@ body.climate-layer-on #tools{z-index:44}
          随地形图层淡入，退出地形时球回到正圆。uElevPx 是 1/贴图尺寸，
          顶点着色器用它做梯度采样。 */
       uElevMap: { value: null },
-      /* 等高线专用：同样是高程，但不做平滑（见 build_terrain_shade.py）。 */
-      uContourMap: { value: null },
       uDispK: { value: 0 },
       uElevPx: { value: new THREE.Vector2(1 / 2048, 1 / 1024) },
       /* 气候实验室的「单类隔离」：索引图（R = 柯本序号 + 1，G = 高原标记）
@@ -7564,7 +7561,6 @@ body.climate-layer-on #tools{z-index:44}
     var flatZero = new THREE.DataTexture(new Uint8Array([0, 0, 0, 255]), 1, 1);
     flatZero.needsUpdate = true;
     uniforms.uElevMap.value = flatZero;
-    uniforms.uContourMap.value = flatZero;
 
     var vert = [
       'varying vec2 vUv;',
@@ -7651,7 +7647,6 @@ body.climate-layer-on #tools{z-index:44}
       'uniform float uLayerMix;',
       'uniform sampler2D uShadeMap;',
       'uniform sampler2D uElevMap;',
-      'uniform sampler2D uContourMap;',
       'uniform float uTerrK;',
       'uniform sampler2D uLayerIdx;',
       'uniform vec2 uIdxPx;',
@@ -7871,36 +7866,6 @@ body.climate-layer-on #tools{z-index:44}
       '    if (uTerrK > 0.001) {',
       '      float hs = texture2D(uShadeMap, vUv).r;',
       '      col *= mix(1.0, clamp(0.10 + 1.64 * hs, 0.30, 1.80), uTerrK);',
-      /* ---------- 等高线 ----------
-         单方向的平面光照永远有"凹还是凸"的歧义（盆地底暗、边缘亮，
-         读成台地很正常），等高线是唯一没有歧义的手段 —— 闭合圈往内
-         升高就是山，往内降低就是盆地。
-         每 500m 一条细线、每 1000m 一条粗线，和课本的地形图一致。
-         fwidth 取屏幕空间导数：线宽永远约 1 像素，缩小时线条自动退场，
-         不会在远处糊成一层灰雾。 */
-      '      float eH = texture2D(uContourMap, vUv).r;',
-      '      float hh = (eH - 0.5) * 2.0 * 9000.0;',        // 米
-      /* 两级等高线。为什么要分两级：
-         在世界尺度看青藏高原，5000m 高差横跨不到 150 个屏幕像素 ——
-         1000m 一级的线间距只有 3~5 像素，物理上就挤不下，画出来是一片灰雾。
-         所以远景只用 5000m 的主线，拉近（线距够宽）时再把 1000m 的细线叠上。
-         判断依据是 fwidth(lv)：它正比于"一圈线在屏幕上占多宽"。 */
-      '      float lvM = hh / 5000.0;',
-      '      float dfM = abs(fract(lvM + 0.5) - 0.5);',
-      '      float dwM = fwidth(lvM);',
-      '      float lnM = 1.0 - smoothstep(0.0, max(dwM * 5.0, 0.004), dfM);',
-      '      lnM *= 1.0 - 0.35 * smoothstep(0.25, 0.7, dwM);',
-      '      col = mix(col, col * 0.14, lnM * uTerrK);',
-      /* 细线：一圈 1000m，一圈线要在屏幕上占到 ~16px 才出场，
-         否则就是糊在底色上的一层脏。 */
-      '      float lv = hh / 1000.0;',
-      '      float dw = fwidth(lv);',
-      '      float vis = 1.0 - smoothstep(0.070, 0.150, dw);',
-      '      if (vis > 0.01) {',
-      '        float df = abs(fract(lv + 0.5) - 0.5);',
-      '        float ln = 1.0 - smoothstep(0.0, max(dw * 3.0, 0.004), df);',
-      '        col = mix(col, col * 0.34, ln * vis * uTerrK);',
-      '      }',
       '    }',
       '  }',
       '  gl_FragColor = vec4(l2s(col) * uFade, 1.0);',
@@ -7910,10 +7875,7 @@ body.climate-layer-on #tools{z-index:44}
     return new THREE.ShaderMaterial({
       uniforms: uniforms,
       vertexShader: vert,
-      fragmentShader: frag,
-      /* 等高线要用 fwidth（屏幕空间导数）。WebGL2 是内置的，
-         WebGL1 得显式开这个扩展，否则整颗球会编译失败变黑。 */
-      extensions: { derivatives: true }
+      fragmentShader: frag
     });
   }
 
@@ -13166,35 +13128,7 @@ body.climate-layer-on #tools{z-index:44}
       img.onerror = function () { lgElevLoading = 0; };
       img.src = url;
 
-      /* 等高线那张同源同规格，顺手一起下（26KB）。 */
-      (function () {
-        var cv2 = TEX_VER['terrain-contour.webp'];
-        var im2 = new Image();
-        im2.onload = function () {
-          try {
-            var w2 = im2.naturalWidth, h2 = im2.naturalHeight;
-            var c2 = document.createElement('canvas');
-            c2.width = w2; c2.height = h2;
-            var x2 = c2.getContext('2d');
-            x2.drawImage(im2, 0, 0);
-            var s2 = x2.getImageData(0, 0, w2, h2).data;
-            var o2 = new Uint8Array(w2 * h2 * 4);
-            for (var yy = 0; yy < h2; yy++) {
-              o2.set(s2.subarray((h2 - 1 - yy) * w2 * 4, (h2 - yy) * w2 * 4), yy * w2 * 4);
-            }
-            var t2 = new THREE.DataTexture(o2, w2, h2, THREE.RGBAFormat);
-            t2.wrapS = THREE.RepeatWrapping;
-            t2.wrapT = THREE.ClampToEdgeWrapping;
-            t2.generateMipmaps = false;
-            t2.minFilter = THREE.LinearFilter;
-            t2.magFilter = THREE.LinearFilter;
-            if (THREE.NoColorSpace !== undefined) t2.colorSpace = THREE.NoColorSpace;
-            t2.needsUpdate = true;
-            if (globe.earthMat) globe.earthMat.uniforms.uContourMap.value = t2;
-          } catch (e2) {}
-        };
-        im2.src = 'assets/tex/terrain-contour.webp' + (cv2 ? ('?v=' + cv2) : '');
-      })();
+
     }
 
     var lgShadeTex = null, lgShadeLoading = 0, lgShadeQueue = [];
