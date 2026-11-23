@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-23-HB">
+<meta name="build" content="2026-11-23-HC">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -1342,8 +1342,12 @@ body.solar-on #globe-stage{transform:none !important;transition:none !important}
      一块暖灰胶囊贴上去像外来的控件。真正要改的是**对比**，不是色相。
      所以：底仍是深海军蓝（比 --bg-2 提一档），描边用同一族的 rgba(126,158,198)
      但压到 20%（上一版 34% 才是那道硬线），竖向渐变只差 9 个亮度。 */
-  background:linear-gradient(180deg,rgba(9,13,22,.94) 0%,rgba(4,7,12,.96) 100%);
-  border:1px solid rgba(126,158,198,.13);
+  /* 底色直接钉成结果卡那一个实色。原来收起是半透明渐变、展开变实色，
+     点一下这块要从"透出地球"变成"不透"，视觉上就是一闪。
+     描边也一次定死（比原来的 .13 亮一档，但和结果卡完全同一条线）——
+     hover / focus 都不再改颜色，展开时就没有任何"先暗一下再亮起来"。 */
+  background:#070b12;
+  border:1px solid rgba(150,185,230,.22);
   /* 这里原来有 backdrop-filter:blur(10px)。它会在首次合成时新建一个
      带模糊的图层，Chrome 上表现为刷新瞬间这块区域亮一下（就是"闪白"）。
      框里本来就没有需要虚化的内容，去掉最省事。 */
@@ -1358,29 +1362,24 @@ body.solar-on #globe-stage{transform:none !important;transition:none !important}
   /* 圆角用和结果区展开同一条曲线、同样时长（0.24s）：
      之前它自己 0.13s 就把 22px 收到 12px，而结果区是"啪"一下贴上来 ——
      两个变化各走各的节奏，看到的就是"圆角在变方，面板突然砸下来"。 */
-  /* 90ms 线性：鼠标压上去就是最终样子。原来是 260ms 的 ease（起步极慢），
-     看着像"卡了一下才开始变"。 */
-  transition:border-color .09s linear,background .09s linear,box-shadow .09s linear;
+  /* 一个过渡都不留：现在没有任何状态会改这块的边框/底色，
+    展开时也不该有 90ms 的渐变去"润色"——瞬发就是瞬发。 */
+  transition:none;
 }
 /* 展开 = 这枚胶囊的下半截直接长出来，是**一张纸**：
    上圆角还是 22px（形状没变），下边交给结果卡去收，
    底色、描边跟下面完全同一档，中间不画第二道横线。
    边框亮度在这里被钉死成结果卡那一档 —— 否则聚焦时的亮线只围着上半截，
    一眼就把这块劈成两半。 */
+/* 展开时只做一件事：下边不再收口，交给结果卡。
+   底色、描边、阴影全都不变 —— 这样"点开"在视觉上只是下半截长出来，
+   没有任何一块在变色。 */
 .search-wrap.card-open .search-panel{
   border-radius:22px 22px 0 0;
-  background:#070b12;
-  border-color:rgba(126,158,198,.16);
   border-bottom-color:transparent;
-  box-shadow:none;
 }
-
-/* hover / focus：只让边框和放大镜亮一点点，框里**不铺任何高亮层**。
-   之前两档都换了一层更亮的渐变底，看着像里面又叠了一块玻璃。 */
-.search-panel:hover{border-color:rgba(150,185,230,.24)}
-.search-panel:hover .search-icon{stroke:rgba(198,222,250,.80)}
-.search-panel:focus-within{border-color:rgba(160,192,232,.34)}
-.search-panel:focus-within .search-icon{stroke:rgba(206,228,252,.9)}
+/* 悬停 / 聚焦不再改边框、不再改底色：整块的亮线是**常量**。
+   鼠标扫过没有第二次变化，点开也没有，眼睛看到的变化只剩"下半截展开"。 */
 
 .search-panel .search-icon{
   position:absolute;left:14px;top:50%;transform:translateY(-50%);
@@ -1446,7 +1445,7 @@ body.solar-on #globe-stage{transform:none !important;transition:none !important}
   max-height:min(72vh, 660px);
   display:flex;flex-direction:column;
   border-radius:0 0 16px 16px;
-  border:1px solid rgba(126,158,198,.16);
+  border:1px solid rgba(150,185,230,.22);
   /* 上边不画：上半截的底边就是这张纸的分隔线，同色同淡度 */
   border-top:0;
 
@@ -1467,11 +1466,8 @@ body.solar-on #globe-stage{transform:none !important;transition:none !important}
    （rAF 采样实测：0→1 是在 220ms 后直接跳过去的）。animation 由 display 切换
    触发重放，没这个问题。收起方向仍是瞬消 —— 收起时视线已经离开，够用。
    不加位移：translateY 会让首行在最初几十毫秒钻到搜索行底下被压掉一截。 */
-#q-res{animation:cardDrop .22s cubic-bezier(.2,.9,.25,1) both}
-@keyframes cardDrop{
-  from{opacity:0}
-  to{opacity:1}
-}
+/* 不再淡入：那 220ms 的 opacity 插值就是"闪一下"的来源 ——
+   展开要的是下半截直接出现，不是先淡后实。 */
 #q-res[hidden]{display:none}
 /* 滚动条：默认那条灰白长条在深色卡片上很扎眼 */
 .sr-list::-webkit-scrollbar{width:8px}
