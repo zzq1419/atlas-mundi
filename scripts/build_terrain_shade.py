@@ -127,13 +127,19 @@ ELEV_DST = os.path.join(ROOT, 'assets', 'tex', 'terrain-elev.webp')
 elev_n = np.where(h >= 0.0, 0.5 + 0.5 * h / 9000.0, 0.5)
 elev_n = np.clip(elev_n, 0.0, 1.0)
 eim = Image.fromarray((elev_n * 255).astype(np.uint8), 'L')
-eim = eim.resize((1024, 512), Image.LANCZOS)
-# 2.2 的模糊不是磨皮：海岸线那一圈高程从 0 直接跳到几百米，
-# 顶点法线会在这个 1 像素的台阶上被拉成 90° —— 屏幕上就是一圈尖刺。
-# 位移和法线都只用这张低通图，山脉细节交给山影图，各管一段。
-eim = eim.filter(ImageFilter.GaussianBlur(2.6))
-eim.save(ELEV_DST, format='WEBP', quality=95, method=6)
+eim = eim.resize((2048, 1024), Image.LANCZOS)
+
+# 同一份高程要出两张图，用途不同、平滑度也完全不同：
+#   ① terrain-elev.webp   —— 给顶点位移和法线用，必须够平滑。海岸线那圈
+#      高程从 0 直接跳到几百米，不糊的话法线在 1 像素的台阶上被拉成 90°，
+#      屏幕上就是一圈尖刺。
+#   ② terrain-contour.webp —— 给等高线用，**不能糊**：平滑会把 500m 一级的
+#      细节直接抹掉，线就成不了形。海拔低的平原本来就没有线，不怕噪。
+ELEV_DST2 = os.path.join(ROOT, 'assets', 'tex', 'terrain-contour.webp')
+eim.filter(ImageFilter.GaussianBlur(3.5)).save(ELEV_DST, format='WEBP', quality=95, method=6)
+eim.filter(ImageFilter.GaussianBlur(0.8)).save(ELEV_DST2, format='WEBP', quality=95, method=6)
 print('elev-map', eim.size, 'bytes', os.path.getsize(ELEV_DST))
+print('contour-map', eim.size, 'bytes', os.path.getsize(ELEV_DST2))
 print('size', out.size, 'mode', out.mode, 'bytes', os.path.getsize(DST))
 print('hs min/mean/max %.3f %.3f %.3f' % (hs.min(), hs.mean(), hs.max()))
 land = hs[~sea]
