@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-23-GU">
+<meta name="build" content="2026-11-23-GV">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -913,9 +913,12 @@
     border:1px solid rgba(140,170,210,.30);color:#cfe0f4;background:rgba(140,170,210,.10)}
   .klvbar .klv-chip.klv-jr{border-color:rgba(126,196,161,.45);color:#c2e7cf;background:rgba(96,190,140,.10)}
   .klvbar .klv-chip.klv-sr{border-color:rgba(216,178,106,.45);color:#f3dfb3;background:rgba(216,178,106,.10)}
-  .kmedia-svg{margin-top:9px;border:1px solid rgba(140,170,210,.22);border-radius:10px;
-    background:rgba(255,255,255,.03);padding:9px}
-  .kmedia-svg svg{display:block;width:100%;height:auto}
+  /* 示意图现在是白底黑字的课本插图，容器也跟着换成"纸"底 ——
+     原来那层 rgba(255,255,255,.03) 会在白图外面留一圈深色边，
+     看着像图贴错了位置。 */
+  .kmedia-svg{margin-top:9px;border:1px solid rgba(140,170,210,.26);border-radius:10px;
+    background:#fbfaf6;padding:9px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.04)}
+  .kmedia-svg svg{display:block;width:100%;height:auto;border-radius:4px}
   /* 真实图多数学术出版物的底是白的，直接贴在深色卡上会像一块亮斑 ——
      给一层"纸"底（浅米白 + 内阴影），深色底的图用 .dark 关掉。 */
   .kmedia-img{margin-top:9px;border-radius:10px;overflow:hidden;background:#f7f4ec;
@@ -5339,6 +5342,24 @@ body.climate-layer-on #tools{z-index:44}
     return bar;
   }
 
+  /* 示意图点开看大图。
+     卡片宽度只有 400 上下，560 宽的矢量图缩进去以后正文只剩 6~7px，
+     手机上基本读不了。点击把 SVG 转成 data URI 塞进已有的灯箱，
+     放大到 92vw —— 矢量图放到多大都不糊。 */
+  function bindSvgZoom(box) {
+    if (!box) return;
+    box.style.cursor = 'zoom-in';
+    box.title = '点击放大';
+    box.addEventListener('click', function () {
+      var svg = box.querySelector('svg');
+      if (!svg) return;
+      var fn = (typeof openLightbox === 'function') ? openLightbox : window.openLightbox;
+      if (!fn) return;
+      var src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg.outerHTML);
+      fn(src, '示意图（点击空白处或按 Esc 关闭）');
+    });
+  }
+
   function openKCard(it, opt) {
     if (!it) return;
     /* 搜索命中的往往是 IDX 文档快照（有 level 没有 media）——开卡前先换回
@@ -5504,6 +5525,7 @@ body.climate-layer-on #tools{z-index:44}
           more.hidden = true;
           var sbox = el('div', 'kmedia-svg');
           sbox.innerHTML = TEACH_MEDIA[it.media.svg];
+          bindSvgZoom(sbox);
           more.appendChild(sbox);
           if (it.media.hint) more.appendChild(el('span', 'kmedia-cap', it.media.hint));
           var stg = el('button', 'ksvg-toggle');
@@ -5522,6 +5544,7 @@ body.climate-layer-on #tools{z-index:44}
       } else if (it.media.svg && TEACH_MEDIA[it.media.svg]) {
         var holder = el('div', 'kmedia-svg');
         holder.innerHTML = TEACH_MEDIA[it.media.svg];
+        bindSvgZoom(holder);
         md.appendChild(holder);
         if (it.media.hint) md.appendChild(el('span', 'kmedia-cap', it.media.hint));
       } else {
