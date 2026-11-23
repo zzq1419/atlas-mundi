@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-23-HC">
+<meta name="build" content="2026-11-23-HD">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -1346,8 +1346,11 @@ body.solar-on #globe-stage{transform:none !important;transition:none !important}
      点一下这块要从"透出地球"变成"不透"，视觉上就是一闪。
      描边也一次定死（比原来的 .13 亮一档，但和结果卡完全同一条线）——
      hover / focus 都不再改颜色，展开时就没有任何"先暗一下再亮起来"。 */
-  background:#070b12;
-  border:1px solid rgba(150,185,230,.22);
+  /* 底色比原来那层海军蓝再压深一档，接近顶栏背后的夜空：
+     之前 (7,11,18) 贴在近黑背景上，一眼就是"框里铺了一层蓝灰"。
+     现在它几乎和背景同色，看过去只剩一圈描边 —— 不是"填了色的框"。 */
+  background:#04070d;
+  border:1px solid rgba(150,185,230,.2);
   /* 这里原来有 backdrop-filter:blur(10px)。它会在首次合成时新建一个
      带模糊的图层，Chrome 上表现为刷新瞬间这块区域亮一下（就是"闪白"）。
      框里本来就没有需要虚化的内容，去掉最省事。 */
@@ -1377,6 +1380,9 @@ body.solar-on #globe-stage{transform:none !important;transition:none !important}
 .search-wrap.card-open .search-panel{
   border-radius:22px 22px 0 0;
   border-bottom-color:transparent;
+  /* 展开后不要再往外投阴影：那圈阴影会落在下面卡片的头 20px 上，
+     把卡片压暗，反过来显得输入行"更亮一层"。 */
+  box-shadow:none;
 }
 /* 悬停 / 聚焦不再改边框、不再改底色：整块的亮线是**常量**。
    鼠标扫过没有第二次变化，点开也没有，眼睛看到的变化只剩"下半截展开"。 */
@@ -1445,14 +1451,15 @@ body.solar-on #globe-stage{transform:none !important;transition:none !important}
   max-height:min(72vh, 660px);
   display:flex;flex-direction:column;
   border-radius:0 0 16px 16px;
-  border:1px solid rgba(150,185,230,.22);
+  border:1px solid rgba(150,185,230,.2);
   /* 上边不画：上半截的底边就是这张纸的分隔线，同色同淡度 */
   border-top:0;
 
   /* 实色，不能留 alpha：97% 不透明时，地球上那几条金色经纬线和地名标签
      仍然会隐隐透出来（它们对比度太高），读列表像隔着一层毛玻璃。
-     卡片本来就是"盖在地球上的纸"，不透明反而更像 Google 那块面板。 */
-  background:#070b12;
+     卡片本来就是"盖在地球上的纸"，不透明反而更像 Google 那块面板。
+     底色和上面那半截完全同色，拼起来才是同一张纸。 */
+  background:#04070d;
   box-shadow:
     0 22px 52px rgba(0,0,0,.5),
     0 8px 20px rgba(0,0,0,.34);
