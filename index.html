@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-23-HF">
+<meta name="build" content="2026-11-23-HG">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -841,16 +841,18 @@
     cursor:pointer;
     transition:background .16s ease,border-color .16s ease,
       box-shadow .16s ease,transform .16s ease}
+  /* 悬停只往深里走，不提亮：往白里提在近黑底上会发灰，
+     再和日签那点金色一混就像脏了一层；边框也用中性白，不带任何色相。 */
   .sr-daily:hover{
-    background:rgba(255,255,255,.07);
-    border-color:rgba(148,182,224,.26);
-    box-shadow:0 2px 8px rgba(0,0,0,.16);transform:translateY(-1px)}
-  .sr-daily:active{transform:translateY(0)}
+    background:rgba(0,0,0,.35);
+    border-color:rgba(255,255,255,.13);
+    box-shadow:none;transform:none}
+  .sr-daily:active{background:rgba(0,0,0,.45)}
   .sr-daily-ico{flex:0 0 auto;width:26px;height:26px;border-radius:8px;
     display:flex;align-items:center;justify-content:center;
     background:rgba(216,178,106,.13);color:rgba(242,216,166,.92);
     transition:background .16s ease}
-  .sr-daily:hover .sr-daily-ico{background:rgba(216,178,106,.2)}
+  .sr-daily:hover .sr-daily-ico{background:rgba(216,178,106,.13)}
   .sr-daily-ico svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.7;
     stroke-linecap:round;stroke-linejoin:round}
   .sr-daily-name{min-width:0;flex:1 1 auto;font-size:13px;font-weight:500;
@@ -859,7 +861,8 @@
   .sr-daily-go{flex:0 0 auto;display:flex;align-items:center;justify-content:center;
     width:15px;height:15px;color:rgba(186,204,230,.5);
     transition:color .16s ease,transform .16s ease}
-  .sr-daily:hover .sr-daily-go{color:rgba(244,220,172,.9);transform:translateX(1.5px)}
+  /* 箭头不再在悬停时转金：那一抹暖色就是"混了一层黄"的来源 */
+  .sr-daily:hover .sr-daily-go{color:rgba(214,230,250,.86);transform:translateX(1.5px)}
   .sr-daily-go svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2;
     stroke-linecap:round;stroke-linejoin:round}
 
@@ -886,11 +889,11 @@
     color:rgba(198,214,234,.86);cursor:pointer;
     transition:background .16s ease,border-color .16s ease,
       transform .16s ease,box-shadow .16s ease}
-  /* 悬停和"最近看过"那一排同一套：只提一档中性白底 + 一线冷白描边，
-     不用金色 —— 一排按钮里只有一个是金边，看着像"选中"，其实只是路过。 */
-  .sr-sug-chip:hover{background:rgba(255,255,255,.07);border-color:rgba(148,182,224,.26);
-    color:#eef4fe;transform:translateY(-1px);box-shadow:0 2px 8px rgba(0,0,0,.16)}
-  .sr-sug-chip:active{transform:translateY(0)}
+  /* 悬停 = 压深一档 + 一线中性白描边，字提亮。
+     之前是"提亮白底 + 冷蓝描边"，在白底上发灰，冷蓝挨着金色又像渗了绿。 */
+  .sr-sug-chip:hover{background:rgba(0,0,0,.35);border-color:rgba(255,255,255,.13);
+    color:#e9f1fb;transform:none;box-shadow:none}
+  .sr-sug-chip:active{background:rgba(0,0,0,.45)}
   /* 历史记录那排仍带 .ghost 类，但样式已与上面合并：两组长得一样，
      谁是新的由标题说清楚，不靠深浅暗示。 */
   /* 换一批：整排轻轻上浮淡入，让人看见"换"这个动作 */
