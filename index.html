@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-23-GZ">
+<meta name="build" content="2026-11-23-HA">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -858,10 +858,16 @@
   /* 空输入推荐 / 多结果列表头 */
   .sr-sug-h{display:flex;align-items:center;gap:8px;font-size:11.5px;font-weight:500;
     letter-spacing:.03em;color:rgba(158,180,208,.72);margin-bottom:9px}
-  .sr-sug-more{margin-left:auto;font:inherit;font-size:11.5px;padding:5px 9px;border-radius:8px;
-    border:0;background:transparent;color:rgba(196,212,232,.72);cursor:pointer;
-    transition:background .18s ease,color .18s ease}
-  .sr-sug-more:hover{background:rgba(255,255,255,.07);color:#eef4fe}
+  /* 换一批：一枚圆形图标按钮，和关闭按钮同一套悬停语言 */
+  .sr-sug-more{margin-left:auto;width:26px;height:26px;padding:0;
+    display:flex;align-items:center;justify-content:center;
+    border:0;border-radius:50%;background:transparent;
+    color:rgba(198,214,234,.76);cursor:pointer;
+    transition:background-color .08s linear,color .08s linear}
+  .sr-sug-more:hover{background:rgba(255,255,255,.09);color:#eef4fe}
+  .sr-sug-more:active{background:rgba(255,255,255,.13)}
+  .sr-sug-more svg{width:15px;height:15px;fill:none;stroke:currentColor;
+    stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
   .sr-sug-chips{display:flex;flex-wrap:wrap;gap:9px}
   /* 第二组（最近看过）与第一组拉开距离，否则看着像同一块 */
   .sr-sug-chips + .sr-sug-h{margin-top:17px}
@@ -1319,10 +1325,10 @@ body.solar-on #globe-stage{transform:none !important;transition:none !important}
   z-index:6;
   transition:width .46s cubic-bezier(.2,.9,.25,1);
 }
-/* 展开就只有一个宽度：和"教材知识卡"那一档对齐（原 384 太窄，
-   去掉字之后又会跳到 560，同一只框在 168/320/384/560 之间来回变）。
-   现在 168 → 560 只发生一次，其余状态宽度都不再动。 */
-.search-wrap.open{width:min(560px, 62vw)}
+/* 展开只有一个宽度：560 略宽，一屏只看得见一行国家；收到 500，
+   面板里能同时看到中国、印度、美国，又不至于把地球压掉半颗。
+   168 → 500 只发生一次，其余状态宽度都不再动。 */
+.search-wrap.open{width:min(500px, 56vw)}
 
 .search-panel{
   position:absolute;inset:0;z-index:4;
@@ -1353,42 +1359,26 @@ body.solar-on #globe-stage{transform:none !important;transition:none !important}
   /* 圆角用和结果区展开同一条曲线、同样时长（0.24s）：
      之前它自己 0.13s 就把 22px 收到 12px，而结果区是"啪"一下贴上来 ——
      两个变化各走各的节奏，看到的就是"圆角在变方，面板突然砸下来"。 */
-  transition:border-color .26s ease,background .26s ease,box-shadow .26s ease,
-             border-radius .22s cubic-bezier(.2,.9,.25,1);
+  /* 90ms 线性：鼠标压上去就是最终样子。原来是 260ms 的 ease（起步极慢），
+     看着像"卡了一下才开始变"。 */
+  transition:border-color .09s linear,background .09s linear,box-shadow .09s linear;
 }
-/* 结果区一展开，输入行就变成卡片的上半截：只留上圆角。
-   注意**下方那根线一定要留着**（不能像上一版那样改成 transparent）：
-   一旦改透明，搜索框底下那条边就"啪"地消失，眼睛会立刻看到框破了个口；
-   结果区的 border-top 本来就是 0，两根线不会叠成双线。 */
-.search-wrap.card-open .search-panel{
-  border-radius:12px 12px 0 0;
-  /* 上半截也换成实色：卡片是一张纸，不能一半实一半透 */
-  background:linear-gradient(180deg,#0b1119 0%,#070b12 100%);
-  box-shadow:
-    0 1px 2px rgba(0,0,0,.32),
-    0 9px 26px rgba(0,0,0,.30),
-    0 26px 60px rgba(0,0,0,.22);
-}
-.search-wrap.open .search-panel{
-  background:linear-gradient(180deg,rgba(11,16,26,.95) 0%,rgba(5,9,16,.97) 100%);
-}
-/* hover 必须有反应：之前只有聚焦才变，鼠标扫过去毫无反馈，像块死板子 */
+/* 点开之后形状一点都不变：仍是一枚 22px 的胶囊。
+   上一版把下圆角改成 12px 去"拼"下面的结果卡，点一下框就被掰直了；
+   现在结果卡是独立的一张，浮在下方 8px，两者不再需要拼成一块。 */
+.search-wrap.card-open .search-panel{border-radius:22px}
+
+/* hover / focus：只把底提一档、描边亮一点，和 Google 那只框一个逻辑 ——
+   没有外发光环。之前那道 2px 的 focus ring 只会围着上半截画，
+   下圆角处露出一道更亮的弧线，看着像框被劈成了两半。 */
 .search-panel:hover{
-  border-color:rgba(150,185,230,.24);
-  background:linear-gradient(180deg,rgba(13,19,31,.95) 0%,rgba(6,11,19,.97) 100%);
-  box-shadow:
-    0 1px 2px rgba(0,0,0,.34),
-    0 10px 28px rgba(0,0,0,.46),
-    0 24px 56px rgba(0,0,0,.20);
+  border-color:rgba(150,185,230,.22);
+  background:linear-gradient(180deg,rgba(14,20,32,.96) 0%,rgba(7,12,20,.98) 100%);
 }
-.search-panel:hover .search-icon{stroke:rgba(196,222,252,.88)}
+.search-panel:hover .search-icon{stroke:rgba(196,222,252,.86)}
 .search-panel:focus-within{
-  border-color:rgba(160,196,240,.30);
-  box-shadow:
-    0 0 0 2px rgba(120,165,235,.07),
-    0 1px 2px rgba(0,0,0,.36),
-    0 12px 32px rgba(0,0,0,.48),
-    0 28px 64px rgba(0,0,0,.22);
+  border-color:rgba(158,194,240,.34);
+  background:linear-gradient(180deg,rgba(16,23,36,.97) 0%,rgba(8,13,22,.99) 100%);
 }
 
 .search-panel .search-icon{
@@ -1425,7 +1415,8 @@ body.solar-on #globe-stage{transform:none !important;transition:none !important}
   display:flex;align-items:center;justify-content:center;
   border-radius:50%;cursor:pointer;overflow:hidden;
   background:transparent;border:0;opacity:0;pointer-events:none;
-  transition:width .18s ease,opacity .18s ease,margin .18s ease;
+  transition:width .18s ease,opacity .18s ease,margin .18s ease,
+             background-color .08s linear;
 }
 .search-wrap.has-text .search-clear{
   width:20px;margin-right:2px;opacity:.7;pointer-events:auto;
@@ -1447,16 +1438,16 @@ body.solar-on #globe-stage{transform:none !important;transition:none !important}
    内部拆成"可滚动的列表 + 钉在底部的说明行"：Google 那块面板底下
    永远挂着一条"更多近期搜索记录"，而不是要滚到第 235 行才看见。 */
 #q-res{
-  position:absolute;top:100%;left:0;
+  /* 不再是"搜索行的下半截"，而是浮在它下面 8px 的一张独立卡片：
+     两者各留各的圆角，接缝问题从根上没有了。 */
+  position:absolute;top:calc(100% + 8px);left:0;
   width:100%;box-sizing:border-box;
-  max-height:52vh;
+  /* 高一点：建议区占掉上半截之后，列表里要能看见中国、印度、美国三行 */
+  max-height:min(72vh, 660px);
   display:flex;flex-direction:column;
-  border-radius:0 0 12px 12px;
-  border:1px solid rgba(126,158,198,.13);
-  /* 上边不画：搜索行的底边框（同一颜色、同一淡度）就是这张卡片的分隔线。
-     之前这里的做法是把搜索行底边框改透明、再给结果区加一道 inset 内阴影 ——
-     结果那条线在开合瞬间亮度会跳一下，看起来像"框底下的白线突然没了"。 */
-  border-top:0;
+  border-radius:16px;
+  border:1px solid rgba(126,158,198,.16);
+
   /* 实色，不能留 alpha：97% 不透明时，地球上那几条金色经纬线和地名标签
      仍然会隐隐透出来（它们对比度太高），读列表像隔着一层毛玻璃。
      卡片本来就是"盖在地球上的纸"，不透明反而更像 Google 那块面板。 */
@@ -1718,11 +1709,13 @@ body.solar-on #globe-stage{transform:none !important;transition:none !important}
   color:rgba(226,236,250,.62);
   background:transparent;border:1px solid transparent;
   font-family:inherit;
-  transition:color .2s ease,border-color .2s ease,background .2s ease,transform .16s ease;
+  /* 和清空、猜国家那几颗叉统一：平时全透明，鼠标压上去才浮出一枚圆形底，
+     80ms 线性 —— 不要"慢悠悠淡入"，那会让按钮比鼠标慢半拍。 */
+  transition:color .08s linear,background-color .08s linear;
 }
-.dclose:hover,.dclose:focus-visible{color:#fff;border-color:rgba(148,182,224,.6);
-  background:rgba(148,182,224,.16);transform:scale(1.05)}
-.dclose:active{transform:scale(.96)}
+.dclose:hover,.dclose:focus-visible{color:#fff;
+  background:rgba(148,182,224,.18);border-color:transparent}
+.dclose:active{background:rgba(148,182,224,.26)}
   .dclose svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:2.1;stroke-linecap:round}
   #d-sub:empty{display:none}
 
@@ -2016,9 +2009,10 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
 .kit-head strong{font-size:14px;font-weight:600;letter-spacing:.04em;color:#e6eefa}
 .kit-head .kit-sub{margin-left:auto;font-size:12px;color:#9dbddc}
 .kit-x{margin-left:auto;width:32px;height:32px;line-height:30px;text-align:center;
-  border:0;border-radius:8px;background:rgba(255,255,255,.05);color:#c2d8ee;font-size:22px;cursor:pointer;
-  transition:background .16s ease,color .16s ease}
+  border:0;border-radius:50%;background:transparent;color:#c2d8ee;font-size:22px;cursor:pointer;
+  transition:background-color .08s linear,color .08s linear}
 .kit-x:hover{background:rgba(150,185,230,.2);color:#fff}
+.kit-x:active{background:rgba(150,185,230,.28)}
 .kit-head .kit-sub + .kit-x{margin-left:0}
 .kit-body{padding:12px 13px}
 .kit-foot{margin:0;padding:9px 13px 12px;font-size:11.5px;line-height:1.6;
@@ -2361,6 +2355,7 @@ body.climate-layer-on #tools{z-index:44}
   margin-left:auto;width:20px;height:20px;padding:0;border:0;border-radius:50%;
   background:transparent;color:rgba(180,208,236,.7);cursor:pointer;
   font-size:16px;line-height:1;display:flex;align-items:center;justify-content:center;
+  transition:background-color .08s linear,color .08s linear;
 }
 #layer-legend .lg-close:hover{background:rgba(150,190,235,.16);color:#fff}
 /* 一行 = 组名 + 该组所有色块（每个色块后面直接跟名字，扫一眼就能对上） */
@@ -5038,6 +5033,20 @@ body.climate-layer-on #tools{z-index:44}
     return out;
   }
 
+  /* 「可以这样问」只允许一行。色签长短不一，换一批很容易挤出第二行，
+     多一行就把下面本该露出的中国/印度/美国压掉了。
+     按实际排版量 offsetTop：第二行及以后的直接撤掉 ——
+     宁可少两个词，也不让它换行。必须在挂进 DOM 之后调用，否则全是 0。 */
+  function trimChipsRow(chips) {
+    if (!chips) return;
+    var first = null;
+    Array.prototype.slice.call(chips.children).forEach(function (c) {
+      c.style.display = '';
+      if (first === null) { first = c.offsetTop; return; }
+      if (c.offsetTop > first + 1) c.style.display = 'none';
+    });
+  }
+
   function srSuggest() {
     var wrap = el('div', 'sr-sug');
 
@@ -5073,8 +5082,14 @@ body.climate-layer-on #tools{z-index:44}
 
     var hd = el('div', 'sr-sug-h');
     hd.appendChild(el('span', '', '可以这样问'));
-    var again = el('button', 'sr-sug-more', '换一批');
+    /* 换一批：只留一枚刷新图标。两个字换成图标之后，标题行高度不变，
+       但眼睛不用再读一遍"换一批"这三个字。 */
+    var again = el('button', 'sr-sug-more');
     again.type = 'button';
+    again.title = '换一批';
+    again.setAttribute('aria-label', '换一批');
+    again.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true">' +
+      '<path d="M20.4 12a8.4 8.4 0 1 1-2.5-6"/><path d="M20.8 4.6v5.2h-5.2"/></svg>';
     hd.appendChild(again);
     wrap.appendChild(hd);
 
@@ -5099,6 +5114,8 @@ body.climate-layer-on #tools{z-index:44}
         b.addEventListener('click', function (e) { e.stopPropagation(); openKCard(it); });
         chips.appendChild(b);
       });
+      /* 只留一行：量宽度要等它真的进了 DOM，所以推到下一帧 */
+      requestAnimationFrame(function () { trimChipsRow(chips); });
       /* 轻微上浮淡入：换一批看得见"换"这个动作，而不是原地硬闪一下 */
       chips.classList.remove('pop');
       void chips.offsetWidth;
@@ -6173,7 +6190,12 @@ body.climate-layer-on #tools{z-index:44}
     var box = el('div', 'sr-list');
     qRes.appendChild(box);
     /* 235 个国家列表对第一次来的人没有信息量：先在顶部给四个能点的知识点 */
-    box.appendChild(srSuggest());
+    var sug = srSuggest();
+    box.appendChild(sug);
+    /* 进了 DOM 才能量出哪几个色签掉到了第二行 */
+    requestAnimationFrame(function () {
+      trimChipsRow(sug.querySelector('.sr-sug-chips'));
+    });
     list.forEach(function (d) {
       var item = el('div', 'sr-item');
       if (d.iso) item.setAttribute('data-iso', String(d.iso).toUpperCase());
@@ -6391,7 +6413,9 @@ body.climate-layer-on #tools{z-index:44}
        先让人知道这里能点、能问；具体例子交给下拉里的「今天一条 / 可以这样问」。
        文案只有这一句：之前按屏宽给过短的，手机上就只剩"或提问"，
        看着像被截断。窄屏改成让出品牌文字（见 setSearch），不砍句子。 */
-    var PH_LONG = '点一个地方，或问一个地理问题';
+    /* 框里不再写提示语：展开之后紧跟第一行建议，多一行灰字只是噪音。
+       变量保留成空串，下面几处 placeholder 赋值不用动。 */
+    var PH_LONG = '';
     qInput.addEventListener('focus', function () {
       /* 有字就恢复这轮搜索的结果，别拿 236 国全量列表盖掉它 ——
          否则用户按回车会选中全量列表的第一条（"中国"），
@@ -6581,18 +6605,16 @@ body.climate-layer-on #tools{z-index:44}
       btn.setAttribute('aria-pressed', on ? 'true' : 'false');
       var sp = btn.querySelector('.tl');
       if (sp) sp.textContent = on ? '退出投影' : '投影模式';
-      if (on && !detail.classList.contains('open')) {
-        /* 没开卡就进投影，等于对着一片黑；直接打开今天那条 */
-        var pool = TEACH.filter(function (x) { return x.kind === 'concept'; });
-        if (pool.length) {
-          var dayN = Math.floor(Date.now() / 86400000);
-          openKCard(pool[dayN % pool.length]);
-        }
-      }
+      /* 不再"没开卡就随便开一条"：点击入口那一层已经挡住了空投影，
+         程序里硬调进来时也只切模式，不替用户决定看哪张卡。 */
     }
 
     btn.addEventListener('click', function (e) {
       e.stopPropagation();
+      /* 右侧没有档案卡/知识卡时这一下什么都不做 ——
+         直接进投影等于对着一片黑，用户会以为点坏了。 */
+      if (!document.body.classList.contains('class-mode') &&
+          !detail.classList.contains('open')) return;
       setMode(!document.body.classList.contains('class-mode'));
     });
     exit.addEventListener('click', function (e) {
