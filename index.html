@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-24-P">
+<meta name="build" content="2026-11-24-Q">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -7560,17 +7560,15 @@ body.climate-layer-on #tools{z-index:44}
       function (t) { night = t; need--; maybe(); },
       function () { night = null; need--; maybe(); });
 
-    /* ---------- 日面贴图的"海面疤"修正 ----------
-       assets/tex/earth-day.webp（以及 OBS 上的 8K 版）是多次卫星影像拼出来的：
-       海洋里有成块的明暗差、边界是硬边多边形，还有亮条纹（海脊/海沟被压成了
-       细线）。缩小时看不出来，一放大就是"海面上有疤"。
-       上一版用的是低频乘性增益，只能治北纬 41° 那条横缝，压不住这些条纹与
-       硬边色块（实测压平反而把暗部提亮、条纹更显）。
-       这一版改成"往一张平滑海色场靠"：离线用 128px 块均值 + 高斯算出一张
-       512×256 的海色场（陆地用最近的海色填，免得把沙色带进来），alpha 存权重
-       —— 深海 1、离岸 6px 内渐变到 0、陆地 0。运行时按 UV 混合 82%：
-       拼接痕迹被抹平，浅海、岸线、陆地全部原样（权重为 0 的地方一点不动）。
-       4K / 8K 共用这一张，原图不用改也改不了（OBS 上那份动不了）。 */
+    /* ---------- 日面贴图的海洋拼接缝修正 ----------
+       assets/tex/earth-day.webp（以及 OBS 上的 8K 版）在北纬约 41° 有一条
+       卫星条带拼接的水平色差：缝以南的北太平洋整块暗一档，放大后就是
+       "海洋里一块颜色明显更深"。实测 4K 与 8K 是同源数据、缝在同一
+       UV 位置（y=568，行亮度跳变 -3.17 / -3.26）。
+       OBS 上的原图改不了、也不该把 5MB 贴图搬回仓库，所以改成一张
+       1024×512 的低频修正图：离线算"中尺度色块相对大尺度趋势的偏差"，
+       这里按 UV 叠回 sRGB 采样值（在 s2l 之前），两种分辨率共用一张。
+       只动海洋低频，海面细纹、陆地、冰盖全部原样。 */
     loadTex(loader, 'ocean-fix.webp', function (t) {
       t.wrapS = THREE.RepeatWrapping;
       t.minFilter = THREE.LinearFilter;
@@ -7581,21 +7579,8 @@ body.climate-layer-on #tools{z-index:44}
       if (globe.earthMat) globe.earthMat.uniforms.uOceanFix.value = t;
       need--; maybe();
     }, function () {
-      globe.oceanFix = null;   /* 拿不到就按 gain=1 处理 */
-      need--; maybe();
-    }, true);
-
-    loadTex(loader, 'ocean-smooth.png', function (t) {
-      t.wrapS = THREE.RepeatWrapping;
-      t.minFilter = THREE.LinearMipmapLinearFilter;
-      t.magFilter = THREE.LinearFilter;
-      t.needsUpdate = true;
-      globe.oceanSmooth = t;
-      if (globe.earthMat) globe.earthMat.uniforms.uOceanSmooth.value = t;
-      need--; maybe();
-    }, function () {
-      /* 拿不到就用 1×1 全透明占位（权重 0 = 不混合），画面照旧 */
-      globe.oceanSmooth = null;
+      /* 拿不到就用中性 1×1 占位，画面照旧，绝不阻塞出球 */
+      globe.oceanFix = null;
       need--; maybe();
     }, true);
 
@@ -7811,18 +7796,12 @@ body.climate-layer-on #tools{z-index:44}
 
   function earthMaterial(dayTex, nightTex) {
     var hasNight = nightTex ? 1 : 0;
-    /* 两张修正图各自的占位：
-       增益图用 96（解码回 gain = 1.0，不改动）；海色场用全透明（权重 0，不混合）。 */
+    /* 修正图还没到/加载失败时的中性值：96 解码回 gain = 1.0（不改动） */
     var neutralFix = new THREE.DataTexture(
       new Uint8Array([96, 96, 96, 255]), 1, 1, THREE.RGBAFormat);
     neutralFix.needsUpdate = true;
-    var neutralSmooth = new THREE.DataTexture(
-      new Uint8Array([0, 0, 0, 0]), 1, 1, THREE.RGBAFormat);
-    neutralSmooth.needsUpdate = true;
     var uniforms = {
       uOceanFix: { value: globe.oceanFix || neutralFix },
-      uOceanSmooth: { value: globe.oceanSmooth || neutralSmooth },
-      uOceanMix: { value: 0.82 },
       dayMap: { value: dayTex },
       dayMapB: { value: dayTex },   // 8K 到达前先指向同一张，mix 恒为 0
       uMixB: { value: 0 },          // 0 → 1 时从 dayMap 交叉淡化到 dayMapB
@@ -7957,8 +7936,6 @@ body.climate-layer-on #tools{z-index:44}
       'uniform float hasNight;',
       'uniform float nightMix;',
       'uniform sampler2D uOceanFix;',
-      'uniform sampler2D uOceanSmooth;',
-      'uniform float uOceanMix;',
       'uniform float uFade;',
       'uniform vec3 uSunDir;',
       'uniform float uTermOn;',
@@ -7999,19 +7976,12 @@ body.climate-layer-on #tools{z-index:44}
       '  float facing = max(dot(n, v), 0.0);',
       // 只在轮缘收暗到 80%，既有体积感又不出现"暗面"
       '  float limb = mix(0.80, 1.0, smoothstep(0.0, 0.66, facing));',
-      /* 海面修正分两层，治的是两个不同尺度：
-         ① 增益图（uOceanFix）：大尺度色差（贴图拼出来成块偏亮/偏暗，
-            最典型是北纬 41° 那条整块偏暗），乘性、只动低频；
-         ② 平滑海色场（uOceanSmooth）：条纹与硬边色块（海脊海沟被压成细线、
-            多边形边界），把海洋色向 128px 平滑场混合 82%，alpha 是权重
-            —— 深海 1、离岸 6px 内渐变、陆地 0，所以浅海与岸线原样。
-         增益乘在混合外面：两张图都按同一套增益校正过，混合才不会把色差带回来。 */
+      /* 乘性增益：修正图里存的是线性空间的 gain（(target/current)^2.2）。
+         乘在 s2l 之后，等价于把 sRGB 低频色从 current 换成 target，
+         高频纹理按原比例保留 —— 加性修正在极暗海面会被 gamma 放大成过亮。 */
       '  vec3 oceanGain = texture2D(uOceanFix, vUv).rgb * 1.60 + 0.40;',
-      '  vec4 oSm = texture2D(uOceanSmooth, vUv);',
-      '  vec3 oS = s2l(oSm.rgb);',
-      '  float oW = oSm.a * uOceanMix;',
-      '  vec3 dA = mix(s2l(texture2D(dayMap, vUv).rgb), oS, oW) * oceanGain;',
-      '  vec3 dB = mix(s2l(texture2D(dayMapB, vUv).rgb), oS, oW) * oceanGain;',
+      '  vec3 dA = s2l(texture2D(dayMap, vUv).rgb) * oceanGain;',
+      '  vec3 dB = s2l(texture2D(dayMapB, vUv).rgb) * oceanGain;',
       /* 一张像素覆盖几个 uv × 8192 = 每屏幕像素吃几个 8K 纹理像素。
          放大时（<1）才用 8K；缩小时 8K 会走 mip 缺失的最近邻采样而闪烁，
          所以缩小时退回带 mipmap 的 4K —— 两张图按这个比例软过渡，没有跳变。 */
