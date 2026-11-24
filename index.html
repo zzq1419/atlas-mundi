@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-24-H">
+<meta name="build" content="2026-11-24-I">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -7529,6 +7529,23 @@ body.climate-layer-on #tools{z-index:44}
       need--; maybe();
     }, true);
 
+    /* ---------- 真实云层 ----------
+       和太阳系里那颗小地球共用 assets/planets/clouds.webp（1024×512 真实
+       卫星云图）。太阳系那颗只有几十像素、云调得很淡；主球按自己的口径来。
+       走同域相对路径即可：跨域贴图会被标成污染，传上 GPU 就是纯黑。
+       不设 colorSpace —— 这里把灰度当遮罩用，不需要 sRGB→linear 转换。
+       不算进"出球"的 need：拿不到就保持无云，绝不拖慢首屏。 */
+    new THREE.TextureLoader().load('assets/planets/clouds.webp', function (t) {
+      t.wrapS = THREE.RepeatWrapping;
+      t.minFilter = THREE.LinearMipmapLinearFilter;
+      t.magFilter = THREE.LinearFilter;
+      t.anisotropy = 4;
+      t.needsUpdate = true;
+      globe.cloudTex = t;
+      if (globe.earthMat) globe.earthMat.uniforms.uCloudMap.value = t;
+      globe.cloudAt = performance.now();
+    });
+
     /* 地形法线贴图：185KB，**不算进"出球"的等待**（need 不加），
        晚到一点没影响 —— 到了把 uBump 打开，地形就有了起伏。
        night 只作用于夜面，日面的山脉/沙漠本来是平的。 */
@@ -7745,8 +7762,14 @@ body.climate-layer-on #tools{z-index:44}
     var neutralFix = new THREE.DataTexture(
       new Uint8Array([96, 96, 96, 255]), 1, 1, THREE.RGBAFormat);
     neutralFix.needsUpdate = true;
+    /* 云图还没到 / 加载失败时的占位：全黑 → 云遮罩恒 0，画面照旧，不阻塞出球 */
+    var neutralCloud = new THREE.DataTexture(
+      new Uint8Array([0, 0, 0, 255]), 1, 1, THREE.RGBAFormat);
+    neutralCloud.needsUpdate = true;
     var uniforms = {
       uOceanFix: { value: globe.oceanFix || neutralFix },
+      uCloudMap: { value: globe.cloudTex || neutralCloud },
+      uCloudK: { value: 0 },          // 纹理到位后约 1 秒淡入到 0.78
       dayMap: { value: dayTex },
       dayMapB: { value: dayTex },   // 8K 到达前先指向同一张，mix 恒为 0
       uMixB: { value: 0 },          // 0 → 1 时从 dayMap 交叉淡化到 dayMapB
@@ -7895,6 +7918,8 @@ body.climate-layer-on #tools{z-index:44}
       'uniform float uSpec;',
       'uniform float uSpecPow;',
       'uniform float uTone;',
+      'uniform sampler2D uCloudMap;',
+      'uniform float uCloudK;',
       'uniform vec3 uLight;',
       'uniform sampler2D uLayerMap;',
       'uniform float uLayerMix;',
@@ -7993,6 +8018,15 @@ body.climate-layer-on #tools{z-index:44}
       '    float rl = (dot(nP, L) - dot(n, L)) * uRelief * (1.0 + 0.85 * uTerrK);',
       '    day *= clamp(1.0 + rl, mix(0.52, 0.40, uTerrK), mix(1.62, 1.95, uTerrK));',
       '  }',
+      /* ---------- 真实云层 ----------
+         日面底图是"去云"的晴天合成图，整颗球只剩海陆色差、没有高光白，
+         所以看着灰而平。云图是真实卫星云图（台风螺旋、锋面云带、极地云带），
+         灰度当透明度叠在 day 上，白色按同一束光给明暗，再乘 limb 收轮缘。
+         专题图层打开时把云完全收掉，别和气候色块/分层设色打架。 */
+      '  float ca = clamp((dot(texture2D(uCloudMap, vUv).rgb, vec3(0.3333)) - 0.26) * 1.45, 0.0, 1.0);',
+      '  ca *= uCloudK * (1.0 - uLayerMix);',
+      '  vec3 cloudLit = vec3(0.94, 0.96, 1.0) * limb * mix(0.72, 1.18, smoothstep(-0.55, 0.85, sdot));',
+      '  day = mix(day, cloudLit, ca);',
       '  vec3 col = day;',
       '  float nightK = nightMix;',   // 夜里用多少夜间贴图（0=全白天）
       '  if (hasNight > 0.5) {',
@@ -12976,6 +13010,14 @@ body.climate-layer-on #tools{z-index:44}
         }
       }
       if (STAR_MAT) STAR_MAT.uniforms.uTime.value = performance.now() / 1000;
+      /* 云图到位后用约 1 秒把强度推上去，别"看着看着突然多一层"。
+         0.78 就是云的强度：觉得云太厚 / 太薄，改这一个数即可。 */
+      if (globe.cloudAt && globe.earthMat) {
+        var _cu = globe.earthMat.uniforms.uCloudK;
+        if (_cu && _cu.value < 0.78) {
+          _cu.value = Math.min(0.78, _cu.value + 0.012 * dtf);
+        }
+      }
       if (globe.solarOn && solar.skyStarMat) {
         solar.skyStarMat.uniforms.uTime.value = performance.now() / 1000;
       }
