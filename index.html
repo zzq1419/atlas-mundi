@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-24-S">
+<meta name="build" content="2026-11-24-T">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -363,6 +363,13 @@
   }
   @media (prefers-reduced-motion:reduce){
     *{transition:none!important}
+    /* 动画不能一刀切 animation:none：有几处 keyframes 靠 forwards/both
+       把终态留在元素上（tpIn 的提示气泡从 opacity:0 开始、kitIn 的面板），
+       直接取消会让它们停在 opacity:0，永远不出现。
+       改成"零延迟、一次、1ms 跑完"，视觉上等于瞬到终态；
+       shimmer/gspin 这类无限循环跑完一次就停，也不再闪。 */
+    *,*::before,*::after{animation-duration:1ms!important;animation-delay:0s!important;
+      animation-iteration-count:1!important}
   }
 </style>
 <style>
@@ -1125,6 +1132,10 @@
     margin-left:auto;font-size:15px;line-height:1;color:rgba(148,182,224,.45);
     transition:none;   /* 悬停瞬发（含那 2px 右移，一起当帧到位） */
   }
+  /* 结果行早在某次改版里从 .sr-country-row 改名成了 .sr-item，上面那条 hover
+     规则就再没匹配过 —— 行尾这个 › 一直是不亮的。补一条按现在的类名，并保留
+     原来"提亮 + 右移 2px"的本意（没有过渡，和整行底色同一帧到位）。 */
+  .sr-item:hover .sr-arrow{color:rgba(200,222,250,.9);transform:translateX(2px)}
   .sr-country-row:hover .sr-arrow{color:rgba(200,222,250,.9);transform:translateX(2px)}
 
   /* 文化特征：左列窄标签 + 右侧色块。
@@ -6735,6 +6746,13 @@ body.climate-layer-on #tools{z-index:44}
          结果还没出来时（输入有 180ms 防抖）先同步渲染一次再点，
          不然手快的人按回车会撞在防抖窗口里。 */
       if (e.key === 'Enter') {
+        /* 拼音/日文输入法里，回车是"确认这个候选词"，不是"搜索"。
+           不拦 isComposing 的话，打"新喀"还没选完词就被当成搜索提交了 ——
+           中文用户会频繁撞上。keyCode 229 是 Safari 的兜底：它把
+           compositionend 派发在 keydown 之前，isComposing 已被清成 false。
+           注意顺序：这两个检查必须在 preventDefault 之前 return，
+           否则回车会把输入法正在组的那次提交也一起拦掉。 */
+        if (e.isComposing || e.keyCode === 229) return;
         e.preventDefault();
         /* 面板现在是 236 国全量列表（还没输入）时，回车不该随手打开
            列表第一条（"中国"）—— 那不是一次搜索，只是浏览。 */
@@ -16133,6 +16151,31 @@ body.climate-layer-on #tools{z-index:44}
         }
       }
       sync();
+    })();
+
+    /* 工具按钮的可访问名称。
+       抽屉里的按钮只放图标，名字全靠 .tl 那个悬停气泡；而横屏窄高度时
+       `.tool-btn .tl{display:none}`（为了塞下 34px 的小按钮）—— 于是手机横屏
+       上这些按钮对读屏就是"按钮，已按下"，没有名字。
+       这里把 .tl 的文字镜像到 aria-label，并用 MutationObserver 跟着它变：
+       自转/昼夜这类状态文字会被改写成"开启自转"，aria-label 一起跟进。 */
+    (function () {
+      var tls = document.querySelectorAll('#tools .tool-btn .tl');
+      for (var i = 0; i < tls.length; i++) {
+        (function (tl) {
+          var btn = tl.parentNode;
+          var sync = function () {
+            var t = (tl.textContent || '').trim();
+            if (t) btn.setAttribute('aria-label', t);
+          };
+          sync();
+          if (window.MutationObserver) {
+            new MutationObserver(sync).observe(tl, {
+              childList: true, characterData: true, subtree: true
+            });
+          }
+        })(tls[i]);
+      }
     })();
 
     /* 自转：用户意愿单独存一个 spinWanted。autoSpin 会被飞行、拖动、钉中国
