@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-24-B">
+<meta name="build" content="2026-11-24-C">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -7555,9 +7555,9 @@ body.climate-layer-on #tools{z-index:44}
     globe.mixBTarget = 1;
   }
 
-  /* 星空：球面均匀分布的点云，带闪烁。
+  /* 星空：撒满整个球面的点云，带呼吸式闪烁。
      用 PointsMaterial 出来的是"一堆死白点"；换成自定义 shader，每颗星带一个
-     随机相位，亮度按 sin 缓慢呼吸（周期各不相同），才有真正夜空的感觉。
+     随机相位，一小撮亮星按半余弦缓慢"微亮→闪亮"（周期各不相同），才有夜空的感觉。
      半径 26~66 落在相机 far(100) 之内，不跟随地球自转，所以它是"背景"。 */
   var STAR_MAT = null;
   /* 地球模式那套星场的 Points。太阳系模式要临时把它收掉、回来再放出来，
@@ -7566,12 +7566,16 @@ body.climate-layer-on #tools{z-index:44}
      就再也不会执行，星场永远停在 false，地球模式直接一片黑。 */
   var BASE_STARS = null;
   function addStars(scene) {
-    /* 相机永远看着球心、fov 固定，所以视野其实是**一个固定的圆锥**。
-       把星星撒满整个球面，只有 3% 会出现在画面里 —— 3200 颗看起来像 100 颗。
-       所以直接在视野锥里撒（半角 44°，覆盖宽屏的水平视场），
-       1400 颗就真的能看到 1400 颗，密度才像夜空。 */
-    var N = 2000;
-    var COSA = Math.cos(44 * Math.PI / 180);
+    /* 星空必须撒满**整个球面**，不能只撒相机初始朝向的那一小片视野锥。
+       转场（进/出太阳系）时相机会绕球心换方位，星区要是钉死在 -Z，
+       转 90° 就一颗都不剩 —— 用户看到的就是"一张正方形星空贴图斜着扫过去，
+       边缘一圈死黑，要等转回来才对正"。实测旧版全天覆盖率只有 12%，
+       默认视角 819 颗、转 55° 剩 143 颗、转 90° 归零。
+       全天空的代价是只有约 6% 落进视锥，所以总数得放到一万上下；
+       一次 Points draw call，CPU/GPU 成本都可以忽略。
+       N 由"屏幕上想看到几颗"反推：视锥立体角约 0.74sr / 4π ≈ 5.9%，
+       9800 × 5.9% ≈ 580 颗 —— 比原来 819 颗少三成，回应用户说的太密。 */
+    var N = 9800;
     /* 一条"银河"：约三分之一星集中在一个大圆带附近（法向 n 的平面），
        实拍照片里银河就是一条斜贯画面的密集带，均匀撒是撒不出来的。 */
     var NW = [0.46, 0.78, 0.42];
@@ -7584,13 +7588,15 @@ body.climate-layer-on #tools{z-index:44}
       var r = 26 + Math.pow(Math.random(), 0.65) * 40;
       var dx, dy, dz, tries = 0;
       do {
-        var cosT = 1 - Math.random() * (1 - COSA);
-        var sinT = Math.sqrt(Math.max(0, 1 - cosT * cosT));
+        /* 球面均匀：cosθ 在 [-1,1] 均匀、方位角在 [0,2π) 均匀。
+           这样每个方向的期望星数相同，相机转到哪都不会露边。 */
+        var u = Math.random() * 2 - 1;
+        var sinT = Math.sqrt(Math.max(0, 1 - u * u));
         var ph = Math.random() * Math.PI * 2;
         dx = sinT * Math.cos(ph);
         dy = sinT * Math.sin(ph);
-        dz = -cosT;                        // -Z 是相机朝向，星星在正前方
-        // 前三分之一的星要求落在银河带附近（|与带法向的夹角| < 0.34）
+        dz = u;
+        // 约一半星不做银河约束，保证全天都有底星；另一半往银河带里聚
         if (i % 2 !== 0) break;
       } while (Math.abs(dx * NW[0] + dy * NW[1] + dz * NW[2]) > 0.24 && ++tries < 14);
       pos[i * 3] = r * dx;
