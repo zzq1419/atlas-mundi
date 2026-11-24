@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-24-L">
+<meta name="build" content="2026-11-24-M">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -11486,7 +11486,16 @@ body.climate-layer-on #tools{z-index:44}
              地球半径 1→0.088、太阳半径 0.34，两者在 e≈0.4 会互相穿插；
              位移先走开，太阳再亮起来，就没有"太阳从地球里穿出来"的画面。 */
       var dE = s.earthDef || { a: 0.98, r: 0.088 };
-      var dK = Math.pow(e, 0.45);
+      /* dK = e^0.45 让位移跑在收缩前面（太阳才不会从地球里穿出来），
+         但 0.45 次幂在 e→0 处斜率是**发散**的：退场最后 0.3 秒地球反而
+         越跑越快（实测每帧位移 0.0060 → 0.0133，翻了一倍多），然后一帧
+         定住 —— 用户说的"急刹车"就是这个，而且它正对着镜头，最扎眼。
+         这里乘一条只作用于 e<0.18 的 smoothstep 做末端软着陆：
+         中段完全不变（进场 e=0.42 处太阳开始亮，那里乘数已是 1，
+         穿帮风险一点没增加），末段速度单调收到 0。 */
+      var _eT = Math.min(1, e / 0.18);
+      var _soft = _eT * _eT * (3 - 2 * _eT);
+      var dK = Math.pow(e, 0.45) * _soft;
       var scl = Math.pow(dE.r, e);
       /* 锚点方位：退出时用前 45% 的行程把方位摆到目标上（那时地球还很小，
          摆动看不出突兀，读起来是"它在地球轨道上滑了一段"）；进入时方位固定。 */
