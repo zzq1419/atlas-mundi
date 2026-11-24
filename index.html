@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-24-M">
+<meta name="build" content="2026-11-24-N">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -1073,13 +1073,17 @@
   .kq-meta{margin-left:auto;font-size:10.5px;letter-spacing:.06em;color:rgba(150,172,204,.9)}
   .kq-q{margin:0 0 10px;font-size:14.5px;line-height:1.85;color:rgba(234,242,254,.98)}
   .kq-opts{display:flex;flex-direction:column;gap:6px}
+  /* 一个过渡都不留：选项是"点了就要立刻看到选中/对错"的答题控件。
+     之前 background/border 各有 .16s 渐变，实测指针移上去要 133ms 才填满，
+     答题时就像"鼠标跟不上手"。底色变化本身够轻，瞬发不会有闪跳感。 */
   .kq-opt{font:inherit;font-size:13.5px;text-align:left;padding:9px 12px;border-radius:7px;
     border:1px solid rgba(140,165,220,.18);background:rgba(255,255,255,.02);
-    color:rgba(206,220,240,.92);cursor:pointer;transition:background .16s ease,border-color .16s ease}
-  .kq-opt:hover{background:rgba(148,182,224,.09);border-color:rgba(148,182,224,.34)}
+    color:rgba(206,220,240,.92);cursor:pointer;transition:none}
+  /* 答完题后 .dim 的那几项已经点不动了，再给 hover 高亮会让人以为还能改答案 */
+  .kq-opt:hover:not(.dim){background:rgba(148,182,224,.09);border-color:rgba(148,182,224,.34)}
   .kq-opt.ok{border-color:rgba(95,214,164,.55);background:rgba(95,214,164,.10);color:rgba(200,244,226,.96)}
   .kq-opt.bad{border-color:rgba(232,121,138,.55);background:rgba(232,121,138,.10);color:rgba(250,214,220,.96)}
-  .kq-opt.dim{opacity:.55}
+  .kq-opt.dim{opacity:.55;cursor:default}
   .kq-ans{display:none;margin-top:2px;padding:10px 12px;border-radius:7px;
     background:rgba(148,182,224,.06);border-left:2px solid rgba(148,182,224,.4)}
   .kq-ans.on{display:block}
@@ -2051,7 +2055,9 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
   background:rgba(9,20,35,.93);
   border:1px solid rgba(140,170,210,.28);border-radius:14px;
   box-shadow:0 16px 40px rgba(0,0,0,.5);
-  -webkit-backdrop-filter:blur(7px);backdrop-filter:blur(7px);
+  /* 这里原来有 backdrop-filter:blur(7px)。面板底色 alpha 0.93，模糊本来就看不出，
+     但背后地球每帧都在转 —— 面板里任何重绘（悬停选项）都要重新模糊整块背景，
+     实测悬停时 70 帧里 23 帧掉到 33ms，选项高亮就跟"慢半拍"一样。去掉后只剩 9 帧。 */
   animation:kitIn .16s ease-out both;
 }
 .kit-panel[hidden]{display:none!important}
@@ -2076,7 +2082,8 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
 .quiz-ask{margin:0 0 12px;line-height:1.65;color:#c9dcf0;font-size:14px}
 .quiz-opts{display:grid;gap:7px}
 .quiz-opt{padding:11px 13px;text-align:left;border:1px solid rgba(140,170,210,.24);
-  border-radius:8px;background:rgba(255,255,255,.04);color:#e2eefb;font-size:14.5px;cursor:pointer}
+  border-radius:8px;background:rgba(255,255,255,.04);color:#e2eefb;font-size:14.5px;cursor:pointer;
+  transition:none}
 .quiz-opt:hover:not(:disabled){background:rgba(150,185,230,.10);border-color:rgba(150,185,230,.34)}
 .quiz-opt:disabled{cursor:default}
 .quiz-opt.ok{background:rgba(90,190,130,.18);border-color:rgba(120,220,160,.6);color:#d6ffe4}
