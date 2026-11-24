@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-24-Z">
+<meta name="build" content="2026-11-24-Z2">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -17428,6 +17428,11 @@ body.climate-layer-on #tools{z-index:44}
         }
       }
     });
+
+    /* 首屏之后在后台把题库拉下来。它只有 128KB，但线上首屏十几 MB 贴图排在前头，
+       等用户点开答题模式才发请求的话要等好几秒（实测点进去还是"正在载入"）。
+       8 秒后贴图基本下完，这时候拉既不抢带宽，用户再进来也基本是秒开。 */
+    setTimeout(function () { loadBank().catch(function () {}); }, 8000);
 
     var btn = document.getElementById('btn-exam');
     if (btn) {
