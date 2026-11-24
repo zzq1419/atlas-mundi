@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-24-A">
+<meta name="build" content="2026-11-24-B">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -27,12 +27,12 @@
      1) 先把 html/body 底色钉死；
      2) color-scheme:dark 让表单控件（输入框、按钮）默认也走深色主题 ——
         万一样式还没生效，露出的是深色控件而不是一块白。 */
-  html,body{margin:0;background:#02040a}
+  html,body{margin:0;background:#020202}
   :root{color-scheme:dark}
 </style>
 <style>
   :root{
-    --bg:#02040a;
+    --bg:#020202;
     --bg-2:#0b1020;
     --ink:#e8ecf6;
     --ink-dim:#8e9ab5;
@@ -69,8 +69,10 @@
       radial-gradient(1px 1px at 8% 82%, rgba(255,255,255,.55), transparent 60%),
       radial-gradient(1px 1px at 46% 8%, rgba(255,255,255,.45), transparent 60%),
       radial-gradient(1.2px 1.2px at 94% 42%, rgba(255,255,255,.4), transparent 60%),
-      radial-gradient(circle at 50% -10%, rgba(56,92,168,.075), transparent 58%),
-      radial-gradient(circle at 85% 110%, rgba(70,54,132,.055), transparent 58%);
+      /* 这两条只留一点点空间层次，必须是中性灰：带蓝紫的话，
+         从太阳系的纯黑天穹退回来时整片背景会"唰"地泛蓝。 */
+      radial-gradient(circle at 50% -10%, rgba(160,160,160,.018), transparent 58%),
+      radial-gradient(circle at 85% 110%, rgba(160,160,160,.014), transparent 58%);
   }
   .wrap{
     position:relative;z-index:1;
@@ -1245,7 +1247,7 @@ html,body{
 }
 body{
   margin:0;padding:0;
-  background:#02040a;
+  background:#020202;
 }
 
 #globe-stage{
