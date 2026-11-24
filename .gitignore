@@ -69,8 +69,6 @@ assets/*/*/*.png
 !assets/logo.png
 # 图层索引/贴图例外：climate.png 是调色板贴图，属于生成物，必须入库
 !assets/tex/*.png
-# 海面重绘实验件（?ocean=proto）用的深度图与色带，也是生成物
-!assets/tex/proto/*.png
 选图台.html
 shots_ui/
 shots_*/
