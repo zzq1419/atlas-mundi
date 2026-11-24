@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-24-F">
+<meta name="build" content="2026-11-24-G">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -7441,11 +7441,14 @@ body.climate-layer-on #tools{z-index:44}
   };
 
   /* 单文件多源尝试：OBS 失败退仓库同域 */
-  function loadTex(loader, name, ok, fail) {
+  function loadTex(loader, name, ok, fail, localOnly) {
+    /* 海洋修正图只放在仓库同域（OBS 上那份原始贴图改不了），
+       给它开个只走本地的口子，省掉一次必定失败的跨域请求。 */
+    var bases = localOnly ? ['assets/tex/'] : TEX_BASES;
     var i = 0;
     (function next() {
-      if (i >= TEX_BASES.length) { fail(); return; }
-      var url = TEX_BASES[i++] + name;
+      if (i >= bases.length) { fail(); return; }
+      var url = bases[i++] + name;
       loader.load(url, function (t) { ok(t, url); }, undefined, next);
     })();
   }
@@ -7471,7 +7474,7 @@ body.climate-layer-on #tools{z-index:44}
   function loadEarthTextures(cb, renderer) {
     var loader = new THREE.TextureLoader();
     var day4 = null, night = null, day8 = null;
-    var need = 2, settled8 = false, done = false, msgSent = false;
+    var need = 3, settled8 = false, done = false, msgSent = false;
     /* 注意这里要用传进来的 renderer：globe.renderer 是在 buildGlobe 末尾才赋值的，
        这个函数在赋值之前就被调用了 —— 用 globe.renderer 会永远读到 4096，8K 永远不加载。 */
     var maxTex = (renderer && renderer.capabilities &&
@@ -7501,6 +7504,30 @@ body.climate-layer-on #tools{z-index:44}
     loadTex(loader, 'earth-night.webp',
       function (t) { night = t; need--; maybe(); },
       function () { night = null; need--; maybe(); });
+
+    /* ---------- 日面贴图的海洋拼接缝修正 ----------
+       assets/tex/earth-day.webp（以及 OBS 上的 8K 版）在北纬约 41° 有一条
+       卫星条带拼接的水平色差：缝以南的北太平洋整块暗一档，放大后就是
+       "海洋里一块颜色明显更深"。实测 4K 与 8K 是同源数据、缝在同一
+       UV 位置（y=568，行亮度跳变 -3.17 / -3.26）。
+       OBS 上的原图改不了、也不该把 5MB 贴图搬回仓库，所以改成一张
+       1024×512 的低频修正图：离线算"中尺度色块相对大尺度趋势的偏差"，
+       这里按 UV 叠回 sRGB 采样值（在 s2l 之前），两种分辨率共用一张。
+       只动海洋低频，海面细纹、陆地、冰盖全部原样。 */
+    loadTex(loader, 'ocean-fix.webp', function (t) {
+      t.wrapS = THREE.RepeatWrapping;
+      t.minFilter = THREE.LinearFilter;
+      t.magFilter = THREE.LinearFilter;
+      t.generateMipmaps = false;
+      t.needsUpdate = true;
+      globe.oceanFix = t;
+      if (globe.earthMat) globe.earthMat.uniforms.uOceanFix.value = t;
+      need--; maybe();
+    }, function () {
+      /* 拿不到就用中性 1×1 占位，画面照旧，绝不阻塞出球 */
+      globe.oceanFix = null;
+      need--; maybe();
+    }, true);
 
     /* 地形法线贴图：185KB，**不算进"出球"的等待**（need 不加），
        晚到一点没影响 —— 到了把 uBump 打开，地形就有了起伏。
@@ -7714,7 +7741,12 @@ body.climate-layer-on #tools{z-index:44}
 
   function earthMaterial(dayTex, nightTex) {
     var hasNight = nightTex ? 1 : 0;
+    /* 修正图还没到/加载失败时的中性值：96 解码回 gain = 1.0（不改动） */
+    var neutralFix = new THREE.DataTexture(
+      new Uint8Array([96, 96, 96, 255]), 1, 1, THREE.RGBAFormat);
+    neutralFix.needsUpdate = true;
     var uniforms = {
+      uOceanFix: { value: globe.oceanFix || neutralFix },
       dayMap: { value: dayTex },
       dayMapB: { value: dayTex },   // 8K 到达前先指向同一张，mix 恒为 0
       uMixB: { value: 0 },          // 0 → 1 时从 dayMap 交叉淡化到 dayMapB
@@ -7848,6 +7880,7 @@ body.climate-layer-on #tools{z-index:44}
       'uniform float uMixB;',
       'uniform float hasNight;',
       'uniform float nightMix;',
+      'uniform sampler2D uOceanFix;',
       'uniform float uFade;',
       'uniform vec3 uSunDir;',
       'uniform float uTermOn;',
@@ -7888,8 +7921,12 @@ body.climate-layer-on #tools{z-index:44}
       '  float facing = max(dot(n, v), 0.0);',
       // 只在轮缘收暗到 80%，既有体积感又不出现"暗面"
       '  float limb = mix(0.80, 1.0, smoothstep(0.0, 0.66, facing));',
-      '  vec3 dA = s2l(texture2D(dayMap, vUv).rgb);',
-      '  vec3 dB = s2l(texture2D(dayMapB, vUv).rgb);',
+      /* 乘性增益：修正图里存的是线性空间的 gain（(target/current)^2.2）。
+         乘在 s2l 之后，等价于把 sRGB 低频色从 current 换成 target，
+         高频纹理按原比例保留 —— 加性修正在极暗海面会被 gamma 放大成过亮。 */
+      '  vec3 oceanGain = texture2D(uOceanFix, vUv).rgb * 1.60 + 0.40;',
+      '  vec3 dA = s2l(texture2D(dayMap, vUv).rgb) * oceanGain;',
+      '  vec3 dB = s2l(texture2D(dayMapB, vUv).rgb) * oceanGain;',
       /* 一张像素覆盖几个 uv × 8192 = 每屏幕像素吃几个 8K 纹理像素。
          放大时（<1）才用 8K；缩小时 8K 会走 mip 缺失的最近邻采样而闪烁，
          所以缩小时退回带 mipmap 的 4K —— 两张图按这个比例软过渡，没有跳变。 */
