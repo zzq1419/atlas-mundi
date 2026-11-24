@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-24-D">
+<meta name="build" content="2026-11-24-E">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -10865,6 +10865,11 @@ body.climate-layer-on #tools{z-index:44}
        改成 fbm 噪声后：没有缝（方向连续）、亮度是浮点算的（末尾再补一层
        8bit 抖动压色带）、生成成本为零。 */
     var SOLAR_GAL_AXIS = new THREE.Vector3(0.62, 0.66, 0.42).normalize();
+    /* 地球模式也让这层天穹常驻：0.30、且把银河带对比压平（见 uFloor），
+       出来是约 5~8/255 的均匀淡雾，仍然是黑，但不再是"死黑一片"。
+       太阳系侧 0.58、带子原样显出来。两边共用同一个 dome / 银道轴 / fbm
+       噪声，转场只是同一片雾原地变浓、带子慢慢显影，不会"换一张背景"。 */
+    var EARTH_SKY_OP = 0.30;
 
     function solarSkyBuild() {
       var g = new THREE.Group();
@@ -11003,7 +11008,12 @@ body.climate-layer-on #tools{z-index:44}
         g.add(sp);
       });
 
-      g.visible = false;
+      /* 常驻：地球模式也挂这一层，只有穹顶在亮（星点/星云由 solarTick 收着）。
+         于是转场不是"雾从无到有"，而是同一片雾原地变浓。 */
+      g.visible = true;
+      g.children.forEach(function (ch) {
+        if (ch.isPoints || ch.isSprite) ch.visible = false;
+      });
       return g;
     }
 
@@ -11038,7 +11048,11 @@ body.climate-layer-on #tools{z-index:44}
         cubeCam.update(renderer, tmp);
 
         var cubeMat = new THREE.ShaderMaterial({
-          uniforms: { uCube: { value: rt.texture }, uOpacity: { value: oldOp } },
+          uniforms: {
+            uCube: { value: rt.texture },
+            uOpacity: { value: oldOp },
+            uFloor: { value: 1 }
+          },
           vertexShader: [
             'varying vec3 vDir;',
             'void main() {',
@@ -11047,10 +11061,14 @@ body.climate-layer-on #tools{z-index:44}
             '}'
           ].join('\n'),
           fragmentShader: [
-            'uniform samplerCube uCube; uniform float uOpacity;',
+            'uniform samplerCube uCube; uniform float uOpacity; uniform float uFloor;',
             'varying vec3 vDir;',
             'void main() {',
             '  vec3 c = textureCube(uCube, normalize(vDir)).rgb;',
+            /* 地球侧(uFloor=1)把银河带的方向对比压掉八成，只留一层均匀淡雾：
+               低强度下若保留带结构，纯黑底上会显出一条斜线（用户刚为此返工）。
+               uFloor 随转场 1→0，银河带是"慢慢显影"而不是"突然换一张"。 */
+            '  c = mix(c, vec3(0.070), uFloor * 0.80);',
             '  gl_FragColor = vec4(c * uOpacity, 1.0);',
             '}'
           ].join('\n'),
@@ -11565,11 +11583,10 @@ body.climate-layer-on #tools{z-index:44}
          头半秒能看出"星空闪了一下"）。 */
       if (s.sky) {
         var kSky = Math.min(1, Math.max(0, (e - 0.04) / 0.38));
-        s.sky.visible = kSky > 0.003;
-        /* 穹顶是 ShaderMaterial，透明度得走 uniform（material.opacity 对它无效）。
-           烘成立方体贴图之后，管透明度的是那一层极简材质。 */
-        var smat = (s.skyBaked && s.skyCubeMat) ? s.skyCubeMat : s.skyMat;
-        if (smat) smat.uniforms.uOpacity.value = 0.58 * kSky;
+        /* uOpacity 由渲染循环统一写：地球模式稳定后 solarTick 会停，
+           写在这里的话退回来那一帧之后就再没人更新穹顶了。 */
+        s.skyK = kSky;
+        s.sky.visible = true;          // 天穹常驻，地球模式只留极淡穹顶
         /* 天穹里的 5200 颗星点是独立材质（STAR_MAT 的副本），同样走 uniform 淡出 */
         if (s.skyStarMat) s.skyStarMat.uniforms.uFade.value = kSky;
         s.sky.children.forEach(function (ch) {
@@ -11577,6 +11594,8 @@ body.climate-layer-on #tools{z-index:44}
               ch.material.isSpriteMaterial) {
             ch.material.opacity = ch.userData.wantOpacity * kSky;
           }
+          /* 星点/星云是太阳系专属：地球模式收掉，别在 9800 颗之外又叠一层。 */
+          if (ch.isPoints || ch.isSprite) ch.visible = kSky > 0.003;
         });
         /* 天穹**不许转**。原来是 0.004 rad/s（0.23°/s），听起来很慢，但换算到
            屏幕上就是每秒 7~8 个像素 —— 星点本身只有 1~2px，整体平移等于让每一颗
@@ -11768,7 +11787,16 @@ body.climate-layer-on #tools{z-index:44}
         /* 收尾把两套星空钉回"地球模式"的状态：上面的交叉淡切在 e=0 时
            本来就算得对，这里再显式写一次，防的是中途切标签页 / 掉帧
            导致某一帧没跑到 solarTick 就退出，星空停在半透明状态。 */
-        if (s.sky) s.sky.visible = false;
+        /* 天穹常驻：只把太阳系专属的星点/星云收掉，穹顶留着
+           （uOpacity 由渲染循环钉回地球侧的 0.10）。 */
+        s.skyK = 0;
+        if (s.sky) {
+          s.sky.visible = true;
+          s.sky.children.forEach(function (ch) {
+            if (ch.isPoints || ch.isSprite) ch.visible = false;
+            if (ch.isSprite && ch.material) ch.material.opacity = 0;
+          });
+        }
         if (s.skyStarMat) s.skyStarMat.uniforms.uFade.value = 0;
         if (BASE_STARS) BASE_STARS.visible = true;
         if (STAR_MAT) STAR_MAT.uniforms.uFade.value = 1;
@@ -12549,7 +12577,10 @@ body.climate-layer-on #tools{z-index:44}
 
         function finish() {
           solar.root.visible = false;
-          if (solar.sky) solar.sky.visible = false;
+          /* 天穹常驻：地球模式也留着那层极淡穹顶，预热完别整组收掉。
+             太阳系专属的星点/星云在 solarSkyBuild 里就已经 visible=false，
+             穹顶强度则由渲染循环按 skyK 每帧写。 */
+          if (solar.sky) solar.sky.visible = true;
           solar.warmed = true;
         }
 
@@ -12850,6 +12881,31 @@ body.climate-layer-on #tools{z-index:44}
         globe.solarTick(dtf);
       } else {
         camera.position.z += (globe.camTarget - camera.position.z) * (1 - Math.pow(0.88, dtf));
+      }
+      /* ---------- 地球背景天穹：与太阳系共用同一个穹顶 ----------
+         以前那层雾只在转场里从 0 淡到 0.58，地球侧是纯黑：实测进太阳系
+         头 300ms 背景会先从 (2,2,2) 掉到 (1,1,1) 再拉起来，退回来又是
+         25→2 的台阶。现在让它在地球模式常驻（0.10），转场时原地变浓到
+         0.58，亮度单调、图案不换。写在渲染循环：地球模式稳定后 solarTick
+         不再跑，首屏的 fadeVal 也只有这里拿得到。 */
+      if (solar.sky) {
+        var _sm = (solar.skyBaked && solar.skyCubeMat) ? solar.skyCubeMat : solar.skyMat;
+        if (_sm) {
+          /* 烘焙完成前不挂全屏 fbm（每像素 10 次噪声，实测会掉帧）；
+             烘好后用 1.2 秒把地球侧淡雾推上来，避免"看着看着突然多一层"。 */
+          if (solar.skyBaked && solar.earthSkyAt == null) solar.earthSkyAt = performance.now();
+          var _fi = solar.earthSkyAt
+            ? Math.min(1, (performance.now() - solar.earthSkyAt) / 1200) : 0;
+          var _base = solar.skyBaked ? EARTH_SKY_OP * _fi : 0;
+          var _k = solar.skyK || 0;
+          var _fv = (globe.fadeVal == null ? 1 : globe.fadeVal);
+          _sm.uniforms.uOpacity.value = (_base + (0.58 - _base) * _k) * _fv;
+          /* 烘焙成功走 cubeMat：地球侧压平银河带，太阳系侧 0 = 原图。 */
+          if (_sm.uniforms.uFloor) _sm.uniforms.uFloor.value = 1 - _k;
+        }
+        if (solar.skyDome) {
+          solar.skyDome.visible = !!(solar.skyBaked || (solar.skyK || 0) > 0.003);
+        }
       }
       if (STAR_MAT) STAR_MAT.uniforms.uTime.value = performance.now() / 1000;
       if (globe.solarOn && solar.skyStarMat) {
