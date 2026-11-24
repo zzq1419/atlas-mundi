@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-24-Z3">
+<meta name="build" content="2026-11-24-Z4">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -862,14 +862,13 @@
   body.class-mode .ts-item{width:96px;height:69px}
   body.class-mode #detail .meta{font-size:15px;line-height:1.9}
 
-  /* ---- 答题模式（全屏） ----
-     独立一层，不挂在档案卡上：进模式就把地球那层全关掉（省电，也免得背景
-     一直在转、面板反复重绘）。阅读宽度卡在 760px —— 中文一行 36~40 字，
-     再宽眼睛会串行；题干 20 / 选项 17.5，手机到投影都看得清。
-     所有 hover 都是 transition:none，跟选择题按钮保持同一套手感。 */
+  /* ---- 答题模式（全屏，左右分栏） ----
+     左边 38.2% 放题、右边 61.8% 国家图集，就是用户说的"左 : 右 = 0.618 : 1"。
+     早先内容限宽 760 居中，1280 宽下两侧各空 260px，看着像没做完。
+     阅读区按 489px 宽重排：题干 19 / 选项 16.5，一行 20~22 个字。
+     所有 hover 都是 transition:none，跟选择题按钮同一套手感。 */
   #exam{position:fixed;inset:0;z-index:92;background:#080C13;display:none;
-    overflow-y:auto;overscroll-behavior:contain;color:#E6EEF8;
-    -webkit-overflow-scrolling:touch}
+    color:#E6EEF8;overflow:hidden}
   #exam [hidden]{display:none !important}
   body.exam-mode{overflow:hidden}
   body.exam-mode #exam{display:block}
@@ -878,131 +877,154 @@
   body.exam-mode .kit-panel,body.exam-mode #build-tag,body.exam-mode #layer-legend,
   body.exam-mode #time-pins,body.exam-mode #tip,
   body.exam-mode #rotate-hint{display:none !important}
-  .ex-in{max-width:760px;margin:0 auto;padding:0 24px}
 
-  .ex-setup{padding-top:52px;padding-bottom:40px}
-  .ex-h1{font-size:28px;font-weight:500;margin:0 0 8px}
-  .ex-sub{font-size:14px;color:#8A9DB2;margin:0 0 30px}
-  .ex-f{margin:0 0 21px}
-  .ex-f>span{display:block;font-size:12px;letter-spacing:.1em;color:#7C90A6;margin-bottom:9px}
-  .ex-chips{display:flex;flex-wrap:wrap;gap:8px}
-  .ex-chip{font:inherit;font-size:14.5px;padding:8px 15px;border-radius:999px;
+  .ex-shell{display:flex;height:100vh;height:100dvh}
+  .ex-left{flex:0 0 38.2%;max-width:38.2%;display:flex;flex-direction:column;
+    padding:0 28px;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;
+    scrollbar-color:rgba(148,182,224,.22) transparent}
+  .ex-left::-webkit-scrollbar{width:6px}
+  .ex-left::-webkit-scrollbar-thumb{background:rgba(148,182,224,.2);border-radius:3px}
+  .ex-right{flex:1;position:relative;overflow:hidden;background:#070B11;
+    border-left:1px solid rgba(120,150,190,.1)}
+  .ex-g{position:absolute;inset:0}
+  .ex-g-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+    opacity:0;transition:opacity .7s ease;background:#070B11}
+  .ex-g-img.on{opacity:1}
+  .ex-g-tag{position:absolute;left:26px;top:24px;font-size:11px;letter-spacing:.16em;
+    padding:5px 10px;border-radius:5px;background:rgba(6,10,16,.46);
+    color:rgba(222,234,248,.8);pointer-events:none}
+  .ex-g-cap{position:absolute;left:0;right:0;bottom:0;padding:72px 34px 30px;
+    background:linear-gradient(to top,rgba(5,8,13,.94) 34%,rgba(5,8,13,0));
+    pointer-events:none}
+  .ex-g-cap b{display:block;font-size:27px;font-weight:500;color:#F3F7FC}
+  .ex-g-cap span{display:block;font-size:13.5px;color:rgba(206,222,240,.74);margin-top:7px}
+  .ex-g-next{position:absolute;right:28px;bottom:34px;width:44px;height:44px;
+    border-radius:50%;border:1px solid rgba(255,255,255,.2);
+    background:rgba(6,10,16,.62);color:#D8E4F1;font-size:16px;line-height:1;
+    cursor:pointer;transition:none}
+  .ex-g-next:hover{background:rgba(203,168,106,.24);border-color:rgba(203,168,106,.55);
+    color:#EFD9AE}
+
+  .ex-setup{padding:24px 0 26px}
+  .ex-hrow{display:flex;align-items:center;justify-content:space-between;margin:0 0 5px}
+  .ex-h1{font-size:24px;font-weight:500;margin:0}
+  .ex-sub{font-size:12.5px;color:#8A9DB2;margin:0 0 22px}
+  .ex-f{margin:0 0 17px}
+  .ex-f>span{display:block;font-size:11.5px;letter-spacing:.1em;color:#7C90A6;margin-bottom:7px}
+  .ex-chips{display:flex;flex-wrap:wrap;gap:6px}
+  .ex-chip{font:inherit;font-size:13px;padding:6px 12px;border-radius:999px;
     border:1px solid rgba(148,182,224,.18);background:rgba(148,182,224,.05);
     color:#A6BCD4;cursor:pointer;transition:none;-webkit-tap-highlight-color:transparent}
   .ex-chip:hover{border-color:rgba(148,182,224,.38);background:rgba(148,182,224,.11)}
-  .ex-chip.on{border-color:rgba(203,168,106,.52);background:rgba(203,168,106,.14);color:#DFC69C}
-  .ex-chip i{font-style:normal;font-size:11.5px;color:#7C90A6;margin-left:6px}
-  .ex-chip.on i{color:rgba(223,198,156,.58)}
-  .ex-count{font-size:14px;color:#8FA3B8;margin:26px 0 14px}
-  .ex-count b{font-size:17px;color:#C9A465;font-weight:500}
-  .ex-start{width:100%;font:inherit;font-size:16.5px;padding:17px 0;border-radius:11px;
-    border:1px solid rgba(203,168,106,.45);background:rgba(203,168,106,.14);
+  .ex-chip.on{border-color:rgba(203,168,106,.5);background:rgba(203,168,106,.12);color:#DFC69C}
+  .ex-chip i{font-style:normal;font-size:10.5px;color:#748AA0;margin-left:5px}
+  .ex-chip.on i{color:rgba(223,198,156,.6)}
+  .ex-count{font-size:13px;color:#8FA3B8;margin:20px 0 12px}
+  .ex-count b{font-size:16px;color:#C9A465;font-weight:500}
+  .ex-start{width:100%;font:inherit;font-size:15px;padding:14px 0;border-radius:10px;
+    border:1px solid rgba(203,168,106,.42);background:rgba(203,168,106,.12);
     color:#E2CCA2;cursor:pointer;transition:none;-webkit-tap-highlight-color:transparent}
-  .ex-start:hover{background:rgba(203,168,106,.16)}
+  .ex-start:hover{background:rgba(203,168,106,.17)}
   .ex-start:disabled{opacity:.4;cursor:default}
-  .ex-quick{display:flex;gap:10px;margin-top:12px}
-  .ex-quick button{flex:1;font:inherit;font-size:13.5px;padding:11px 0;border-radius:9px;
+  .ex-quick{display:flex;gap:9px;margin-top:10px}
+  .ex-quick button{flex:1;font:inherit;font-size:13px;padding:10px 0;border-radius:9px;
     border:1px solid rgba(148,182,224,.18);background:rgba(148,182,224,.05);
     color:#A6BCD4;cursor:pointer;transition:none}
   .ex-quick button:hover{background:rgba(148,182,224,.11)}
   .ex-quick button:disabled{opacity:.35;cursor:default}
   .ex-quick b{color:#C9A465;font-weight:500}
 
-  .ex-run{min-height:100vh;min-height:100dvh;display:flex;flex-direction:column}
+  .ex-run{flex:1;display:flex;flex-direction:column;min-height:0}
   .ex-top{position:sticky;top:0;z-index:3;background:#080C13;
-    padding:14px 0 12px;display:flex;align-items:center;gap:14px}
+    padding:14px 0 11px;display:flex;align-items:center;gap:12px}
   .ex-bar{flex:1;height:3px;border-radius:2px;background:rgba(255,255,255,.08);overflow:hidden}
   .ex-bar>i{display:block;height:100%;width:0;background:#C9A465}
-  .ex-idx{font-size:12.5px;color:#93A7BC;font-variant-numeric:tabular-nums}
-  .ex-x{font:inherit;font-size:12.5px;padding:6px 13px;border-radius:999px;
+  .ex-idx{font-size:12px;color:#93A7BC;font-variant-numeric:tabular-nums}
+  .ex-x{font:inherit;font-size:12px;padding:6px 12px;border-radius:999px;
     border:1px solid rgba(148,182,224,.2);background:transparent;color:#93A7BC;
-    cursor:pointer;transition:none}
-  .ex-x:hover{color:#D8B46A;border-color:rgba(216,180,106,.45)}
-
-  .ex-main{flex:1;display:flex;flex-direction:column;justify-content:center;padding:10px 0 18px}
-  .ex-meta{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 16px}
-  .ex-tag{font-size:11.5px;padding:4px 9px;border-radius:5px;
+    cursor:pointer;transition:none;white-space:nowrap}
+  .ex-x:hover{color:#C9A465;border-color:rgba(201,164,101,.45)}
+  /* 顶部对齐，不居中：解析一展开内容就会变高，居中会让整道题往上跳一截
+     （用户原话"解析突然冒出来把题目整个挤上去了"）。 */
+  .ex-main{flex:1;padding:14px 0 16px}
+  .ex-meta{display:flex;flex-wrap:wrap;gap:5px;margin:0 0 13px}
+  .ex-tag{font-size:11px;padding:3px 8px;border-radius:4px;
     background:rgba(148,182,224,.07);border:1px solid rgba(148,182,224,.16);color:#9CB4CC}
   .ex-tag.k{background:rgba(203,168,106,.1);border-color:rgba(203,168,106,.3);color:#C7A777}
-  .ex-q{font-size:21px;line-height:1.9;margin:0 0 24px;color:#EDF4FC}
-  .ex-opts{display:flex;flex-direction:column;gap:12px}
-  .ex-opt{display:flex;gap:12px;align-items:center;width:100%;text-align:left;
-    font:inherit;font-size:18px;line-height:1.6;min-height:58px;padding:16px 19px;
-    border-radius:10px;border:1px solid rgba(148,182,224,.16);
+  .ex-q{font-size:19px;line-height:1.82;margin:0 0 18px;color:#EDF4FC}
+  .ex-opts{display:flex;flex-direction:column;gap:9px}
+  .ex-opt{display:flex;gap:10px;align-items:center;width:100%;text-align:left;
+    font:inherit;font-size:16.5px;line-height:1.55;min-height:52px;padding:13px 15px;
+    border-radius:9px;border:1px solid rgba(148,182,224,.16);
     background:rgba(148,182,224,.04);color:#D4E3F2;cursor:pointer;transition:none;
     -webkit-tap-highlight-color:transparent}
   .ex-opt:hover:not(.dim):not(.ok):not(.bad){border-color:rgba(148,182,224,.36);background:rgba(148,182,224,.1)}
-  .ex-opt .k{flex:0 0 auto;width:18px;color:#8AA3BC;font-size:16px}
+  .ex-opt .k{flex:0 0 auto;width:16px;color:#8AA3BC;font-size:14px}
   .ex-opt .v{flex:1}
-  .ex-opt .mk{flex:0 0 auto;font-size:12.5px;color:#7E93A8}
+  .ex-opt .mk{flex:0 0 auto;font-size:11.5px;color:#7E93A8;white-space:nowrap}
   .ex-opt.ok{border-color:rgba(95,214,164,.5);background:rgba(95,214,164,.11);color:#CFF3E4}
   .ex-opt.ok .k,.ex-opt.ok .mk{color:#6FDCAC}
   .ex-opt.bad{border-color:rgba(232,121,138,.5);background:rgba(232,121,138,.1);color:#F2CFD5}
   .ex-opt.bad .k,.ex-opt.bad .mk{color:#E8798A}
   .ex-opt.dim{opacity:.42;cursor:default}
 
-  .ex-reveal{margin:0;font:inherit;font-size:14px;padding:11px 20px;border-radius:9px;
+  .ex-reveal{margin:0;font:inherit;font-size:13.5px;padding:10px 18px;border-radius:8px;
     border:1px solid rgba(148,182,224,.24);background:rgba(148,182,224,.06);
     color:#B4C9DE;cursor:pointer;transition:none;align-self:flex-start}
   .ex-reveal:hover{background:rgba(148,182,224,.12)}
-  .ex-ans{margin:0;padding:14px 16px;border-radius:9px;
+  .ex-ans{margin:0;padding:13px 15px;border-radius:8px;
     background:rgba(95,214,164,.06);border-left:3px solid rgba(95,214,164,.45)}
-  .ex-ans b{display:block;font-size:11.5px;letter-spacing:.1em;color:#6FDCAC;
-    margin-bottom:7px;font-weight:400}
-  .ex-ans p{margin:0;font-size:16px;line-height:1.9;color:#C4E4D6}
+  .ex-ans b{display:block;font-size:11px;letter-spacing:.1em;color:#6FDCAC;
+    margin-bottom:6px;font-weight:400}
+  .ex-ans p{margin:0;font-size:14.5px;line-height:1.85;color:#C4E4D6}
 
-  .ex-exp{margin:14px 0 0;padding:15px 17px;border-radius:9px;
-    background:rgba(203,168,106,.05);border-left:3px solid rgba(203,168,106,.45)}
-  .ex-exp b{display:block;font-size:11.5px;letter-spacing:.1em;color:#C7A777;
-    margin-bottom:7px;font-weight:400}
-  .ex-exp p{margin:0;font-size:16.5px;line-height:1.9;color:#C2D3E4}
-  .ex-src{margin:12px 0 0;font-size:12px;color:#6F8399}
+  .ex-exp{margin:12px 0 0;padding:13px 15px;border-radius:8px;
+    background:rgba(203,168,106,.05);border-left:3px solid rgba(203,168,106,.42)}
+  .ex-exp b{display:block;font-size:11px;letter-spacing:.1em;color:#C7A777;
+    margin-bottom:6px;font-weight:400}
+  .ex-exp p{margin:0;font-size:14.5px;line-height:1.85;color:#C2D3E4}
+  .ex-src{margin:10px 0 0;font-size:11.5px;color:#6F8399}
 
-  .ex-foot{position:sticky;bottom:0;z-index:3;margin-top:26px;background:#080C13;
+  .ex-foot{position:sticky;bottom:0;z-index:3;margin-top:auto;background:#080C13;
     border-top:1px solid rgba(120,150,190,.12);
-    padding:12px 0 calc(12px + env(safe-area-inset-bottom));
-    display:flex;align-items:center;gap:10px}
-  .ex-btn{font:inherit;font-size:13.5px;padding:10px 16px;border-radius:9px;
+    padding:11px 0 calc(11px + env(safe-area-inset-bottom));
+    display:flex;align-items:center;gap:9px}
+  .ex-btn{font:inherit;font-size:13px;padding:9px 14px;border-radius:8px;
     border:1px solid rgba(148,182,224,.18);background:rgba(148,182,224,.05);
     color:#A6BCD4;cursor:pointer;transition:none;-webkit-tap-highlight-color:transparent}
   .ex-btn:hover{background:rgba(148,182,224,.11)}
-  .ex-btn.on{border-color:rgba(203,168,106,.5);background:rgba(203,168,106,.14);color:#DFC69C}
-  .ex-btn.pri{border-color:rgba(203,168,106,.5);background:rgba(203,168,106,.15);color:#E2CCA2}
+  .ex-btn.on{border-color:rgba(203,168,106,.5);background:rgba(203,168,106,.12);color:#DFC69C}
+  .ex-btn.pri{border-color:rgba(203,168,106,.5);background:rgba(203,168,106,.13);color:#E2CCA2}
   .ex-btn.pri:hover{background:rgba(203,168,106,.18)}
   .ex-btn:disabled{opacity:.35;cursor:default}
   .ex-sp{flex:1}
-  .ex-kbd{font-size:11.5px;color:#5E7387}
+  .ex-kbd{font-size:11px;color:#5E7387}
 
-  .ex-done{padding:40px 0 56px;text-align:center;min-height:100vh;min-height:100dvh;
+  .ex-done{padding:32px 0 34px;text-align:center;flex:1;
     display:flex;flex-direction:column;justify-content:center}
-  .ex-rate{font-size:62px;line-height:1;color:#C9A465;font-variant-numeric:tabular-nums}
-  .ex-rate small{font-size:24px;color:#B08E52}
-  .ex-dsub{font-size:14px;color:#8A9DB2;margin:14px 0 30px}
-  .ex-dgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:0 0 28px}
+  .ex-rate{font-size:54px;line-height:1;color:#C9A465;font-variant-numeric:tabular-nums}
+  .ex-rate small{font-size:21px;color:#9C7F4E}
+  .ex-dsub{font-size:13px;color:#8A9DB2;margin:12px 0 26px}
+  .ex-dgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:0 0 24px}
   .ex-dcell{background:rgba(148,182,224,.05);border:1px solid rgba(148,182,224,.12);
-    border-radius:10px;padding:16px 8px}
-  .ex-dcell i{display:block;font-style:normal;font-size:12px;color:#7C90A6;margin-bottom:7px}
-  .ex-dcell b{font-size:22px;font-weight:500;color:#E6EEF8}
-  .ex-wlist{text-align:left;margin:0 0 26px}
-  .ex-wlist h4{font-size:12px;letter-spacing:.1em;color:#7C90A6;font-weight:400;margin:0 0 10px}
-  .ex-wrow{font-size:14px;color:#B4C9DE;padding:11px 14px;border-radius:8px;
+    border-radius:9px;padding:14px 6px}
+  .ex-dcell i{display:block;font-style:normal;font-size:11.5px;color:#7C90A6;margin-bottom:6px}
+  .ex-dcell b{font-size:20px;font-weight:500;color:#E6EEF8}
+  .ex-wlist{text-align:left;margin:0 0 22px}
+  .ex-wlist h4{font-size:11.5px;letter-spacing:.1em;color:#7C90A6;font-weight:400;margin:0 0 9px}
+  .ex-wrow{font-size:13px;color:#B4C9DE;padding:10px 12px;border-radius:7px;
     background:rgba(232,121,138,.05);border-left:3px solid rgba(232,121,138,.35);
-    margin-bottom:8px;line-height:1.6}
+    margin-bottom:7px;line-height:1.55}
 
-  @media (max-width:640px){
-    .ex-in{padding:0 16px}
-    .ex-setup{padding-top:26px}
-    .ex-sub{margin:0 0 24px}
-    .ex-f{margin:0 0 17px}
-    .ex-f>span{margin-bottom:7px}
-    .ex-chip{font-size:13.5px;padding:7px 12px}
-    .ex-count{margin:22px 0 12px}
-    .ex-h1{font-size:22px}
+  /* 窄屏不分栏：390 宽再劈成两半就两边都不能看了 */
+  @media (max-width:860px){
+    .ex-shell{flex-direction:column}
+    .ex-left{flex:1;max-width:none;padding:0 18px}
+    .ex-right{display:none}
     .ex-q{font-size:17.5px;line-height:1.8}
-    .ex-opt{font-size:16px;min-height:50px;padding:13px 15px}
+    .ex-opt{font-size:16px;min-height:50px;padding:12px 14px}
     .ex-kbd{display:none}
-    .ex-rate{font-size:50px}
-    .ex-idx{font-size:12px}
+    .ex-h1{font-size:21px}
   }
 
   /* ---- 搜索面板顶部：今天一条 / 可以这样问 / 最近看过 ----
@@ -3268,59 +3290,76 @@ body.climate-layer-on #tools{z-index:44}
 <!-- 答题模式：整屏独立一层。题来自 assets/bank/geo.json（由 _fix/export_bank.py
      从知识卡的随堂题导出，字段和以后并进来的真题同一套）。 -->
 <div id="exam" aria-label="地理答题模式">
-  <div class="ex-in ex-setup" id="ex-setup">
-    <h1 class="ex-h1">地理答题</h1>
-    <p class="ex-sub" id="ex-sub">正在载入题库…</p>
+  <div class="ex-shell">
+    <div class="ex-left" id="ex-left">
+      <div class="ex-setup" id="ex-setup">
+        <div class="ex-hrow">
+          <h1 class="ex-h1">地理答题</h1>
+          <button class="ex-x" id="ex-earth" type="button">返回地球</button>
+        </div>
+        <p class="ex-sub" id="ex-sub">正在载入题库…</p>
 
-    <div class="ex-f"><span>学段</span><div class="ex-chips" id="f-lv"></div></div>
-    <div class="ex-f"><span>主题</span><div class="ex-chips" id="f-theme"></div></div>
-    <div class="ex-f"><span>题型</span><div class="ex-chips" id="f-type"></div></div>
-    <div class="ex-f"><span>难度</span><div class="ex-chips" id="f-diff"></div></div>
-    <div class="ex-f"><span>题量</span><div class="ex-chips" id="f-n"></div></div>
+        <div class="ex-f"><span>学段</span><div class="ex-chips" id="f-lv"></div></div>
+        <div class="ex-f"><span>主题</span><div class="ex-chips" id="f-theme"></div></div>
+        <div class="ex-f"><span>题型</span><div class="ex-chips" id="f-type"></div></div>
+        <div class="ex-f"><span>难度</span><div class="ex-chips" id="f-diff"></div></div>
+        <div class="ex-f"><span>题量</span><div class="ex-chips" id="f-n"></div></div>
 
-    <p class="ex-count" id="ex-count">共 <b>0</b> 题可选</p>
-    <button class="ex-start" id="ex-start" type="button" disabled>开始答题</button>
-    <div class="ex-quick">
-      <button type="button" id="ex-wrongbtn">错题本 <b>0</b></button>
-      <button type="button" id="ex-favbtn">收藏 <b>0</b></button>
-    </div>
-  </div>
+        <p class="ex-count" id="ex-count">共 <b>0</b> 题可选</p>
+        <button class="ex-start" id="ex-start" type="button" disabled>开始答题</button>
+        <div class="ex-quick">
+          <button type="button" id="ex-wrongbtn">错题本 <b>0</b></button>
+          <button type="button" id="ex-favbtn">收藏 <b>0</b></button>
+        </div>
+      </div>
 
-  <div class="ex-in ex-run" id="ex-run" hidden>
-    <div class="ex-top">
-      <div class="ex-bar"><i id="ex-bar"></i></div>
-      <span class="ex-idx" id="ex-idx">1 / 1</span>
-      <button class="ex-x" id="ex-exit" type="button">退出</button>
-    </div>
-    <div class="ex-main">
-      <div class="ex-meta" id="ex-meta"></div>
-      <p class="ex-q" id="ex-q"></p>
-      <div class="ex-opts" id="ex-opts"></div>
-      <div id="ex-extra"></div>
-    </div>
-    <div class="ex-foot">
-      <button class="ex-btn" id="ex-fav" type="button">收藏</button>
-      <span class="ex-sp"></span>
-      <span class="ex-kbd" id="ex-kbd">1–4 选择 · Enter 下一题 · F 收藏</span>
-      <button class="ex-btn" id="ex-prev" type="button">上一题</button>
-      <button class="ex-btn pri" id="ex-next" type="button">下一题</button>
-    </div>
-  </div>
+      <div class="ex-run" id="ex-run" hidden>
+        <div class="ex-top">
+          <div class="ex-bar"><i id="ex-bar"></i></div>
+          <span class="ex-idx" id="ex-idx">1 / 1</span>
+          <button class="ex-x" id="ex-exit" type="button">返回选题</button>
+        </div>
+        <div class="ex-main">
+          <div class="ex-meta" id="ex-meta"></div>
+          <p class="ex-q" id="ex-q"></p>
+          <div class="ex-opts" id="ex-opts"></div>
+          <div id="ex-extra"></div>
+        </div>
+        <div class="ex-foot">
+          <button class="ex-btn" id="ex-fav" type="button">收藏</button>
+          <span class="ex-sp"></span>
+          <span class="ex-kbd" id="ex-kbd">1–4 选择 · Enter 下一题 · F 收藏</span>
+          <button class="ex-btn" id="ex-prev" type="button">上一题</button>
+          <button class="ex-btn pri" id="ex-next" type="button">下一题</button>
+        </div>
+      </div>
 
-  <div class="ex-in ex-done" id="ex-done" hidden>
-    <div class="ex-rate" id="ex-rate">0<small>%</small></div>
-    <p class="ex-dsub" id="ex-dsub"></p>
-    <div class="ex-dgrid">
-      <div class="ex-dcell"><i>答对</i><b id="ex-ok">0</b></div>
-      <div class="ex-dcell"><i>答错</i><b id="ex-bad">0</b></div>
-      <div class="ex-dcell"><i>用时</i><b id="ex-time">0:00</b></div>
+      <div class="ex-done" id="ex-done" hidden>
+        <div class="ex-rate" id="ex-rate">0<small>%</small></div>
+        <p class="ex-dsub" id="ex-dsub"></p>
+        <div class="ex-dgrid">
+          <div class="ex-dcell"><i>答对</i><b id="ex-ok">0</b></div>
+          <div class="ex-dcell"><i>答错</i><b id="ex-bad">0</b></div>
+          <div class="ex-dcell"><i>用时</i><b id="ex-time">0:00</b></div>
+        </div>
+        <div class="ex-wlist" id="ex-wlist"></div>
+        <button class="ex-start" id="ex-again" type="button">再来一组</button>
+        <div class="ex-quick">
+          <button type="button" id="ex-redo">重做本组错题</button>
+          <button type="button" id="ex-back">回到选题</button>
+        </div>
+      </div>
     </div>
-    <div class="ex-wlist" id="ex-wlist"></div>
-    <button class="ex-start" id="ex-again" type="button">再来一组</button>
-    <div class="ex-quick">
-      <button type="button" id="ex-redo">重做本组错题</button>
-      <button type="button" id="ex-back">返回地球</button>
-    </div>
+
+    <aside class="ex-right" aria-label="国家图集">
+      <div class="ex-g">
+        <img class="ex-g-img" id="ex-g-a" alt="">
+        <img class="ex-g-img" id="ex-g-b" alt="">
+      </div>
+      <span class="ex-g-tag">国家图集</span>
+      <div class="ex-g-cap"><b id="ex-g-name"> </b><span id="ex-g-sub"></span></div>
+      <button class="ex-g-next" id="ex-g-next" type="button" aria-label="下一张">&#8250;</button>
+    </aside>
   </div>
 </div>
 
@@ -17013,6 +17052,9 @@ body.climate-layer-on #tools{z-index:44}
     var rateEl = $('ex-rate'), dsubEl = $('ex-dsub'), okEl = $('ex-ok'), badEl = $('ex-bad');
     var timeEl = $('ex-time'), wlistEl = $('ex-wlist'), againEl = $('ex-again');
     var redoEl = $('ex-redo'), backEl = $('ex-back');
+    var leftEl = $('ex-left'), earthEl = $('ex-earth'), gNext = $('ex-g-next');
+    var gName = $('ex-g-name'), gSub = $('ex-g-sub');
+    var gA = $('ex-g-a'), gB = $('ex-g-b');
 
     /* ---- 存档 ---- */
     var KEY = 'atlas.exam.v1';
@@ -17158,7 +17200,7 @@ body.climate-layer-on #tools{z-index:44}
       lastMode = mode;
       setupEl.hidden = true; doneEl.hidden = true; runEl.hidden = false;
       renderQ();
-      root.scrollTop = 0;
+      leftEl.scrollTop = 0;
     }
 
     function tag(txt, gold) {
@@ -17313,11 +17355,11 @@ body.climate-layer-on #tools{z-index:44}
     }
 
     function next() {
-      if (at < qs.length - 1) { at++; renderQ(); root.scrollTop = 0; }
+      if (at < qs.length - 1) { at++; renderQ(); leftEl.scrollTop = 0; }
       else finish();
     }
     function prev() {
-      if (at > 0) { at--; renderQ(); root.scrollTop = 0; }
+      if (at > 0) { at--; renderQ(); leftEl.scrollTop = 0; }
     }
 
     function fmtTime(ms) {
@@ -17358,15 +17400,89 @@ body.climate-layer-on #tools{z-index:44}
       }
       runEl.hidden = true;
       doneEl.hidden = false;
-      root.scrollTop = 0;
+      leftEl.scrollTop = 0;
     }
 
-    /* ---- 进入 / 退出 ---- */
+    /* ---- 右栏国家图集 ----
+       图片来自 data/cards.json 的 landmark_images（每国 6 张，取第一张）。
+       两层 <img> 交叉淡入：旧图这一帧完全不动，新图 decode 完再显形 ——
+       档案卡换图那三条铁律照旧（object-fit 钉在 CSS 里、底色不透明、load≠能画）。 */
+    var gal = { list: [], i: 0, timer: 0, flip: false, ready: false };
+
+    function buildGallery() {
+      if (!CARDS || !Object.keys(CARDS).length) return false;
+      var list = [];
+      Object.keys(CARDS).forEach(function (iso) {
+        var d = CARDS[iso];
+        var im = (d && d.landmark_images) || [];
+        if (!im.length || !d.name_zh || !im[0].url) return;
+        list.push({ iso: iso, name: d.name_zh, url: im[0].url, cap: im[0].caption_zh || '' });
+      });
+      if (list.length < 4) return false;
+      gal.list = shuffle(list);
+      gal.i = 0;
+      gal.ready = true;
+      return true;
+    }
+
+    function showShot(k) {
+      var it = gal.list[k];
+      if (!it) return;
+      var next = gal.flip ? gB : gA;
+      var prev = gal.flip ? gA : gB;
+      next.onload = function () {
+        var paint = function () {
+          next.classList.add('on');
+          prev.classList.remove('on');
+          gal.flip = !gal.flip;
+          gName.textContent = it.name;
+          gSub.textContent = it.cap;
+        };
+        if (next.decode) next.decode().then(paint).catch(paint);
+        else paint();
+      };
+      next.onerror = function () {
+        gal.i = (gal.i + 1) % gal.list.length;
+        showShot(gal.i);
+      };
+      next.src = it.url;
+    }
+
+    function galNext() {
+      if (!gal.ready) return;
+      gal.i = (gal.i + 1) % gal.list.length;
+      showShot(gal.i);
+    }
+    function galStart() {
+      if (!gal.ready) return;
+      showShot(gal.i);
+      if (gal.timer) clearInterval(gal.timer);
+      gal.timer = setInterval(galNext, 5200);   // 5.2 秒一张，来得及看清地标
+    }
+    function galStop() {
+      if (gal.timer) { clearInterval(gal.timer); gal.timer = 0; }
+    }
+    /* cards.json 944KB，首屏之后才取；没到就等，等到就建图集。 */
+    function galBoot() {
+      if (buildGallery()) { galStart(); return; }
+      if (typeof loadCards === 'function') loadCards();
+      var n = 0;
+      var t = setInterval(function () {
+        n++;
+        if (buildGallery()) { clearInterval(t); galStart(); }
+        else if (n > 60 || !document.body.classList.contains('exam-mode')) clearInterval(t);
+      }, 300);
+    }
+
+    /* ---- 进入 / 退出 ----
+       退出是一级一级来的：答题页/结算页的"返回"只回选题页，选题页的
+       "返回地球"才真的离开。原来 Escape 和退出键都直接回地球，答到一半
+       想换个筛选条件就得重新进来一遍。 */
     function open() {
       document.body.classList.add('exam-mode');
       globe.examOn = true;               // 停掉地球渲染，省电也省重绘
       setupEl.hidden = false; runEl.hidden = true; doneEl.hidden = true;
-      root.scrollTop = 0;
+      leftEl.scrollTop = 0;
       if (!bank) {
         subEl.textContent = '正在载入题库…';
         loadBank().then(function () { renderSetup(); })
@@ -17375,11 +17491,18 @@ body.climate-layer-on #tools{z-index:44}
           });
       }
       renderSetup();                     // 已加载过就立刻重画
+      if (!gal.ready) galBoot(); else galStart();
     }
-    function exit() {
+    function toSetup() {
+      runEl.hidden = true; doneEl.hidden = true; setupEl.hidden = false;
+      leftEl.scrollTop = 0;
+      renderSetup();
+    }
+    function leave() {
       document.body.classList.remove('exam-mode');
       globe.examOn = false;
       globe.lastMs = 0;                  // 别让停掉这段时间变成一次巨大 dtf
+      galStop();
       setupEl.hidden = false; runEl.hidden = true; doneEl.hidden = true;
       renderSetup();
     }
@@ -17389,8 +17512,10 @@ body.climate-layer-on #tools{z-index:44}
     favBtn.addEventListener('click', function () { start('fav'); });
     nextEl.addEventListener('click', next);
     prevEl.addEventListener('click', prev);
-    exitEl.addEventListener('click', exit);
-    backEl.addEventListener('click', exit);
+    exitEl.addEventListener('click', toSetup);      // 答题页 -> 选题页
+    backEl.addEventListener('click', toSetup);      // 结算页 -> 选题页
+    if (earthEl) earthEl.addEventListener('click', leave);
+    if (gNext) gNext.addEventListener('click', galNext);
     againEl.addEventListener('click', function () {
       start(lastMode === 'wrong' ? 'wrong' : (lastMode === 'fav' ? 'fav' : 'set'));
     });
@@ -17401,7 +17526,7 @@ body.climate-layer-on #tools{z-index:44}
       qs = shuffle(wl);
       at = 0; marks = qs.map(function () { return null; }); t0 = Date.now();
       doneEl.hidden = true; runEl.hidden = false;
-      renderQ(); root.scrollTop = 0;
+      renderQ(); leftEl.scrollTop = 0;
     });
     favEl.addEventListener('click', function () {
       var it = qs[at];
@@ -17415,7 +17540,11 @@ body.climate-layer-on #tools{z-index:44}
     document.addEventListener('keydown', function (e) {
       if (!document.body.classList.contains('exam-mode')) return;
       if (e.metaKey || e.ctrlKey || e.altKey) return;
-      if (e.key === 'Escape') { exit(); e.preventDefault(); return; }
+      if (e.key === 'Escape') {
+        /* 逐级退：先回选题页，在选题页再按才离开 */
+        if (!runEl.hidden || !doneEl.hidden) toSetup(); else leave();
+        e.preventDefault(); return;
+      }
       if (runEl.hidden) return;
       var k = e.key;
       if (k >= '1' && k <= '4') { pick(+k - 1); e.preventDefault(); return; }
