@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-24-G">
+<meta name="build" content="2026-11-24-H">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -8963,6 +8963,11 @@ body.climate-layer-on #tools{z-index:44}
 
   function flyTo(lon, lat, camZ) {
     if (!globe.spin) return;
+    /* 起飞先清惯性：甩球后立刻点国家是很常见的操作，若把残留的 vel
+       留给下面的惯性积分，它会每帧继续写 spin/tilt，和飞行阻尼抢同一个
+       rotation，方向往往还相反 —— 球面就会一边飞一边被往回拽。 */
+    globe.vel.x = globe.vel.y = 0;
+    globe.flyElapsed = 0;                // 起步缓入按「实际渲染过的时间」计
     globe.rotTargetY = -lon * D2R - Math.PI / 2;
     globe.rotTargetX = Math.max(-1.15, Math.min(1.15, lat * D2R));
     globe.camTarget = camZ;
@@ -12842,8 +12847,18 @@ body.climate-layer-on #tools{z-index:44}
         var dy = globe.rotTargetY - spin.rotation.y;
         while (dy > Math.PI) dy -= Math.PI * 2;
         while (dy < -Math.PI) dy += Math.PI * 2;
-        spin.rotation.y += dy * 0.12;
-        tilt.rotation.x += (globe.rotTargetX - tilt.rotation.x) * 0.12;
+        /* 旋转与缩放共用 0.88^dtf 这个时间常数：60fps 下 fk=0.12（等于原来的
+           每帧 0.12），高刷屏自动变小、掉帧按真实时间推进。原来旋转写死 0.12/帧
+           而缩放按时间算 —— 144Hz 上旋转 0.38 秒就转完、镜头还要 0.86 秒才拉近，
+           两段动作脱节就是最明显的"抖"。
+           指数逼近又天生第一帧位移最大（转 100° 时上来十几度），偏偏点开档案的
+           同步布局要占掉两三百毫秒，两者叠加就是"啪一晃"。故再加 200ms 起步缓入
+           （按实际渲染时间累计，长任务不算进去）、单帧上限，缩放也跟着 clamp。 */
+        globe.flyElapsed = (globe.flyElapsed || 0) + Math.min(33, dtf * 16.667);
+        var framp = 0.15 + 0.85 * Math.min(1, globe.flyElapsed / 200);
+        var fk = Math.min(0.14, (1 - Math.pow(0.88, Math.min(1.2, dtf))) * framp);
+        spin.rotation.y += dy * fk;
+        tilt.rotation.x += (globe.rotTargetX - tilt.rotation.x) * fk;
         if (Math.abs(dy) < 0.0015 &&
             Math.abs(globe.rotTargetX - tilt.rotation.x) < 0.0015) {
           globe.flying = false;
@@ -12931,7 +12946,9 @@ body.climate-layer-on #tools{z-index:44}
         /* 太阳系模式自己算相机（球坐标绕原点），这里不能再让 z 单独逼近 */
         globe.solarTick(dtf);
       } else {
-        camera.position.z += (globe.camTarget - camera.position.z) * (1 - Math.pow(0.88, dtf));
+        /* 飞行中让缩放和旋转走同一个时间基准，别出现"球转完了镜头还在冲"。 */
+        var cd = (globe.flying && !globe.dragging) ? Math.min(1.2, dtf) : dtf;
+        camera.position.z += (globe.camTarget - camera.position.z) * (1 - Math.pow(0.88, cd));
       }
       /* ---------- 地球背景天穹：与太阳系共用同一个穹顶 ----------
          以前那层雾只在转场里从 0 淡到 0.58，地球侧是纯黑：实测进太阳系
@@ -13084,7 +13101,8 @@ body.climate-layer-on #tools{z-index:44}
         var spd = 0.0009 * Math.min(1.2, Math.max(0.35, camera.position.z / CAM_FAR));
         spin.rotation.y += spd * dtf;
       }
-      if (!globe.dragging && Math.abs(globe.vel.x) + Math.abs(globe.vel.y) > 0.00002) {
+      if (!globe.dragging && !globe.flying &&
+          Math.abs(globe.vel.x) + Math.abs(globe.vel.y) > 0.00002) {
         /* 速度单位是弧度/毫秒，积分也按毫秒；衰减用 exp(-k·dt)，
            半衰期约 110ms —— 松手后 0.35 秒基本停住，比原来按帧乘 0.93 稳
            （帧率一低，原来那种写法会"滑很久"）。 */
