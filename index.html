@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-24-K">
+<meta name="build" content="2026-11-24-L">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -10917,12 +10917,13 @@ body.climate-layer-on #tools{z-index:44}
        改成 fbm 噪声后：没有缝（方向连续）、亮度是浮点算的（末尾再补一层
        8bit 抖动压色带）、生成成本为零。 */
     var SOLAR_GAL_AXIS = new THREE.Vector3(0.62, 0.66, 0.42).normalize();
-    /* 地球模式也让这层天穹常驻：0.46、且把银河带对比压平（见 uFloor），
-       出来是约 10~13/255 的均匀淡雾 —— 比 0.30 那版明显，但仍是黑、且
-       没有斜带。太阳系侧 0.58、带子原样显出来。两边共用同一个 dome /
-       银道轴 / fbm 噪声，转场只是同一片雾原地变浓、带子慢慢显影，
-       不会"换一张背景"。 */
-    var EARTH_SKY_OP = 0.46;
+    /* 地球模式**不铺**这层雾（0），只有转太阳系时才从 0 升到 0.58。
+       之前是 0.46 常驻、出来约 10~13/255 的均匀淡雾，本意是让进太阳系时
+       背景亮度单调变化、不跳。但代价是地球画面永远蒙着一层灰：
+       实测加载完成 3 秒后球心从 (4,10,40) 抬到 (14,20,50)、背景从 2 抬到 10，
+       等于全画面加了一层 3.5% 的白 —— 这就是"进去正常、过一会儿变灰变淡"。
+       转场本来就靠 skyK 从 0 渐变到 1，地球侧取 0 也不会跳。 */
+    var EARTH_SKY_OP = 0;
 
     function solarSkyBuild() {
       var g = new THREE.Group();
@@ -12977,7 +12978,10 @@ body.climate-layer-on #tools{z-index:44}
           if (_sm.uniforms.uFloor) _sm.uniforms.uFloor.value = 1 - _k;
         }
         if (solar.skyDome) {
-          solar.skyDome.visible = !!(solar.skyBaked || (solar.skyK || 0) > 0.003);
+          /* 没雾就不渲染这个穹顶：它是每像素 10 次 fbm 的全屏面，
+             透明着画一遍纯属白烧帧（烘焙完成后原本是常驻可见的）。 */
+          var _op = _sm ? _sm.uniforms.uOpacity.value : 0;
+          solar.skyDome.visible = _op > 0.002;
         }
       }
       if (STAR_MAT) STAR_MAT.uniforms.uTime.value = performance.now() / 1000;
