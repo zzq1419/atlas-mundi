@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-24-E">
+<meta name="build" content="2026-11-24-F">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -298,6 +298,11 @@
   body.solar-on #labels-canvas,body.solar-on #tools,body.solar-on #search-wrap,
   body.solar-on #detail,body.solar-on #q-res,body.solar-on #hud,
   body.solar-on #globe-msg{display:none !important}
+  /* 退场一开跑就把 solar-on 摘了（UI 要开始复位），此时 s.t 还有 0.9，
+     整个退场动画才走 9%。工具抽屉会带着进太阳系前的 open 状态在动画里
+     "自己打开"，糊在飞回来的地球上。单独给工具栏加一层：整段退场淡出，
+     收尾才淡回来（抽屉已在隐藏期间收好，见 solarToggle 的退出分支）。 */
+  body.solar-exiting #tools{opacity:0;pointer-events:none}
   /* 环流三层（洋流 / 季风带 / 气压带与风带）全是**地球专用**的叠加层，
      它们的图例 #layer-legend 和共用季节胶囊 #season-pick 也一样。
      进太阳系时不收掉的话，右侧会一直挂着一块"洋流·季风带·气压带"的图例、
@@ -10865,11 +10870,12 @@ body.climate-layer-on #tools{z-index:44}
        改成 fbm 噪声后：没有缝（方向连续）、亮度是浮点算的（末尾再补一层
        8bit 抖动压色带）、生成成本为零。 */
     var SOLAR_GAL_AXIS = new THREE.Vector3(0.62, 0.66, 0.42).normalize();
-    /* 地球模式也让这层天穹常驻：0.30、且把银河带对比压平（见 uFloor），
-       出来是约 5~8/255 的均匀淡雾，仍然是黑，但不再是"死黑一片"。
-       太阳系侧 0.58、带子原样显出来。两边共用同一个 dome / 银道轴 / fbm
-       噪声，转场只是同一片雾原地变浓、带子慢慢显影，不会"换一张背景"。 */
-    var EARTH_SKY_OP = 0.30;
+    /* 地球模式也让这层天穹常驻：0.46、且把银河带对比压平（见 uFloor），
+       出来是约 10~13/255 的均匀淡雾 —— 比 0.30 那版明显，但仍是黑、且
+       没有斜带。太阳系侧 0.58、带子原样显出来。两边共用同一个 dome /
+       银道轴 / fbm 噪声，转场只是同一片雾原地变浓、带子慢慢显影，
+       不会"换一张背景"。 */
+    var EARTH_SKY_OP = 0.46;
 
     function solarSkyBuild() {
       var g = new THREE.Group();
@@ -11065,10 +11071,10 @@ body.climate-layer-on #tools{z-index:44}
             'varying vec3 vDir;',
             'void main() {',
             '  vec3 c = textureCube(uCube, normalize(vDir)).rgb;',
-            /* 地球侧(uFloor=1)把银河带的方向对比压掉八成，只留一层均匀淡雾：
+            /* 地球侧(uFloor=1)把银河带的方向对比压掉九成，只留一层均匀淡雾：
                低强度下若保留带结构，纯黑底上会显出一条斜线（用户刚为此返工）。
                uFloor 随转场 1→0，银河带是"慢慢显影"而不是"突然换一张"。 */
-            '  c = mix(c, vec3(0.070), uFloor * 0.80);',
+            '  c = mix(c, vec3(0.095), uFloor * 0.90);',
             '  gl_FragColor = vec4(c * uOpacity, 1.0);',
             '}'
           ].join('\n'),
@@ -11842,6 +11848,8 @@ body.climate-layer-on #tools{z-index:44}
         s.lblShow = true;
         document.body.classList.remove('solar-nolabel');
         document.body.classList.remove('solar-on');
+        /* 退场走完才让工具栏淡回来（#tools 本来就有 opacity .3s 过渡） */
+        document.body.classList.remove('solar-exiting');
       }
     }
 
@@ -12449,6 +12457,8 @@ body.climate-layer-on #tools{z-index:44}
         globe.flying = false;
         var _sw = document.getElementById('search-wrap');
         if (_sw) _sw.classList.remove('open');
+        /* 退到一半又点进来：把退场用的临时 class 清掉，否则工具按钮会一直隐身 */
+        document.body.classList.remove('solar-exiting');
         document.body.classList.add('solar-on');
       } else {
         /* 反过来：e=0 那头钉在"当初出发的半径"s.r0，e=1 那头按当前半径反解 */
@@ -12471,6 +12481,10 @@ body.climate-layer-on #tools{z-index:44}
         s.target = 0;
         globe.camTarget = Math.max(CAM_MIN, Math.min(CAM_MAX, s.r0));
         document.body.classList.remove('solar-on');
+        /* 整段退场把工具栏按住，别让它在飞回来的动画中途冒出来。
+           趁它还不可见先把抽屉收好，等收尾淡入时就只是一颗入口按钮。 */
+        document.body.classList.add('solar-exiting');
+        if (globe.closeTools) globe.closeTools();
       }
       var b = document.getElementById('btn-solar');
       if (b) {
