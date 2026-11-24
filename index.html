@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-24-U">
+<meta name="build" content="2026-11-24-V">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -8087,8 +8087,11 @@ body.climate-layer-on #tools{z-index:44}
          贴图上的"疤"是多次卫星影像拼接留下的**辐射值差**，不是地形：
          所以把低频换成"深度 → 色带"，再乘一层卫星自己的高频倍率
          （detail = 亮度 / 自身 9px 模糊），色块就没了，海岭海山的纹理还在。
-         岸线附近（dz < ~150m）权重滑回卫星原色 —— 浅海的青绿来自水色和底质，
-         纯深度色带会把它压淡，而那里正是巴哈马那种地方最好看的部分。 */
+         岸线**不再混回卫星色**：实测南海 0-214m 合成后中位亮度 0.2559，
+         反而比 214-428m 的 0.2703 更暗 —— 卫星底图上那片大陆架本身偏暗，
+         一混就是"浅的比深的还深"的一圈亮环。用户的原话：不怕等深线，
+         只怕浅的地方比周围深的还深。所以这里只按深度上色，
+         2~20m 之外全部是纯色带，亮度严格随深度单调。 */
       '  if (uOceanProto > 0.001) {',
       '    float dz = texture2D(uOceanDepth, vUv).r;',
       '    float det = texture2D(uOceanDetail, vUv).r + 0.5;',
@@ -8096,7 +8099,9 @@ body.climate-layer-on #tools{z-index:44}
          在深色底上就是一条条发光的线，收窄之后只剩"有起伏"的感觉。 */
       '    det = pow(clamp(det, 0.80, 1.30), 0.60);',
       '    vec3 o = s2l(oceanRamp(dz) * det);',
-      '    float w = smoothstep(0.0025, 0.0160, dz) * uOceanProto;',
+      /* dz=0 是陆地（深度图里陆地存 0），只在 2~20m 这一小段过渡，
+         免得海岸线出现一条硬边。 */
+      '    float w = smoothstep(0.00018, 0.00180, dz) * uOceanProto;',
       '    dA = mix(dA, o, w);',
       '    dB = mix(dB, o, w);',
       '  }',
