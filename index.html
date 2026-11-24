@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-24-X">
+<meta name="build" content="2026-11-24-Y">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -10318,25 +10318,63 @@ body.climate-layer-on #tools{z-index:44}
     })();
     var probeClim = null, probeElev = null, probeQ = { clim: null, elev: null };
 
-    function probeImg(src, done) {
-      var img = new Image();
-      img.onload = function () {
+    /* 高程图 2.79MB，从线上拉一次实测 65 秒（<img> 那条路更惨，139 秒）——
+       原来点下去没有任何反馈，人就只会认为按钮坏了。改成 fetch + 流式读，
+       有 content-length 就回报百分比，调用方先摆一个"读取中"的气泡。 */
+    function probeImg(src, done, onProgress) {
+      var toCanvas = function (bitmap, w, h) {
         var c = document.createElement('canvas');
-        c.width = img.width; c.height = img.height;
+        c.width = w; c.height = h;
         var x = c.getContext('2d');
-        x.drawImage(img, 0, 0);
-        done({ ctx: x, w: img.width, h: img.height });
+        x.drawImage(bitmap, 0, 0);
+        done({ ctx: x, w: w, h: h });
       };
-      img.onerror = function () { done(null); };
-      img.src = src;
+      var drawBlob = function (blob) {
+        if (!blob) { done(null); return; }
+        var url = URL.createObjectURL(blob);
+        var img = new Image();
+        img.onload = function () {
+          toCanvas(img, img.width, img.height);
+          URL.revokeObjectURL(url);
+        };
+        img.onerror = function () { URL.revokeObjectURL(url); done(null); };
+        img.src = url;
+      };
+      /* 没有 fetch 流（老浏览器 / 被策略拦）：退回原来的 <img>，只是没有进度 */
+      if (!window.fetch || !window.ReadableStream) {
+        var im = new Image();
+        im.onload = function () { toCanvas(im, im.width, im.height); };
+        im.onerror = function () { done(null); };
+        im.src = src;
+        return;
+      }
+      fetch(src, { cache: 'force-cache', priority: 'high' }).then(function (r) {
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        var total = parseInt(r.headers.get('content-length') || '0', 10);
+        if (!r.body || !total) return r.blob();
+        var rd = r.body.getReader(), got = 0, parts = [];
+        return (function pump() {
+          return rd.read().then(function (s) {
+            if (s.done) return new Blob(parts, { type: r.headers.get('content-type') || 'image/png' });
+            parts.push(s.value);
+            got += s.value.length;
+            if (onProgress) onProgress(Math.min(1, got / total));
+            return pump();
+          });
+        })();
+      }).then(drawBlob).catch(function () { done(null); });
     }
 
     /* 按需加载：查气候就只等 climate，别让 2.8MB 的高程图把第一次点击拖住 ——
-       "第一颗气泡要卡一两秒"就是原来"两张图都加载完才回调"造成的。 */
-    function ensureProbe(kind, cb) {
+       "第一颗气泡要卡一两秒"就是原来"两张图都加载完才回调"造成的。
+       onProgress 可选：图还在路上时回调百分比，让气泡能写"读取中 37%"。
+       多个调用方共用一次下载，进度广播给所有订阅者。 */
+    var probeSub = { clim: [], elev: [] };
+    function ensureProbe(kind, cb, onProgress) {
       var key = (kind === 'elev') ? 'elev' : 'clim';
       var have = (key === 'elev') ? probeElev : probeClim;
       if (have) { cb(); return; }
+      if (onProgress) probeSub[key].push(onProgress);
       if (probeQ[key]) { probeQ[key].push(cb); return; }
       probeQ[key] = [cb];
       /* 索引图必须带版本号：这版把 R 通道的编码从「11 类序号」换成了
@@ -10347,7 +10385,14 @@ body.climate-layer-on #tools{z-index:44}
                function (o) {
         if (key === 'elev') probeElev = o; else probeClim = o;
         var q = probeQ[key]; probeQ[key] = null;
+        probeSub[key] = [];
         (q || []).forEach(function (f) { f(); });
+      },
+               function (pr) {
+        var subs = probeSub[key];
+        for (var i = 0; i < subs.length; i++) {
+          try { subs[i](pr); } catch (err) {}
+        }
       });
     }
     /* 进模式就先拉图，点下去通常已经就绪 */
@@ -10483,6 +10528,27 @@ body.climate-layer-on #tools{z-index:44}
     }
 
     /* 点一下：拾取经纬度 → 查数据 → 钉一个气泡（位置跟着球走，见 placePins） */
+    /* 建一颗气泡，返回 .tp-bubble —— 占位与正式内容共用同一套 DOM，
+       后面只需要改 innerHTML，位置、尾巴、关闭都还是原来那一套。 */
+    function addProbePin(cy, ll, html, kind) {
+      if (!pinLayer) return null;
+      var anchor = document.createElement('div');
+      anchor.className = 'tpin-anchor';
+      var d = document.createElement('div');
+      d.className = 'tpin k-clim' + (cy < 150 ? ' below' : '');
+      /* 上一版删掉 × 按钮时把这里的 + 一起删了，气泡 HTML 是断的 ——
+         只有半个 div，竖线和小尾巴都不见了。 */
+      d.innerHTML = '<div class="tp-bubble">' + html + '</div><div class="tp-stem"></div>';
+      anchor.appendChild(d);
+      pinLayer.appendChild(anchor);
+      var rec = { anchor: anchor, lat: ll.lat, lon: ll.lon, kind: kind };
+      pins.push(rec);
+      bindPinClose(rec, d);
+      trimPins();
+      placePins();
+      return d.querySelector('.tp-bubble');
+    }
+
     cv.addEventListener('click', function (e) {
       if (!globe.probeMode) return;
       if (globe.moved > 6) return;
@@ -10492,10 +10558,19 @@ body.climate-layer-on #tools{z-index:44}
       keyClick();
       /* 气温走网络（Open-Meteo），不依赖那两张本地索引图 */
       if (globe.probeKind === 'temp') { showTempPin(e.clientY, ll); return; }
+
+      var ns = ll.lat >= 0 ? 'N' : 'S', ew = ll.lon >= 0 ? 'E' : 'W';
+      var coord = Math.abs(ll.lat).toFixed(1) + '°' + ns + '　' +
+                  Math.abs(ll.lon).toFixed(1) + '°' + ew;
+      var kindName = globe.probeKind === 'elev' ? '高程' : '气候';
+      var ready = globe.probeKind === 'elev' ? probeElev : probeClim;
+      /* 高程图 2.79MB，线上实测要几十秒才下完。原来这段时间屏幕上什么都没有，
+         点的人只会认为按钮坏了。现在先摆一颗"读取中"的气泡，图到了原地填数字。 */
+      var bub = ready ? null
+                      : addProbePin(e.clientY, ll,
+                          '<b>读取' + kindName + '数据…</b><i>' + coord + '</i>',
+                          globe.probeKind);
       ensureProbe(globe.probeKind, function () {
-        var ns = ll.lat >= 0 ? 'N' : 'S', ew = ll.lon >= 0 ? 'E' : 'W';
-        var coord = Math.abs(ll.lat).toFixed(1) + '°' + ns + '　' +
-                    Math.abs(ll.lon).toFixed(1) + '°' + ew;
         var cn = countryAt(ll.lon, ll.lat);
         var cname = '';
         if (cn && cn.iso) {
@@ -10505,9 +10580,10 @@ body.climate-layer-on #tools{z-index:44}
         var html;
         if (globe.probeKind === 'elev') {
           var h = probeElevAt(ll.lon, ll.lat);
-          var txt = h == null ? '海拔未知'
-                  : (h >= 0 ? '海拔 ' + Math.round(h).toLocaleString() + ' 米'
-                            : '海面下 ' + Math.abs(Math.round(h)).toLocaleString() + ' 米');
+          var txt = h != null
+                  ? (h >= 0 ? '海拔 ' + Math.round(h).toLocaleString() + ' 米'
+                            : '海面下 ' + Math.abs(Math.round(h)).toLocaleString() + ' 米')
+                  : (probeElev ? '海拔未知' : '高程数据没加载上，再点一下');
           html = '<b>' + txt + '</b>' + (cname ? '　' + cname : '') + '<i>' + coord + '</i>';
         } else {
           var c = probeColorAt(ll.lon, ll.lat);
@@ -10515,23 +10591,22 @@ body.climate-layer-on #tools{z-index:44}
           html = '<b>' + (c ? c[3] : '海洋') + '</b>' + sw +
                  (cname ? '　' + cname : '') + '<i>' + coord + '</i>';
         }
-        var anchor = document.createElement('div');
-        anchor.className = 'tpin-anchor';
-        var d = document.createElement('div');
-        d.className = 'tpin k-clim' + (e.clientY < 150 ? ' below' : '');
-        /* 上一版删掉 × 按钮时把这里的 + 一起删了，气泡 HTML 是断的 ——
-           只有半个 div，竖线和小尾巴都不见了。 */
-        d.innerHTML = '<div class="tp-bubble">' + html +
-                      '</div><div class="tp-stem"></div>';
-        anchor.appendChild(d);
-        pinLayer.appendChild(anchor);
-        var rec = { anchor: anchor, lat: ll.lat, lon: ll.lon,
-                    kind: globe.probeKind || 'climate' };
-        pins.push(rec);
-        bindPinClose(rec, d);
-        trimPins();
-        placePins();
-      });
+        if (bub && bub.parentNode) bub.innerHTML = html;
+        else addProbePin(e.clientY, ll, html, globe.probeKind);
+      }, (function () {
+        var last = -1;
+        return function (pr) {
+          /* 流式读会按块回调（2.8MB 可能几十上百次），只在整数百分比变化时
+             动 DOM，别为了一个进度条把主线程写满。 */
+          var pct = Math.round(pr * 100);
+          if (pct === last) return;
+          last = pct;
+          if (bub && bub.parentNode) {
+            bub.innerHTML = '<b>读取' + kindName + '数据 ' + pct + '%</b>' +
+                            '<i>' + coord + '</i>';
+          }
+        };
+      })());
     });
 
     cv.addEventListener('click', function (e) {
