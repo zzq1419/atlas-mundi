@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-24-T">
+<meta name="build" content="2026-11-24-U">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -7557,6 +7557,9 @@ body.climate-layer-on #tools{z-index:44}
   function loadEarthTextures(cb, renderer) {
     var loader = new THREE.TextureLoader();
     var day4 = null, night = null, day8 = null;
+    /* 实验开关：带 ?ocean=proto 才去下那两张图、才在 shader 里打开。
+       线上默认不带这个参数，等于这段代码不存在（不多一个请求、不改一个像素）。 */
+    globe.oceanProtoOn = /[?&]ocean=proto\b/.test(location.search);
     var need = 3, settled8 = false, done = false, msgSent = false;
     /* 注意这里要用传进来的 renderer：globe.renderer 是在 buildGlobe 末尾才赋值的，
        这个函数在赋值之前就被调用了 —— 用 globe.renderer 会永远读到 4096，8K 永远不加载。 */
@@ -7629,6 +7632,54 @@ body.climate-layer-on #tools{z-index:44}
         }
       },
       function () { /* 拿不到就只是没有起伏，不影响其它 */ });
+
+    /* ---------- 实验件（?ocean=proto）：测深重画海面的两张贴图 ----------
+       ocean-depth.png 1024×512：从 elev.png 的 16 位高程烧出来的归一化深度
+       （0 = 岸线，1 = -11000 m）。为什么不直接在 shader 里拆 R*256+G：
+       在线性过滤下高低字节会在进位处对不上，海沟边缘会冒出尖点。
+       ocean-detail.webp 2048×1024：卫星亮度除以它自己的 9px 模糊（0.5~1.5），
+       按 v/255 + 0.5 编码，取的是"纹理"而不是"颜色"。
+       三张都放 assets/tex/proto（实验件，不进 need、默认不请求）：
+       拿不到就是原画面，绝不能因为它拖住出球。 */
+    if (globe.oceanProtoOn) {
+      var pv = '?v=' + (BUILD_TAG || '1');
+      var pdl = new THREE.TextureLoader();
+      var protoReady = function () {
+        if (globe.oceanDepth && globe.oceanDetail && globe.oceanRamp && globe.earthMat) {
+          globe.earthMat.uniforms.uOceanProto.value = 1;
+        }
+      };
+      pdl.load('assets/tex/proto/ocean-ramp.png' + pv, function (t) {
+        t.wrapS = THREE.ClampToEdgeWrapping;
+        t.wrapT = THREE.ClampToEdgeWrapping;
+        t.minFilter = THREE.LinearFilter;
+        t.magFilter = THREE.LinearFilter;
+        t.generateMipmaps = false;
+        t.needsUpdate = true;
+        globe.oceanRamp = t;
+        if (globe.earthMat) globe.earthMat.uniforms.uOceanRamp.value = t;
+        protoReady();
+      }, undefined, function () { console.warn('[proto] ramp 色带没到'); });
+      pdl.load('assets/tex/proto/ocean-depth.png' + pv, function (t) {
+        t.wrapS = THREE.RepeatWrapping;
+        t.minFilter = THREE.LinearFilter;
+        t.magFilter = THREE.LinearFilter;
+        t.generateMipmaps = false;
+        t.needsUpdate = true;
+        globe.oceanDepth = t;
+        if (globe.earthMat) globe.earthMat.uniforms.uOceanDepth.value = t;
+        protoReady();
+      }, undefined, function () { console.warn('[proto] depth 贴图没到'); });
+      pdl.load('assets/tex/proto/ocean-detail.webp' + pv, function (t) {
+        t.wrapS = THREE.RepeatWrapping;
+        t.minFilter = THREE.LinearMipmapLinearFilter;
+        t.magFilter = THREE.LinearFilter;
+        t.needsUpdate = true;
+        globe.oceanDetail = t;
+        if (globe.earthMat) globe.earthMat.uniforms.uOceanDetail.value = t;
+        protoReady();
+      }, undefined, function () { console.warn('[proto] detail 贴图没到'); });
+    }
 
     if (want8) {      loadTex(loader, 'earth-day-8k.webp', function (t) {
         t.anisotropy = 1;                 // 无 mipmap，各向异性过滤没意义
@@ -7828,8 +7879,17 @@ body.climate-layer-on #tools{z-index:44}
     var neutralFix = new THREE.DataTexture(
       new Uint8Array([96, 96, 96, 255]), 1, 1, THREE.RGBAFormat);
     neutralFix.needsUpdate = true;
+    /* 实验用的两个占位：深度 0（岸线）+ 细节 0（倍率 0.5）。
+       没开 ?ocean=proto 时 uOceanProto 恒 0，这两张一次都不会被采样。 */
+    var neutralDepth = new THREE.DataTexture(
+      new Uint8Array([0, 0, 0, 255]), 1, 1, THREE.RGBAFormat);
+    neutralDepth.needsUpdate = true;
     var uniforms = {
       uOceanFix: { value: globe.oceanFix || neutralFix },
+      uOceanDepth: { value: globe.oceanDepth || neutralDepth },
+      uOceanDetail: { value: globe.oceanDetail || neutralDepth },
+      uOceanRamp: { value: globe.oceanRamp || neutralDepth },
+      uOceanProto: { value: 0 },
       dayMap: { value: dayTex },
       dayMapB: { value: dayTex },   // 8K 到达前先指向同一张，mix 恒为 0
       uMixB: { value: 0 },          // 0 → 1 时从 dayMap 交叉淡化到 dayMapB
@@ -7964,6 +8024,10 @@ body.climate-layer-on #tools{z-index:44}
       'uniform float hasNight;',
       'uniform float nightMix;',
       'uniform sampler2D uOceanFix;',
+      'uniform sampler2D uOceanDepth;',   // 实验：归一化海底深度（0=岸线，1=-11000m）
+      'uniform sampler2D uOceanDetail;',  // 实验：卫星亮度的高频倍率（0.5 编码 → 0.5~1.5）
+      'uniform sampler2D uOceanRamp;',    // 实验：256×1 色带（按深度统计出的真实海色中位数）
+      'uniform float uOceanProto;',       // 实验开关 / 强度
       'uniform float uFade;',
       'uniform vec3 uSunDir;',
       'uniform float uTermOn;',
@@ -7998,6 +8062,15 @@ body.climate-layer-on #tools{z-index:44}
       'varying vec3 vV;',
       'vec3 s2l(vec3 c){ return pow(c, vec3(2.2)); }',
       'vec3 l2s(vec3 c){ return pow(c, vec3(1.0/2.2)); }',
+      /* ---------- 实验：测深色带 ----------
+         t = 深度 / 11000（0 = 岸线，1 = 最深处），查一张 256×1 的色带。
+         色带不是手调的：离线把卫星贴图按深度分 128 桶取**中位数**得到
+         （中位数抗拼接色块 —— 同一桶里混着几条不同条带的像素，
+         中位数落在主流那一档），所以它天然和现有海色一致、又天然无缝。
+         0.5/256 的偏移是采样像素中心，不然会整体偏半格。 */
+      'vec3 oceanRamp(float t) {',
+      '  return texture2D(uOceanRamp, vec2(t * 0.99609375 + 0.001953125, 0.5)).rgb;',
+      '}',
       'void main() {',
       '  vec3 n = normalize(vN);',
       '  vec3 v = normalize(vV);',
@@ -8010,6 +8083,23 @@ body.climate-layer-on #tools{z-index:44}
       '  vec3 oceanGain = texture2D(uOceanFix, vUv).rgb * 1.60 + 0.40;',
       '  vec3 dA = s2l(texture2D(dayMap, vUv).rgb) * oceanGain;',
       '  vec3 dB = s2l(texture2D(dayMapB, vUv).rgb) * oceanGain;',
+      /* ---------- 实验（?ocean=proto）：用海底深度重画海面 ----------
+         贴图上的"疤"是多次卫星影像拼接留下的**辐射值差**，不是地形：
+         所以把低频换成"深度 → 色带"，再乘一层卫星自己的高频倍率
+         （detail = 亮度 / 自身 9px 模糊），色块就没了，海岭海山的纹理还在。
+         岸线附近（dz < ~150m）权重滑回卫星原色 —— 浅海的青绿来自水色和底质，
+         纯深度色带会把它压淡，而那里正是巴哈马那种地方最好看的部分。 */
+      '  if (uOceanProto > 0.001) {',
+      '    float dz = texture2D(uOceanDepth, vUv).r;',
+      '    float det = texture2D(uOceanDetail, vUv).r + 0.5;',
+      /* 细节压到 0.8~1.3 再开方：原图那些把海岭压成细线的亮条纹会乘到 1.5，
+         在深色底上就是一条条发光的线，收窄之后只剩"有起伏"的感觉。 */
+      '    det = pow(clamp(det, 0.80, 1.30), 0.60);',
+      '    vec3 o = s2l(oceanRamp(dz) * det);',
+      '    float w = smoothstep(0.0025, 0.0160, dz) * uOceanProto;',
+      '    dA = mix(dA, o, w);',
+      '    dB = mix(dB, o, w);',
+      '  }',
       /* 一张像素覆盖几个 uv × 8192 = 每屏幕像素吃几个 8K 纹理像素。
          放大时（<1）才用 8K；缩小时 8K 会走 mip 缺失的最近邻采样而闪烁，
          所以缩小时退回带 mipmap 的 4K —— 两张图按这个比例软过渡，没有跳变。 */
@@ -9420,6 +9510,13 @@ body.climate-layer-on #tools{z-index:44}
 
       sphere.material = earthMaterial(dayTex, nightTex);
       globe.earthMat = sphere.material;
+      /* 实验件可能比材质先到（两张都是本地小图），材质建好就补挂上 */
+      if (globe.oceanProtoOn && globe.oceanDepth && globe.oceanDetail && globe.oceanRamp) {
+        globe.earthMat.uniforms.uOceanDepth.value = globe.oceanDepth;
+        globe.earthMat.uniforms.uOceanDetail.value = globe.oceanDetail;
+        globe.earthMat.uniforms.uOceanRamp.value = globe.oceanRamp;
+        globe.earthMat.uniforms.uOceanProto.value = 1;
+      }
       /* 贴图没到之前 globe.earthMat 是空的，那时点"昼夜分界"按钮只能改状态、
          写不了 uniform（见 setTermOn）。材质一建好就把这个积压的意愿补上，
          否则要等用户再点两次才生效。线上首屏实测有 5~6 秒是这段空窗。 */
