@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-24-Z4">
+<meta name="build" content="2026-11-24-Z5">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -862,13 +862,14 @@
   body.class-mode .ts-item{width:96px;height:69px}
   body.class-mode #detail .meta{font-size:15px;line-height:1.9}
 
-  /* ---- 答题模式（全屏，左右分栏） ----
-     左边 38.2% 放题、右边 61.8% 国家图集，就是用户说的"左 : 右 = 0.618 : 1"。
-     早先内容限宽 760 居中，1280 宽下两侧各空 260px，看着像没做完。
-     阅读区按 489px 宽重排：题干 19 / 选项 16.5，一行 20~22 个字。
-     所有 hover 都是 transition:none，跟选择题按钮同一套手感。 */
-  #exam{position:fixed;inset:0;z-index:92;background:#080C13;display:none;
-    color:#E6EEF8;overflow:hidden}
+  /* ---- 答题模式（全屏） ----
+     白底黑字：题目是要连续读的长句，深底 + 金色在长文上累眼，也会和右栏的
+     照片抢注意力。所以正文用近黑 #14181F，强调只用"加粗 + 一条实心黑边"，
+     颜色只留给判题（绿对 / 红错）。
+     选题页左 38.2% : 右 61.8%（用户要的 0.618 : 1）；
+     答题页不分栏，题目落在页面正中，两侧空出来留给题图。 */
+  #exam{position:fixed;inset:0;z-index:92;background:#fff;display:none;
+    color:#14181F;overflow:hidden;-webkit-font-smoothing:antialiased}
   #exam [hidden]{display:none !important}
   body.exam-mode{overflow:hidden}
   body.exam-mode #exam{display:block}
@@ -879,152 +880,211 @@
   body.exam-mode #rotate-hint{display:none !important}
 
   .ex-shell{display:flex;height:100vh;height:100dvh}
+  /* 滚动条彻底不画（选题页本来就要"刚好放下"，画出来反而提示"还有东西没看到"）；
+     内容真超长时仍能滚，不是 overflow:hidden 那种卡死 */
   .ex-left{flex:0 0 38.2%;max-width:38.2%;display:flex;flex-direction:column;
-    padding:0 28px;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;
-    scrollbar-color:rgba(148,182,224,.22) transparent}
-  .ex-left::-webkit-scrollbar{width:6px}
-  .ex-left::-webkit-scrollbar-thumb{background:rgba(148,182,224,.2);border-radius:3px}
-  .ex-right{flex:1;position:relative;overflow:hidden;background:#070B11;
-    border-left:1px solid rgba(120,150,190,.1)}
-  .ex-g{position:absolute;inset:0}
-  .ex-g-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
-    opacity:0;transition:opacity .7s ease;background:#070B11}
-  .ex-g-img.on{opacity:1}
-  .ex-g-tag{position:absolute;left:26px;top:24px;font-size:11px;letter-spacing:.16em;
-    padding:5px 10px;border-radius:5px;background:rgba(6,10,16,.46);
-    color:rgba(222,234,248,.8);pointer-events:none}
-  .ex-g-cap{position:absolute;left:0;right:0;bottom:0;padding:72px 34px 30px;
-    background:linear-gradient(to top,rgba(5,8,13,.94) 34%,rgba(5,8,13,0));
-    pointer-events:none}
-  .ex-g-cap b{display:block;font-size:27px;font-weight:500;color:#F3F7FC}
-  .ex-g-cap span{display:block;font-size:13.5px;color:rgba(206,222,240,.74);margin-top:7px}
-  .ex-g-next{position:absolute;right:28px;bottom:34px;width:44px;height:44px;
-    border-radius:50%;border:1px solid rgba(255,255,255,.2);
-    background:rgba(6,10,16,.62);color:#D8E4F1;font-size:16px;line-height:1;
-    cursor:pointer;transition:none}
-  .ex-g-next:hover{background:rgba(203,168,106,.24);border-color:rgba(203,168,106,.55);
-    color:#EFD9AE}
+    padding:0 30px;overflow-y:auto;overscroll-behavior:contain;
+    scrollbar-width:none;-ms-overflow-style:none}
+  .ex-left::-webkit-scrollbar{width:0;height:0;display:none}
+  #exam[data-page="run"] .ex-left,
+  #exam[data-page="done"] .ex-left{flex:1;max-width:none;padding:0 40px}
+  #exam[data-page="run"] .ex-right,
+  #exam[data-page="done"] .ex-right{display:none}
 
-  .ex-setup{padding:24px 0 26px}
-  .ex-hrow{display:flex;align-items:center;justify-content:space-between;margin:0 0 5px}
-  .ex-h1{font-size:24px;font-weight:500;margin:0}
-  .ex-sub{font-size:12.5px;color:#8A9DB2;margin:0 0 22px}
-  .ex-f{margin:0 0 17px}
-  .ex-f>span{display:block;font-size:11.5px;letter-spacing:.1em;color:#7C90A6;margin-bottom:7px}
+  /* 右栏：照片不铺满，装在一个玻璃相框里 */
+  .ex-right{flex:1;position:relative;overflow:hidden;
+    background:radial-gradient(120% 110% at 20% 10%,#E4ECF6 0%,#F2F1ED 46%,#E6E9EF 100%);
+    display:flex;align-items:center;justify-content:center;
+    padding:clamp(20px,3.2vw,48px)}
+  /* 玻璃相框：底色是一层微冷的半透明白（不是纯白，纯白在纯白页面上只剩一圈粗边），
+     外加一道斜向高光扫过、内侧一圈白边提亮、外侧一圈极细的冷灰描边收口。
+     照片再往里凹一点（外投影 + 内高光），才有"嵌在玻璃底下"的厚度。 */
+  .ex-frame{position:relative;width:100%;max-width:740px;aspect-ratio:4/3;
+    max-height:calc(100vh - 72px);max-height:calc(100dvh - 72px);
+    padding:16px;border-radius:24px;
+    background:
+      linear-gradient(122deg,rgba(255,255,255,.92) 0%,rgba(255,255,255,.34) 24%,
+        rgba(255,255,255,.18) 56%,rgba(255,255,255,.74) 100%),
+      rgba(255,255,255,.46);
+    border:1px solid rgba(255,255,255,.92);
+    box-shadow:0 40px 72px -30px rgba(17,28,45,.5),
+               0 2px 8px rgba(17,28,45,.09),
+               0 0 0 1px rgba(17,28,45,.07),
+               inset 0 1px 0 rgba(255,255,255,1),
+               inset 0 -2px 8px rgba(17,28,45,.05);
+    -webkit-backdrop-filter:blur(22px) saturate(1.5);
+    backdrop-filter:blur(22px) saturate(1.5)}
+  .ex-g{position:relative;width:100%;height:100%;border-radius:10px;
+    overflow:hidden;background:#DDE1E8;
+    box-shadow:0 1px 5px rgba(9,13,19,.32),
+               inset 0 0 0 1px rgba(255,255,255,.5),
+               inset 0 3px 12px rgba(9,13,19,.2)}
+  .ex-g-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+    opacity:0;transition:opacity .7s ease;background:#DDE1E8}
+  .ex-g-img.on{opacity:1}
+  .ex-g-tag{position:absolute;left:14px;top:14px;font-size:10.5px;letter-spacing:.16em;
+    padding:5px 10px;border-radius:6px;background:rgba(255,255,255,.78);
+    -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);
+    color:#2B3440;pointer-events:none}
+  .ex-g-cap{position:absolute;left:0;right:0;bottom:0;padding:66px 24px 22px;
+    background:linear-gradient(to top,rgba(9,13,19,.88) 26%,rgba(9,13,19,0));
+    pointer-events:none}
+  .ex-g-cap b{display:block;font-size:25px;font-weight:600;color:#fff;letter-spacing:.01em}
+  .ex-g-cap span{display:block;font-size:13px;color:rgba(255,255,255,.74);margin-top:5px}
+  .ex-g-next{position:absolute;right:14px;top:14px;width:36px;height:36px;
+    border-radius:50%;border:1px solid rgba(255,255,255,.7);
+    background:rgba(255,255,255,.76);color:#1B222C;font-size:15px;line-height:1;
+    cursor:pointer;transition:none;
+    -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+  .ex-g-next:hover{background:#fff;color:#000;border-color:#fff}
+
+  /* 选题页要"刚好放得下"：整列撑满视口，5 组筛选在中间按剩余高度均分，
+     计数/开始/错题本贴底 —— 不留一段谁也没用的空白，也永远不出滚动条 */
+  .ex-setup{flex:1;display:flex;flex-direction:column;padding:24px 0 22px}
+  .ex-fs{flex:1;display:flex;flex-direction:column;justify-content:space-evenly;
+    padding:8px 0}
+  .ex-cta{flex:0 0 auto}
+  .ex-hrow{display:flex;align-items:baseline;justify-content:space-between;margin:0 0 6px}
+  .ex-h1{font-size:23px;font-weight:600;letter-spacing:-.01em;margin:0}
+  .ex-sub{font-size:12.5px;color:#7A8494;margin:0 0 20px}
+  .ex-f{margin:0}
+  .ex-f>span{display:block;font-size:11px;letter-spacing:.12em;color:#8A93A1;margin-bottom:6px}
   .ex-chips{display:flex;flex-wrap:wrap;gap:6px}
-  .ex-chip{font:inherit;font-size:13px;padding:6px 12px;border-radius:999px;
-    border:1px solid rgba(148,182,224,.18);background:rgba(148,182,224,.05);
-    color:#A6BCD4;cursor:pointer;transition:none;-webkit-tap-highlight-color:transparent}
-  .ex-chip:hover{border-color:rgba(148,182,224,.38);background:rgba(148,182,224,.11)}
-  .ex-chip.on{border-color:rgba(203,168,106,.5);background:rgba(203,168,106,.12);color:#DFC69C}
-  .ex-chip i{font-style:normal;font-size:10.5px;color:#748AA0;margin-left:5px}
-  .ex-chip.on i{color:rgba(223,198,156,.6)}
-  .ex-count{font-size:13px;color:#8FA3B8;margin:20px 0 12px}
-  .ex-count b{font-size:16px;color:#C9A465;font-weight:500}
-  .ex-start{width:100%;font:inherit;font-size:15px;padding:14px 0;border-radius:10px;
-    border:1px solid rgba(203,168,106,.42);background:rgba(203,168,106,.12);
-    color:#E2CCA2;cursor:pointer;transition:none;-webkit-tap-highlight-color:transparent}
-  .ex-start:hover{background:rgba(203,168,106,.17)}
-  .ex-start:disabled{opacity:.4;cursor:default}
-  .ex-quick{display:flex;gap:9px;margin-top:10px}
-  .ex-quick button{flex:1;font:inherit;font-size:13px;padding:10px 0;border-radius:9px;
-    border:1px solid rgba(148,182,224,.18);background:rgba(148,182,224,.05);
-    color:#A6BCD4;cursor:pointer;transition:none}
-  .ex-quick button:hover{background:rgba(148,182,224,.11)}
-  .ex-quick button:disabled{opacity:.35;cursor:default}
-  .ex-quick b{color:#C9A465;font-weight:500}
+  .ex-chip{font:inherit;font-size:12.5px;padding:5px 11px;border-radius:999px;
+    border:1px solid rgba(20,24,31,.14);background:#fff;
+    color:#4C5666;cursor:pointer;transition:none;-webkit-tap-highlight-color:transparent}
+  .ex-chip:hover{border-color:rgba(20,24,31,.42);color:#14181F}
+  .ex-chip.on{border-color:#14181F;background:rgba(20,24,31,.05);
+    color:#14181F;font-weight:600}
+  .ex-chip i{font-style:normal;font-size:10px;color:#9AA3B0;margin-left:5px;font-weight:400}
+  .ex-chip.on i{color:#14181F}
+  .ex-count{font-size:13px;color:#7A8494;margin:18px 0 11px}
+  .ex-count b{font-size:16px;color:#14181F;font-weight:600}
+  .ex-start{width:100%;font:inherit;font-size:14.5px;font-weight:500;padding:13px 0;
+    border-radius:9px;border:1px solid #14181F;background:#14181F;color:#fff;
+    cursor:pointer;transition:none;-webkit-tap-highlight-color:transparent}
+  .ex-start:hover{background:#000;border-color:#000}
+  .ex-start:disabled{background:#E3E6EA;border-color:#E3E6EA;color:#8A93A1;cursor:default}
+  .ex-quick{display:flex;gap:9px;margin-top:9px}
+  .ex-quick button{flex:1;font:inherit;font-size:12.5px;padding:9px 0;border-radius:8px;
+    border:1px solid rgba(20,24,31,.14);background:#fff;
+    color:#4C5666;cursor:pointer;transition:none}
+  .ex-quick button:hover:not(:disabled){border-color:#14181F;color:#14181F;font-weight:600}
+  .ex-quick button:disabled{opacity:.4;cursor:default}
+  .ex-quick b{color:#14181F;font-weight:600}
 
   .ex-run{flex:1;display:flex;flex-direction:column;min-height:0}
-  .ex-top{position:sticky;top:0;z-index:3;background:#080C13;
-    padding:14px 0 11px;display:flex;align-items:center;gap:12px}
-  .ex-bar{flex:1;height:3px;border-radius:2px;background:rgba(255,255,255,.08);overflow:hidden}
-  .ex-bar>i{display:block;height:100%;width:0;background:#C9A465}
-  .ex-idx{font-size:12px;color:#93A7BC;font-variant-numeric:tabular-nums}
+  .ex-top{flex:0 0 auto;padding:16px 0 12px;display:flex;align-items:center;gap:14px}
+  .ex-bar{flex:1;height:2px;border-radius:2px;background:rgba(20,24,31,.1);overflow:hidden}
+  .ex-bar>i{display:block;height:100%;width:0;background:#14181F}
+  .ex-idx{font-size:12px;color:#7A8494;font-variant-numeric:tabular-nums}
   .ex-x{font:inherit;font-size:12px;padding:6px 12px;border-radius:999px;
-    border:1px solid rgba(148,182,224,.2);background:transparent;color:#93A7BC;
+    border:1px solid rgba(20,24,31,.16);background:#fff;color:#5A6473;
     cursor:pointer;transition:none;white-space:nowrap}
-  .ex-x:hover{color:#C9A465;border-color:rgba(201,164,101,.45)}
-  /* 顶部对齐，不居中：解析一展开内容就会变高，居中会让整道题往上跳一截
-     （用户原话"解析突然冒出来把题目整个挤上去了"）。 */
-  .ex-main{flex:1;padding:14px 0 16px}
+  .ex-x:hover{color:#14181F;border-color:#14181F;font-weight:600}
+  /* 答题页：中间一条 760px 的阅读列，左右各 1fr 空着放题图。
+     顶部对齐（不居中）—— 解析一展开内容变高，居中会把整道题往上推。 */
+  .ex-main{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;
+    padding:8px 0 12px;scrollbar-width:none}
+  .ex-main::-webkit-scrollbar{width:0;height:0;display:none}
+  /* 整列在可视高度里居中（题少时不会全挤在上半屏），但解析区域预留了固定
+     高度，所以答完展开解析时高度不变、题目一点都不会被顶上去。
+     align-content 用 safe：内容超过一屏时退回顶部对齐，不会被裁掉头。 */
+  .ex-stage{display:grid;grid-template-columns:1fr minmax(0,760px) 1fr;
+    gap:clamp(18px,2.6vw,44px);align-items:center;
+    align-content:center;align-content:safe center;min-height:100%}
+  .ex-col{min-width:0;padding:14px 0}
+  .ex-fig{min-width:0;align-self:stretch}
+  #ex-extra{min-height:186px}
   .ex-meta{display:flex;flex-wrap:wrap;gap:5px;margin:0 0 13px}
   .ex-tag{font-size:11px;padding:3px 8px;border-radius:4px;
-    background:rgba(148,182,224,.07);border:1px solid rgba(148,182,224,.16);color:#9CB4CC}
-  .ex-tag.k{background:rgba(203,168,106,.1);border-color:rgba(203,168,106,.3);color:#C7A777}
-  .ex-q{font-size:19px;line-height:1.82;margin:0 0 18px;color:#EDF4FC}
+    background:#F4F5F7;border:1px solid rgba(20,24,31,.09);color:#5A6473}
+  .ex-tag.k{background:transparent;border-color:rgba(20,24,31,.4);color:#14181F;font-weight:600}
+  .ex-q{font-size:20px;line-height:1.8;margin:0 0 20px;color:#14181F;font-weight:500}
   .ex-opts{display:flex;flex-direction:column;gap:9px}
-  .ex-opt{display:flex;gap:10px;align-items:center;width:100%;text-align:left;
-    font:inherit;font-size:16.5px;line-height:1.55;min-height:52px;padding:13px 15px;
-    border-radius:9px;border:1px solid rgba(148,182,224,.16);
-    background:rgba(148,182,224,.04);color:#D4E3F2;cursor:pointer;transition:none;
+  .ex-opt{display:flex;gap:11px;align-items:center;width:100%;text-align:left;
+    font:inherit;font-size:16.5px;line-height:1.55;min-height:54px;padding:13px 15px;
+    border-radius:9px;border:1px solid rgba(20,24,31,.14);
+    background:#fff;color:#28313D;cursor:pointer;transition:none;
     -webkit-tap-highlight-color:transparent}
-  .ex-opt:hover:not(.dim):not(.ok):not(.bad){border-color:rgba(148,182,224,.36);background:rgba(148,182,224,.1)}
-  .ex-opt .k{flex:0 0 auto;width:16px;color:#8AA3BC;font-size:14px}
+  /* 悬停/选中：只把这一项的文字转黑加粗 + 一条实心黑边，不再上金色底 */
+  .ex-opt:hover:not(.dim):not(.ok):not(.bad){border-color:#14181F;
+    color:#14181F;font-weight:600;background:#FBFBFC}
+  .ex-opt .k{flex:0 0 auto;width:16px;color:#8A93A1;font-size:14px;font-weight:600}
   .ex-opt .v{flex:1}
-  .ex-opt .mk{flex:0 0 auto;font-size:11.5px;color:#7E93A8;white-space:nowrap}
-  .ex-opt.ok{border-color:rgba(95,214,164,.5);background:rgba(95,214,164,.11);color:#CFF3E4}
-  .ex-opt.ok .k,.ex-opt.ok .mk{color:#6FDCAC}
-  .ex-opt.bad{border-color:rgba(232,121,138,.5);background:rgba(232,121,138,.1);color:#F2CFD5}
-  .ex-opt.bad .k,.ex-opt.bad .mk{color:#E8798A}
+  .ex-opt .mk{flex:0 0 auto;font-size:11.5px;color:#8A93A1;white-space:nowrap}
+  .ex-opt.ok{border-color:rgba(14,107,72,.55);background:#EFF8F3;color:#0E6B48;font-weight:600}
+  .ex-opt.ok .k,.ex-opt.ok .mk{color:#0E6B48}
+  .ex-opt.bad{border-color:rgba(179,53,63,.5);background:#FCEFF0;color:#A82B36}
+  .ex-opt.bad .k,.ex-opt.bad .mk{color:#A82B36}
   .ex-opt.dim{opacity:.42;cursor:default}
 
   .ex-reveal{margin:0;font:inherit;font-size:13.5px;padding:10px 18px;border-radius:8px;
-    border:1px solid rgba(148,182,224,.24);background:rgba(148,182,224,.06);
-    color:#B4C9DE;cursor:pointer;transition:none;align-self:flex-start}
-  .ex-reveal:hover{background:rgba(148,182,224,.12)}
+    border:1px solid rgba(20,24,31,.2);background:#fff;color:#4C5666;
+    cursor:pointer;transition:none;align-self:flex-start}
+  .ex-reveal:hover{border-color:#14181F;color:#14181F;font-weight:600}
   .ex-ans{margin:0;padding:13px 15px;border-radius:8px;
-    background:rgba(95,214,164,.06);border-left:3px solid rgba(95,214,164,.45)}
-  .ex-ans b{display:block;font-size:11px;letter-spacing:.1em;color:#6FDCAC;
-    margin-bottom:6px;font-weight:400}
-  .ex-ans p{margin:0;font-size:14.5px;line-height:1.85;color:#C4E4D6}
+    background:#EFF8F3;border-left:3px solid rgba(14,107,72,.5)}
+  .ex-ans b{display:block;font-size:11px;letter-spacing:.1em;color:#0E6B48;
+    margin-bottom:6px;font-weight:600}
+  .ex-ans p{margin:0;font-size:14.5px;line-height:1.85;color:#1F3B30}
 
-  .ex-exp{margin:12px 0 0;padding:13px 15px;border-radius:8px;
-    background:rgba(203,168,106,.05);border-left:3px solid rgba(203,168,106,.42)}
-  .ex-exp b{display:block;font-size:11px;letter-spacing:.1em;color:#C7A777;
-    margin-bottom:6px;font-weight:400}
-  .ex-exp p{margin:0;font-size:14.5px;line-height:1.85;color:#C2D3E4}
-  .ex-src{margin:10px 0 0;font-size:11.5px;color:#6F8399}
+  .ex-exp{margin:14px 0 0;padding:13px 15px;border-radius:8px;
+    background:#F6F7F9;border-left:3px solid #14181F}
+  .ex-exp b{display:block;font-size:11px;letter-spacing:.1em;color:#14181F;
+    margin-bottom:6px;font-weight:600}
+  .ex-exp p{margin:0;font-size:14.5px;line-height:1.85;color:#3A4351}
+  .ex-src{margin:10px 0 0;font-size:11.5px;color:#9AA3B0}
 
-  .ex-foot{position:sticky;bottom:0;z-index:3;margin-top:auto;background:#080C13;
-    border-top:1px solid rgba(120,150,190,.12);
-    padding:11px 0 calc(11px + env(safe-area-inset-bottom));
+  .ex-foot{flex:0 0 auto;border-top:1px solid rgba(20,24,31,.1);
+    padding:11px 0 calc(11px + env(safe-area-inset-bottom))}
+  .ex-foot-in{width:100%;max-width:760px;margin:0 auto;
     display:flex;align-items:center;gap:9px}
-  .ex-btn{font:inherit;font-size:13px;padding:9px 14px;border-radius:8px;
-    border:1px solid rgba(148,182,224,.18);background:rgba(148,182,224,.05);
-    color:#A6BCD4;cursor:pointer;transition:none;-webkit-tap-highlight-color:transparent}
-  .ex-btn:hover{background:rgba(148,182,224,.11)}
-  .ex-btn.on{border-color:rgba(203,168,106,.5);background:rgba(203,168,106,.12);color:#DFC69C}
-  .ex-btn.pri{border-color:rgba(203,168,106,.5);background:rgba(203,168,106,.13);color:#E2CCA2}
-  .ex-btn.pri:hover{background:rgba(203,168,106,.18)}
+  .ex-btn{font:inherit;font-size:13px;padding:9px 15px;border-radius:8px;
+    border:1px solid rgba(20,24,31,.16);background:#fff;color:#4C5666;
+    cursor:pointer;transition:none;-webkit-tap-highlight-color:transparent}
+  .ex-btn:hover:not(:disabled){border-color:#14181F;color:#14181F;font-weight:600}
+  .ex-btn.on{border-color:#14181F;color:#14181F;font-weight:600;background:rgba(20,24,31,.05)}
+  .ex-btn.pri{border-color:#14181F;background:#14181F;color:#fff;font-weight:500}
+  .ex-btn.pri:hover{background:#000;color:#fff}
   .ex-btn:disabled{opacity:.35;cursor:default}
   .ex-sp{flex:1}
-  .ex-kbd{font-size:11px;color:#5E7387}
+  .ex-kbd{font-size:11px;color:#A6AEBA}
 
-  .ex-done{padding:32px 0 34px;text-align:center;flex:1;
-    display:flex;flex-direction:column;justify-content:center}
-  .ex-rate{font-size:54px;line-height:1;color:#C9A465;font-variant-numeric:tabular-nums}
-  .ex-rate small{font-size:21px;color:#9C7F4E}
-  .ex-dsub{font-size:13px;color:#8A9DB2;margin:12px 0 26px}
+  .ex-done{padding:32px 0 30px;text-align:center;flex:1;
+    display:flex;flex-direction:column;justify-content:center;
+    width:100%;max-width:640px;margin:0 auto}
+  .ex-rate{font-size:54px;line-height:1;color:#14181F;font-variant-numeric:tabular-nums;
+    font-weight:600}
+  .ex-rate small{font-size:21px;color:#8A93A1;font-weight:400}
+  .ex-dsub{font-size:13px;color:#7A8494;margin:12px 0 26px}
   .ex-dgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:0 0 24px}
-  .ex-dcell{background:rgba(148,182,224,.05);border:1px solid rgba(148,182,224,.12);
+  .ex-dcell{background:#F6F7F9;border:1px solid rgba(20,24,31,.08);
     border-radius:9px;padding:14px 6px}
-  .ex-dcell i{display:block;font-style:normal;font-size:11.5px;color:#7C90A6;margin-bottom:6px}
-  .ex-dcell b{font-size:20px;font-weight:500;color:#E6EEF8}
+  .ex-dcell i{display:block;font-style:normal;font-size:11.5px;color:#8A93A1;margin-bottom:6px}
+  .ex-dcell b{font-size:20px;font-weight:600;color:#14181F}
   .ex-wlist{text-align:left;margin:0 0 22px}
-  .ex-wlist h4{font-size:11.5px;letter-spacing:.1em;color:#7C90A6;font-weight:400;margin:0 0 9px}
-  .ex-wrow{font-size:13px;color:#B4C9DE;padding:10px 12px;border-radius:7px;
-    background:rgba(232,121,138,.05);border-left:3px solid rgba(232,121,138,.35);
+  .ex-wlist h4{font-size:11.5px;letter-spacing:.1em;color:#8A93A1;font-weight:500;margin:0 0 9px}
+  .ex-wrow{font-size:13px;color:#3A4351;padding:10px 12px;border-radius:7px;
+    background:#FDF1F2;border-left:3px solid rgba(179,53,63,.4);
     margin-bottom:7px;line-height:1.55}
 
-  /* 窄屏不分栏：390 宽再劈成两半就两边都不能看了 */
+  /* 窄屏不分栏：390 宽再劈成两半就两边都不能看了；
+     答题页两侧的题图位也收掉，把宽度让给题目 */
   @media (max-width:860px){
     .ex-shell{flex-direction:column}
-    .ex-left{flex:1;max-width:none;padding:0 18px}
+    .ex-left,#exam[data-page="run"] .ex-left,#exam[data-page="done"] .ex-left{
+      flex:1;max-width:none;padding:0 18px}
     .ex-right{display:none}
+    .ex-stage{display:block;align-content:normal}
+    .ex-fig{display:none}
+    .ex-col{padding:18px 0 8px}
+    #ex-extra{min-height:0}
     .ex-q{font-size:17.5px;line-height:1.8}
     .ex-opt{font-size:16px;min-height:50px;padding:12px 14px}
     .ex-kbd{display:none}
     .ex-h1{font-size:21px}
+    .ex-foot-in{max-width:none}
   }
 
   /* ---- 搜索面板顶部：今天一条 / 可以这样问 / 最近看过 ----
@@ -3289,7 +3349,7 @@ body.climate-layer-on #tools{z-index:44}
 
 <!-- 答题模式：整屏独立一层。题来自 assets/bank/geo.json（由 _fix/export_bank.py
      从知识卡的随堂题导出，字段和以后并进来的真题同一套）。 -->
-<div id="exam" aria-label="地理答题模式">
+<div id="exam" aria-label="地理答题模式" data-page="set">
   <div class="ex-shell">
     <div class="ex-left" id="ex-left">
       <div class="ex-setup" id="ex-setup">
@@ -3299,17 +3359,21 @@ body.climate-layer-on #tools{z-index:44}
         </div>
         <p class="ex-sub" id="ex-sub">正在载入题库…</p>
 
-        <div class="ex-f"><span>学段</span><div class="ex-chips" id="f-lv"></div></div>
-        <div class="ex-f"><span>主题</span><div class="ex-chips" id="f-theme"></div></div>
-        <div class="ex-f"><span>题型</span><div class="ex-chips" id="f-type"></div></div>
-        <div class="ex-f"><span>难度</span><div class="ex-chips" id="f-diff"></div></div>
-        <div class="ex-f"><span>题量</span><div class="ex-chips" id="f-n"></div></div>
+        <div class="ex-fs">
+          <div class="ex-f"><span>学段</span><div class="ex-chips" id="f-lv"></div></div>
+          <div class="ex-f"><span>主题</span><div class="ex-chips" id="f-theme"></div></div>
+          <div class="ex-f"><span>题型</span><div class="ex-chips" id="f-type"></div></div>
+          <div class="ex-f"><span>难度</span><div class="ex-chips" id="f-diff"></div></div>
+          <div class="ex-f"><span>题量</span><div class="ex-chips" id="f-n"></div></div>
+        </div>
 
-        <p class="ex-count" id="ex-count">共 <b>0</b> 题可选</p>
-        <button class="ex-start" id="ex-start" type="button" disabled>开始答题</button>
-        <div class="ex-quick">
-          <button type="button" id="ex-wrongbtn">错题本 <b>0</b></button>
-          <button type="button" id="ex-favbtn">收藏 <b>0</b></button>
+        <div class="ex-cta">
+          <p class="ex-count" id="ex-count">共 <b>0</b> 题可选</p>
+          <button class="ex-start" id="ex-start" type="button" disabled>开始答题</button>
+          <div class="ex-quick">
+            <button type="button" id="ex-wrongbtn">错题本 <b>0</b></button>
+            <button type="button" id="ex-favbtn">收藏 <b>0</b></button>
+          </div>
         </div>
       </div>
 
@@ -3319,18 +3383,27 @@ body.climate-layer-on #tools{z-index:44}
           <span class="ex-idx" id="ex-idx">1 / 1</span>
           <button class="ex-x" id="ex-exit" type="button">返回选题</button>
         </div>
-        <div class="ex-main">
-          <div class="ex-meta" id="ex-meta"></div>
-          <p class="ex-q" id="ex-q"></p>
-          <div class="ex-opts" id="ex-opts"></div>
-          <div id="ex-extra"></div>
+        <div class="ex-main" id="ex-main">
+          <!-- 中间是题目，左右两栏空着留给题图（等题库带上 figure 字段直接填进来） -->
+          <div class="ex-stage">
+            <div class="ex-fig" id="ex-fig-l" aria-hidden="true"></div>
+            <div class="ex-col">
+              <div class="ex-meta" id="ex-meta"></div>
+              <p class="ex-q" id="ex-q"></p>
+              <div class="ex-opts" id="ex-opts"></div>
+              <div id="ex-extra"></div>
+            </div>
+            <div class="ex-fig" id="ex-fig-r" aria-hidden="true"></div>
+          </div>
         </div>
         <div class="ex-foot">
-          <button class="ex-btn" id="ex-fav" type="button">收藏</button>
-          <span class="ex-sp"></span>
-          <span class="ex-kbd" id="ex-kbd">1–4 选择 · Enter 下一题 · F 收藏</span>
-          <button class="ex-btn" id="ex-prev" type="button">上一题</button>
-          <button class="ex-btn pri" id="ex-next" type="button">下一题</button>
+          <div class="ex-foot-in">
+            <button class="ex-btn" id="ex-fav" type="button">收藏</button>
+            <span class="ex-sp"></span>
+            <span class="ex-kbd" id="ex-kbd">1–4 选择 · Enter 下一题 · F 收藏</span>
+            <button class="ex-btn" id="ex-prev" type="button">上一题</button>
+            <button class="ex-btn pri" id="ex-next" type="button">下一题</button>
+          </div>
         </div>
       </div>
 
@@ -3352,13 +3425,15 @@ body.climate-layer-on #tools{z-index:44}
     </div>
 
     <aside class="ex-right" aria-label="国家图集">
-      <div class="ex-g">
-        <img class="ex-g-img" id="ex-g-a" alt="">
-        <img class="ex-g-img" id="ex-g-b" alt="">
+      <div class="ex-frame">
+        <div class="ex-g">
+          <img class="ex-g-img" id="ex-g-a" alt="">
+          <img class="ex-g-img" id="ex-g-b" alt="">
+          <span class="ex-g-tag">国家图集</span>
+          <div class="ex-g-cap"><b id="ex-g-name"> </b><span id="ex-g-sub"></span></div>
+          <button class="ex-g-next" id="ex-g-next" type="button" aria-label="下一张">&#8250;</button>
+        </div>
       </div>
-      <span class="ex-g-tag">国家图集</span>
-      <div class="ex-g-cap"><b id="ex-g-name"> </b><span id="ex-g-sub"></span></div>
-      <button class="ex-g-next" id="ex-g-next" type="button" aria-label="下一张">&#8250;</button>
     </aside>
   </div>
 </div>
@@ -17053,6 +17128,11 @@ body.climate-layer-on #tools{z-index:44}
     var timeEl = $('ex-time'), wlistEl = $('ex-wlist'), againEl = $('ex-again');
     var redoEl = $('ex-redo'), backEl = $('ex-back');
     var leftEl = $('ex-left'), earthEl = $('ex-earth'), gNext = $('ex-g-next');
+    var mainEl = $('ex-main');
+
+    /* 三个页面（选题 / 答题 / 结算）由 data-page 驱动：答题页不显示右栏图集，
+       题目落在页面正中，左右两栏留给题图。 */
+    function setPage(p) { root.setAttribute('data-page', p); }
     var gName = $('ex-g-name'), gSub = $('ex-g-sub');
     var gA = $('ex-g-a'), gB = $('ex-g-b');
 
@@ -17199,8 +17279,11 @@ body.climate-layer-on #tools{z-index:44}
       locked = false;
       lastMode = mode;
       setupEl.hidden = true; doneEl.hidden = true; runEl.hidden = false;
+      setPage('run');
+      galStop();                     // 图集在答题页不显示，别让定时器白转
       renderQ();
       leftEl.scrollTop = 0;
+      mainEl.scrollTop = 0;
     }
 
     function tag(txt, gold) {
@@ -17237,6 +17320,7 @@ body.climate-layer-on #tools{z-index:44}
         optsEl.appendChild(rv);
       }
 
+      if (mainEl) mainEl.scrollTop = 0;
       barEl.style.width = (at / qs.length * 100) + '%';
       idxEl.textContent = (at + 1) + ' / ' + qs.length;
       prevEl.disabled = at === 0;
@@ -17400,6 +17484,7 @@ body.climate-layer-on #tools{z-index:44}
       }
       runEl.hidden = true;
       doneEl.hidden = false;
+      setPage('done');
       leftEl.scrollTop = 0;
     }
 
@@ -17482,6 +17567,7 @@ body.climate-layer-on #tools{z-index:44}
       document.body.classList.add('exam-mode');
       globe.examOn = true;               // 停掉地球渲染，省电也省重绘
       setupEl.hidden = false; runEl.hidden = true; doneEl.hidden = true;
+      setPage('set');
       leftEl.scrollTop = 0;
       if (!bank) {
         subEl.textContent = '正在载入题库…';
@@ -17495,8 +17581,10 @@ body.climate-layer-on #tools{z-index:44}
     }
     function toSetup() {
       runEl.hidden = true; doneEl.hidden = true; setupEl.hidden = false;
+      setPage('set');
       leftEl.scrollTop = 0;
       renderSetup();
+      if (!gal.ready) galBoot(); else galStart();
     }
     function leave() {
       document.body.classList.remove('exam-mode');
@@ -17526,7 +17614,9 @@ body.climate-layer-on #tools{z-index:44}
       qs = shuffle(wl);
       at = 0; marks = qs.map(function () { return null; }); t0 = Date.now();
       doneEl.hidden = true; runEl.hidden = false;
+      setPage('run');
       renderQ(); leftEl.scrollTop = 0;
+      if (mainEl) mainEl.scrollTop = 0;
     });
     favEl.addEventListener('click', function () {
       var it = qs[at];
