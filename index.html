@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-24-R">
+<meta name="build" content="2026-11-24-S">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -683,7 +683,7 @@
     font-size:12px;padding:4px 11px;border-radius:999px;
     border:1px solid var(--line);color:var(--ink-dim);
     background:transparent;font-family:inherit;cursor:pointer;
-    transition:border-color .2s ease,color .2s ease;
+    transition:none;
   }
   .sr-ex:hover{border-color:rgba(148,182,224,.45);color:var(--ink)}
 
@@ -697,7 +697,8 @@
   .sr-item{
     display:flex;align-items:center;gap:13px;
     padding:10px 15px;cursor:pointer;
-    transition:background .16s ease;
+    /* 悬停瞬发：和搜索框里其他按钮、选择题选项一致，底色不过渡 */
+    transition:none;
   }
   .sr-item:hover{background:rgba(148,182,224,.07)}
   .sr-ico{
@@ -705,7 +706,7 @@
     display:flex;align-items:center;justify-content:center;
     background:rgba(148,182,224,.11);
     color:rgba(186,212,244,.9);
-    transition:background .16s ease,color .16s ease;
+    transition:none;
   }
   .sr-item:hover .sr-ico{background:rgba(148,182,224,.18);color:rgba(214,232,252,.98)}
   .sr-ico svg{
@@ -870,8 +871,7 @@
     background:rgba(255,255,255,.03);
     border:1px solid transparent;
     cursor:pointer;
-    transition:background .16s ease,border-color .16s ease,
-      box-shadow .16s ease,transform .16s ease}
+    transition:none}
   /* 悬停只往深里走，不提亮：往白里提在近黑底上会发灰，
      再和日签那点金色一混就像脏了一层；边框也用中性白，不带任何色相。 */
   .sr-daily:hover{
@@ -882,7 +882,7 @@
   .sr-daily-ico{flex:0 0 auto;width:26px;height:26px;border-radius:8px;
     display:flex;align-items:center;justify-content:center;
     background:rgba(216,178,106,.13);color:rgba(242,216,166,.92);
-    transition:background .16s ease}
+    transition:none}
   .sr-daily:hover .sr-daily-ico{background:rgba(216,178,106,.13)}
   .sr-daily-ico svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.7;
     stroke-linecap:round;stroke-linejoin:round}
@@ -891,7 +891,7 @@
     white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .sr-daily-go{flex:0 0 auto;display:flex;align-items:center;justify-content:center;
     width:15px;height:15px;color:rgba(186,204,230,.5);
-    transition:color .16s ease,transform .16s ease}
+    transition:none}
   /* 箭头不再在悬停时转金：那一抹暖色就是"混了一层黄"的来源 */
   .sr-daily:hover .sr-daily-go{color:rgba(214,230,250,.86);transform:translateX(1.5px)}
   .sr-daily-go svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2;
@@ -934,7 +934,7 @@
   .tch-more{margin-top:14px;display:flex;align-items:center;gap:6px;width:100%;
     padding:9px 12px;border-radius:8px;border:1px solid rgba(216,178,106,.28);
     background:rgba(216,178,106,.08);color:rgba(240,214,164,.95);
-    font:inherit;font-size:12.5px;cursor:pointer;transition:background .18s ease}
+    font:inherit;font-size:12.5px;cursor:pointer;transition:none}
   .tch-more:hover{background:rgba(216,178,106,.16)}
   .tch-more i{margin-left:auto;font-style:normal;opacity:.7}
 
@@ -1123,7 +1123,7 @@
   }
   .sr-arrow{
     margin-left:auto;font-size:15px;line-height:1;color:rgba(148,182,224,.45);
-    transition:color .18s ease,transform .18s ease;
+    transition:none;   /* 悬停瞬发（含那 2px 右移，一起当帧到位） */
   }
   .sr-country-row:hover .sr-arrow{color:rgba(200,222,250,.9);transform:translateX(2px)}
 
