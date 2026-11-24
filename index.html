@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-24-Q">
+<meta name="build" content="2026-11-24-R">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -905,7 +905,7 @@
     display:flex;align-items:center;justify-content:center;
     border:0;border-radius:50%;background:transparent;
     color:rgba(198,214,234,.76);cursor:pointer;
-    transition:background-color .08s linear,color .08s linear}
+    transition:none}
   .sr-sug-more:hover{background:rgba(255,255,255,.09);color:#eef4fe}
   .sr-sug-more:active{background:rgba(255,255,255,.13)}
   .sr-sug-more svg{width:15px;height:15px;fill:none;stroke:currentColor;
@@ -918,8 +918,8 @@
   .sr-sug-chip{font:inherit;font-size:13px;line-height:1.35;padding:9px 15px;border-radius:11px;
     border:1px solid transparent;background:rgba(255,255,255,.03);
     color:rgba(198,214,234,.86);cursor:pointer;
-    transition:background .16s ease,border-color .16s ease,
-      transform .16s ease,box-shadow .16s ease}
+    /* 和选择题选项一致：悬停瞬发，不过渡 */
+    transition:none}
   /* 悬停 = 压深一档 + 一线中性白描边，字提亮。
      之前是"提亮白底 + 冷蓝描边"，在白底上发灰，冷蓝挨着金色又像渗了绿。 */
   .sr-sug-chip:hover{background:rgba(0,0,0,.35);border-color:rgba(255,255,255,.13);
@@ -1472,8 +1472,9 @@ body.solar-on #globe-stage{transform:none !important;transition:none !important}
   display:flex;align-items:center;justify-content:center;
   border-radius:50%;cursor:pointer;overflow:hidden;
   background:transparent;border:0;opacity:0;pointer-events:none;
-  transition:width .18s ease,opacity .18s ease,margin .18s ease,
-             background-color .08s linear;
+  /* 只过渡"冒出来"这一步（宽度/留白），底色与不透明度瞬发 ——
+     悬停提亮不该有 80ms 的渐变。 */
+  transition:width .18s ease,margin .18s ease;
 }
 .search-wrap.has-text .search-clear{
   width:20px;margin-right:2px;opacity:.7;pointer-events:auto;
@@ -2033,7 +2034,7 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
   border:1px solid rgba(140,170,210,.24);
   box-shadow:0 8px 22px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.05);
   color:rgba(202,222,248,.9);cursor:pointer;
-  transition:background .18s ease,color .18s ease,border-color .18s ease;
+  transition:none;   /* 和抽屉里的按钮同一套：悬停瞬发 */
   -webkit-tap-highlight-color:transparent;
 }
 #tools-toggle svg{
@@ -2120,10 +2121,17 @@ body.quiz-on #labels-canvas{display:none!important}
   background:rgba(8,13,22,.90);
   border:1px solid rgba(140,175,220,.22);
   box-shadow:0 20px 48px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,255,255,.05);
-  -webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);
-  opacity:0;transform:translateY(9px) scale(.97);
-  transform-origin:0 100%;pointer-events:none;
-  transition:opacity .18s ease,transform .22s cubic-bezier(.2,.8,.3,1);
+  /* 这里原来有 backdrop-filter:blur(16px)。两个后果：
+     ① 面板盖在每帧都在转的地球上，任何重绘（悬停按钮）都要重新模糊整块背景，
+        和猜国家面板同一个坑，悬停高亮永远慢半拍；
+     ② 开抽屉时更狠 —— 整块重模糊把 220ms 的入场动画切成三帧
+        （实测 transform 只有 0.97 → 0.9786 → 0.9994 → none），
+        图标看着就是"出现之后向左抖了一下"。
+     底色是 90% 不透明的深蓝，模糊本来也看不出来，去掉最省事。 */
+  opacity:0;transform:translateY(8px);pointer-events:none;
+  /* 入场只用位移，不用 scale：缩放会把图标按 .97 重画一遍，动画结束切回
+     1 倍时又要重新光栅化，最后那一帧的"变清晰/归位"就是抖动的来源。 */
+  transition:opacity .16s ease,transform .2s cubic-bezier(.2,.8,.3,1);
 }
 #tools.open #tools-body{opacity:1;transform:none;pointer-events:auto}
 
@@ -2152,14 +2160,16 @@ body.quiz-on #labels-canvas{display:none!important}
   border:1px solid rgba(140,175,220,.14);
   border-radius:10px;
   cursor:pointer;color:var(--ico);
-  transition:background .16s ease,border-color .16s ease,color .16s ease;
+  /* 悬停瞬发：和猜国家选择题一致，底色/描边/图标色一律不过渡。
+     0.16s 的渐变在这块深底上就是"鼠标压下去、半拍之后才亮"。 */
+  transition:none;
   -webkit-tap-highlight-color:transparent;
 }
 .tool-btn svg{
   width:16px;height:16px;
   fill:none;stroke:var(--ico);
   stroke-width:1.55;stroke-linecap:round;stroke-linejoin:round;
-  transition:stroke .16s ease;
+  transition:none;
 }
 .tool-btn:hover{background:rgba(150,185,230,.12);border-color:rgba(150,185,230,.3);--ico:#eef6ff}
 .tool-btn:active{background:rgba(150,185,230,.2)}
