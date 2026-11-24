@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-24-J">
+<meta name="build" content="2026-11-24-K">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -2986,12 +2986,6 @@ body.climate-layer-on #tools{z-index:44}
             <path d="M20.2 14.4A8.5 8.5 0 1 1 9.6 3.8a6.7 6.7 0 0 0 10.6 10.6z"/>
           </svg>
           <span class="tl">切换夜晚模式</span>
-        </button>
-        <button class="tool-btn" id="btn-clouds" type="button" aria-pressed="false" title="云层开关">
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M7.1 18.4h10a3.5 3.5 0 0 0 .2-7 5.2 5.2 0 0 0-9.7-1.2 3.9 3.9 0 0 0-.5 8.2z"/>
-          </svg>
-          <span class="tl">显示真实云层</span>
         </button>
       </div>
     </section>
@@ -7535,23 +7529,6 @@ body.climate-layer-on #tools{z-index:44}
       need--; maybe();
     }, true);
 
-    /* ---------- 真实云层 ----------
-       和太阳系里那颗小地球共用 assets/planets/clouds.webp（1024×512 真实
-       卫星云图）。太阳系那颗只有几十像素、云调得很淡；主球按自己的口径来。
-       走同域相对路径即可：跨域贴图会被标成污染，传上 GPU 就是纯黑。
-       不设 colorSpace —— 这里把灰度当遮罩用，不需要 sRGB→linear 转换。
-       不算进"出球"的 need：拿不到就保持无云，绝不拖慢首屏。 */
-    new THREE.TextureLoader().load('assets/planets/clouds.webp', function (t) {
-      t.wrapS = THREE.RepeatWrapping;
-      t.minFilter = THREE.LinearMipmapLinearFilter;
-      t.magFilter = THREE.LinearFilter;
-      t.anisotropy = 4;
-      t.needsUpdate = true;
-      globe.cloudTex = t;
-      if (globe.earthMat) globe.earthMat.uniforms.uCloudMap.value = t;
-      globe.cloudAt = performance.now();
-    });
-
     /* 地形法线贴图：185KB，**不算进"出球"的等待**（need 不加），
        晚到一点没影响 —— 到了把 uBump 打开，地形就有了起伏。
        night 只作用于夜面，日面的山脉/沙漠本来是平的。 */
@@ -7768,14 +7745,8 @@ body.climate-layer-on #tools{z-index:44}
     var neutralFix = new THREE.DataTexture(
       new Uint8Array([96, 96, 96, 255]), 1, 1, THREE.RGBAFormat);
     neutralFix.needsUpdate = true;
-    /* 云图还没到 / 加载失败时的占位：全黑 → 云遮罩恒 0，画面照旧，不阻塞出球 */
-    var neutralCloud = new THREE.DataTexture(
-      new Uint8Array([0, 0, 0, 255]), 1, 1, THREE.RGBAFormat);
-    neutralCloud.needsUpdate = true;
     var uniforms = {
       uOceanFix: { value: globe.oceanFix || neutralFix },
-      uCloudMap: { value: globe.cloudTex || neutralCloud },
-      uCloudK: { value: 0 },          // 纹理到位后约 1 秒淡入到 0.78
       dayMap: { value: dayTex },
       dayMapB: { value: dayTex },   // 8K 到达前先指向同一张，mix 恒为 0
       uMixB: { value: 0 },          // 0 → 1 时从 dayMap 交叉淡化到 dayMapB
@@ -7924,8 +7895,6 @@ body.climate-layer-on #tools{z-index:44}
       'uniform float uSpec;',
       'uniform float uSpecPow;',
       'uniform float uTone;',
-      'uniform sampler2D uCloudMap;',
-      'uniform float uCloudK;',
       'uniform vec3 uLight;',
       'uniform sampler2D uLayerMap;',
       'uniform float uLayerMix;',
@@ -8024,19 +7993,6 @@ body.climate-layer-on #tools{z-index:44}
       '    float rl = (dot(nP, L) - dot(n, L)) * uRelief * (1.0 + 0.85 * uTerrK);',
       '    day *= clamp(1.0 + rl, mix(0.52, 0.40, uTerrK), mix(1.62, 1.95, uTerrK));',
       '  }',
-      /* ---------- 真实云层 ----------
-         日面底图是"去云"的晴天合成图，整颗球只剩海陆色差、没有高光白，
-         所以看着灰而平。云图是真实卫星云图（台风螺旋、锋面云带、极地云带），
-         灰度当透明度叠在 day 上，白色按同一束光给明暗，再乘 limb 收轮缘。
-         专题图层打开时把云完全收掉，别和气候色块/分层设色打架。 */
-      /* 只留最厚的云团：原来的线性阈值把 g>0.26 的 44% 像素全算成云，
-         大半是半透明薄云，铺在海上就是一层灰白碎斑 —— 又多又散又糊，
-         还把国名盖住。改成窄 smoothstep(0.52,0.80)：中灰全部透明，
-         只有厚云成块显形，边缘干净利落。 */
-      '  float ca = smoothstep(0.52, 0.80, dot(texture2D(uCloudMap, vUv).rgb, vec3(0.3333)));',
-      '  ca *= uCloudK * (1.0 - uLayerMix);',
-      '  vec3 cloudLit = vec3(0.94, 0.96, 1.0) * limb * mix(0.72, 1.18, smoothstep(-0.55, 0.85, sdot));',
-      '  day = mix(day, cloudLit, ca);',
       '  vec3 col = day;',
       '  float nightK = nightMix;',   // 夜里用多少夜间贴图（0=全白天）
       '  if (hasNight > 0.5) {',
@@ -8085,8 +8041,10 @@ body.climate-layer-on #tools{z-index:44}
          和实验页并排看，这颗球"发淡"：贴图直出没有明暗层次，
          中间调偏灰。这里补两笔（都作用在线性值上）：
          · 提饱和 12%：把每个像素往远离灰色的方向推
-         · 压一点暗部：pow(1.06) 让中间调略沉，白的地方基本不动
-         数值都很小，目的是"更像照片"，不是滤镜。 */
+         · 对比度 +25%：以 18% 灰为支点的 gamma 曲线，暗的更暗、
+           亮的更亮、支点不动 —— 整体曝光和饱和度都不变，只拉开层次。
+         别去动 uTone：ACES 是 S 曲线，实测把它从 0.9 降到 0.35
+         反而让对比度 48.6 掉到 44.5、亮部减半，球更闷。 */
       '  float lum0 = dot(col, vec3(0.2126, 0.7152, 0.0722));',
       '  col = mix(vec3(lum0), col, 1.12);',
       /* ACES 的近似曲线（Narkowicz 版），在**线性**空间里压中间调、收高光：
@@ -8094,9 +8052,12 @@ body.climate-layer-on #tools{z-index:44}
          直接照搬会让整颗球发闷，所以用 uTone 控制混合比例。 */
       '  vec3 aces = (col * (2.51 * col + 0.03)) / (col * (2.43 * col + 0.59) + 0.14);',
       '  col = mix(col, aces, uTone);',
-      '  col = pow(max(col, 0.0), vec3(1.06));',
+      /* 0.18 是线性空间的 18% 灰（≈ sRGB 0.46），摄影里标准的对比度支点。
+         1.25 是"调大一点"：圆盘对比度 48.6 → 54.1、平均亮度不变、饱和度不掉；
+         拉到 1.35 撒哈拉会过亮、海洋发闷，别再往上加。 */
+      '  col = 0.18 * pow(max(col, 0.0) / 0.18, vec3(1.25));',
       /* ---------- 专题图层（气候 / 地形） ----------
-         必须放在**调色之后**：ACES + 提饱和 + pow(1.06) 会把图层压暗，
+         必须放在**调色之后**：ACES + 提饱和 + 对比度会把图层压暗，
          地球上的颜色就和图例的色块对不上了（用户一眼就看出来了）。
          放在最后 → 输出正好等于贴图原色。
          limb 保留边缘收暗，球不至于看起来像一张贴纸。
@@ -13020,20 +12981,6 @@ body.climate-layer-on #tools{z-index:44}
         }
       }
       if (STAR_MAT) STAR_MAT.uniforms.uTime.value = performance.now() / 1000;
-      /* 云层开关：默认关，别挡住国家和地名。按下按钮后约 0.4 秒淡入/淡出，
-         纹理没到时保持 0；专题图层开启时 shader 里仍会把云收干净。
-         0.78 是云的强度：觉得太厚/太薄改这一个数即可。 */
-      if (globe.earthMat) {
-        var _cu = globe.earthMat.uniforms.uCloudK;
-        var _want = (globe.cloudsOn && globe.cloudAt) ? 0.78 : 0;
-        if (_cu) {
-          if (Math.abs(_cu.value - _want) > 0.0005) {
-            _cu.value += (_want - _cu.value) * Math.min(1, 0.12 * dtf);
-          } else {
-            _cu.value = _want;
-          }
-        }
-      }
       if (globe.solarOn && solar.skyStarMat) {
         solar.skyStarMat.uniforms.uTime.value = performance.now() / 1000;
       }
@@ -16140,27 +16087,6 @@ body.climate-layer-on #tools{z-index:44}
       globe.setSpinWanted(globe.spinWanted !== false);
       bsp.addEventListener('click', function () {
         globe.setSpinWanted(!(globe.spinWanted !== false));
-        if (window.__tipHide) window.__tipHide();
-      });
-    }
-
-    /* 云层：默认关。开着时只看得见卫星云图里最厚的那几团，
-       薄云一律不要（铺满半透明碎斑会糊成马赛克、还挡国家）。 */
-    globe.cloudsOn = false;
-    var bcld = document.getElementById('btn-clouds');
-    globe.setCloudsOn = function (on) {
-      globe.cloudsOn = !!on;
-      if (bcld) {
-        bcld.classList.toggle('on', globe.cloudsOn);
-        bcld.setAttribute('aria-pressed', globe.cloudsOn ? 'true' : 'false');
-        if (window.__setTip) {
-          window.__setTip(bcld, globe.cloudsOn ? '关闭云层' : '显示真实云层');
-        }
-      }
-    };
-    if (bcld) {
-      bcld.addEventListener('click', function () {
-        globe.setCloudsOn(!globe.cloudsOn);
         if (window.__tipHide) window.__tipHide();
       });
     }
