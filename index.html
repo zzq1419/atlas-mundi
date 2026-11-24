@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-24-Y">
+<meta name="build" content="2026-11-24-Z">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -861,6 +861,149 @@
   /* 缩略图条和元信息跟着放大：64×46 / 11.5px 在教室后排等于没有 */
   body.class-mode .ts-item{width:96px;height:69px}
   body.class-mode #detail .meta{font-size:15px;line-height:1.9}
+
+  /* ---- 答题模式（全屏） ----
+     独立一层，不挂在档案卡上：进模式就把地球那层全关掉（省电，也免得背景
+     一直在转、面板反复重绘）。阅读宽度卡在 760px —— 中文一行 36~40 字，
+     再宽眼睛会串行；题干 20 / 选项 17.5，手机到投影都看得清。
+     所有 hover 都是 transition:none，跟选择题按钮保持同一套手感。 */
+  #exam{position:fixed;inset:0;z-index:92;background:#080C13;display:none;
+    overflow-y:auto;overscroll-behavior:contain;color:#E6EEF8;
+    -webkit-overflow-scrolling:touch}
+  #exam [hidden]{display:none !important}
+  body.exam-mode{overflow:hidden}
+  body.exam-mode #exam{display:block}
+  body.exam-mode #topbar,body.exam-mode #tools,body.exam-mode #globe-stage,
+  body.exam-mode #q-res,body.exam-mode .search-wrap,body.exam-mode #detail,
+  body.exam-mode .kit-panel,body.exam-mode #build-tag,body.exam-mode #layer-legend,
+  body.exam-mode #time-pins,body.exam-mode #tip,
+  body.exam-mode #rotate-hint{display:none !important}
+  .ex-in{max-width:760px;margin:0 auto;padding:0 24px}
+
+  .ex-setup{padding-top:66px;padding-bottom:56px}
+  .ex-h1{font-size:28px;font-weight:500;margin:0 0 8px}
+  .ex-sub{font-size:14px;color:#8A9DB2;margin:0 0 36px}
+  .ex-f{margin:0 0 26px}
+  .ex-f>span{display:block;font-size:12px;letter-spacing:.1em;color:#7C90A6;margin-bottom:9px}
+  .ex-chips{display:flex;flex-wrap:wrap;gap:8px}
+  .ex-chip{font:inherit;font-size:14.5px;padding:8px 15px;border-radius:999px;
+    border:1px solid rgba(148,182,224,.18);background:rgba(148,182,224,.05);
+    color:#A6BCD4;cursor:pointer;transition:none;-webkit-tap-highlight-color:transparent}
+  .ex-chip:hover{border-color:rgba(148,182,224,.38);background:rgba(148,182,224,.11)}
+  .ex-chip.on{border-color:rgba(232,194,122,.52);background:rgba(232,194,122,.14);color:#F0D9A8}
+  .ex-chip i{font-style:normal;font-size:11.5px;color:#7C90A6;margin-left:6px}
+  .ex-chip.on i{color:rgba(240,217,168,.62)}
+  .ex-count{font-size:14px;color:#8FA3B8;margin:34px 0 16px}
+  .ex-count b{font-size:17px;color:#E8C27A;font-weight:500}
+  .ex-start{width:100%;font:inherit;font-size:16.5px;padding:17px 0;border-radius:11px;
+    border:1px solid rgba(232,194,122,.45);background:rgba(232,194,122,.14);
+    color:#F3DDAE;cursor:pointer;transition:none;-webkit-tap-highlight-color:transparent}
+  .ex-start:hover{background:rgba(232,194,122,.2)}
+  .ex-start:disabled{opacity:.4;cursor:default}
+  .ex-quick{display:flex;gap:10px;margin-top:12px}
+  .ex-quick button{flex:1;font:inherit;font-size:13.5px;padding:11px 0;border-radius:9px;
+    border:1px solid rgba(148,182,224,.18);background:rgba(148,182,224,.05);
+    color:#A6BCD4;cursor:pointer;transition:none}
+  .ex-quick button:hover{background:rgba(148,182,224,.11)}
+  .ex-quick button:disabled{opacity:.35;cursor:default}
+  .ex-quick b{color:#E8C27A;font-weight:500}
+
+  .ex-run{min-height:100vh;min-height:100dvh;display:flex;flex-direction:column}
+  .ex-top{position:sticky;top:0;z-index:3;background:#080C13;
+    padding:14px 0 12px;display:flex;align-items:center;gap:14px}
+  .ex-bar{flex:1;height:3px;border-radius:2px;background:rgba(255,255,255,.08);overflow:hidden}
+  .ex-bar>i{display:block;height:100%;width:0;background:#E8C27A}
+  .ex-idx{font-size:12.5px;color:#93A7BC;font-variant-numeric:tabular-nums}
+  .ex-x{font:inherit;font-size:12.5px;padding:6px 13px;border-radius:999px;
+    border:1px solid rgba(148,182,224,.2);background:transparent;color:#93A7BC;
+    cursor:pointer;transition:none}
+  .ex-x:hover{color:#D8B46A;border-color:rgba(216,180,106,.45)}
+
+  .ex-main{flex:1;display:flex;flex-direction:column;justify-content:center;padding:10px 0 18px}
+  .ex-meta{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 16px}
+  .ex-tag{font-size:11.5px;padding:4px 9px;border-radius:5px;
+    background:rgba(148,182,224,.07);border:1px solid rgba(148,182,224,.16);color:#9CB4CC}
+  .ex-tag.k{background:rgba(232,194,122,.1);border-color:rgba(232,194,122,.3);color:#DFC089}
+  .ex-q{font-size:21px;line-height:1.9;margin:0 0 24px;color:#EDF4FC}
+  .ex-opts{display:flex;flex-direction:column;gap:12px}
+  .ex-opt{display:flex;gap:12px;align-items:center;width:100%;text-align:left;
+    font:inherit;font-size:18px;line-height:1.6;min-height:58px;padding:16px 19px;
+    border-radius:10px;border:1px solid rgba(148,182,224,.16);
+    background:rgba(148,182,224,.04);color:#D4E3F2;cursor:pointer;transition:none;
+    -webkit-tap-highlight-color:transparent}
+  .ex-opt:hover:not(.dim):not(.ok):not(.bad){border-color:rgba(148,182,224,.36);background:rgba(148,182,224,.1)}
+  .ex-opt .k{flex:0 0 auto;width:18px;color:#8AA3BC;font-size:16px}
+  .ex-opt .v{flex:1}
+  .ex-opt .mk{flex:0 0 auto;font-size:12.5px;color:#7E93A8}
+  .ex-opt.ok{border-color:rgba(95,214,164,.5);background:rgba(95,214,164,.11);color:#CFF3E4}
+  .ex-opt.ok .k,.ex-opt.ok .mk{color:#6FDCAC}
+  .ex-opt.bad{border-color:rgba(232,121,138,.5);background:rgba(232,121,138,.1);color:#F2CFD5}
+  .ex-opt.bad .k,.ex-opt.bad .mk{color:#E8798A}
+  .ex-opt.dim{opacity:.42;cursor:default}
+
+  .ex-reveal{margin:0;font:inherit;font-size:14px;padding:11px 20px;border-radius:9px;
+    border:1px solid rgba(148,182,224,.24);background:rgba(148,182,224,.06);
+    color:#B4C9DE;cursor:pointer;transition:none;align-self:flex-start}
+  .ex-reveal:hover{background:rgba(148,182,224,.12)}
+  .ex-ans{margin:0;padding:14px 16px;border-radius:9px;
+    background:rgba(95,214,164,.06);border-left:3px solid rgba(95,214,164,.45)}
+  .ex-ans b{display:block;font-size:11.5px;letter-spacing:.1em;color:#6FDCAC;
+    margin-bottom:7px;font-weight:400}
+  .ex-ans p{margin:0;font-size:16px;line-height:1.9;color:#C4E4D6}
+
+  .ex-exp{margin:14px 0 0;padding:15px 17px;border-radius:9px;
+    background:rgba(232,194,122,.05);border-left:3px solid rgba(232,194,122,.45)}
+  .ex-exp b{display:block;font-size:11.5px;letter-spacing:.1em;color:#DFC089;
+    margin-bottom:7px;font-weight:400}
+  .ex-exp p{margin:0;font-size:16.5px;line-height:1.9;color:#C2D3E4}
+  .ex-src{margin:12px 0 0;font-size:12px;color:#6F8399}
+
+  .ex-foot{position:sticky;bottom:0;z-index:3;margin-top:26px;background:#080C13;
+    border-top:1px solid rgba(120,150,190,.12);
+    padding:12px 0 calc(12px + env(safe-area-inset-bottom));
+    display:flex;align-items:center;gap:10px}
+  .ex-btn{font:inherit;font-size:13.5px;padding:10px 16px;border-radius:9px;
+    border:1px solid rgba(148,182,224,.18);background:rgba(148,182,224,.05);
+    color:#A6BCD4;cursor:pointer;transition:none;-webkit-tap-highlight-color:transparent}
+  .ex-btn:hover{background:rgba(148,182,224,.11)}
+  .ex-btn.on{border-color:rgba(232,194,122,.5);background:rgba(232,194,122,.14);color:#F0D9A8}
+  .ex-btn.pri{border-color:rgba(232,194,122,.5);background:rgba(232,194,122,.15);color:#F3DDAE}
+  .ex-btn.pri:hover{background:rgba(232,194,122,.22)}
+  .ex-btn:disabled{opacity:.35;cursor:default}
+  .ex-sp{flex:1}
+  .ex-kbd{font-size:11.5px;color:#5E7387}
+
+  .ex-done{padding:40px 0 56px;text-align:center;min-height:100vh;min-height:100dvh;
+    display:flex;flex-direction:column;justify-content:center}
+  .ex-rate{font-size:62px;line-height:1;color:#E8C27A;font-variant-numeric:tabular-nums}
+  .ex-rate small{font-size:24px;color:#B08E52}
+  .ex-dsub{font-size:14px;color:#8A9DB2;margin:14px 0 30px}
+  .ex-dgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:0 0 28px}
+  .ex-dcell{background:rgba(148,182,224,.05);border:1px solid rgba(148,182,224,.12);
+    border-radius:10px;padding:16px 8px}
+  .ex-dcell i{display:block;font-style:normal;font-size:12px;color:#7C90A6;margin-bottom:7px}
+  .ex-dcell b{font-size:22px;font-weight:500;color:#E6EEF8}
+  .ex-wlist{text-align:left;margin:0 0 26px}
+  .ex-wlist h4{font-size:12px;letter-spacing:.1em;color:#7C90A6;font-weight:400;margin:0 0 10px}
+  .ex-wrow{font-size:14px;color:#B4C9DE;padding:11px 14px;border-radius:8px;
+    background:rgba(232,121,138,.05);border-left:3px solid rgba(232,121,138,.35);
+    margin-bottom:8px;line-height:1.6}
+
+  @media (max-width:640px){
+    .ex-in{padding:0 16px}
+    .ex-setup{padding-top:26px}
+    .ex-sub{margin:0 0 24px}
+    .ex-f{margin:0 0 17px}
+    .ex-f>span{margin-bottom:7px}
+    .ex-chip{font-size:13.5px;padding:7px 12px}
+    .ex-count{margin:22px 0 12px}
+    .ex-h1{font-size:22px}
+    .ex-q{font-size:17.5px;line-height:1.8}
+    .ex-opt{font-size:16px;min-height:50px;padding:13px 15px}
+    .ex-kbd{display:none}
+    .ex-rate{font-size:50px}
+    .ex-idx{font-size:12px}
+  }
 
   /* ---- 搜索面板顶部：今天一条 / 可以这样问 / 最近看过 ----
      参考 Google 搜索页的"温润"质感：大圆角、无硬边框、底色是很淡的一层
@@ -3121,6 +3264,65 @@ body.climate-layer-on #tools{z-index:44}
 
 <!-- 自绘提示气泡：浏览器原生 title 太慢、样式也不受控 -->
 <div id="tip" class="tip" aria-hidden="true"></div>
+
+<!-- 答题模式：整屏独立一层。题来自 assets/bank/geo.json（由 _fix/export_bank.py
+     从知识卡的随堂题导出，字段和以后并进来的真题同一套）。 -->
+<div id="exam" aria-label="地理答题模式">
+  <div class="ex-in ex-setup" id="ex-setup">
+    <h1 class="ex-h1">地理答题</h1>
+    <p class="ex-sub" id="ex-sub">正在载入题库…</p>
+
+    <div class="ex-f"><span>学段</span><div class="ex-chips" id="f-lv"></div></div>
+    <div class="ex-f"><span>主题</span><div class="ex-chips" id="f-theme"></div></div>
+    <div class="ex-f"><span>题型</span><div class="ex-chips" id="f-type"></div></div>
+    <div class="ex-f"><span>难度</span><div class="ex-chips" id="f-diff"></div></div>
+    <div class="ex-f"><span>题量</span><div class="ex-chips" id="f-n"></div></div>
+
+    <p class="ex-count" id="ex-count">共 <b>0</b> 题可选</p>
+    <button class="ex-start" id="ex-start" type="button" disabled>开始答题</button>
+    <div class="ex-quick">
+      <button type="button" id="ex-wrongbtn">错题本 <b>0</b></button>
+      <button type="button" id="ex-favbtn">收藏 <b>0</b></button>
+    </div>
+  </div>
+
+  <div class="ex-in ex-run" id="ex-run" hidden>
+    <div class="ex-top">
+      <div class="ex-bar"><i id="ex-bar"></i></div>
+      <span class="ex-idx" id="ex-idx">1 / 1</span>
+      <button class="ex-x" id="ex-exit" type="button">退出</button>
+    </div>
+    <div class="ex-main">
+      <div class="ex-meta" id="ex-meta"></div>
+      <p class="ex-q" id="ex-q"></p>
+      <div class="ex-opts" id="ex-opts"></div>
+      <div id="ex-extra"></div>
+    </div>
+    <div class="ex-foot">
+      <button class="ex-btn" id="ex-fav" type="button">收藏</button>
+      <span class="ex-sp"></span>
+      <span class="ex-kbd" id="ex-kbd">1–4 选择 · Enter 下一题 · F 收藏</span>
+      <button class="ex-btn" id="ex-prev" type="button">上一题</button>
+      <button class="ex-btn pri" id="ex-next" type="button">下一题</button>
+    </div>
+  </div>
+
+  <div class="ex-in ex-done" id="ex-done" hidden>
+    <div class="ex-rate" id="ex-rate">0<small>%</small></div>
+    <p class="ex-dsub" id="ex-dsub"></p>
+    <div class="ex-dgrid">
+      <div class="ex-dcell"><i>答对</i><b id="ex-ok">0</b></div>
+      <div class="ex-dcell"><i>答错</i><b id="ex-bad">0</b></div>
+      <div class="ex-dcell"><i>用时</i><b id="ex-time">0:00</b></div>
+    </div>
+    <div class="ex-wlist" id="ex-wlist"></div>
+    <button class="ex-start" id="ex-again" type="button">再来一组</button>
+    <div class="ex-quick">
+      <button type="button" id="ex-redo">重做本组错题</button>
+      <button type="button" id="ex-back">返回地球</button>
+    </div>
+  </div>
+</div>
 
 <!-- 课堂教具：看图猜国家。默认隐藏，由工具栏「课堂」那颗按钮开关。
      和档案卡一样占右侧，靠 quizMode 互斥 —— 测验期间档案卡打不开，否则一开就泄题。 -->
@@ -6842,6 +7044,18 @@ body.climate-layer-on #tools{z-index:44}
       '<circle cx="11.7" cy="16.7" r=".9" fill="currentColor" stroke="none"/></svg>' +
       '<span class="tl">看图猜国家</span>';
     row.appendChild(qbtn);
+    /* 答题模式：整屏独立一层（body.exam-mode），和投影、猜国家同属课堂教具。
+       和它们不一样的是它会把地球渲染整个停掉 —— 一屏一道题，球在背后转是纯浪费。 */
+    var ebtn = el('button', 'tool-btn');
+    ebtn.id = 'btn-exam';
+    ebtn.type = 'button';
+    ebtn.setAttribute('aria-pressed', 'false');
+    ebtn.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true">' +
+      '<rect x="4.2" y="3.4" width="15.6" height="17.2" rx="2"/>' +
+      '<path d="M8.2 8.2h7.6M8.2 11.6h7.6M8.2 15h3.4"/>' +
+      '<path d="M12.8 16.6l1.3 1.3 2.6-3"/></svg>' +
+      '<span class="tl">答题模式</span>';
+    row.appendChild(ebtn);
     /* 太阳系：公转讲不了就白瞎了那半个单元 */
     var sbtn = el('button', 'tool-btn');
     sbtn.id = 'btn-solar';
@@ -13003,6 +13217,9 @@ body.climate-layer-on #tools{z-index:44}
     function render() {
       globe.raf = requestAnimationFrame(render);
       if (document.hidden) return;          // 切到别的标签页就停，省电
+      /* 答题模式是整屏盖住的全屏层，地球一个像素都露不出来：
+         继续跑只会白烧 GPU，也拖慢判题的重排。rAF 链留着，退出即恢复。 */
+      if (globe.examOn) return;
 
       /* 帧间隔归一化。所有"每帧加一点"的动画都必须乘这个系数，
          否则 144Hz 屏上转得比 60Hz 快 2.4 倍 —— 之前自转就是"每帧固定加"。 */
@@ -16776,6 +16993,459 @@ body.climate-layer-on #tools{z-index:44}
       fail('读取 data/index.json 失败：' + e.message +
            '。若你是直接双击打开本地文件（file:// 协议），浏览器会禁止 fetch —— 请用公网地址或起一个本地服务器。');
     });
+
+  /* ---------- 答题模式 ----------
+     题在 assets/bank/geo.json（_fix/export_bank.py 从 83 张知识卡的随堂题导出）。
+     这里只管抽题、判题、记错题：以后并真题只换 json，界面一行不动。
+     存档只放 localStorage，不登录不上云 —— 换设备不同步，但也不会白丢进度。 */
+  (function bindExam() {
+    var root = document.getElementById('exam');
+    if (!root) return;
+    var $ = function (id) { return document.getElementById(id); };
+    var setupEl = $('ex-setup'), runEl = $('ex-run'), doneEl = $('ex-done');
+    var subEl = $('ex-sub'), cntEl = $('ex-count'), startEl = $('ex-start');
+    var fLv = $('f-lv'), fTheme = $('f-theme'), fType = $('f-type'),
+        fDiff = $('f-diff'), fN = $('f-n');
+    var wrongBtn = $('ex-wrongbtn'), favBtn = $('ex-favbtn');
+    var barEl = $('ex-bar'), idxEl = $('ex-idx'), metaEl = $('ex-meta'), qEl = $('ex-q');
+    var optsEl = $('ex-opts'), extraEl = $('ex-extra'), favEl = $('ex-fav');
+    var prevEl = $('ex-prev'), nextEl = $('ex-next'), exitEl = $('ex-exit');
+    var rateEl = $('ex-rate'), dsubEl = $('ex-dsub'), okEl = $('ex-ok'), badEl = $('ex-bad');
+    var timeEl = $('ex-time'), wlistEl = $('ex-wlist'), againEl = $('ex-again');
+    var redoEl = $('ex-redo'), backEl = $('ex-back');
+
+    /* ---- 存档 ---- */
+    var KEY = 'atlas.exam.v1';
+    var S = { fav: {}, wrong: {}, hist: [], last: null };
+    try {
+      var raw = localStorage.getItem(KEY);
+      if (raw) {
+        var o = JSON.parse(raw);
+        S.fav = o.fav || {}; S.wrong = o.wrong || {};
+        S.hist = o.hist || []; S.last = o.last || null;
+      }
+    } catch (e) {}
+    function save() {
+      try {
+        if (S.hist.length > 800) S.hist = S.hist.slice(-800);
+        localStorage.setItem(KEY, JSON.stringify(S));
+      } catch (e) {}          // 隐私模式写不进去就算了，别让答题整个挂掉
+    }
+
+    /* ---- 题库 ---- */
+    var bank = null, bankP = null;
+    function loadBank() {
+      if (bank) return Promise.resolve(bank);
+      if (bankP) return bankP;
+      /* 直接同源取，不走 MIRRORS：这是 35KB 的本地文件，没必要先试一遍 CDN
+         再回落到源站，那样第一次进来白等两个往返。 */
+      var url = 'assets/bank/geo.json' +
+        (BUILD_TAG ? '?v=' + encodeURIComponent(BUILD_TAG) : '');
+      bankP = fetch(url, { cache: 'force-cache' }).then(function (r) {
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.json();
+      }).then(function (j) {
+        bank = (j && j.items) ? j : { items: [] };
+        return bank;
+      }).catch(function (err) { bankP = null; throw err; });
+      return bankP;
+    }
+
+    var F = { lv: '', theme: '', type: '', diff: '', n: '20' };
+    var qs = [], at = 0, marks = [], t0 = 0, locked = false, lastMode = 'set';
+
+    var LVS = [{ v: '', t: '全部' }, { v: '初中', t: '初中' }, { v: '高中', t: '高中' }];
+    var TYPES = [{ v: '', t: '全部' }, { v: 'choice', t: '选择题' }, { v: 'short', t: '简答题' }];
+    var DIFFS = [{ v: '', t: '全部' }, { v: '1', t: '易' }, { v: '2', t: '中' }, { v: '3', t: '难' }];
+    var NS = [{ v: '10', t: '10 题' }, { v: '20', t: '20 题' },
+              { v: '30', t: '30 题' }, { v: 'all', t: '全部' }];
+
+    function pool() {
+      if (!bank) return [];
+      return bank.items.filter(function (it) {
+        if (F.lv && it.band !== F.lv) return false;
+        if (F.theme && it.theme !== F.theme) return false;
+        if (F.type && it.type !== F.type) return false;
+        if (F.diff && String(it.diff) !== F.diff) return false;
+        return true;
+      });
+    }
+    function countBy(fn) {
+      var m = {};
+      (bank ? bank.items : []).forEach(function (it) {
+        var k = fn(it);
+        if (k == null) return;
+        m[k] = (m[k] || 0) + 1;
+      });
+      return m;
+    }
+    function chipRow(box, list, key, counts) {
+      box.textContent = '';
+      list.forEach(function (o) {
+        var b = el('button', 'ex-chip' + (F[key] === o.v ? ' on' : ''), o.t);
+        b.type = 'button';
+        if (counts) {
+          var n = counts[o.v];
+          if (n != null) b.appendChild(el('i', '', n));
+        }
+        b.addEventListener('click', function () { F[key] = o.v; renderSetup(); });
+        box.appendChild(b);
+      });
+    }
+    function themeList() {
+      var m = countBy(function (it) { return it.theme; });
+      var arr = Object.keys(m).sort(function (a, b) { return m[b] - m[a]; });
+      return [{ v: '', t: '全部', n: null }].concat(arr.map(function (k) {
+        return { v: k, t: k, n: m[k] };
+      }));
+    }
+    function syncQuick() {
+      var wn = Object.keys(S.wrong).length, fn = Object.keys(S.fav).length;
+      wrongBtn.innerHTML = '错题本 <b>' + wn + '</b>';
+      favBtn.innerHTML = '收藏 <b>' + fn + '</b>';
+      wrongBtn.disabled = !wn;
+      favBtn.disabled = !fn;
+    }
+    function renderSetup() {
+      if (!bank) return;
+      var list = pool();
+      var jr = 0, sr = 0;
+      bank.items.forEach(function (it) { if (it.band === '高中') sr++; else jr++; });
+      subEl.textContent = '题库 ' + bank.items.length + ' 题 · 初中 ' + jr + ' · 高中 ' + sr;
+      chipRow(fLv, LVS, 'lv', countBy(function (it) { return it.band; }));
+      chipRow(fTheme, themeList(), 'theme', null);
+      chipRow(fType, TYPES, 'type', countBy(function (it) { return it.type; }));
+      chipRow(fDiff, DIFFS, 'diff', countBy(function (it) { return String(it.diff); }));
+      chipRow(fN, NS, 'n', null);
+      cntEl.innerHTML = '共 <b>' + list.length + '</b> 题可选';
+      if (!list.length) {
+        startEl.disabled = true;
+        startEl.textContent = '没有符合条件的题';
+      } else {
+        var n = (F.n === 'all') ? list.length : Math.min(+F.n, list.length);
+        startEl.disabled = false;
+        startEl.textContent = '开始答题（' + n + ' 题）';
+      }
+      syncQuick();
+    }
+
+    function shuffle(a) {
+      for (var i = a.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var t = a[i]; a[i] = a[j]; a[j] = t;
+      }
+      return a;
+    }
+
+    function start(mode) {
+      if (!bank) return;
+      var list;
+      if (mode === 'wrong') {
+        list = bank.items.filter(function (it) { return !!S.wrong[it.id]; });
+      } else if (mode === 'fav') {
+        list = bank.items.filter(function (it) { return !!S.fav[it.id]; });
+      } else {
+        list = pool();
+      }
+      if (!list.length) return;
+      list = shuffle(list.slice());
+      var n = (mode === 'set' && F.n !== 'all') ? Math.min(+F.n, list.length) : list.length;
+      qs = list.slice(0, n);
+      at = 0;
+      marks = qs.map(function () { return null; });
+      t0 = Date.now();
+      locked = false;
+      lastMode = mode;
+      setupEl.hidden = true; doneEl.hidden = true; runEl.hidden = false;
+      renderQ();
+      root.scrollTop = 0;
+    }
+
+    function tag(txt, gold) {
+      metaEl.appendChild(el('span', 'ex-tag' + (gold ? ' k' : ''), txt));
+    }
+
+    function renderQ() {
+      var it = qs[at];
+      if (!it) return finish();
+      locked = false;
+      metaEl.textContent = '';
+      extraEl.textContent = '';
+      tag(it.band === '高中' ? '高中' : it.grade, true);
+      tag(it.theme);
+      tag(it.type === 'choice' ? '选择题' : '简答题');
+      tag('难度 ' + it.diff + '/3');
+      qEl.textContent = it.q;
+      optsEl.textContent = '';
+
+      if (it.type === 'choice') {
+        (it.opts || []).forEach(function (txt2, i) {
+          var b = el('button', 'ex-opt');
+          b.type = 'button';
+          b.appendChild(el('span', 'k', 'ABCD'.charAt(i)));
+          b.appendChild(el('span', 'v', txt2));
+          b.appendChild(el('span', 'mk', ''));
+          b.addEventListener('click', function () { pick(i); });
+          optsEl.appendChild(b);
+        });
+      } else {
+        var rv = el('button', 'ex-reveal', '看参考答案');
+        rv.type = 'button';
+        rv.addEventListener('click', function () { revealShort(false); });
+        optsEl.appendChild(rv);
+      }
+
+      barEl.style.width = (at / qs.length * 100) + '%';
+      idxEl.textContent = (at + 1) + ' / ' + qs.length;
+      prevEl.disabled = at === 0;
+      nextEl.textContent = (at === qs.length - 1) ? '完成' : '下一题';
+      syncFav();
+      if (marks[at]) restore(marks[at]);
+    }
+
+    function syncFav() {
+      var it = qs[at];
+      var on = !!(it && S.fav[it.id]);
+      favEl.classList.toggle('on', on);
+      favEl.textContent = on ? '已收藏' : '收藏';
+    }
+
+    function showExp(it) {
+      var d = el('div', 'ex-exp');
+      d.appendChild(el('b', '', '解析'));
+      d.appendChild(el('p', '', it.exp || '（这道题暂时没有解析）'));
+      extraEl.appendChild(d);
+      extraEl.appendChild(el('p', 'ex-src', '来源：' + it.src));
+    }
+
+    function pick(i) {
+      var it = qs[at];
+      if (!it || it.type !== 'choice' || locked) return;
+      locked = true;
+      var ok = (i === it.ans);
+      var nodes = optsEl.querySelectorAll('.ex-opt');
+      for (var k = 0; k < nodes.length; k++) {
+        var n = nodes[k];
+        if (k === it.ans) n.classList.add('ok');
+        else if (k === i) n.classList.add('bad');
+        else n.classList.add('dim');
+      }
+      nodes[it.ans].querySelector('.mk').textContent = '正确答案';
+      if (!ok && i >= 0) nodes[i].querySelector('.mk').textContent = '你的选择';
+      marks[at] = { pick: i, ok: ok };
+      record(it, ok);
+      showExp(it);
+      nextEl.classList.add('pri');
+    }
+
+    function revealShort(review) {
+      var it = qs[at];
+      if (!it || it.type !== 'short') return;
+      optsEl.textContent = '';
+      var a = el('div', 'ex-ans');
+      a.appendChild(el('b', '', '参考答案'));
+      a.appendChild(el('p', '', it.ansText || it.ans || ''));
+      optsEl.appendChild(a);
+      extraEl.textContent = '';
+      showExp(it);
+      if (review) {
+        var mk = marks[at];
+        extraEl.appendChild(el('p', 'ex-src', mk ? (mk.ok ? '本组已记为答对' : '本组已记为答错，已进错题本') : '这一题本组没有作答'));
+        return;
+      }
+      var row = el('div', 'ex-quick');
+      var b1 = el('button', '', '我答对了');
+      var b2 = el('button', '', '没答上来');
+      b1.type = 'button'; b2.type = 'button';
+      b1.addEventListener('click', function () { selfJudge(true, b1, b2); });
+      b2.addEventListener('click', function () { selfJudge(false, b1, b2); });
+      row.appendChild(b1); row.appendChild(b2);
+      optsEl.appendChild(row);
+    }
+
+    function selfJudge(ok, b1, b2) {
+      var it = qs[at];
+      marks[at] = { pick: -1, ok: ok };
+      record(it, ok);
+      b1.disabled = true; b2.disabled = true;
+      b1.textContent = ok ? '已记为答对' : '我答对了';
+      b2.textContent = ok ? '没答上来' : '已记为答错';
+      nextEl.classList.add('pri');
+    }
+
+    function record(it, ok) {
+      S.hist.push({ id: it.id, ok: ok ? 1 : 0, at: Date.now() });
+      var w = S.wrong[it.id];
+      if (ok) {
+        if (w) {
+          w.n = (w.n || 1) - 1;
+          if (w.n <= 0) delete S.wrong[it.id];
+          else w.last = Date.now();
+        }
+      } else {
+        if (!w) w = S.wrong[it.id] = { n: 0, last: 0 };
+        w.n = Math.min(5, (w.n || 0) + 1);
+        w.last = Date.now();
+        w.q = it.q.slice(0, 46);
+      }
+      save();
+      syncQuick();
+    }
+
+    function restore(mk) {
+      var it = qs[at];
+      if (it.type === 'choice') {
+        var nodes = optsEl.querySelectorAll('.ex-opt');
+        locked = true;
+        for (var k = 0; k < nodes.length; k++) {
+          var n = nodes[k];
+          if (k === it.ans) n.classList.add('ok');
+          else if (k === mk.pick) n.classList.add('bad');
+          else n.classList.add('dim');
+        }
+        nodes[it.ans].querySelector('.mk').textContent = '正确答案';
+        if (!mk.ok && mk.pick >= 0) nodes[mk.pick].querySelector('.mk').textContent = '你的选择';
+        showExp(it);
+      } else {
+        revealShort(true);
+      }
+      nextEl.classList.add('pri');
+    }
+
+    function next() {
+      if (at < qs.length - 1) { at++; renderQ(); root.scrollTop = 0; }
+      else finish();
+    }
+    function prev() {
+      if (at > 0) { at--; renderQ(); root.scrollTop = 0; }
+    }
+
+    function fmtTime(ms) {
+      var s = Math.round(ms / 1000);
+      var m = Math.floor(s / 60);
+      s = s % 60;
+      return m + ':' + (s < 10 ? '0' : '') + s;
+    }
+
+    function finish() {
+      var ok = 0, bad = 0, done = 0, wl = [];
+      for (var i = 0; i < qs.length; i++) {
+        var mk = marks[i];
+        if (!mk) continue;
+        done++;
+        if (mk.ok) ok++;
+        else { bad++; wl.push(qs[i]); }
+      }
+      var rate = done ? Math.round(ok / done * 100) : 0;
+      rateEl.innerHTML = rate + '<small>%</small>';
+      dsubEl.textContent = '本组 ' + qs.length + ' 题 · 已答 ' + done + ' 题' +
+        (done < qs.length ? ' · 跳过 ' + (qs.length - done) + ' 题' : '');
+      okEl.textContent = ok;
+      badEl.textContent = bad;
+      timeEl.textContent = fmtTime(Date.now() - t0);
+      wlistEl.textContent = '';
+      if (wl.length) {
+        wlistEl.appendChild(el('h4', '', '这组做错的 ' + wl.length + ' 题（已进错题本）'));
+        /* 只列前三条：全列出来会把「再来一组」挤出首屏，而且条数一多
+           列表就成了没有区分度的一堵墙。剩下的用一行字带过。 */
+        wl.slice(0, 3).forEach(function (it) {
+          wlistEl.appendChild(el('div', 'ex-wrow', it.q));
+        });
+        if (wl.length > 3) {
+          wlistEl.appendChild(el('p', 'ex-src',
+            '还有 ' + (wl.length - 3) + ' 题在错题本里，可以点「重做本组错题」或回筛选页按错题本练习'));
+        }
+      }
+      runEl.hidden = true;
+      doneEl.hidden = false;
+      root.scrollTop = 0;
+    }
+
+    /* ---- 进入 / 退出 ---- */
+    function open() {
+      document.body.classList.add('exam-mode');
+      globe.examOn = true;               // 停掉地球渲染，省电也省重绘
+      setupEl.hidden = false; runEl.hidden = true; doneEl.hidden = true;
+      root.scrollTop = 0;
+      if (!bank) {
+        subEl.textContent = '正在载入题库…';
+        loadBank().then(function () { renderSetup(); })
+          .catch(function (e) {
+            subEl.textContent = '题库加载失败（' + e.message + '），刷新页面再试';
+          });
+      }
+      renderSetup();                     // 已加载过就立刻重画
+    }
+    function exit() {
+      document.body.classList.remove('exam-mode');
+      globe.examOn = false;
+      globe.lastMs = 0;                  // 别让停掉这段时间变成一次巨大 dtf
+      setupEl.hidden = false; runEl.hidden = true; doneEl.hidden = true;
+      renderSetup();
+    }
+
+    startEl.addEventListener('click', function () { start('set'); });
+    wrongBtn.addEventListener('click', function () { start('wrong'); });
+    favBtn.addEventListener('click', function () { start('fav'); });
+    nextEl.addEventListener('click', next);
+    prevEl.addEventListener('click', prev);
+    exitEl.addEventListener('click', exit);
+    backEl.addEventListener('click', exit);
+    againEl.addEventListener('click', function () {
+      start(lastMode === 'wrong' ? 'wrong' : (lastMode === 'fav' ? 'fav' : 'set'));
+    });
+    redoEl.addEventListener('click', function () {
+      var wl = [];
+      for (var i = 0; i < qs.length; i++) if (marks[i] && !marks[i].ok) wl.push(qs[i]);
+      if (!wl.length) return;
+      qs = shuffle(wl);
+      at = 0; marks = qs.map(function () { return null; }); t0 = Date.now();
+      doneEl.hidden = true; runEl.hidden = false;
+      renderQ(); root.scrollTop = 0;
+    });
+    favEl.addEventListener('click', function () {
+      var it = qs[at];
+      if (!it) return;
+      if (S.fav[it.id]) delete S.fav[it.id]; else S.fav[it.id] = 1;
+      save(); syncFav(); syncQuick();
+    });
+
+    /* 键盘：1–4 选、Enter 下一题、F 收藏、Esc 退出。
+       只在答题层打开时接管，不影响地球上任何快捷键。 */
+    document.addEventListener('keydown', function (e) {
+      if (!document.body.classList.contains('exam-mode')) return;
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      if (e.key === 'Escape') { exit(); e.preventDefault(); return; }
+      if (runEl.hidden) return;
+      var k = e.key;
+      if (k >= '1' && k <= '4') { pick(+k - 1); e.preventDefault(); return; }
+      if (k === 'Enter') { next(); e.preventDefault(); return; }
+      if (k === 'f' || k === 'F') {
+        var it = qs[at];
+        if (it) {
+          if (S.fav[it.id]) delete S.fav[it.id]; else S.fav[it.id] = 1;
+          save(); syncFav(); syncQuick();
+        }
+      }
+    });
+
+    var btn = document.getElementById('btn-exam');
+    if (btn) {
+      btn.addEventListener('click', function () {
+        btn.setAttribute('aria-pressed', 'true');
+        open();
+        /* 退出时把按钮状态复原：exam-mode 一撤，抽屉又露出来了，
+           按钮还亮着会让人以为模式没关。 */
+        var t = setInterval(function () {
+          if (!document.body.classList.contains('exam-mode')) {
+            btn.setAttribute('aria-pressed', 'false');
+            clearInterval(t);
+          }
+        }, 400);
+      });
+    }
+    syncQuick();
+  })();
 })();
 </script>
 
