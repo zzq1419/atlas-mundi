@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-24-Z2">
+<meta name="build" content="2026-11-24-Z3">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -880,25 +880,25 @@
   body.exam-mode #rotate-hint{display:none !important}
   .ex-in{max-width:760px;margin:0 auto;padding:0 24px}
 
-  .ex-setup{padding-top:66px;padding-bottom:56px}
+  .ex-setup{padding-top:52px;padding-bottom:40px}
   .ex-h1{font-size:28px;font-weight:500;margin:0 0 8px}
-  .ex-sub{font-size:14px;color:#8A9DB2;margin:0 0 36px}
-  .ex-f{margin:0 0 26px}
+  .ex-sub{font-size:14px;color:#8A9DB2;margin:0 0 30px}
+  .ex-f{margin:0 0 21px}
   .ex-f>span{display:block;font-size:12px;letter-spacing:.1em;color:#7C90A6;margin-bottom:9px}
   .ex-chips{display:flex;flex-wrap:wrap;gap:8px}
   .ex-chip{font:inherit;font-size:14.5px;padding:8px 15px;border-radius:999px;
     border:1px solid rgba(148,182,224,.18);background:rgba(148,182,224,.05);
     color:#A6BCD4;cursor:pointer;transition:none;-webkit-tap-highlight-color:transparent}
   .ex-chip:hover{border-color:rgba(148,182,224,.38);background:rgba(148,182,224,.11)}
-  .ex-chip.on{border-color:rgba(232,194,122,.52);background:rgba(232,194,122,.14);color:#F0D9A8}
+  .ex-chip.on{border-color:rgba(203,168,106,.52);background:rgba(203,168,106,.14);color:#DFC69C}
   .ex-chip i{font-style:normal;font-size:11.5px;color:#7C90A6;margin-left:6px}
-  .ex-chip.on i{color:rgba(240,217,168,.62)}
-  .ex-count{font-size:14px;color:#8FA3B8;margin:34px 0 16px}
-  .ex-count b{font-size:17px;color:#E8C27A;font-weight:500}
+  .ex-chip.on i{color:rgba(223,198,156,.58)}
+  .ex-count{font-size:14px;color:#8FA3B8;margin:26px 0 14px}
+  .ex-count b{font-size:17px;color:#C9A465;font-weight:500}
   .ex-start{width:100%;font:inherit;font-size:16.5px;padding:17px 0;border-radius:11px;
-    border:1px solid rgba(232,194,122,.45);background:rgba(232,194,122,.14);
-    color:#F3DDAE;cursor:pointer;transition:none;-webkit-tap-highlight-color:transparent}
-  .ex-start:hover{background:rgba(232,194,122,.2)}
+    border:1px solid rgba(203,168,106,.45);background:rgba(203,168,106,.14);
+    color:#E2CCA2;cursor:pointer;transition:none;-webkit-tap-highlight-color:transparent}
+  .ex-start:hover{background:rgba(203,168,106,.16)}
   .ex-start:disabled{opacity:.4;cursor:default}
   .ex-quick{display:flex;gap:10px;margin-top:12px}
   .ex-quick button{flex:1;font:inherit;font-size:13.5px;padding:11px 0;border-radius:9px;
@@ -906,13 +906,13 @@
     color:#A6BCD4;cursor:pointer;transition:none}
   .ex-quick button:hover{background:rgba(148,182,224,.11)}
   .ex-quick button:disabled{opacity:.35;cursor:default}
-  .ex-quick b{color:#E8C27A;font-weight:500}
+  .ex-quick b{color:#C9A465;font-weight:500}
 
   .ex-run{min-height:100vh;min-height:100dvh;display:flex;flex-direction:column}
   .ex-top{position:sticky;top:0;z-index:3;background:#080C13;
     padding:14px 0 12px;display:flex;align-items:center;gap:14px}
   .ex-bar{flex:1;height:3px;border-radius:2px;background:rgba(255,255,255,.08);overflow:hidden}
-  .ex-bar>i{display:block;height:100%;width:0;background:#E8C27A}
+  .ex-bar>i{display:block;height:100%;width:0;background:#C9A465}
   .ex-idx{font-size:12.5px;color:#93A7BC;font-variant-numeric:tabular-nums}
   .ex-x{font:inherit;font-size:12.5px;padding:6px 13px;border-radius:999px;
     border:1px solid rgba(148,182,224,.2);background:transparent;color:#93A7BC;
@@ -923,7 +923,7 @@
   .ex-meta{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 16px}
   .ex-tag{font-size:11.5px;padding:4px 9px;border-radius:5px;
     background:rgba(148,182,224,.07);border:1px solid rgba(148,182,224,.16);color:#9CB4CC}
-  .ex-tag.k{background:rgba(232,194,122,.1);border-color:rgba(232,194,122,.3);color:#DFC089}
+  .ex-tag.k{background:rgba(203,168,106,.1);border-color:rgba(203,168,106,.3);color:#C7A777}
   .ex-q{font-size:21px;line-height:1.9;margin:0 0 24px;color:#EDF4FC}
   .ex-opts{display:flex;flex-direction:column;gap:12px}
   .ex-opt{display:flex;gap:12px;align-items:center;width:100%;text-align:left;
@@ -952,8 +952,8 @@
   .ex-ans p{margin:0;font-size:16px;line-height:1.9;color:#C4E4D6}
 
   .ex-exp{margin:14px 0 0;padding:15px 17px;border-radius:9px;
-    background:rgba(232,194,122,.05);border-left:3px solid rgba(232,194,122,.45)}
-  .ex-exp b{display:block;font-size:11.5px;letter-spacing:.1em;color:#DFC089;
+    background:rgba(203,168,106,.05);border-left:3px solid rgba(203,168,106,.45)}
+  .ex-exp b{display:block;font-size:11.5px;letter-spacing:.1em;color:#C7A777;
     margin-bottom:7px;font-weight:400}
   .ex-exp p{margin:0;font-size:16.5px;line-height:1.9;color:#C2D3E4}
   .ex-src{margin:12px 0 0;font-size:12px;color:#6F8399}
@@ -966,16 +966,16 @@
     border:1px solid rgba(148,182,224,.18);background:rgba(148,182,224,.05);
     color:#A6BCD4;cursor:pointer;transition:none;-webkit-tap-highlight-color:transparent}
   .ex-btn:hover{background:rgba(148,182,224,.11)}
-  .ex-btn.on{border-color:rgba(232,194,122,.5);background:rgba(232,194,122,.14);color:#F0D9A8}
-  .ex-btn.pri{border-color:rgba(232,194,122,.5);background:rgba(232,194,122,.15);color:#F3DDAE}
-  .ex-btn.pri:hover{background:rgba(232,194,122,.22)}
+  .ex-btn.on{border-color:rgba(203,168,106,.5);background:rgba(203,168,106,.14);color:#DFC69C}
+  .ex-btn.pri{border-color:rgba(203,168,106,.5);background:rgba(203,168,106,.15);color:#E2CCA2}
+  .ex-btn.pri:hover{background:rgba(203,168,106,.18)}
   .ex-btn:disabled{opacity:.35;cursor:default}
   .ex-sp{flex:1}
   .ex-kbd{font-size:11.5px;color:#5E7387}
 
   .ex-done{padding:40px 0 56px;text-align:center;min-height:100vh;min-height:100dvh;
     display:flex;flex-direction:column;justify-content:center}
-  .ex-rate{font-size:62px;line-height:1;color:#E8C27A;font-variant-numeric:tabular-nums}
+  .ex-rate{font-size:62px;line-height:1;color:#C9A465;font-variant-numeric:tabular-nums}
   .ex-rate small{font-size:24px;color:#B08E52}
   .ex-dsub{font-size:14px;color:#8A9DB2;margin:14px 0 30px}
   .ex-dgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:0 0 28px}
