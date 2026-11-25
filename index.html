@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-26-D">
+<meta name="build" content="2026-11-26-E">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -17305,7 +17305,9 @@ body.climate-layer-on #tools{z-index:44}
       ]).then(function (a) {
         var g = (a[0] && a[0].items) ? a[0].items : [];
         var r = (a[1] && a[1].items) ? a[1].items : [];
-        bank = { items: g.concat(r), nCard: g.length, nReal: r.length };
+        var nReal = 0;
+        for (var ri = 0; ri < r.length; ri++) if (r[ri].cat === '真题') nReal++;
+        bank = { items: g.concat(r), nCard: g.length, nReal: nReal, nExtra: r.length - nReal };
         return bank;
       }).catch(function (err) { bankP = null; throw err; });
       return bankP;
@@ -17316,7 +17318,8 @@ body.climate-layer-on #tools{z-index:44}
     var F = { src: '', lv: '', theme: '', type: '', dmin: 0, dmax: 10, n: '20' };
     var qs = [], at = 0, marks = [], t0 = 0, locked = false, lastMode = 'set';
 
-    var SRCS = [{ v: '', t: '全部' }, { v: 'card', t: '知识卡' }, { v: 'real', t: '高考真题' }];
+    var SRCS = [{ v: '', t: '全部' }, { v: 'card', t: '知识卡' }, { v: 'real', t: '高考真题' },
+                { v: 'extra', t: '经典 / 材料' }];
     var LVS = [{ v: '', t: '全部' }, { v: '初中', t: '初中' }, { v: '高中', t: '高中' }];
     var TYPES = [{ v: '', t: '全部' }, { v: 'choice', t: '选择题' }, { v: 'short', t: '简答题' }];
     function scoreOf(it) {
@@ -17329,8 +17332,14 @@ body.climate-layer-on #tools{z-index:44}
     function pool() {
       if (!bank) return [];
       return bank.items.filter(function (it) {
-        if (F.src === 'real' && it.cat !== '真题') return false;
-        if (F.src === 'card' && it.cat === '真题') return false;
+        /* 三档来源：知识卡随堂题 / 高考真题 / 经典题型与材料分析。
+           后两档都在 real.json 里，只能靠 cat 区分 —— 原来只认 '真题'，
+           新加的经典题型和材料题会被算进"知识卡"，筛选就串了。 */
+        var isReal = it.cat === '真题';
+        var isExtra = (it.cat === '经典题型' || it.cat === '材料分析');
+        if (F.src === 'real' && !isReal) return false;
+        if (F.src === 'card' && (isReal || isExtra)) return false;
+        if (F.src === 'extra' && !isExtra) return false;
         if (F.lv && it.band !== F.lv) return false;
         if (F.theme && it.theme !== F.theme) return false;
         if (F.type && it.type !== F.type) return false;
@@ -17398,9 +17407,12 @@ body.climate-layer-on #tools{z-index:44}
       var jr = 0, sr = 0;
       bank.items.forEach(function (it) { if (it.band === '高中') sr++; else jr++; });
       subEl.textContent = '题库 ' + bank.items.length + ' 题 · 知识卡 ' + (bank.nCard || 0) +
-        ' · 高考真题 ' + (bank.nReal || 0);
+        ' · 高考真题 ' + (bank.nReal || 0) +
+        (bank.nExtra ? ' · 经典题型与材料 ' + bank.nExtra : '');
       chipRow(fSrc, SRCS, 'src', countBy(function (it) {
-        return it.cat === '真题' ? 'real' : 'card';
+        if (it.cat === '真题') return 'real';
+        if (it.cat === '经典题型' || it.cat === '材料分析') return 'extra';
+        return 'card';
       }));
       chipRow(fLv, LVS, 'lv', countBy(function (it) { return it.band; }));
       chipRow(fTheme, themeList(), 'theme', null);
@@ -17482,6 +17494,17 @@ body.climate-layer-on #tools{z-index:44}
       if (!t) return '';
       return t.replace(/[ \t]*([①②③④⑤⑥])/g, function (m, c, off) {
         return off === 0 ? c : '\n' + c;
+      })
+    }
+
+    /* 材料分析题在源文本里是"…比例。材料二　长期…"这样连写的，中间没有空格，
+       光靠 splitEnum 的空白规则拆不开。这里单独处理材料：每个"材料N"前断行，
+       开头的那个不动。不塞进 splitEnum 是因为题干也走那个函数，
+       题干里出现"材料"两字不该被断行。 */
+    function splitMat(t) {
+      if (!t) return '';
+      return t.replace(/材料([一二三四五六])/g, function (m, c, off) {
+        return off === 0 ? m : '\n' + m;
       });
     }
 
@@ -17496,7 +17519,7 @@ body.climate-layer-on #tools{z-index:44}
       tag(it.type === 'choice' ? '选择题' : '简答题');
       tag('掌握分 ' + scoreOf(it).toFixed(1));
       if (matEl) {
-        if (it.material) { matEl.textContent = splitEnum(it.material); matEl.hidden = false; }
+        if (it.material) { matEl.textContent = splitMat(splitEnum(it.material)); matEl.hidden = false; }
         else { matEl.textContent = ''; matEl.hidden = true; }
       }
       qEl.textContent = splitEnum(it.q);
