@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-26-G">
+<meta name="build" content="2026-11-26-H">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -883,13 +883,13 @@
 
   .ex-shell{display:flex;height:100vh;height:100dvh}
   /* ---------- 答题卡：只在做题页出现，左边缘一条竖栏 ---------- */
-  .ex-anscard{display:none;flex:0 0 auto;width:62px;padding:14px 6px;overflow-y:auto;
+  .ex-anscard{display:none;flex:0 0 auto;width:96px;padding:16px 8px;overflow-y:auto;
     border-right:1px solid rgba(20,24,31,.08);background:#FCFCFD;
     scrollbar-width:none}
   .ex-anscard::-webkit-scrollbar{display:none}
   #exam[data-page="run"] .ex-anscard{display:block}
-  .ex-anscard .cn{display:grid;grid-template-columns:1fr 1fr;gap:5px}
-  .ex-cn{font:inherit;font-size:11.5px;line-height:1;padding:8px 0;border-radius:6px;
+  .ex-anscard .cn{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+  .ex-cn{font:inherit;font-size:12.5px;line-height:1;padding:11px 0;border-radius:7px;
     border:1px solid rgba(20,24,31,.14);background:#fff;color:#4A5568;cursor:pointer;
     transition:none;font-variant-numeric:tabular-nums}
   .ex-cn:hover{border-color:rgba(20,24,31,.34)}
@@ -1054,9 +1054,11 @@
     cursor:pointer;transition:none;-webkit-tap-highlight-color:transparent}
   .ex-start:hover{background:#000;border-color:#000}
   .ex-start:disabled{background:#E3E6EA;border-color:#E3E6EA;color:#8A93A1;cursor:default}
-  .ex-nc{display:inline-flex;align-items:center;gap:6px;margin-left:8px}
-  .ex-nc-in{width:66px;font:inherit;font-size:13px;padding:7px 9px;border-radius:8px;
-    border:1px solid rgba(20,24,31,.18);background:#fff;color:#14181F;text-align:center}
+  .ex-nc{display:inline-flex;align-items:center;gap:5px;margin:0 0 0 2px}
+  .ex-nc-in{width:54px;font:inherit;font-size:13px;padding:7px 6px;border-radius:999px;
+    border:1px solid rgba(20,24,31,.22);background:#fff;color:#14181F;text-align:center;
+    -moz-appearance:textfield}
+  .ex-nc-in::-webkit-outer-spin-button,.ex-nc-in::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
   .ex-nc-in:focus{outline:none;border-color:rgba(20,24,31,.45)}
   .ex-nc-t{font-size:12.5px;color:#7A8494}
   .ex-quick{display:flex;gap:9px;margin-top:9px}
@@ -17495,6 +17497,9 @@ body.climate-layer-on #tools{z-index:44}
       /* 选了「自定义」就在同一行后面挂个数字框，输入即生效（不重渲染，
          否则每敲一个字符焦点就丢）。 */
       if (F.n === 'custom') {
+        /* 必须挂在 chips 容器**内部**：chipRow 每次重建都会清空这个容器，
+           挂到外面的话每渲染一次就多一个输入框（点一下"自定义"长一个，
+           退出去再进来又长几个）。 */
         var ncWrap = el('span', 'ex-nc');
         var ncIn = document.createElement('input');
         ncIn.type = 'number';
@@ -17507,12 +17512,12 @@ body.climate-layer-on #tools{z-index:44}
           var v = parseInt(ncIn.value, 10);
           F.nCustom = Math.max(1, Math.min(200, isNaN(v) ? 20 : v));
           renderSetup();
-          var again = fN.parentNode.querySelector('.ex-nc-in');
+          var again = fN.querySelector('.ex-nc-in');
           if (again) { again.focus(); again.select(); }
         });
         ncWrap.appendChild(ncIn);
         ncWrap.appendChild(el('span', 'ex-nc-t', '题'));
-        fN.parentNode.insertBefore(ncWrap, fN.nextSibling);
+        fN.appendChild(ncWrap);
       }
       cntEl.innerHTML = '共 <b>' + list.length + '</b> 题可选';
       if (!list.length) {
