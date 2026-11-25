@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-26-A">
+<meta name="build" content="2026-11-26-B">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -1041,7 +1041,7 @@
      —— 选择题实测顶 61~121px，简答题更多。现在内容只往下长，题目一动不动。 */
   /* 题干列从 760 收到 660：两侧的题图才放得下（1440 屏上从 296 涨到 360），
      660 对 16.5px 的选项来说仍然宽松。 */
-  .ex-stage{display:grid;grid-template-columns:1fr minmax(0,660px) 1fr;
+  .ex-stage{display:grid;grid-template-columns:1fr minmax(0,clamp(660px,44vw,820px)) 1fr;
     gap:clamp(16px,2vw,36px);align-items:start;min-height:100%}
   .ex-col{min-width:0;padding:clamp(24px,9vh,92px) 0 24px}
   /* 题图：和题干顶端对齐（同一条留白），宽度吃满两侧空档。
@@ -1075,6 +1075,12 @@
   .ex-mat[hidden]{display:none}
   .ex-q{font-size:20px;line-height:1.8;margin:0 0 20px;color:#14181F;font-weight:500;
     white-space:pre-line}
+  @media (min-width:1700px){
+    .ex-mat{font-size:16px}
+    .ex-q{font-size:22px}
+    .ex-opt{font-size:18px}
+    .ex-exp p{font-size:15.5px}
+  }
   .ex-opts{display:flex;flex-direction:column;gap:9px}
   .ex-opt{display:flex;gap:11px;align-items:center;width:100%;text-align:left;
     font:inherit;font-size:16.5px;line-height:1.55;min-height:54px;padding:13px 15px;
