@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-25-G">
+<meta name="build" content="2026-11-25-H">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -917,16 +917,17 @@
   /* 这里原来挂了一层 backdrop-filter:blur(22px) saturate(1.5)。底子是一块平滑的
      径向渐变，糊它看不出差别，但浏览器每次重建这个图层（进出答题页）都会先按
      不透明出一帧——照片区那下"亮白"有一半是它。删掉，观感不变、还省一次全屏快照。 */
-  /* 图集不再铺微光骨架：照片基本是命中缓存秒开的，骨架反而比空框更抢眼，
-     进/出答题页时那一下"亮白"就是它闪的（外加相框 backdrop-filter 重建图层）。
-     空档期用一块深色暗垫——照片淡入时先压在暗底上，观感比白底跳一下顺。 */
+  /* 图集不铺微光骨架（那层扫光才是"亮白一下"的元凶）。空档期留一块安静的
+     浅灰：比白纸暗一档，不跳；深色垫试过，加载慢的时候整块像黑屏，更吓人。 */
   .ex-g{position:relative;width:100%;height:100%;border-radius:10px;
-    overflow:hidden;background:#1B2027;cursor:zoom-in;
+    overflow:hidden;background:#E7EAEE;cursor:zoom-in;
+    opacity:0;transition:opacity .22s ease}
     box-shadow:0 1px 5px rgba(9,13,19,.32),
                inset 0 0 0 1px rgba(255,255,255,.5),
                inset 0 3px 12px rgba(9,13,19,.2)}
   .ex-g-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
-    opacity:0;transition:opacity .7s ease;background:#1B2027}
+    opacity:0;transition:opacity .7s ease;background:#E7EAEE}
+  .ex-g.on{opacity:1}
   .ex-g-img.on{opacity:1}
   .ex-g-tag{position:absolute;left:14px;top:14px;font-size:10.5px;letter-spacing:.16em;
     padding:5px 10px;border-radius:6px;background:rgba(255,255,255,.78);
@@ -945,6 +946,8 @@
     -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
   .ex-g-next:hover{background:#fff;color:#000;border-color:#fff}
   .ex-g-next:active{transform:scale(.92);background:#fff}
+  /* 换图要等一两百毫秒：按钮先暗一格，手一按就有动静 */
+  .ex-g-next.busy{opacity:.42}
 
   /* 点照片放大看：深色幕 + 大图 + 名称，点背景/×/Esc 关 */
   #ex-lb{position:fixed;inset:0;z-index:96;background:rgba(8,10,14,.93);
@@ -17430,7 +17433,9 @@ body.climate-layer-on #tools{z-index:44}
       tag('掌握分 ' + scoreOf(it).toFixed(1));
       qEl.textContent = it.q;
       optsEl.textContent = '';
-      showFig(it);
+      if (figREl) figREl.textContent = '';
+      if (figLEl) figLEl.textContent = '';
+      if (it.figure) showFig(it, 'L');     // 真题自带材料图（暂时没有题目用）
 
       if (it.type === 'choice') {
         (it.opts || []).forEach(function (txt2, i) {
@@ -17490,6 +17495,7 @@ body.climate-layer-on #tools{z-index:44}
       marks[at] = { pick: i, ok: ok };
       record(it, ok);
       showExp(it);
+      showFig(it, 'R');                    // 解析出来了，图跟着解析一起给
       nextEl.classList.add('pri');
     }
 
@@ -17515,6 +17521,7 @@ body.climate-layer-on #tools{z-index:44}
       optsEl.appendChild(a);
       extraEl.textContent = '';
       showExp(it);
+      showFig(it, 'R');
       if (review) {
         var mk = marks[at];
         markLine(mk ? (mk.ok ? '已记为答对' : '已记为答错 · 已进错题本') : '这一题本组没有作答');
@@ -17579,6 +17586,7 @@ body.climate-layer-on #tools{z-index:44}
         nodes[it.ans].querySelector('.mk').textContent = '正确答案';
         if (!mk.ok && mk.pick >= 0) nodes[mk.pick].querySelector('.mk').textContent = '你的选择';
         showExp(it);
+        showFig(it, 'R');
       } else {
         revealShort(true);
       }
@@ -17652,15 +17660,22 @@ body.climate-layer-on #tools{z-index:44}
       return FIG_P;
     }
 
-    function showFig(it) {
-      if (!figLEl) return;
-      figLEl.textContent = '';            // 上一题的图不能留下来顶替这一题
+    /* 题图分两种，走两个槽：
+       · 题目自带的材料图（真题里那种"读图回答"，字段 it.figure）—— 答题前就得给，
+         放左侧；
+       · 知识卡配的解析图（现在这 13 张）—— 真实考试的选择题基本不配图，
+         答题时就摆出来不像卷子，所以只在出解析时溜到右侧，帮你看懂为什么。
+       两种都没有就整块留空，不占位。 */
+    function showFig(it, where) {
+      var box = (where === 'L') ? figLEl : figREl;
+      if (!box) return;
+      box.textContent = '';               // 上一题的图不能留下来顶替这一题
       if (!it || !it.card) return;
       loadFigIndex().then(function (map) {
         if (!map[it.card] || qs[at] !== it) return;
         var put = function (svg) {
           if (qs[at] !== it) return;
-          figLEl.innerHTML = svg;
+          box.innerHTML = svg;
         };
         if (figCache[it.card]) { put(figCache[it.card]); return; }
         var url = 'assets/bank/fig/' + it.card + '.svg' +
@@ -17679,7 +17694,33 @@ body.climate-layer-on #tools{z-index:44}
        图片来自 data/cards.json 的 landmark_images（每国 6 张，取第一张）。
        两层 <img> 交叉淡入：旧图这一帧完全不动，新图 decode 完再显形 ——
        档案卡换图那三条铁律照旧（object-fit 钉在 CSS 里、底色不透明、load≠能画）。 */
-    var gal = { list: [], i: 0, timer: 0, flip: false, ready: false, cur: '' };
+    var gal = { list: [], i: 0, timer: 0, flip: false, ready: false, cur: '', shown: 0 };
+
+    /* 换图不要"随机抽"——随机抽会重复。这里是一副牌：
+       洗一次，按顺序往下发，发完再洗（新牌局避开刚看过的这一批）。
+       另外把最近看过的国家记在 localStorage：刷新页面重进答题模式，
+       优先发没看过的，看过的一律排在后面。 */
+    var GKEY = 'atlas.gal.v1';
+    var gSeen = [];
+    try {
+      var gRaw = localStorage.getItem(GKEY);
+      if (gRaw) gSeen = (JSON.parse(gRaw) || {}).seen || [];
+    } catch (e) {}
+    function rememberSeen(iso) {
+      if (!iso) return;
+      gSeen.push(iso);
+      if (gSeen.length > 40) gSeen = gSeen.slice(-40);   // 约 40 张≈近期记忆
+      try { localStorage.setItem(GKEY, JSON.stringify({ seen: gSeen })); } catch (e) {}
+    }
+    /* 把刚看过的甩到队尾，队头全是没见过的 */
+    function orderDeck(list, avoid) {
+      var fresh = [], old = [];
+      list.forEach(function (it) {
+        if (avoid && avoid.indexOf(it.iso) >= 0) old.push(it); else fresh.push(it);
+      });
+      old.sort(function (a, b) { return avoid.indexOf(a.iso) - avoid.indexOf(b.iso); });
+      return fresh.concat(old);
+    }
 
     function buildGallery() {
       if (!CARDS || !Object.keys(CARDS).length) return false;
@@ -17688,12 +17729,19 @@ body.climate-layer-on #tools{z-index:44}
         var d = CARDS[iso];
         var im = (d && d.landmark_images) || [];
         if (!im.length || !d.name_zh || !im[0].url) return;
-        list.push({ iso: iso, name: d.name_zh, url: im[0].url, cap: im[0].caption_zh || '' });
+        list.push({ iso: iso, name: d.name_zh, url: im[0].url, v: im[0].v,
+                    cap: im[0].caption_zh || '' });
       });
       if (list.length < 4) return false;
-      gal.list = shuffle(list);
+      gal.list = orderDeck(shuffle(list), gSeen);   // 洗牌之后再把看过的挪到后面
       gal.i = 0;
       gal.ready = true;
+      /* 头两张现在就取：用户点开答题模式时照片已经在缓存里，
+         那块浅灰底色一帧都不会露出来。 */
+      for (var k = 0; k < 2 && k < gal.list.length; k++) {
+        var it0 = gal.list[k];
+        if (!it0._pre) { it0._pre = new Image(); it0._pre.src = assetSrc(it0.url, it0.v); }
+      }
       return true;
     }
 
@@ -17703,7 +17751,7 @@ body.climate-layer-on #tools{z-index:44}
       if (!gal.ready) return;
       for (var k = 1; k <= 2; k++) {
         var it = gal.list[(gal.i + k) % gal.list.length];
-        if (it && !it._pre) { it._pre = new Image(); it._pre.src = it.url; }
+        if (it && !it._pre) { it._pre = new Image(); it._pre.src = assetSrc(it.url, it.v); }
       }
     }
 
@@ -17732,6 +17780,10 @@ body.climate-layer-on #tools{z-index:44}
           gName.textContent = it.name;
           gSub.textContent = it.cap;
           gal.fails = 0;
+          gal.shown++;
+          rememberSeen(it.iso);
+          if (gBox) gBox.classList.add('on');     // 第一张到位才把相框里的画露出来
+          if (gNext) gNext.classList.remove('busy');
           preloadNext();
         };
         if (next.decode) next.decode().then(paint).catch(paint);
@@ -17740,22 +17792,38 @@ body.climate-layer-on #tools{z-index:44}
       /* 图片挂了就换下一张，但必须有个上限 —— 否则一个 404 就能让这里
          变成死循环，一轮接一轮地发请求。连续失败 4 张就停。 */
       next.onerror = function () {
+        /* OBS 上没有这张（新采的国家多半是 404），退回仓库里的相对路径再试一次 */
+        if (!next.__fb && next.getAttribute('src') !== it.url) {
+          next.__fb = it.url;
+          next.src = it.url + (BUILD_TAG ? '?v=' + encodeURIComponent(BUILD_TAG) : '');
+          return;
+        }
         gal.fails = (gal.fails || 0) + 1;
         if (gal.fails > 4) {
           galStop();
+          if (gNext) gNext.classList.remove('busy');
           gName.textContent = '图集暂时取不到';
           gSub.textContent = '照片加载失败，稍后再试';
+          if (gBox) gBox.classList.add('on');     // 收掉蒙层，让"取不到"这句能被看见
           return;
         }
         gal.i = (gal.i + 1) % gal.list.length;
         showShot(gal.i);
       };
-      next.src = it.url;
+      next.__fb = null;
+      next.src = assetSrc(it.url, it.v);
     }
 
     function galNext() {
       if (!gal.ready) return;
-      gal.i = (gal.i + 1) % gal.list.length;
+      if (gNext) gNext.classList.add('busy');
+      gal.i++;
+      if (gal.i >= gal.list.length) {
+        /* 一副发完：重新洗，并且把最近这 40 张全排到队尾，
+           所以同一轮答题里不会撞回上一轮刚看过的图。 */
+        gal.list = orderDeck(shuffle(gal.list.slice()), gSeen);
+        gal.i = 0;
+      }
       preloadNext();
       showShot(gal.i);
     }
@@ -17787,7 +17855,7 @@ body.climate-layer-on #tools{z-index:44}
     function openLB() {
       var it = gal.list[gal.i];
       if (!it || !lb) return;
-      lbImg.src = it.url;
+      lbImg.src = assetSrc(it.url, it.v);
       lbImg.alt = it.name + (it.cap ? '：' + it.cap : '');
       lbName.textContent = it.name;
       lbSub.textContent = it.cap || '';
@@ -17832,14 +17900,18 @@ body.climate-layer-on #tools{z-index:44}
           });
       }
       renderSetup();                     // 已加载过就立刻重画
-      if (!gal.ready) galBoot(); else galStart();
+      if (!gal.ready) galBoot();
+      else if (gal.shown) { galStart(); galNext(); }   // 重进一次就换一张，别老是同一张
+      else galStart();
     }
     function toSetup() {
       runEl.hidden = true; doneEl.hidden = true; setupEl.hidden = false;
       setPage('set');
       leftEl.scrollTop = 0;
       renderSetup();
-      if (!gal.ready) galBoot(); else galStart();
+      if (!gal.ready) galBoot();
+      else if (gal.shown) { galStart(); galNext(); }
+      else galStart();
     }
     function leave() {
       closeLB();
