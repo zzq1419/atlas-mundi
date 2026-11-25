@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-26-E">
+<meta name="build" content="2026-11-26-F">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -1073,6 +1073,9 @@
     font-size:15px;line-height:2;color:#4A5568;letter-spacing:.1px;
     white-space:pre-wrap;overflow-wrap:anywhere}
   .ex-mat[hidden]{display:none}
+  /* 材料配图：线图居多，白底、细边框，别用阴影压得太重 */
+  .ex-mat-fig{display:block;max-width:100%;height:auto;margin:12px 0 2px;
+    border-radius:4px;background:#fff}
   .ex-q{font-size:20px;line-height:1.8;margin:0 0 20px;color:#14181F;font-weight:500;
     white-space:pre-line}
   @media (min-width:1700px){
@@ -17519,7 +17522,21 @@ body.climate-layer-on #tools{z-index:44}
       tag(it.type === 'choice' ? '选择题' : '简答题');
       tag('掌握分 ' + scoreOf(it).toFixed(1));
       if (matEl) {
-        if (it.material) { matEl.textContent = splitMat(splitEnum(it.material)); matEl.hidden = false; }
+        if (it.material) {
+          matEl.textContent = splitMat(splitEnum(it.material));
+          matEl.hidden = false;
+          /* 真题的材料图是位图（扫描件/线图），跟知识卡题那种内联 SVG 不是一回事，
+             所以直接挂在材料块末尾，跟着材料一起走 —— 卷面上图也就在材料下面。
+             每次渲染都重建，上一题的图不会留下来。 */
+          if (it.figure) {
+            var fi = document.createElement('img');
+            fi.className = 'ex-mat-fig';
+            fi.src = it.figure;
+            fi.alt = it.figureAlt || '材料配图';
+            fi.loading = 'eager';
+            matEl.appendChild(fi);
+          }
+        }
         else { matEl.textContent = ''; matEl.hidden = true; }
       }
       qEl.textContent = splitEnum(it.q);
