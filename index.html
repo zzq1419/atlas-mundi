@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-25-B">
+<meta name="build" content="2026-11-25-C">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -1062,7 +1062,7 @@
   .ex-opt.dim{opacity:.42;cursor:default}
 
   /* 简答题看完参考答案：只要两个按钮，绿勾 / 红叉，不用再读一行字 */
-  .ex-judge{display:flex;gap:12px;margin:16px 0 0}
+  .ex-judge{display:flex;justify-content:center;gap:18px;margin:20px 0 0}
   .ex-judge button{width:54px;height:54px;padding:0;border-radius:15px;
     display:flex;align-items:center;justify-content:center;
     cursor:pointer;transition:none;-webkit-tap-highlight-color:transparent}
@@ -1080,7 +1080,7 @@
   .ex-judge .no:disabled:not(.picked){background:#FCEFF0;
     border-color:rgba(176,53,63,.32);color:#B0353F}
   .ex-judge button.picked:disabled{opacity:1;box-shadow:0 0 0 3px rgba(20,24,31,.08)}
-  .ex-marked{margin:12px 0 0;font-size:12.5px;color:#7A8494}
+  .ex-marked{margin:12px 0 0;font-size:12.5px;color:#7A8494;text-align:center}
 
   .ex-reveal{margin:0;font:inherit;font-size:13.5px;padding:10px 18px;border-radius:8px;
     border:1px solid rgba(20,24,31,.2);background:#fff;color:#4C5666;
