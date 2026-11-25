@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-25-A">
+<meta name="build" content="2026-11-25-B">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -868,24 +868,18 @@
      颜色只留给判题（绿对 / 红错）。
      选题页左 38.2% : 右 61.8%（用户要的 0.618 : 1）；
      答题页不分栏，题目落在页面正中，两侧空出来留给题图。 */
-  /* 深色地球 → 浅色答题，中间必须有一下柔和提亮：从近黑直接切纯白会"啪"一下
-     刺眼。所以 #exam 常驻 DOM，靠 opacity 淡入（340ms）；转场结束才把地球
-     那套 DOM 收起来（body.exam-settled）。退出反过来：先让地球回来 —— 这时
-     白层还不透明，露出来是自然的 —— 再把白层淡掉。 */
-  #exam{position:fixed;inset:0;z-index:92;background:#fff;
-    color:#14181F;overflow:hidden;-webkit-font-smoothing:antialiased;
-    opacity:0;visibility:hidden;pointer-events:none;
-    transition:opacity .34s cubic-bezier(.4,0,.2,1),visibility 0s linear .34s}
+  /* 进出直接切，不做淡入淡出（用户：转场不要了）。
+     一次性把地球那套 DOM 收掉，白层同时出现，没有中间态。 */
+  #exam{position:fixed;inset:0;z-index:92;background:#fff;display:none;
+    color:#14181F;overflow:hidden;-webkit-font-smoothing:antialiased}
   #exam [hidden]{display:none !important}
   body.exam-mode{overflow:hidden}
-  body.exam-mode #exam{opacity:1;visibility:visible;pointer-events:auto;
-    transition:opacity .34s cubic-bezier(.4,0,.2,1),visibility 0s}
-  /* 这两个压在白层上面（21 万 / 99999），必须立刻收，否则转场时会浮在白色上 */
+  body.exam-mode #exam{display:block}
   body.exam-mode #rotate-hint,body.exam-mode #build-tag{display:none !important}
-  body.exam-settled #topbar,body.exam-settled #tools,body.exam-settled #globe-stage,
-  body.exam-settled #q-res,body.exam-settled .search-wrap,body.exam-settled #detail,
-  body.exam-settled .kit-panel,body.exam-settled #layer-legend,
-  body.exam-settled #time-pins,body.exam-settled #tip{display:none !important}
+  body.exam-mode #topbar,body.exam-mode #tools,body.exam-mode #globe-stage,
+  body.exam-mode #q-res,body.exam-mode .search-wrap,body.exam-mode #detail,
+  body.exam-mode .kit-panel,body.exam-mode #layer-legend,
+  body.exam-mode #time-pins,body.exam-mode #tip{display:none !important}
 
   .ex-shell{display:flex;height:100vh;height:100dvh}
   /* 滚动条彻底不画（选题页本来就要"刚好放下"，画出来反而提示"还有东西没看到"）；
@@ -928,7 +922,7 @@
     background-size:220% 100%;animation:exSkel 1.5s ease-in-out infinite}
   @keyframes exSkel{0%{background-position:112% 0}100%{background-position:-112% 0}}
   .ex-g{position:relative;width:100%;height:100%;border-radius:10px;
-    overflow:hidden;background:#DDE1E8;
+    overflow:hidden;background:#DDE1E8;cursor:zoom-in;
     box-shadow:0 1px 5px rgba(9,13,19,.32),
                inset 0 0 0 1px rgba(255,255,255,.5),
                inset 0 3px 12px rgba(9,13,19,.2)}
@@ -944,14 +938,38 @@
     pointer-events:none}
   .ex-g-cap b{display:block;font-size:25px;font-weight:600;color:#fff;letter-spacing:.01em}
   .ex-g-cap span{display:block;font-size:13px;color:rgba(255,255,255,.74);margin-top:5px}
-  .ex-g-next{position:absolute;right:14px;top:14px;width:42px;height:42px;
-    border-radius:50%;border:1px solid rgba(255,255,255,.75);
-    background:rgba(255,255,255,.82);color:#1B222C;font-size:17px;line-height:1;
+  .ex-g-next{position:absolute;right:12px;top:12px;width:32px;height:32px;
+    border-radius:50%;border:1px solid rgba(255,255,255,.7);
+    background:rgba(255,255,255,.78);color:#1B222C;font-size:14px;line-height:1;
     cursor:pointer;transition:none;
-    box-shadow:0 2px 10px rgba(9,13,19,.22);
+    box-shadow:0 1px 6px rgba(9,13,19,.18);
     -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
   .ex-g-next:hover{background:#fff;color:#000;border-color:#fff}
   .ex-g-next:active{transform:scale(.92);background:#fff}
+
+  /* 点照片放大看：深色幕 + 大图 + 名称，点背景/×/Esc 关 */
+  #ex-lb{position:fixed;inset:0;z-index:96;background:rgba(8,10,14,.93);
+    display:flex;align-items:center;justify-content:center;
+    padding:clamp(20px,4vw,56px)}
+  #ex-lb[hidden]{display:none !important}
+  #ex-lb-img{max-width:100%;max-height:calc(100dvh - 150px);
+    object-fit:contain;border-radius:6px;box-shadow:0 30px 70px rgba(0,0,0,.6)}
+  .ex-lb-cap{position:absolute;left:0;right:0;bottom:clamp(18px,4vh,44px);
+    text-align:center;pointer-events:none}
+  .ex-lb-cap b{display:block;font-size:20px;font-weight:600;color:#F4F7FB}
+  .ex-lb-cap span{display:block;font-size:13px;color:rgba(226,236,248,.7);margin-top:5px}
+  .ex-lb-x{position:absolute;right:20px;top:18px;width:38px;height:38px;
+    border-radius:50%;border:1px solid rgba(255,255,255,.24);
+    background:rgba(255,255,255,.1);color:#EAF1FA;font-size:19px;line-height:1;
+    cursor:pointer;transition:none}
+  .ex-lb-x:hover{background:rgba(255,255,255,.2)}
+  .ex-lb-nav{position:absolute;top:50%;transform:translateY(-50%);
+    width:42px;height:42px;border-radius:50%;
+    border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.1);
+    color:#EAF1FA;font-size:18px;line-height:1;cursor:pointer;transition:none}
+  .ex-lb-nav:hover{background:rgba(255,255,255,.2)}
+  .ex-lb-nav.l{left:18px}
+  .ex-lb-nav.r{right:18px}
 
   /* 选题页要"刚好放得下"：整列撑满视口，5 组筛选在中间按剩余高度均分，
      计数/开始/错题本贴底 —— 不留一段谁也没用的空白，也永远不出滚动条 */
@@ -1018,7 +1036,7 @@
      —— 选择题实测顶 61~121px，简答题更多。现在内容只往下长，题目一动不动。 */
   .ex-stage{display:grid;grid-template-columns:1fr minmax(0,760px) 1fr;
     gap:clamp(18px,2.6vw,44px);align-items:start;min-height:100%}
-  .ex-col{min-width:0;padding:clamp(30px,15vh,148px) 0 24px}
+  .ex-col{min-width:0;padding:clamp(24px,9vh,92px) 0 24px}
   .ex-fig{min-width:0;align-self:stretch}
   .ex-meta{display:flex;flex-wrap:wrap;gap:5px;margin:0 0 13px}
   .ex-tag{font-size:11px;padding:3px 8px;border-radius:4px;
@@ -1042,6 +1060,27 @@
   .ex-opt.bad{border-color:rgba(179,53,63,.5);background:#FCEFF0;color:#A82B36}
   .ex-opt.bad .k,.ex-opt.bad .mk{color:#A82B36}
   .ex-opt.dim{opacity:.42;cursor:default}
+
+  /* 简答题看完参考答案：只要两个按钮，绿勾 / 红叉，不用再读一行字 */
+  .ex-judge{display:flex;gap:12px;margin:16px 0 0}
+  .ex-judge button{width:54px;height:54px;padding:0;border-radius:15px;
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;transition:none;-webkit-tap-highlight-color:transparent}
+  .ex-judge button svg{width:25px;height:25px;fill:none;stroke:currentColor;
+    stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+  .ex-judge .ok{background:#12805A;border:1px solid #12805A;color:#fff}
+  .ex-judge .no{background:#B0353F;border:1px solid #B0353F;color:#fff}
+  .ex-judge button:hover{filter:brightness(1.1)}
+  .ex-judge button:active{transform:scale(.93)}
+  .ex-judge button:disabled{cursor:default;filter:none}
+  /* 没选的那颗不要留成一块发白的实心色（白图标直接看不见），
+     退成同色的浅底 + 同色图标，一眼还能认出是"叉" */
+  .ex-judge .ok:disabled:not(.picked){background:#EFF8F3;
+    border-color:rgba(18,128,90,.32);color:#12805A}
+  .ex-judge .no:disabled:not(.picked){background:#FCEFF0;
+    border-color:rgba(176,53,63,.32);color:#B0353F}
+  .ex-judge button.picked:disabled{opacity:1;box-shadow:0 0 0 3px rgba(20,24,31,.08)}
+  .ex-marked{margin:12px 0 0;font-size:12.5px;color:#7A8494}
 
   .ex-reveal{margin:0;font:inherit;font-size:13.5px;padding:10px 18px;border-radius:8px;
     border:1px solid rgba(20,24,31,.2);background:#fff;color:#4C5666;
@@ -1105,7 +1144,6 @@
     .ex-stage{display:block;align-content:normal}
     .ex-fig{display:none}
     .ex-col{padding:18px 0 8px}
-    #ex-extra{min-height:0}
     .ex-q{font-size:17.5px;line-height:1.8}
     .ex-opt{font-size:16px;min-height:50px;padding:12px 14px}
     .ex-kbd{display:none}
@@ -3389,7 +3427,7 @@ body.climate-layer-on #tools{z-index:44}
           <div class="ex-f"><span>学段</span><div class="ex-chips" id="f-lv"></div></div>
           <div class="ex-f"><span>主题</span><div class="ex-chips" id="f-theme"></div></div>
           <div class="ex-f"><span>题型</span><div class="ex-chips" id="f-type"></div></div>
-          <div class="ex-f"><span>难度（0–10，掌握到几分能拿下）</span>
+          <div class="ex-f"><span>难度</span>
             <div class="ex-range">
               <input class="ex-num" id="f-dmin" type="number" min="0" max="10"
                      step="0.1" value="0" inputmode="decimal" aria-label="难度下限">
@@ -3471,6 +3509,15 @@ body.climate-layer-on #tools{z-index:44}
         </div>
       </div>
     </aside>
+  </div>
+
+  <!-- 图集放大层：点相框里的照片打开，点背景 / × / Esc 关闭，←→ 换张 -->
+  <div id="ex-lb" hidden aria-label="放大的图集照片">
+    <img id="ex-lb-img" alt="">
+    <div class="ex-lb-cap"><b id="ex-lb-name"></b><span id="ex-lb-sub"></span></div>
+    <button class="ex-lb-x" id="ex-lb-x" type="button" aria-label="关闭">&#215;</button>
+    <button class="ex-lb-nav l" id="ex-lb-prev" type="button" aria-label="上一张">&#8249;</button>
+    <button class="ex-lb-nav r" id="ex-lb-next" type="button" aria-label="下一张">&#8250;</button>
   </div>
 </div>
 
@@ -17161,6 +17208,7 @@ body.climate-layer-on #tools{z-index:44}
     var fLv = $('f-lv'), fTheme = $('f-theme'), fType = $('f-type'), fN = $('f-n');
     var dminEl = $('f-dmin'), dmaxEl = $('f-dmax'), dHint = $('ex-dhint');
     var skelEl = $('ex-g-skel');
+    var lb = $('ex-lb'), lbImg = $('ex-lb-img'), lbName = $('ex-lb-name'), lbSub = $('ex-lb-sub');
     var wrongBtn = $('ex-wrongbtn'), favBtn = $('ex-favbtn');
     var barEl = $('ex-bar'), idxEl = $('ex-idx'), metaEl = $('ex-meta'), qEl = $('ex-q');
     var optsEl = $('ex-opts'), extraEl = $('ex-extra'), favEl = $('ex-fav');
@@ -17350,6 +17398,9 @@ body.climate-layer-on #tools{z-index:44}
       mainEl.scrollTop = 0;
     }
 
+    var TICK_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+    var CROSS_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/></svg>';
+
     function tag(txt, gold) {
       metaEl.appendChild(el('span', 'ex-tag' + (gold ? ' k' : ''), txt));
     }
@@ -17443,10 +17494,14 @@ body.climate-layer-on #tools{z-index:44}
         extraEl.appendChild(el('p', 'ex-src', mk ? (mk.ok ? '本组已记为答对' : '本组已记为答错，已进错题本') : '这一题本组没有作答'));
         return;
       }
-      var row = el('div', 'ex-quick');
-      var b1 = el('button', '', '我答对了');
-      var b2 = el('button', '', '没答上来');
+      var row = el('div', 'ex-judge');
+      var b1 = el('button', 'ok');
+      var b2 = el('button', 'no');
       b1.type = 'button'; b2.type = 'button';
+      b1.setAttribute('aria-label', '我答对了');
+      b2.setAttribute('aria-label', '没答上来');
+      b1.innerHTML = TICK_SVG;
+      b2.innerHTML = CROSS_SVG;
       b1.addEventListener('click', function () { selfJudge(true, b1, b2); });
       b2.addEventListener('click', function () { selfJudge(false, b1, b2); });
       row.appendChild(b1); row.appendChild(b2);
@@ -17458,8 +17513,14 @@ body.climate-layer-on #tools{z-index:44}
       marks[at] = { pick: -1, ok: ok };
       record(it, ok);
       b1.disabled = true; b2.disabled = true;
-      b1.textContent = ok ? '已记为答对' : '我答对了';
-      b2.textContent = ok ? '没答上来' : '已记为答错';
+      (ok ? b1 : b2).classList.add('picked');     // 选中的那颗保持满色，另一颗淡下去
+      if (!extraEl.querySelector('.ex-marked')) {
+        /* 插在"解析"前面：结果紧跟着两个按钮，别落到来源下面去 */
+        var mkp = el('p', 'ex-marked',
+          ok ? '本组已记为答对' : '本组已记为答错，已进错题本');
+        var exp = extraEl.querySelector('.ex-exp');
+        if (exp) extraEl.insertBefore(mkp, exp); else extraEl.appendChild(mkp);
+      }
       nextEl.classList.add('pri');
     }
 
@@ -17648,21 +17709,46 @@ body.climate-layer-on #tools{z-index:44}
       }, 300);
     }
 
+    /* ---- 点照片放大看 ----
+       大图直接用图集当前那张的 URL（已经预取过，不会再等）。
+       打开时把自动播放停掉，否则大图看着看着底下标题就换了。 */
+    function openLB() {
+      var it = gal.list[gal.i];
+      if (!it || !lb) return;
+      lbImg.src = it.url;
+      lbImg.alt = it.name + (it.cap ? '：' + it.cap : '');
+      lbName.textContent = it.name;
+      lbSub.textContent = it.cap || '';
+      lb.hidden = false;
+      galStop();
+    }
+    function closeLB() {
+      if (!lb || lb.hidden) return;
+      lb.hidden = true;
+      /* 回到答题页就不该再跑定时器；在选题页才恢复轮播 */
+      if (document.body.classList.contains('exam-mode') && !setupEl.hidden) galStart();
+    }
+    function lbStep(d) {
+      if (!gal.ready) return;
+      gal.i = (gal.i + d + gal.list.length) % gal.list.length;
+      preloadNext();
+      showShot(gal.i);
+      var it = gal.list[gal.i];
+      if (it) {
+        lbImg.src = it.url;
+        lbImg.alt = it.name;
+        lbName.textContent = it.name;
+        lbSub.textContent = it.cap || '';
+      }
+    }
+
     /* ---- 进入 / 退出 ----
        退出是一级一级来的：答题页/结算页的"返回"只回选题页，选题页的
        "返回地球"才真的离开。原来 Escape 和退出键都直接回地球，答到一半
        想换个筛选条件就得重新进来一遍。 */
-    var _openT = 0;
     function open() {
-      /* 先把地球那套留着，让白层从透明淡上来；转场结束再收起 DOM、停渲染。
-         反过来的顺序会看到"地球先消失 → 露出黑底 → 白层再盖上来"，闪两下。 */
-      document.body.classList.remove('exam-settled');
       document.body.classList.add('exam-mode');
-      clearTimeout(_openT);
-      _openT = setTimeout(function () {
-        document.body.classList.add('exam-settled');
-        globe.examOn = true;
-      }, 360);
+      globe.examOn = true;               // 停掉地球渲染，省电也省重绘
       setupEl.hidden = false; runEl.hidden = true; doneEl.hidden = true;
       setPage('set');
       leftEl.scrollTop = 0;
@@ -17684,11 +17770,10 @@ body.climate-layer-on #tools{z-index:44}
       if (!gal.ready) galBoot(); else galStart();
     }
     function leave() {
-      clearTimeout(_openT);
-      document.body.classList.remove('exam-settled');   // 地球先回来（白层还没淡完）
+      closeLB();
+      document.body.classList.remove('exam-mode');
       globe.examOn = false;
       globe.lastMs = 0;                  // 别让停掉这段时间变成一次巨大 dtf
-      document.body.classList.remove('exam-mode');      // 白层再淡出
       galStop();
       setupEl.hidden = false; runEl.hidden = true; doneEl.hidden = true;
       renderSetup();
@@ -17709,7 +17794,24 @@ body.climate-layer-on #tools{z-index:44}
     exitEl.addEventListener('click', toSetup);      // 答题页 -> 选题页
     backEl.addEventListener('click', toSetup);      // 结算页 -> 选题页
     if (earthEl) earthEl.addEventListener('click', leave);
-    if (gNext) gNext.addEventListener('click', galNext);
+    if (gNext) gNext.addEventListener('click', function (e) {
+      e.stopPropagation();          // 别让"下一张"顺手把放大层也点开
+      galNext();
+    });
+    var gBox = document.querySelector('.ex-g');
+    if (gBox) {
+      gBox.setAttribute('title', '点击放大');
+      gBox.addEventListener('click', openLB);
+    }
+    if (lb) {
+      lb.addEventListener('click', function (e) {
+        if (e.target === lb) closeLB();          // 点背景关
+      });
+      $('ex-lb-x').addEventListener('click', closeLB);
+      $('ex-lb-prev').addEventListener('click', function (e) { e.stopPropagation(); lbStep(-1); });
+      $('ex-lb-next').addEventListener('click', function (e) { e.stopPropagation(); lbStep(1); });
+      if (lbImg) lbImg.addEventListener('click', function (e) { e.stopPropagation(); });
+    }
     againEl.addEventListener('click', function () {
       start(lastMode === 'wrong' ? 'wrong' : (lastMode === 'fav' ? 'fav' : 'set'));
     });
@@ -17737,9 +17839,15 @@ body.climate-layer-on #tools{z-index:44}
       if (!document.body.classList.contains('exam-mode')) return;
       if (e.metaKey || e.ctrlKey || e.altKey) return;
       if (e.key === 'Escape') {
+        if (lb && !lb.hidden) { closeLB(); e.preventDefault(); return; }
         /* 逐级退：先回选题页，在选题页再按才离开 */
         if (!runEl.hidden || !doneEl.hidden) toSetup(); else leave();
         e.preventDefault(); return;
+      }
+      if (lb && !lb.hidden) {
+        if (e.key === 'ArrowLeft') { lbStep(-1); e.preventDefault(); return; }
+        if (e.key === 'ArrowRight') { lbStep(1); e.preventDefault(); return; }
+        return;                     // 大图开着时别让 1–4/Enter 穿透到题目
       }
       if (runEl.hidden) return;
       var k = e.key;
