@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-25-H">
+<meta name="build" content="2026-11-25-J">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -921,24 +921,27 @@
      浅灰：比白纸暗一档，不跳；深色垫试过，加载慢的时候整块像黑屏，更吓人。 */
   .ex-g{position:relative;width:100%;height:100%;border-radius:10px;
     overflow:hidden;background:#E7EAEE;cursor:zoom-in;
-    opacity:0;transition:opacity .22s ease}
+    opacity:0;transition:opacity .22s ease;
     box-shadow:0 1px 5px rgba(9,13,19,.32),
                inset 0 0 0 1px rgba(255,255,255,.5),
                inset 0 3px 12px rgba(9,13,19,.2)}
+  /* 0.7s 太拖：名字已经换了、画还在慢慢透，看着就是"图没跟上"。
+     改成 0.3s，并且新图永远压在上面淡入（见 showShot 里的 zIndex）——
+     两层交叉淡会出现"两边都半透明"的糊，压在上面的新图直接盖住就行。 */
   .ex-g-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
-    opacity:0;transition:opacity .7s ease;background:#E7EAEE}
+    opacity:0;transition:opacity .3s ease;background:#E7EAEE}
   .ex-g.on{opacity:1}
   .ex-g-img.on{opacity:1}
-  .ex-g-tag{position:absolute;left:14px;top:14px;font-size:10.5px;letter-spacing:.16em;
+  .ex-g-tag{position:absolute;z-index:10;left:14px;top:14px;font-size:10.5px;letter-spacing:.16em;
     padding:5px 10px;border-radius:6px;background:rgba(255,255,255,.78);
     -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);
     color:#2B3440;pointer-events:none}
-  .ex-g-cap{position:absolute;left:0;right:0;bottom:0;padding:66px 24px 22px;
+  .ex-g-cap{position:absolute;z-index:10;left:0;right:0;bottom:0;padding:66px 24px 22px;
     background:linear-gradient(to top,rgba(9,13,19,.88) 26%,rgba(9,13,19,0));
     pointer-events:none}
   .ex-g-cap b{display:block;font-size:25px;font-weight:600;color:#fff;letter-spacing:.01em}
   .ex-g-cap span{display:block;font-size:13px;color:rgba(255,255,255,.74);margin-top:5px}
-  .ex-g-next{position:absolute;right:12px;top:12px;width:32px;height:32px;
+  .ex-g-next{position:absolute;z-index:11;right:12px;top:12px;width:32px;height:32px;
     border-radius:50%;border:1px solid rgba(255,255,255,.7);
     background:rgba(255,255,255,.78);color:#1B222C;font-size:14px;line-height:1;
     cursor:pointer;transition:none;
@@ -1043,9 +1046,12 @@
   .ex-col{min-width:0;padding:clamp(24px,9vh,92px) 0 24px}
   /* 题图：和题干顶端对齐（同一条留白），宽度吃满两侧空档。
      没画图的卡留空 —— 不摆占位框，免得每道题都挂着一块灰。 */
-  /* 图往题干那一侧靠：居中会把它甩到屏幕最左边，跟题目之间空出一条大沟 */
-  .ex-fig{min-width:0;align-self:stretch;display:flex;align-items:flex-start;
-    justify-content:flex-end;padding-top:calc(clamp(24px,9vh,92px) + 3px)}
+  /* 图往题干那一侧靠：居中会把它甩到屏幕最左边，跟题目之间空出一条大沟。
+     竖直方向贴底 —— 图是给"解析"配的，底边和解析底边齐平才像一组；
+     顶端对齐会把它吊在题干那一行上，跟下面的解析断开。
+     底部留 24px 是抵掉 .ex-col 的下内边距，不然会低出去一截。 */
+  .ex-fig{min-width:0;align-self:start;display:flex;align-items:flex-start;
+    justify-content:flex-end;padding:0}
   #ex-fig-r{justify-content:flex-start}
   /* 空的图位必须退出栅格（不然它会白占一列），所以列位写死在 ID 上 */
   .ex-fig:empty{display:none}
@@ -1053,7 +1059,9 @@
   #ex-fig-r{grid-column:3}
   .ex-stage .ex-col{grid-column:2}
   .ex-fig svg{width:100%;height:auto;display:block;max-width:520px;
-    border-radius:6px;box-shadow:0 1px 3px rgba(20,24,31,.06)}
+    border-radius:6px;box-shadow:0 1px 3px rgba(20,24,31,.06);
+    animation:figIn .24s ease both}
+  @keyframes figIn{from{opacity:0}to{opacity:1}}
   .ex-fig figcaption{margin:7px 2px 0;font-size:11.5px;color:#7A8494}
   .ex-meta{display:flex;flex-wrap:wrap;gap:5px;margin:0 0 13px}
   .ex-tag{font-size:11px;padding:3px 8px;border-radius:4px;
@@ -17436,6 +17444,7 @@ body.climate-layer-on #tools{z-index:44}
       if (figREl) figREl.textContent = '';
       if (figLEl) figLEl.textContent = '';
       if (it.figure) showFig(it, 'L');     // 真题自带材料图（暂时没有题目用）
+      prefetchFig(it);                     // 解析要用的图，趁答题这几秒先取好
 
       if (it.type === 'choice') {
         (it.opts || []).forEach(function (txt2, i) {
@@ -17666,6 +17675,47 @@ body.climate-layer-on #tools{z-index:44}
        · 知识卡配的解析图（现在这 13 张）—— 真实考试的选择题基本不配图，
          答题时就摆出来不像卷子，所以只在出解析时溜到右侧，帮你看懂为什么。
        两种都没有就整块留空，不占位。 */
+    function figUrl(card) {
+      return 'assets/bank/fig/' + card + '.svg' +
+        (BUILD_TAG ? '?v=' + encodeURIComponent(BUILD_TAG) : '');
+    }
+    /* 答题前就把这张卡的正图取好（只进缓存、不上屏）。
+       不预取的话，点完选项要等一个来回（实测线上 ~780ms）才见到图，
+       看着像"解析和图不是一起出的"。 */
+    function prefetchFig(it) {
+      if (!it || !it.card || figCache[it.card]) return;
+      loadFigIndex().then(function (map) {
+        if (!map[it.card] || figCache[it.card]) return;
+        fetch(figUrl(it.card), { cache: 'force-cache' })
+          .then(function (r) { return r.ok ? r.text() : Promise.reject(new Error('' + r.status)); })
+          .then(function (txt) { figCache[it.card] = txt; })
+          .catch(function () {});
+      });
+    }
+
+    /* 解析图的底边要压在"解析/来源"的下沿上：只靠 CSS 做不到 ——
+       .ex-stage 有 min-height:100%，对齐到底会跑到屏幕最下面去，
+       所以要按当时解析块的高度算一次上内边距。窄屏/换行都会变，跟着重算。 */
+    function placeFig(box) {
+      var s = box && box.querySelector('svg');
+      if (!s) return;
+      if (box === figLEl) { box.style.paddingTop = ''; return; }   // 材料图走顶端
+      var col = extraEl.parentNode;
+      var last = extraEl.lastElementChild || optsEl;
+      if (!col || !last) return;
+      var bottom = last.getBoundingClientRect().bottom;
+      var h = s.getBoundingClientRect().height;
+      var pad = Math.round(bottom - col.getBoundingClientRect().top - h);
+      box.style.paddingTop = Math.max(0, pad) + 'px';
+    }
+    var figRT = 0;
+    window.addEventListener('resize', function () {
+      clearTimeout(figRT);
+      figRT = setTimeout(function () {
+        if (figREl && figREl.querySelector('svg')) placeFig(figREl);
+      }, 160);
+    });
+
     function showFig(it, where) {
       var box = (where === 'L') ? figLEl : figREl;
       if (!box) return;
@@ -17676,11 +17726,10 @@ body.climate-layer-on #tools{z-index:44}
         var put = function (svg) {
           if (qs[at] !== it) return;
           box.innerHTML = svg;
+          placeFig(box);            // 摆位：底边贴解析下沿
         };
         if (figCache[it.card]) { put(figCache[it.card]); return; }
-        var url = 'assets/bank/fig/' + it.card + '.svg' +
-          (BUILD_TAG ? '?v=' + encodeURIComponent(BUILD_TAG) : '');
-        fetch(url, { cache: 'force-cache' }).then(function (r) {
+        fetch(figUrl(it.card), { cache: 'force-cache' }).then(function (r) {
           if (!r.ok) throw new Error('HTTP ' + r.status);
           return r.text();
         }).then(function (txt) {
@@ -17694,7 +17743,7 @@ body.climate-layer-on #tools{z-index:44}
        图片来自 data/cards.json 的 landmark_images（每国 6 张，取第一张）。
        两层 <img> 交叉淡入：旧图这一帧完全不动，新图 decode 完再显形 ——
        档案卡换图那三条铁律照旧（object-fit 钉在 CSS 里、底色不透明、load≠能画）。 */
-    var gal = { list: [], i: 0, timer: 0, flip: false, ready: false, cur: '', shown: 0 };
+    var gal = { list: [], i: 0, timer: 0, flip: false, ready: false, cur: '', shown: 0, z: 1 };
 
     /* 换图不要"随机抽"——随机抽会重复。这里是一副牌：
        洗一次，按顺序往下发，发完再洗（新牌局避开刚看过的这一批）。
@@ -17773,8 +17822,10 @@ body.climate-layer-on #tools{z-index:44}
       }
       next.onload = function () {
         var paint = function () {
+          next.style.zIndex = ++gal.z;        // 新图压在旧图上面淡入
           next.classList.add('on');
-          prev.classList.remove('on');
+          /* 旧图等新图铺满再撤，否则淡入过程中会露出底下的浅灰 */
+          setTimeout(function () { prev.classList.remove('on'); }, 320);
           gal.flip = !gal.flip;
           gal.cur = it.url;
           gName.textContent = it.name;
@@ -17786,7 +17837,8 @@ body.climate-layer-on #tools{z-index:44}
           if (gNext) gNext.classList.remove('busy');
           preloadNext();
         };
-        if (next.decode) next.decode().then(paint).catch(paint);
+        if (!next.naturalWidth) { next.onerror(); return; }   // 位图是空的，当失败处理
+        if (next.decode) next.decode().then(paint).catch(function () { next.onerror(); });
         else paint();
       };
       /* 图片挂了就换下一张，但必须有个上限 —— 否则一个 404 就能让这里
