@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-26-F">
+<meta name="build" content="2026-11-26-G">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -882,6 +882,42 @@
   body.exam-mode #time-pins,body.exam-mode #tip{display:none !important}
 
   .ex-shell{display:flex;height:100vh;height:100dvh}
+  /* ---------- 答题卡：只在做题页出现，左边缘一条竖栏 ---------- */
+  .ex-anscard{display:none;flex:0 0 auto;width:62px;padding:14px 6px;overflow-y:auto;
+    border-right:1px solid rgba(20,24,31,.08);background:#FCFCFD;
+    scrollbar-width:none}
+  .ex-anscard::-webkit-scrollbar{display:none}
+  #exam[data-page="run"] .ex-anscard{display:block}
+  .ex-anscard .cn{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+  .ex-cn{font:inherit;font-size:11.5px;line-height:1;padding:8px 0;border-radius:6px;
+    border:1px solid rgba(20,24,31,.14);background:#fff;color:#4A5568;cursor:pointer;
+    transition:none;font-variant-numeric:tabular-nums}
+  .ex-cn:hover{border-color:rgba(20,24,31,.34)}
+  .ex-cn.done{background:#EDF1F5;color:#2B3440;border-color:rgba(20,24,31,.18)}
+  .ex-cn.on{background:#14181F;color:#fff;border-color:#14181F}
+
+  /* ---------- 选题列表（错题 / 收藏 / 某个来源的全部题） ---------- */
+  .ex-pick{position:absolute;inset:0;z-index:20;background:rgba(20,24,31,.28);
+    display:flex;align-items:center;justify-content:center;padding:24px}
+  .ex-pick[hidden]{display:none}
+  .ex-pick-box{width:min(720px,100%);max-height:100%;display:flex;flex-direction:column;
+    background:#fff;border-radius:14px;box-shadow:0 18px 50px rgba(9,13,19,.28);overflow:hidden}
+  .ex-pick-hd{display:flex;align-items:center;gap:12px;padding:18px 20px 14px;
+    border-bottom:1px solid rgba(20,24,31,.08)}
+  .ex-pick-hd b{font-size:16px;font-weight:600;color:#14181F}
+  .ex-pick-sub{font-size:12.5px;color:#7A8494}
+  .ex-pick-hd .ex-x{margin-left:auto}
+  .ex-pick-list{flex:1;min-height:0;overflow-y:auto;padding:12px 16px;display:flex;
+    flex-direction:column;gap:9px}
+  .ex-pick-row{display:flex;flex-direction:column;gap:5px;text-align:left;width:100%;
+    font:inherit;padding:13px 15px;border-radius:10px;cursor:pointer;
+    border:1px solid rgba(20,24,31,.12);background:#fff;transition:none}
+  .ex-pick-row:hover{border-color:rgba(20,24,31,.3)}
+  .ex-pick-row.on{border-color:#14181F;background:#F4F6F8;box-shadow:inset 0 0 0 1px #14181F}
+  .ex-pick-q{font-size:14px;line-height:1.6;color:#232B36}
+  .ex-pick-src{font-size:11.5px;color:#8A93A1;letter-spacing:.02em}
+  .ex-pick-ft{padding:14px 20px 18px;border-top:1px solid rgba(20,24,31,.08)}
+  .ex-pick-ft .ex-start{width:100%}
   /* 滚动条彻底不画（选题页本来就要"刚好放下"，画出来反而提示"还有东西没看到"）；
      内容真超长时仍能滚，不是 overflow:hidden 那种卡死 */
   .ex-left{flex:0 0 38.2%;max-width:38.2%;display:flex;flex-direction:column;
@@ -932,8 +968,12 @@
     opacity:0;transition:opacity .3s ease;background:#E7EAEE}
   .ex-g.on{opacity:1}
   .ex-g-img.on{opacity:1}
+  /* 照片可能是雪原、云海、白墙这类浅色 —— 半透明白底 + 白字会整块消失，
+     实测用户就是在这个状态下看到"国家图集"和箭头都不见了。
+     底提到 .94 再加投影，任何照片上都读得出。 */
   .ex-g-tag{position:absolute;z-index:10;left:14px;top:14px;font-size:10.5px;letter-spacing:.16em;
-    padding:5px 10px;border-radius:6px;background:rgba(255,255,255,.78);
+    padding:5px 10px;border-radius:6px;background:rgba(255,255,255,.94);
+    box-shadow:0 1px 4px rgba(9,13,19,.26);
     -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);
     color:#2B3440;pointer-events:none}
   .ex-g-cap{position:absolute;z-index:10;left:0;right:0;bottom:0;padding:66px 24px 22px;
@@ -943,7 +983,7 @@
   .ex-g-cap span{display:block;font-size:13px;color:rgba(255,255,255,.74);margin-top:5px}
   .ex-g-next{position:absolute;z-index:11;right:12px;top:12px;width:32px;height:32px;
     border-radius:50%;border:1px solid rgba(255,255,255,.7);
-    background:rgba(255,255,255,.78);color:#1B222C;font-size:14px;line-height:1;
+    background:rgba(255,255,255,.94);color:#14181F;font-size:14px;line-height:1;
     cursor:pointer;transition:none;
     box-shadow:0 1px 6px rgba(9,13,19,.18);
     -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
@@ -1014,6 +1054,11 @@
     cursor:pointer;transition:none;-webkit-tap-highlight-color:transparent}
   .ex-start:hover{background:#000;border-color:#000}
   .ex-start:disabled{background:#E3E6EA;border-color:#E3E6EA;color:#8A93A1;cursor:default}
+  .ex-nc{display:inline-flex;align-items:center;gap:6px;margin-left:8px}
+  .ex-nc-in{width:66px;font:inherit;font-size:13px;padding:7px 9px;border-radius:8px;
+    border:1px solid rgba(20,24,31,.18);background:#fff;color:#14181F;text-align:center}
+  .ex-nc-in:focus{outline:none;border-color:rgba(20,24,31,.45)}
+  .ex-nc-t{font-size:12.5px;color:#7A8494}
   .ex-quick{display:flex;gap:9px;margin-top:9px}
   .ex-quick button{flex:1;font:inherit;font-size:12.5px;padding:9px 0;border-radius:8px;
     border:1px solid rgba(20,24,31,.14);background:#fff;
@@ -3455,7 +3500,21 @@ body.climate-layer-on #tools{z-index:44}
 <!-- 答题模式：整屏独立一层。题来自 assets/bank/geo.json（由 _fix/export_bank.py
      从知识卡的随堂题导出，字段和以后并进来的真题同一套）。 -->
 <div id="exam" aria-label="地理答题模式" data-page="set">
+  <div class="ex-pick" id="ex-pick" hidden>
+    <div class="ex-pick-box">
+      <div class="ex-pick-hd">
+        <b id="ex-pick-title">错题本</b>
+        <span class="ex-pick-sub" id="ex-pick-sub"></span>
+        <button class="ex-x" id="ex-pick-x" type="button">返回</button>
+      </div>
+      <div class="ex-pick-list" id="ex-pick-list"></div>
+      <div class="ex-pick-ft">
+        <button class="ex-start" id="ex-pick-go" type="button" disabled>开始做题</button>
+      </div>
+    </div>
+  </div>
   <div class="ex-shell">
+    <aside class="ex-anscard" id="ex-anscard" aria-label="答题卡"></aside>
     <div class="ex-left" id="ex-left">
       <div class="ex-setup" id="ex-setup">
         <div class="ex-hrow">
@@ -17259,6 +17318,9 @@ body.climate-layer-on #tools{z-index:44}
     var timeEl = $('ex-time'), wlistEl = $('ex-wlist'), againEl = $('ex-again');
     var redoEl = $('ex-redo'), backEl = $('ex-back');
     var leftEl = $('ex-left'), earthEl = $('ex-earth'), gNext = $('ex-g-next');
+    var cardEl = $('ex-anscard');
+    var pickEl = $('ex-pick'), pickListEl = $('ex-pick-list'), pickGo = $('ex-pick-go');
+    var pickTitle = $('ex-pick-title'), pickSub = $('ex-pick-sub'), pickX = $('ex-pick-x');
     var mainEl = $('ex-main');
     var figLEl = $('ex-fig-l'), figREl = $('ex-fig-r');
 
@@ -17321,28 +17383,32 @@ body.climate-layer-on #tools{z-index:44}
     var F = { src: '', lv: '', theme: '', type: '', dmin: 0, dmax: 10, n: '20' };
     var qs = [], at = 0, marks = [], t0 = 0, locked = false, lastMode = 'set';
 
-    var SRCS = [{ v: '', t: '全部' }, { v: 'card', t: '知识卡' }, { v: 'real', t: '高考真题' },
-                { v: 'extra', t: '经典 / 材料' }];
+    var SRCS = [{ v: '', t: '全部' }, { v: 'card', t: '知识卡' }, { v: 'real', t: '高考真题' }];
     var LVS = [{ v: '', t: '全部' }, { v: '初中', t: '初中' }, { v: '高中', t: '高中' }];
-    var TYPES = [{ v: '', t: '全部' }, { v: 'choice', t: '选择题' }, { v: 'short', t: '简答题' }];
+    var TYPES = [{ v: '', t: '全部' }, { v: 'choice', t: '选择题' }, { v: 'short', t: '简答题' },
+               { v: 'material', t: '材料题' }];
     function scoreOf(it) {
       if (it && typeof it.score === 'number') return it.score;
       return (it && it.diff ? it.diff : 2) * 2.2;      // 老题库兜底
     }
     var NS = [{ v: '10', t: '10 题' }, { v: '20', t: '20 题' },
-              { v: '30', t: '30 题' }, { v: 'all', t: '全部' }];
+              { v: '30', t: '30 题' }, { v: 'all', t: '全部' },
+              { v: 'custom', t: '自定义' }];
+    /* 自定义题量：F.nCustom 是用户填的数，没填过就按 20 起 */
+    function pickN(list) {
+      if (F.n === 'all') return list.length;
+      if (F.n === 'custom') return Math.max(1, Math.min(F.nCustom || 20, list.length));
+      return Math.min(+F.n || 10, list.length);
+    }
 
     function pool() {
       if (!bank) return [];
       return bank.items.filter(function (it) {
-        /* 三档来源：知识卡随堂题 / 高考真题 / 经典题型与材料分析。
-           后两档都在 real.json 里，只能靠 cat 区分 —— 原来只认 '真题'，
-           新加的经典题型和材料题会被算进"知识卡"，筛选就串了。 */
+        /* 两档来源：知识卡随堂题（geo.json）/ 高考真题（real.json）。
+           真题里既有选择题也有材料题，靠 cat 区分。 */
         var isReal = it.cat === '真题';
-        var isExtra = (it.cat === '经典题型' || it.cat === '材料分析');
         if (F.src === 'real' && !isReal) return false;
-        if (F.src === 'card' && (isReal || isExtra)) return false;
-        if (F.src === 'extra' && !isExtra) return false;
+        if (F.src === 'card' && isReal) return false;
         if (F.lv && it.band !== F.lv) return false;
         if (F.theme && it.theme !== F.theme) return false;
         if (F.type && it.type !== F.type) return false;
@@ -17410,24 +17476,50 @@ body.climate-layer-on #tools{z-index:44}
       var jr = 0, sr = 0;
       bank.items.forEach(function (it) { if (it.band === '高中') sr++; else jr++; });
       subEl.textContent = '题库 ' + bank.items.length + ' 题 · 知识卡 ' + (bank.nCard || 0) +
-        ' · 高考真题 ' + (bank.nReal || 0) +
-        (bank.nExtra ? ' · 经典题型与材料 ' + bank.nExtra : '');
+        ' · 高考真题 ' + (bank.nReal || 0);
       chipRow(fSrc, SRCS, 'src', countBy(function (it) {
-        if (it.cat === '真题') return 'real';
-        if (it.cat === '经典题型' || it.cat === '材料分析') return 'extra';
-        return 'card';
+        return it.cat === '真题' ? 'real' : 'card';
       }));
+      /* 来源：单击是筛选，双击把这档题全部列出来（方便直接挑几道做）。 */
+      Array.prototype.forEach.call(fSrc.querySelectorAll('button'), function (b, i) {
+        var v = (SRCS[i] || {}).v;
+        if (!v) return;
+        b.title = '单击筛选，双击看这一档的全部题目';
+        b.addEventListener('dblclick', function (e) { e.preventDefault(); openPick('src', v); });
+      });
       chipRow(fLv, LVS, 'lv', countBy(function (it) { return it.band; }));
       chipRow(fTheme, themeList(), 'theme', null);
       chipRow(fType, TYPES, 'type', countBy(function (it) { return it.type; }));
       syncRange();
       chipRow(fN, NS, 'n', null);
+      /* 选了「自定义」就在同一行后面挂个数字框，输入即生效（不重渲染，
+         否则每敲一个字符焦点就丢）。 */
+      if (F.n === 'custom') {
+        var ncWrap = el('span', 'ex-nc');
+        var ncIn = document.createElement('input');
+        ncIn.type = 'number';
+        ncIn.min = '1';
+        ncIn.max = '200';
+        ncIn.className = 'ex-nc-in';
+        ncIn.value = F.nCustom || 20;
+        ncIn.setAttribute('aria-label', '自定义题量');
+        ncIn.addEventListener('input', function () {
+          var v = parseInt(ncIn.value, 10);
+          F.nCustom = Math.max(1, Math.min(200, isNaN(v) ? 20 : v));
+          renderSetup();
+          var again = fN.parentNode.querySelector('.ex-nc-in');
+          if (again) { again.focus(); again.select(); }
+        });
+        ncWrap.appendChild(ncIn);
+        ncWrap.appendChild(el('span', 'ex-nc-t', '题'));
+        fN.parentNode.insertBefore(ncWrap, fN.nextSibling);
+      }
       cntEl.innerHTML = '共 <b>' + list.length + '</b> 题可选';
       if (!list.length) {
         startEl.disabled = true;
         startEl.textContent = '没有符合条件的题';
       } else {
-        var n = (F.n === 'all') ? list.length : Math.min(+F.n, list.length);
+        var n = pickN(list);
         startEl.disabled = false;
         startEl.textContent = '开始答题（' + n + ' 题）';
       }
@@ -17442,25 +17534,124 @@ body.climate-layer-on #tools{z-index:44}
       return a;
     }
 
-    function start(mode) {
-      if (!bank) return;
-      var list;
-      if (mode === 'wrong') {
-        list = bank.items.filter(function (it) { return !!S.wrong[it.id]; });
-      } else if (mode === 'fav') {
-        list = bank.items.filter(function (it) { return !!S.fav[it.id]; });
-      } else {
-        list = pool();
+    /* forced：从列表里手选的一批题。给了就按给的顺序做，不再随机抽取。 */
+    /* ---------- 答题卡 ---------- */
+    function syncCard() {
+      if (!cardEl) return;
+      var nodes = cardEl.querySelectorAll('.ex-cn');
+      for (var i = 0; i < nodes.length; i++) {
+        nodes[i].classList.toggle('on', i === at);
+        nodes[i].classList.toggle('done', !!marks[i]);
       }
-      if (!list.length) return;
-      list = shuffle(list.slice());
-      var n = (mode === 'set' && F.n !== 'all') ? Math.min(+F.n, list.length) : list.length;
+      var cur = cardEl.querySelector('.ex-cn.on');
+      if (cur && cur.scrollIntoView) cur.scrollIntoView({ block: 'nearest' });
+    }
+    function renderCard() {
+      if (!cardEl) return;
+      cardEl.textContent = '';
+      var grid = el('div', 'cn');
+      qs.forEach(function (it, i) {
+        var b = el('button', 'ex-cn', String(i + 1));
+        b.type = 'button';
+        b.setAttribute('aria-label', '第 ' + (i + 1) + ' 题');
+        b.addEventListener('click', function () { jumpTo(i); });
+        grid.appendChild(b);
+      });
+      cardEl.appendChild(grid);
+      syncCard();
+    }
+    function jumpTo(i) {
+      if (i < 0 || i >= qs.length || i === at) return;
+      at = i;
+      renderQ();
+    }
+
+    /* ---------- 选题列表（错题 / 收藏 / 某个来源的全部题） ---------- */
+    var pickSel = {}, pickTotal = 0;
+    function pickSource(kind, val) {
+      if (kind === 'wrong') return bank.items.filter(function (it) { return !!S.wrong[it.id]; });
+      if (kind === 'fav') return bank.items.filter(function (it) { return !!S.fav[it.id]; });
+      var isReal = (val === 'real');
+      return bank.items.filter(function (it) { return (it.cat === '真题') === isReal; });
+    }
+    function syncPick() {
+      var n = 0;
+      for (var k in pickSel) if (pickSel[k]) n++;
+      if (pickSub) pickSub.textContent = '共 ' + pickTotal + ' 题，已选 ' + n + ' 题';
+      if (pickGo) {
+        pickGo.disabled = !n;
+        pickGo.textContent = n ? ('开始做这 ' + n + ' 题') : '请先勾选题目';
+      }
+    }
+    function renderPick(items) {
+      pickListEl.textContent = '';
+      items.forEach(function (it) {
+        var row = el('button', 'ex-pick-row');
+        row.type = 'button';
+        row.appendChild(el('span', 'ex-pick-q', (it.q || '').slice(0, 52)));
+        row.appendChild(el('span', 'ex-pick-src',
+          (it.src || '') + (it.type === 'material' ? ' · 材料题' : '') +
+          (it.theme ? ' · ' + it.theme : '')));
+        if (pickSel[it.id]) row.classList.add('on');
+        row.addEventListener('click', function () {
+          if (pickSel[it.id]) { delete pickSel[it.id]; row.classList.remove('on'); }
+          else { pickSel[it.id] = true; row.classList.add('on'); }
+          syncPick();
+        });
+        pickListEl.appendChild(row);
+      });
+      syncPick();
+    }
+    function openPick(kind, val) {
+      if (!bank) return;
+      var items = pickSource(kind, val);
+      if (!items.length) return;
+      /* 错题本/收藏默认全选（点进来就是为了做掉它们）；
+         按来源看全部题目时不预选 —— 一百多道全勾上等于没有选择，
+         用户要的是"挑几道"。 */
+      pickSel = {};
+      if (kind !== 'src') items.forEach(function (it) { pickSel[it.id] = true; });
+      pickTitle.textContent = kind === 'wrong' ? '错题本'
+        : (kind === 'fav' ? '收藏'
+        : (val === 'real' ? '高考真题' : '知识卡随堂题'));
+      pickTotal = items.length;
+      pickEl.hidden = false;
+      renderPick(items);
+      pickListEl.scrollTop = 0;
+    }
+    function closePick() { if (pickEl) pickEl.hidden = true; }
+
+    function start(mode, forced) {
+      if (!bank) return;
+      var list, n;
+      if (forced && forced.length) {
+        list = forced.slice();
+        n = list.length;
+        mode = 'pick';
+      } else {
+        if (mode === 'wrong') {
+          list = bank.items.filter(function (it) { return !!S.wrong[it.id]; });
+        } else if (mode === 'fav') {
+          list = bank.items.filter(function (it) { return !!S.fav[it.id]; });
+        } else {
+          list = pool();
+        }
+        if (!list.length) return;
+        list = shuffle(list.slice());
+        n = (mode === 'set') ? pickN(list) : list.length;
+      }
       qs = list.slice(0, n);
       at = 0;
+      /* 材料图是位图，到那一题才开始下会明显慢半拍（尤其是题库站的图床）。
+         抽完题就把前几张手头预热，翻页时已经在缓存里。 */
+      for (var pi = 0; pi < Math.min(qs.length, 8); pi++) {
+        if (qs[pi].figure) { var pre = new Image(); pre.src = qs[pi].figure; }
+      }
       marks = qs.map(function () { return null; });
+      renderCard();
       t0 = Date.now();
       locked = false;
-      lastMode = mode;
+      lastMode = (mode === 'pick') ? 'set' : mode;
       setupEl.hidden = true; doneEl.hidden = true; runEl.hidden = false;
       setPage('run');
       galStop();                     // 图集在答题页不显示，别让定时器白转
@@ -17519,7 +17710,7 @@ body.climate-layer-on #tools{z-index:44}
       extraEl.textContent = '';
       tag(it.band === '高中' ? '高中' : it.grade, true);
       tag(it.theme);
-      tag(it.type === 'choice' ? '选择题' : '简答题');
+      tag(it.type === 'choice' ? '选择题' : (it.type === 'material' ? '材料题' : '简答题'));
       tag('掌握分 ' + scoreOf(it).toFixed(1));
       if (matEl) {
         if (it.material) {
@@ -17576,6 +17767,7 @@ body.climate-layer-on #tools{z-index:44}
         barBox.setAttribute('aria-valuemax', qs.length);
       }
       idxEl.textContent = (at + 1) + ' / ' + qs.length;
+      syncCard();
       prevEl.disabled = at === 0;
       nextEl.textContent = (at === qs.length - 1) ? '完成' : '下一题';
       syncFav();
@@ -18093,8 +18285,16 @@ body.climate-layer-on #tools{z-index:44}
       });
     });
     startEl.addEventListener('click', function () { start('set'); });
-    wrongBtn.addEventListener('click', function () { start('wrong'); });
-    favBtn.addEventListener('click', function () { start('fav'); });
+    wrongBtn.addEventListener('click', function () { openPick('wrong'); });
+    favBtn.addEventListener('click', function () { openPick('fav'); });
+    if (pickX) pickX.addEventListener('click', closePick);
+    if (pickEl) pickEl.addEventListener('click', function (e) { if (e.target === pickEl) closePick(); });
+    if (pickGo) pickGo.addEventListener('click', function () {
+      var items = bank.items.filter(function (it) { return pickSel[it.id]; });
+      if (!items.length) return;
+      closePick();
+      start('pick', items);
+    });
     nextEl.addEventListener('click', next);
     prevEl.addEventListener('click', prev);
     exitEl.addEventListener('click', toSetup);      // 答题页 -> 选题页
