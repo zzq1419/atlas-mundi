@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-26-H">
+<meta name="build" content="2026-11-26-I">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -876,12 +876,20 @@
   body.exam-mode{overflow:hidden}
   body.exam-mode #exam{display:block}
   body.exam-mode #rotate-hint,body.exam-mode #build-tag{display:none !important}
-  body.exam-mode #topbar,body.exam-mode #tools,body.exam-mode #globe-stage,
+  body.exam-mode #topbar,body.exam-mode #tools,
   body.exam-mode #q-res,body.exam-mode .search-wrap,body.exam-mode #detail,
   body.exam-mode .kit-panel,body.exam-mode #layer-legend,
   body.exam-mode #time-pins,body.exam-mode #tip{display:none !important}
 
-  .ex-shell{display:flex;height:100vh;height:100dvh}
+  /* 转场用的竖线：独立于 #exam（否则会被 clip-path 一起裁掉） */
+  .ex-wipe{position:fixed;top:0;bottom:0;right:0;width:2px;z-index:120;
+    background:#14181F;box-shadow:0 0 16px rgba(20,24,31,.55);opacity:0;
+    pointer-events:none}
+  .ex-shell{display:flex;height:100vh;height:100dvh;position:relative}
+  /* 返回地球钉在右上角 —— 和做题页的「返回选题」同一个落点，
+     手不用在两个位置之间来回找。做题页那格由 ex-exit 占着，这里让位。 */
+  .ex-earth{position:absolute;right:18px;top:16px;z-index:12}
+  #exam[data-page="run"] .ex-earth{display:none}
   /* ---------- 答题卡：只在做题页出现，左边缘一条竖栏 ---------- */
   .ex-anscard{display:none;flex:0 0 auto;width:96px;padding:16px 8px;overflow-y:auto;
     border-right:1px solid rgba(20,24,31,.08);background:#FCFCFD;
@@ -916,7 +924,7 @@
   .ex-pick-row.on{border-color:#14181F;background:#F4F6F8;box-shadow:inset 0 0 0 1px #14181F}
   .ex-pick-q{font-size:14px;line-height:1.6;color:#232B36}
   .ex-pick-src{font-size:11.5px;color:#8A93A1;letter-spacing:.02em}
-  .ex-pick-ft{padding:14px 20px 18px;border-top:1px solid rgba(20,24,31,.08)}
+  .ex-pick-ft{padding:14px 16px 18px;border-top:1px solid rgba(20,24,31,.08)}
   .ex-pick-ft .ex-start{width:100%}
   /* 滚动条彻底不画（选题页本来就要"刚好放下"，画出来反而提示"还有东西没看到"）；
      内容真超长时仍能滚，不是 overflow:hidden 那种卡死 */
@@ -971,17 +979,17 @@
   /* 照片可能是雪原、云海、白墙这类浅色 —— 半透明白底 + 白字会整块消失，
      实测用户就是在这个状态下看到"国家图集"和箭头都不见了。
      底提到 .94 再加投影，任何照片上都读得出。 */
-  .ex-g-tag{position:absolute;z-index:10;left:14px;top:14px;font-size:10.5px;letter-spacing:.16em;
+  .ex-g-tag{position:absolute;z-index:30;left:14px;top:14px;font-size:10.5px;letter-spacing:.16em;
     padding:5px 10px;border-radius:6px;background:rgba(255,255,255,.94);
     box-shadow:0 1px 4px rgba(9,13,19,.26);
     -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);
     color:#2B3440;pointer-events:none}
-  .ex-g-cap{position:absolute;z-index:10;left:0;right:0;bottom:0;padding:66px 24px 22px;
+  .ex-g-cap{position:absolute;z-index:30;left:0;right:0;bottom:0;padding:66px 24px 22px;
     background:linear-gradient(to top,rgba(9,13,19,.88) 26%,rgba(9,13,19,0));
     pointer-events:none}
   .ex-g-cap b{display:block;font-size:25px;font-weight:600;color:#fff;letter-spacing:.01em}
   .ex-g-cap span{display:block;font-size:13px;color:rgba(255,255,255,.74);margin-top:5px}
-  .ex-g-next{position:absolute;z-index:11;right:12px;top:12px;width:32px;height:32px;
+  .ex-g-next{position:absolute;z-index:31;right:12px;top:12px;width:32px;height:32px;
     border-radius:50%;border:1px solid rgba(255,255,255,.7);
     background:rgba(255,255,255,.94);color:#14181F;font-size:14px;line-height:1;
     cursor:pointer;transition:none;
@@ -1027,8 +1035,11 @@
   .ex-sub{font-size:12.5px;color:#7A8494;margin:0 0 20px}
   .ex-f{margin:0}
   .ex-f>span{display:block;font-size:11px;letter-spacing:.12em;color:#8A93A1;margin-bottom:6px}
-  .ex-chips{display:flex;flex-wrap:wrap;gap:6px}
+  /* align-items 默认是 stretch：往这一行塞一个高一点的输入框，
+     同一行的所有 chip 会被一起拉高 —— 看起来就是"点了自定义全都变大了"。 */
+  .ex-chips{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
   .ex-chip{font:inherit;font-size:12.5px;padding:5px 11px;border-radius:999px;
+    font-variant-numeric:tabular-nums;
     border:1px solid rgba(20,24,31,.14);background:#fff;
     color:#4C5666;cursor:pointer;transition:none;-webkit-tap-highlight-color:transparent}
   .ex-chip:hover{border-color:rgba(20,24,31,.42);color:#14181F}
@@ -1050,14 +1061,17 @@
   .ex-count{font-size:13px;color:#7A8494;margin:18px 0 11px}
   .ex-count b{font-size:16px;color:#14181F;font-weight:600}
   .ex-start{width:100%;font:inherit;font-size:14.5px;font-weight:500;padding:13px 0;
+    font-variant-numeric:tabular-nums;
     border-radius:9px;border:1px solid #14181F;background:#14181F;color:#fff;
     cursor:pointer;transition:none;-webkit-tap-highlight-color:transparent}
   .ex-start:hover{background:#000;border-color:#000}
   .ex-start:disabled{background:#E3E6EA;border-color:#E3E6EA;color:#8A93A1;cursor:default}
-  .ex-nc{display:inline-flex;align-items:center;gap:5px;margin:0 0 0 2px}
-  .ex-nc-in{width:54px;font:inherit;font-size:13px;padding:7px 6px;border-radius:999px;
-    border:1px solid rgba(20,24,31,.22);background:#fff;color:#14181F;text-align:center;
-    -moz-appearance:textfield}
+  .ex-nc{display:inline-flex;align-items:center;gap:5px;margin:0 0 0 2px;height:29px}
+  /* 和难度那两个输入框同一套：直角小圆角、固定高度，聚焦不再变形 */
+  .ex-nc-in{width:56px;height:29px;box-sizing:border-box;font:inherit;font-size:13px;
+    padding:0 8px;border-radius:8px;border:1px solid rgba(20,24,31,.22);background:#fff;
+    color:#14181F;text-align:center;-moz-appearance:textfield}
+  .ex-nc-in:focus{outline:none;border-color:rgba(20,24,31,.45)}
   .ex-nc-in::-webkit-outer-spin-button,.ex-nc-in::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
   .ex-nc-in:focus{outline:none;border-color:rgba(20,24,31,.45)}
   .ex-nc-t{font-size:12.5px;color:#7A8494}
@@ -3516,12 +3530,12 @@ body.climate-layer-on #tools{z-index:44}
     </div>
   </div>
   <div class="ex-shell">
+    <button class="ex-x ex-earth" id="ex-earth" type="button">返回地球</button>
     <aside class="ex-anscard" id="ex-anscard" aria-label="答题卡"></aside>
     <div class="ex-left" id="ex-left">
       <div class="ex-setup" id="ex-setup">
         <div class="ex-hrow">
           <h1 class="ex-h1">地理答题</h1>
-          <button class="ex-x" id="ex-earth" type="button">返回地球</button>
         </div>
         <p class="ex-sub" id="ex-sub">正在载入题库…</p>
 
@@ -17829,7 +17843,9 @@ body.climate-layer-on #tools{z-index:44}
 
     function revealShort(review) {
       var it = qs[at];
-      if (!it || it.type !== 'short') return;
+      /* 只要不是选择题就走这条路：材料题的类型是 material，
+         原来卡在 type === 'short'，点到材料题上直接 return，按钮像没接电。 */
+      if (!it || it.type === 'choice') return;
       optsEl.textContent = '';
       var a = el('div', 'ex-ans');
       a.appendChild(el('b', '', '参考答案'));
@@ -18129,7 +18145,10 @@ body.climate-layer-on #tools{z-index:44}
       }
       next.onload = function () {
         var paint = function () {
-          next.style.zIndex = ++gal.z;        // 新图压在旧图上面淡入
+          /* 只在新旧两层之间轮换：原来用 ++gal.z 一路递增，
+             换够十来张就涨过 .ex-g-tag(10) / .ex-g-next(11)，
+             照片把「国家图集」和箭头整个盖住 —— 用户看到的就是"它们不见了"。 */
+          next.style.zIndex = (gal.z++ % 2) + 1;   // 新图压在旧图上面淡入
           next.classList.add('on');
           /* 旧图等新图铺满再撤，否则淡入过程中会露出底下的浅灰 */
           setTimeout(function () { prev.classList.remove('on'); }, 320);
@@ -18245,8 +18264,64 @@ body.climate-layer-on #tools{z-index:44}
        退出是一级一级来的：答题页/结算页的"返回"只回选题页，选题页的
        "返回地球"才真的离开。原来 Escape 和退出键都直接回地球，答到一半
        想换个筛选条件就得重新进来一遍。 */
+    /* ---------- 进出转场 ----------
+       一条 2px 竖线横扫屏幕，划过的部分露出答题层（用 clip-path 揭幕），
+       配一记白噪声扫频的"刷"。dir>0 进场（右→左），dir<0 退场（左→右）。 */
+    var wipeEl = null;
+    function ensureWipe() {
+      if (wipeEl) return wipeEl;
+      wipeEl = document.createElement('div');
+      wipeEl.className = 'ex-wipe';
+      wipeEl.setAttribute('aria-hidden', 'true');
+      document.body.appendChild(wipeEl);
+      return wipeEl;
+    }
+    function swipeSound() {
+      try {
+        var C = window.AudioContext || window.webkitAudioContext;
+        if (!C) return;
+        var ac = window.__ac || (window.__ac = new C());
+        if (ac.state === 'suspended') ac.resume();
+        var dur = 0.42;
+        var buf = ac.createBuffer(1, Math.floor(ac.sampleRate * dur), ac.sampleRate);
+        var d = buf.getChannelData(0);
+        for (var i = 0; i < d.length; i++) {
+          var t = i / d.length;
+          d[i] = (Math.random() * 2 - 1) * Math.pow(1 - t, 2.4);
+        }
+        var src = ac.createBufferSource(); src.buffer = buf;
+        var bp = ac.createBiquadFilter(); bp.type = 'bandpass'; bp.Q.value = 1.1;
+        bp.frequency.setValueAtTime(2800, ac.currentTime);
+        bp.frequency.exponentialRampToValueAtTime(520, ac.currentTime + dur);
+        var g = ac.createGain(); g.gain.value = 0.10;
+        src.connect(bp); bp.connect(g); g.connect(ac.destination);
+        src.start();
+      } catch (e) {}
+    }
+    function wipe(dir) {
+      var ex = root, ln = ensureWipe();
+      if (!ex || !ln) return;
+      var from = dir > 0 ? 'inset(0 0 0 100%)' : 'inset(0 0 0 0)';
+      var to = dir > 0 ? 'inset(0 0 0 0)' : 'inset(0 0 0 100%)';
+      var x0 = dir > 0 ? 'translateX(0)' : 'translateX(-100vw)';
+      var x1 = dir > 0 ? 'translateX(-100vw)' : 'translateX(0)';
+      ex.style.transition = 'none';
+      ex.style.clipPath = from;
+      ln.style.transition = 'none';
+      ln.style.transform = x0;
+      ln.style.opacity = '1';
+      void ex.offsetWidth;
+      ex.style.transition = 'clip-path .44s cubic-bezier(.72,0,.28,1)';
+      ln.style.transition = 'transform .44s cubic-bezier(.72,0,.28,1), opacity .1s ease .34s';
+      ex.style.clipPath = to;
+      ln.style.transform = x1;
+      ln.style.opacity = '0';
+      swipeSound();
+    }
+
     function open() {
       document.body.classList.add('exam-mode');
+      wipe(1);
       globe.examOn = true;               // 停掉地球渲染，省电也省重绘
       setupEl.hidden = false; runEl.hidden = true; doneEl.hidden = true;
       setPage('set');
@@ -18274,12 +18349,19 @@ body.climate-layer-on #tools{z-index:44}
     }
     function leave() {
       closeLB();
-      document.body.classList.remove('exam-mode');
-      globe.examOn = false;
-      globe.lastMs = 0;                  // 别让停掉这段时间变成一次巨大 dtf
-      galStop();
-      setupEl.hidden = false; runEl.hidden = true; doneEl.hidden = true;
-      renderSetup();
+      /* 退场先把线扫回去（左→右），扫完再真正撤掉答题层 ——
+         立刻 remove('exam-mode') 的话 clip-path 动画没有对象可演。 */
+      wipe(-1);
+      setTimeout(function () {
+        document.body.classList.remove('exam-mode');
+        root.style.transition = 'none';
+        root.style.clipPath = '';
+        globe.examOn = false;
+        globe.lastMs = 0;                // 别让停掉这段时间变成一次巨大 dtf
+        galStop();
+        setupEl.hidden = false; runEl.hidden = true; doneEl.hidden = true;
+        renderSetup();
+      }, 450);
     }
 
     [dminEl, dmaxEl].forEach(function (el2) {
