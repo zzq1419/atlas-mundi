@@ -72,3 +72,9 @@ assets/*/*/*.png
 选图台.html
 shots_ui/
 shots_*/
+
+# 真题采集的中间产物：原始下载（第三方数据）与逐题解析结果都不入库，
+# 只留可复现的脚本 _real/{parse,tag,build}.py，产物是 assets/bank/real.json。
+_real/*.json
+_real/*.html
+_real/*.png

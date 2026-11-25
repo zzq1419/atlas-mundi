@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-25-M">
+<meta name="build" content="2026-11-26-A">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -1067,7 +1067,14 @@
   .ex-tag{font-size:11px;padding:3px 8px;border-radius:4px;
     background:#F4F5F7;border:1px solid rgba(20,24,31,.09);color:#5A6473}
   .ex-tag.k{background:transparent;border-color:rgba(20,24,31,.4);color:#14181F;font-weight:600}
-  .ex-q{font-size:20px;line-height:1.8;margin:0 0 20px;color:#14181F;font-weight:500}
+  /* 真题的共用材料：左侧竖线 + 略小的灰字，和题干分得开但不抢眼。
+     题组里每道小题都完整带一遍材料（材料通常一百来字，翻回上一题找上文更烦）。 */
+  .ex-mat{margin:0 0 18px;padding:2px 0 2px 15px;border-left:2px solid #D5DBE3;
+    font-size:15px;line-height:2;color:#4A5568;letter-spacing:.1px;
+    white-space:pre-wrap;overflow-wrap:anywhere}
+  .ex-mat[hidden]{display:none}
+  .ex-q{font-size:20px;line-height:1.8;margin:0 0 20px;color:#14181F;font-weight:500;
+    white-space:pre-line}
   .ex-opts{display:flex;flex-direction:column;gap:9px}
   .ex-opt{display:flex;gap:11px;align-items:center;width:100%;text-align:left;
     font:inherit;font-size:16.5px;line-height:1.55;min-height:54px;padding:13px 15px;
@@ -1123,7 +1130,7 @@
     background:#F6F7F9;border-left:3px solid #14181F}
   .ex-exp b{display:block;font-size:11px;letter-spacing:.1em;color:#14181F;
     margin-bottom:6px;font-weight:600}
-  .ex-exp p{margin:0;font-size:14.5px;line-height:1.95;color:#3A4351}
+  .ex-exp p{margin:0;font-size:14.5px;line-height:1.95;color:#3A4351;white-space:pre-line}
   .ex-src{margin:10px 0 0;font-size:11.5px;color:#9AA3B0}
 
   .ex-foot{flex:0 0 auto;border-top:1px solid rgba(20,24,31,.1);
@@ -3449,6 +3456,7 @@ body.climate-layer-on #tools{z-index:44}
         <p class="ex-sub" id="ex-sub">正在载入题库…</p>
 
         <div class="ex-fs">
+          <div class="ex-f"><span>来源</span><div class="ex-chips" id="f-src"></div></div>
           <div class="ex-f"><span>学段</span><div class="ex-chips" id="f-lv"></div></div>
           <div class="ex-f"><span>主题</span><div class="ex-chips" id="f-theme"></div></div>
           <div class="ex-f"><span>题型</span><div class="ex-chips" id="f-type"></div></div>
@@ -3487,6 +3495,7 @@ body.climate-layer-on #tools{z-index:44}
             <div class="ex-fig" id="ex-fig-l" aria-hidden="true"></div>
             <div class="ex-col">
               <div class="ex-meta" id="ex-meta"></div>
+              <div class="ex-mat" id="ex-mat" hidden></div>
               <p class="ex-q" id="ex-q"></p>
               <div class="ex-opts" id="ex-opts"></div>
               <div id="ex-extra"></div>
@@ -17230,6 +17239,7 @@ body.climate-layer-on #tools{z-index:44}
     var setupEl = $('ex-setup'), runEl = $('ex-run'), doneEl = $('ex-done');
     var subEl = $('ex-sub'), cntEl = $('ex-count'), startEl = $('ex-start');
     var fLv = $('f-lv'), fTheme = $('f-theme'), fType = $('f-type'), fN = $('f-n');
+    var fSrc = $('f-src'), matEl = $('ex-mat');
     var dminEl = $('f-dmin'), dmaxEl = $('f-dmax'), dHint = $('ex-dhint');
     var lb = $('ex-lb'), lbImg = $('ex-lb-img'), lbName = $('ex-lb-name'), lbSub = $('ex-lb-sub');
     var wrongBtn = $('ex-wrongbtn'), favBtn = $('ex-favbtn');
@@ -17274,13 +17284,22 @@ body.climate-layer-on #tools{z-index:44}
       if (bankP) return bankP;
       /* 直接同源取，不走 MIRRORS：这是 35KB 的本地文件，没必要先试一遍 CDN
          再回落到源站，那样第一次进来白等两个往返。 */
-      var url = 'assets/bank/geo.json' +
-        (BUILD_TAG ? '?v=' + encodeURIComponent(BUILD_TAG) : '');
-      bankP = fetch(url, { cache: 'force-cache' }).then(function (r) {
-        if (!r.ok) throw new Error('HTTP ' + r.status);
-        return r.json();
-      }).then(function (j) {
-        bank = (j && j.items) ? j : { items: [] };
+      var v = BUILD_TAG ? '?v=' + encodeURIComponent(BUILD_TAG) : '';
+      function getBank(p) {
+        return fetch(p + v, { cache: 'force-cache' }).then(function (r) {
+          if (!r.ok) throw new Error('HTTP ' + r.status);
+          return r.json();
+        });
+      }
+      /* 知识卡题和真题分两个文件放：题库以后还会长，混在一个文件里每次都要重下。
+         真题缺失（没部署好 / 断网）不能把整个答题模式拖垮，所以它单独 catch。 */
+      bankP = Promise.all([
+        getBank('assets/bank/geo.json'),
+        getBank('assets/bank/real.json').catch(function () { return { items: [] }; })
+      ]).then(function (a) {
+        var g = (a[0] && a[0].items) ? a[0].items : [];
+        var r = (a[1] && a[1].items) ? a[1].items : [];
+        bank = { items: g.concat(r), nCard: g.length, nReal: r.length };
         return bank;
       }).catch(function (err) { bankP = null; throw err; });
       return bankP;
@@ -17288,9 +17307,10 @@ body.climate-layer-on #tools{z-index:44}
 
     /* 难度不再分三档，改成 0–10（一位小数）的"掌握分"区间：
        score 表示"大概考到多少分（满分 10）才拿得下这道题"。 */
-    var F = { lv: '', theme: '', type: '', dmin: 0, dmax: 10, n: '20' };
+    var F = { src: '', lv: '', theme: '', type: '', dmin: 0, dmax: 10, n: '20' };
     var qs = [], at = 0, marks = [], t0 = 0, locked = false, lastMode = 'set';
 
+    var SRCS = [{ v: '', t: '全部' }, { v: 'card', t: '知识卡' }, { v: 'real', t: '高考真题' }];
     var LVS = [{ v: '', t: '全部' }, { v: '初中', t: '初中' }, { v: '高中', t: '高中' }];
     var TYPES = [{ v: '', t: '全部' }, { v: 'choice', t: '选择题' }, { v: 'short', t: '简答题' }];
     function scoreOf(it) {
@@ -17303,6 +17323,8 @@ body.climate-layer-on #tools{z-index:44}
     function pool() {
       if (!bank) return [];
       return bank.items.filter(function (it) {
+        if (F.src === 'real' && it.cat !== '真题') return false;
+        if (F.src === 'card' && it.cat === '真题') return false;
         if (F.lv && it.band !== F.lv) return false;
         if (F.theme && it.theme !== F.theme) return false;
         if (F.type && it.type !== F.type) return false;
@@ -17369,7 +17391,11 @@ body.climate-layer-on #tools{z-index:44}
       var list = pool();
       var jr = 0, sr = 0;
       bank.items.forEach(function (it) { if (it.band === '高中') sr++; else jr++; });
-      subEl.textContent = '题库 ' + bank.items.length + ' 题 · 初中 ' + jr + ' · 高中 ' + sr;
+      subEl.textContent = '题库 ' + bank.items.length + ' 题 · 知识卡 ' + (bank.nCard || 0) +
+        ' · 高考真题 ' + (bank.nReal || 0);
+      chipRow(fSrc, SRCS, 'src', countBy(function (it) {
+        return it.cat === '真题' ? 'real' : 'card';
+      }));
       chipRow(fLv, LVS, 'lv', countBy(function (it) { return it.band; }));
       chipRow(fTheme, themeList(), 'theme', null);
       chipRow(fType, TYPES, 'type', countBy(function (it) { return it.type; }));
@@ -17444,6 +17470,15 @@ body.climate-layer-on #tools{z-index:44}
       metaEl.appendChild(el('span', 'ex-tag' + (gold ? ' k' : ''), txt));
     }
 
+    /* 组合选项（①②③④）在源文本里是连着写的，挤成一行读起来像乱码；
+       每个序号前断一行，就是卷子上一条一条列的样子。 */
+    function splitEnum(t) {
+      if (!t) return '';
+      return t.replace(/[ \t]*([①②③④⑤⑥])/g, function (m, c, off) {
+        return off === 0 ? c : '\n' + c;
+      });
+    }
+
     function renderQ() {
       var it = qs[at];
       if (!it) return finish();
@@ -17454,7 +17489,11 @@ body.climate-layer-on #tools{z-index:44}
       tag(it.theme);
       tag(it.type === 'choice' ? '选择题' : '简答题');
       tag('掌握分 ' + scoreOf(it).toFixed(1));
-      qEl.textContent = it.q;
+      if (matEl) {
+        if (it.material) { matEl.textContent = splitEnum(it.material); matEl.hidden = false; }
+        else { matEl.textContent = ''; matEl.hidden = true; }
+      }
+      qEl.textContent = splitEnum(it.q);
       optsEl.textContent = '';
       if (figREl) figREl.textContent = '';
       if (figLEl) figLEl.textContent = '';
