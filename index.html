@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-25-J">
+<meta name="build" content="2026-11-25-K">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -17420,6 +17420,21 @@ body.climate-layer-on #tools{z-index:44}
       renderQ();
       leftEl.scrollTop = 0;
       mainEl.scrollTop = 0;
+      prefetchSetFigs();             // 这一组要用的解析图，边答边后台取
+    }
+
+    /* 一组题里同卡只取一次，一张接一张地取（别一下并发十几个抢首屏带宽）。
+       预热完以后，答题点选项那一刻图就在缓存里，是"跟着解析一起出来"的。 */
+    function prefetchSetFigs() {
+      var seen = {}, i = 1;          // 第 0 题 renderQ 里已经预取过了
+      (function next() {
+        if (i >= qs.length) return;
+        var it = qs[i++];
+        if (!it || !it.card || seen[it.card]) { next(); return; }
+        seen[it.card] = 1;
+        prefetchFig(it);
+        setTimeout(next, 260);
+      })();
     }
 
     var TICK_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
