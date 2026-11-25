@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-26-C">
+<meta name="build" content="2026-11-26-D">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -3491,7 +3491,7 @@ body.climate-layer-on #tools{z-index:44}
 
       <div class="ex-run" id="ex-run" hidden>
         <div class="ex-top">
-          <div class="ex-bar"><i id="ex-bar"></i></div>
+          <div class="ex-bar" role="progressbar" aria-label="答题进度" aria-valuemin="0" aria-valuemax="1" aria-valuenow="1"><i id="ex-bar"></i></div>
           <span class="ex-idx" id="ex-idx">1 / 1</span>
           <button class="ex-x" id="ex-exit" type="button">返回选题</button>
         </div>
@@ -17526,8 +17526,15 @@ body.climate-layer-on #tools{z-index:44}
       if (mainEl) mainEl.scrollTop = 0;
       /* 进度条要跟右边的 '20 / 20' 说同一件事：条走到头 = 看到最后一题。
          原来写的是 at / qs.length，而计数用的是 at + 1，于是第 20 题
-         计数显示满格、条却停在 95%，差出一截。 */
+         计数显示满格、条却停在 95%，差出一截。
+         另外把当前值同步到 aria：这条是纯视觉的 div，读屏软件本来读不到，
+         加了 role="progressbar" 之后还得自己更新 valuenow，否则它永远报 0。 */
       barEl.style.width = ((at + 1) / qs.length * 100) + '%';
+      var barBox = barEl.parentElement;
+      if (barBox) {
+        barBox.setAttribute('aria-valuenow', at + 1);
+        barBox.setAttribute('aria-valuemax', qs.length);
+      }
       idxEl.textContent = (at + 1) + ' / ' + qs.length;
       prevEl.disabled = at === 0;
       nextEl.textContent = (at === qs.length - 1) ? '完成' : '下一题';
