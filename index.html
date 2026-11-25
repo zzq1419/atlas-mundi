@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-26-B">
+<meta name="build" content="2026-11-26-C">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -17524,7 +17524,10 @@ body.climate-layer-on #tools{z-index:44}
       }
 
       if (mainEl) mainEl.scrollTop = 0;
-      barEl.style.width = (at / qs.length * 100) + '%';
+      /* 进度条要跟右边的 '20 / 20' 说同一件事：条走到头 = 看到最后一题。
+         原来写的是 at / qs.length，而计数用的是 at + 1，于是第 20 题
+         计数显示满格、条却停在 95%，差出一截。 */
+      barEl.style.width = ((at + 1) / qs.length * 100) + '%';
       idxEl.textContent = (at + 1) + ' / ' + qs.length;
       prevEl.disabled = at === 0;
       nextEl.textContent = (at === qs.length - 1) ? '完成' : '下一题';
