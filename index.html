@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-25-C">
+<meta name="build" content="2026-11-25-D">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -913,21 +913,20 @@
                0 2px 8px rgba(17,28,45,.09),
                0 0 0 1px rgba(17,28,45,.07),
                inset 0 1px 0 rgba(255,255,255,1),
-               inset 0 -2px 8px rgba(17,28,45,.05);
-    -webkit-backdrop-filter:blur(22px) saturate(1.5);
-    backdrop-filter:blur(22px) saturate(1.5)}
-  /* 图集还没到位时先铺一层微光骨架，免得看到一块死灰的空框 */
-  .ex-skel{position:absolute;inset:0;pointer-events:none;
-    background:linear-gradient(100deg,#D3DAE4 18%,#F3F6FA 38%,#D3DAE4 60%);
-    background-size:220% 100%;animation:exSkel 1.5s ease-in-out infinite}
-  @keyframes exSkel{0%{background-position:112% 0}100%{background-position:-112% 0}}
+               inset 0 -2px 8px rgba(17,28,45,.05)}
+  /* 这里原来挂了一层 backdrop-filter:blur(22px) saturate(1.5)。底子是一块平滑的
+     径向渐变，糊它看不出差别，但浏览器每次重建这个图层（进出答题页）都会先按
+     不透明出一帧——照片区那下"亮白"有一半是它。删掉，观感不变、还省一次全屏快照。 */
+  /* 图集不再铺微光骨架：照片基本是命中缓存秒开的，骨架反而比空框更抢眼，
+     进/出答题页时那一下"亮白"就是它闪的（外加相框 backdrop-filter 重建图层）。
+     空档期用一块深色暗垫——照片淡入时先压在暗底上，观感比白底跳一下顺。 */
   .ex-g{position:relative;width:100%;height:100%;border-radius:10px;
-    overflow:hidden;background:#DDE1E8;cursor:zoom-in;
+    overflow:hidden;background:#1B2027;cursor:zoom-in;
     box-shadow:0 1px 5px rgba(9,13,19,.32),
                inset 0 0 0 1px rgba(255,255,255,.5),
                inset 0 3px 12px rgba(9,13,19,.2)}
   .ex-g-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
-    opacity:0;transition:opacity .7s ease;background:#DDE1E8}
+    opacity:0;transition:opacity .7s ease;background:#1B2027}
   .ex-g-img.on{opacity:1}
   .ex-g-tag{position:absolute;left:14px;top:14px;font-size:10.5px;letter-spacing:.16em;
     padding:5px 10px;border-radius:6px;background:rgba(255,255,255,.78);
@@ -1034,10 +1033,25 @@
   /* 题干位置**钉死**：整列顶部对齐 + 一段固定的上留白（15vh，最高 148）。
      以前是垂直居中，解析/参考答案一展开内容变高，居中就把整块往上推
      —— 选择题实测顶 61~121px，简答题更多。现在内容只往下长，题目一动不动。 */
-  .ex-stage{display:grid;grid-template-columns:1fr minmax(0,760px) 1fr;
-    gap:clamp(18px,2.6vw,44px);align-items:start;min-height:100%}
+  /* 题干列从 760 收到 660：两侧的题图才放得下（1440 屏上从 296 涨到 360），
+     660 对 16.5px 的选项来说仍然宽松。 */
+  .ex-stage{display:grid;grid-template-columns:1fr minmax(0,660px) 1fr;
+    gap:clamp(16px,2vw,36px);align-items:start;min-height:100%}
   .ex-col{min-width:0;padding:clamp(24px,9vh,92px) 0 24px}
-  .ex-fig{min-width:0;align-self:stretch}
+  /* 题图：和题干顶端对齐（同一条留白），宽度吃满两侧空档。
+     没画图的卡留空 —— 不摆占位框，免得每道题都挂着一块灰。 */
+  /* 图往题干那一侧靠：居中会把它甩到屏幕最左边，跟题目之间空出一条大沟 */
+  .ex-fig{min-width:0;align-self:stretch;display:flex;align-items:flex-start;
+    justify-content:flex-end;padding-top:calc(clamp(24px,9vh,92px) + 3px)}
+  #ex-fig-r{justify-content:flex-start}
+  /* 空的图位必须退出栅格（不然它会白占一列），所以列位写死在 ID 上 */
+  .ex-fig:empty{display:none}
+  #ex-fig-l{grid-column:1}
+  #ex-fig-r{grid-column:3}
+  .ex-stage .ex-col{grid-column:2}
+  .ex-fig svg{width:100%;height:auto;display:block;max-width:520px;
+    border-radius:6px;box-shadow:0 1px 3px rgba(20,24,31,.06)}
+  .ex-fig figcaption{margin:7px 2px 0;font-size:11.5px;color:#7A8494}
   .ex-meta{display:flex;flex-wrap:wrap;gap:5px;margin:0 0 13px}
   .ex-tag{font-size:11px;padding:3px 8px;border-radius:4px;
     background:#F4F5F7;border:1px solid rgba(20,24,31,.09);color:#5A6473}
@@ -1080,7 +1094,7 @@
   .ex-judge .no:disabled:not(.picked){background:#FCEFF0;
     border-color:rgba(176,53,63,.32);color:#B0353F}
   .ex-judge button.picked:disabled{opacity:1;box-shadow:0 0 0 3px rgba(20,24,31,.08)}
-  .ex-marked{margin:12px 0 0;font-size:12.5px;color:#7A8494;text-align:center}
+  .ex-marked{margin:10px 0 0;font-size:12px;color:#7A8494;text-align:left;padding-left:2px}
 
   .ex-reveal{margin:0;font:inherit;font-size:13.5px;padding:10px 18px;border-radius:8px;
     border:1px solid rgba(20,24,31,.2);background:#fff;color:#4C5666;
@@ -3500,7 +3514,6 @@ body.climate-layer-on #tools{z-index:44}
     <aside class="ex-right" aria-label="国家图集">
       <div class="ex-frame">
         <div class="ex-g">
-          <div class="ex-skel" id="ex-g-skel" aria-hidden="true"></div>
           <img class="ex-g-img" id="ex-g-a" alt="">
           <img class="ex-g-img" id="ex-g-b" alt="">
           <span class="ex-g-tag">国家图集</span>
@@ -17207,7 +17220,6 @@ body.climate-layer-on #tools{z-index:44}
     var subEl = $('ex-sub'), cntEl = $('ex-count'), startEl = $('ex-start');
     var fLv = $('f-lv'), fTheme = $('f-theme'), fType = $('f-type'), fN = $('f-n');
     var dminEl = $('f-dmin'), dmaxEl = $('f-dmax'), dHint = $('ex-dhint');
-    var skelEl = $('ex-g-skel');
     var lb = $('ex-lb'), lbImg = $('ex-lb-img'), lbName = $('ex-lb-name'), lbSub = $('ex-lb-sub');
     var wrongBtn = $('ex-wrongbtn'), favBtn = $('ex-favbtn');
     var barEl = $('ex-bar'), idxEl = $('ex-idx'), metaEl = $('ex-meta'), qEl = $('ex-q');
@@ -17218,6 +17230,7 @@ body.climate-layer-on #tools{z-index:44}
     var redoEl = $('ex-redo'), backEl = $('ex-back');
     var leftEl = $('ex-left'), earthEl = $('ex-earth'), gNext = $('ex-g-next');
     var mainEl = $('ex-main');
+    var figLEl = $('ex-fig-l'), figREl = $('ex-fig-r');
 
     /* 三个页面（选题 / 答题 / 结算）由 data-page 驱动：答题页不显示右栏图集，
        题目落在页面正中，左右两栏留给题图。 */
@@ -17417,6 +17430,7 @@ body.climate-layer-on #tools{z-index:44}
       tag('掌握分 ' + scoreOf(it).toFixed(1));
       qEl.textContent = it.q;
       optsEl.textContent = '';
+      showFig(it);
 
       if (it.type === 'choice') {
         (it.opts || []).forEach(function (txt2, i) {
@@ -17479,6 +17493,18 @@ body.climate-layer-on #tools{z-index:44}
       nextEl.classList.add('pri');
     }
 
+    /* "已记为答对"这类话挪到解析**下面**：放在勾叉和解析之间，它会占一行，
+       正文字数一多就把解析整块往下推，看起来像是答题区在跳。 */
+    function markLine(text) {
+      var mkp = el('p', 'ex-marked', text);
+      var src = extraEl.querySelector('.ex-src');
+      var exp = extraEl.querySelector('.ex-exp');
+      if (src) extraEl.insertBefore(mkp, src);
+      else if (exp) extraEl.insertBefore(mkp, exp.nextSibling);
+      else extraEl.appendChild(mkp);
+      return mkp;
+    }
+
     function revealShort(review) {
       var it = qs[at];
       if (!it || it.type !== 'short') return;
@@ -17491,7 +17517,7 @@ body.climate-layer-on #tools{z-index:44}
       showExp(it);
       if (review) {
         var mk = marks[at];
-        extraEl.appendChild(el('p', 'ex-src', mk ? (mk.ok ? '本组已记为答对' : '本组已记为答错，已进错题本') : '这一题本组没有作答'));
+        markLine(mk ? (mk.ok ? '已记为答对' : '已记为答错 · 已进错题本') : '这一题本组没有作答');
         return;
       }
       var row = el('div', 'ex-judge');
@@ -17515,11 +17541,7 @@ body.climate-layer-on #tools{z-index:44}
       b1.disabled = true; b2.disabled = true;
       (ok ? b1 : b2).classList.add('picked');     // 选中的那颗保持满色，另一颗淡下去
       if (!extraEl.querySelector('.ex-marked')) {
-        /* 插在"解析"前面：结果紧跟着两个按钮，别落到来源下面去 */
-        var mkp = el('p', 'ex-marked',
-          ok ? '本组已记为答对' : '本组已记为答错，已进错题本');
-        var exp = extraEl.querySelector('.ex-exp');
-        if (exp) extraEl.insertBefore(mkp, exp); else extraEl.appendChild(mkp);
+        markLine(ok ? '已记为答对' : '已记为答错 · 已进错题本');
       }
       nextEl.classList.add('pri');
     }
@@ -17613,11 +17635,51 @@ body.climate-layer-on #tools{z-index:44}
       leftEl.scrollTop = 0;
     }
 
+    /* ---- 题图 ----
+       每张知识卡一张（assets/bank/fig/<card>.svg，_fix/figs.py 生成）。
+       内联进 DOM 而不是 <img src>：SVG 里那点中文能继承页面字体，
+       当图片加载时字体会掉回系统默认，跟题干对不上。
+       清单里没有的卡直接跳过 —— 不为了"每道题都有图"去发一串 404。 */
+    var FIG = null, FIG_P = null, figCache = {};
+    function loadFigIndex() {
+      if (FIG) return Promise.resolve(FIG);
+      if (FIG_P) return FIG_P;
+      FIG_P = fetch('assets/bank/fig/index.json' + (BUILD_TAG ? '?v=' + encodeURIComponent(BUILD_TAG) : ''),
+                    { cache: 'force-cache' })
+        .then(function (r) { return r.ok ? r.json() : { cards: [] }; })
+        .then(function (j) { FIG = {}; (j.cards || []).forEach(function (c) { FIG[c] = 1; }); return FIG; })
+        .catch(function () { FIG = {}; return FIG; });
+      return FIG_P;
+    }
+
+    function showFig(it) {
+      if (!figLEl) return;
+      figLEl.textContent = '';            // 上一题的图不能留下来顶替这一题
+      if (!it || !it.card) return;
+      loadFigIndex().then(function (map) {
+        if (!map[it.card] || qs[at] !== it) return;
+        var put = function (svg) {
+          if (qs[at] !== it) return;
+          figLEl.innerHTML = svg;
+        };
+        if (figCache[it.card]) { put(figCache[it.card]); return; }
+        var url = 'assets/bank/fig/' + it.card + '.svg' +
+          (BUILD_TAG ? '?v=' + encodeURIComponent(BUILD_TAG) : '');
+        fetch(url, { cache: 'force-cache' }).then(function (r) {
+          if (!r.ok) throw new Error('HTTP ' + r.status);
+          return r.text();
+        }).then(function (txt) {
+          figCache[it.card] = txt;
+          put(txt);
+        }).catch(function () {});
+      });
+    }
+
     /* ---- 右栏国家图集 ----
        图片来自 data/cards.json 的 landmark_images（每国 6 张，取第一张）。
        两层 <img> 交叉淡入：旧图这一帧完全不动，新图 decode 完再显形 ——
        档案卡换图那三条铁律照旧（object-fit 钉在 CSS 里、底色不透明、load≠能画）。 */
-    var gal = { list: [], i: 0, timer: 0, flip: false, ready: false };
+    var gal = { list: [], i: 0, timer: 0, flip: false, ready: false, cur: '' };
 
     function buildGallery() {
       if (!CARDS || !Object.keys(CARDS).length) return false;
@@ -17645,19 +17707,30 @@ body.climate-layer-on #tools{z-index:44}
       }
     }
 
-    function showShot(k) {
+    function showShot(k, force) {
       var it = gal.list[k];
       if (!it) return;
       var next = gal.flip ? gB : gA;
       var prev = gal.flip ? gA : gB;
+      /* 同一张照片已经挂在屏幕上（回到选题页、退出再进都会走到这儿），
+         就别再赋一次 src —— 重新赋 src 会把已经在画的那一帧丢掉，
+         等解码的那几十毫秒里露出空底，看起来就是"图集亮白了一下"。 */
+      var cur = gal.flip ? gA : gB;
+      if (!force && gal.cur === it.url && cur.classList.contains('on') &&
+          cur.complete && cur.naturalWidth) {
+        gName.textContent = it.name;
+        gSub.textContent = it.cap;
+        preloadNext();
+        return;
+      }
       next.onload = function () {
         var paint = function () {
           next.classList.add('on');
           prev.classList.remove('on');
           gal.flip = !gal.flip;
+          gal.cur = it.url;
           gName.textContent = it.name;
           gSub.textContent = it.cap;
-          if (skelEl && !skelEl.hidden) skelEl.hidden = true;   // 第一张到位就撤骨架
           gal.fails = 0;
           preloadNext();
         };
@@ -17665,12 +17738,11 @@ body.climate-layer-on #tools{z-index:44}
         else paint();
       };
       /* 图片挂了就换下一张，但必须有个上限 —— 否则一个 404 就能让这里
-         变成死循环，一轮接一轮地发请求。连续失败 4 张就停，把骨架收掉。 */
+         变成死循环，一轮接一轮地发请求。连续失败 4 张就停。 */
       next.onerror = function () {
         gal.fails = (gal.fails || 0) + 1;
         if (gal.fails > 4) {
           galStop();
-          if (skelEl) skelEl.hidden = true;
           gName.textContent = '图集暂时取不到';
           gSub.textContent = '照片加载失败，稍后再试';
           return;
