@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-26-N">
+<meta name="build" content="2026-11-26-P">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -1156,6 +1156,13 @@
     font-size:15px;line-height:2;color:#4A5568;letter-spacing:.1px;
     white-space:pre-wrap;overflow-wrap:anywhere}
   .ex-mat[hidden]{display:none}
+  /* 材料题：一个小问一块，题干比主问题小一号，选项跟在自己的小问下面。
+     小问之间留 22px，比选项间距大、比题与题之间小，一眼能看出"同一题里的几问"。 */
+  .ex-grp{display:flex;flex-direction:column;gap:22px}
+  .ex-mi-q{font-size:19px;line-height:1.85;margin:0 0 12px;color:#14181F;font-weight:500;
+    white-space:pre-line}
+  .ex-mi-no{font-style:normal;font-weight:600;color:#8A94A3;margin-right:4px}
+  .ex-mi .ex-ans,.ex-mi .ex-exp{margin-top:12px}
   /* 材料配图：线图居多，白底、细边框，别用阴影压得太重 */
   .ex-mat-fig{display:block;max-width:100%;height:auto;margin:12px 0 2px;
     border-radius:4px;background:#fff}
@@ -17393,6 +17400,57 @@ body.climate-layer-on #tools{z-index:44}
 
     /* ---- 题库 ---- */
     var bank = null, bankP = null;
+    /* ---- 材料题分组 ----
+       数据里一道材料题是"一个小问一条"，每条都把材料原文重复一遍。
+       卷面上一道材料题就是一整题：材料一份，下面（1）（2）（3）连着。
+       入库前把同卷、同材料的几条合成一条，小问放进 subs。
+       分组键 = 年份 + 卷名 + 材料原文：同一段材料不会跨卷重复。 */
+    function groupReal(list) {
+      var out = [], byKey = {};
+      for (var i = 0; i < list.length; i++) {
+        var q = list[i], mat = (q.material || '').trim();
+        if (!mat) { out.push(q); continue; }
+        var key = (q.year || '') + '|' + (q.paper || '') + '|' + mat;
+        var g = byKey[key];
+        if (!g) {
+          g = byKey[key] = {
+            type: 'material', cat: q.cat || '真题', band: q.band, grade: q.grade, lv: q.lv,
+            theme: q.theme, tags: q.tags, year: q.year, paper: q.paper,
+            material: mat, figure: q.figure || '', figureAlt: q.figureAlt || '',
+            subs: [], score: 0, diff: 0
+          };
+          out.push(g);
+        }
+        g.subs.push({
+          q: q.q, opts: q.opts || [], ans: q.ans, ansText: q.ansText || '',
+          exp: q.exp || '', no: q.no, score: scoreOf(q)
+        });
+        if (!g.figure && q.figure) { g.figure = q.figure; g.figureAlt = q.figureAlt || ''; }
+        g.score = Math.max(g.score, scoreOf(q));
+        g.diff = Math.max(g.diff || 0, q.diff || 0);
+      }
+      out.forEach(function (g) {
+        if (!g.subs) return;
+        /* 数据里常是倒着导出的（5、4、3），按题号排回卷面顺序 */
+        g.subs.sort(function (a, b) {
+          return (+String(a.no).replace(/\D/g, '') || 0) - (+String(b.no).replace(/\D/g, '') || 0);
+        });
+        var nos = [];
+        g.subs.forEach(function (s) {
+          var v = String(s.no);
+          if (nos.indexOf(v) < 0) nos.push(v);
+        });
+        /* id 必须稳定：收藏、错题本都拿它当键，所以只由卷名和题号算，不用数组下标 */
+        g.id = 'mat-' + (g.year || 'x') + '-' + (g.paper || 'x') + '-' + nos[0];
+        g.src = (g.year ? g.year + ' 年' : '') + (g.paper || '') + ' · 第 ' + nos.join('、') + ' 题' +
+          (g.subs.length > 1 && nos.length === 1 ? '（共 ' + g.subs.length + ' 小题）' : '');
+        /* 错题本、结算页列表都读 it.q，这里给一句能看懂的话 */
+        g.q = '材料题 · ' + (g.material || '').replace(/\s+/g, ' ').slice(0, 34) + '…';
+        g.title = g.q;
+      });
+      return out;
+    }
+
     function loadBank() {
       if (bank) return Promise.resolve(bank);
       if (bankP) return bankP;
@@ -17412,7 +17470,7 @@ body.climate-layer-on #tools{z-index:44}
         getBank('assets/bank/real.json').catch(function () { return { items: [] }; })
       ]).then(function (a) {
         var g = (a[0] && a[0].items) ? a[0].items : [];
-        var r = (a[1] && a[1].items) ? a[1].items : [];
+        var r = groupReal((a[1] && a[1].items) ? a[1].items : []);
         var nReal = 0;
         for (var ri = 0; ri < r.length; ri++) if (r[ri].cat === '真题') nReal++;
         bank = { items: g.concat(r), nCard: g.length, nReal: nReal, nExtra: r.length - nReal };
@@ -17430,6 +17488,16 @@ body.climate-layer-on #tools{z-index:44}
     var LVS = [{ v: '', t: '全部' }, { v: '初中', t: '初中' }, { v: '高中', t: '高中' }];
     var TYPES = [{ v: '', t: '全部' }, { v: 'choice', t: '选择题' }, { v: 'short', t: '简答题' },
                { v: 'material', t: '材料题' }];
+    /* 题型筛选：材料题是一整题，但"它算不算选择题"要看小问。
+       3 个选择小问的材料题，选"选择题"也该能筛到。 */
+    function typeHit(it, v) {
+      if (!v) return true;
+      if (it.type === v) return true;
+      if (!it.subs) return false;
+      if (v === 'choice') return it.subs.some(function (s) { return s.opts && s.opts.length; });
+      if (v === 'short') return it.subs.some(function (s) { return !(s.opts && s.opts.length); });
+      return false;
+    }
     function scoreOf(it) {
       if (it && typeof it.score === 'number') return it.score;
       return (it && it.diff ? it.diff : 2) * 2.2;      // 老题库兜底
@@ -17454,7 +17522,7 @@ body.climate-layer-on #tools{z-index:44}
         if (F.src === 'card' && isReal) return false;
         if (F.lv && it.band !== F.lv) return false;
         if (F.theme && it.theme !== F.theme) return false;
-        if (F.type && it.type !== F.type) return false;
+        if (!typeHit(it, F.type)) return false;
         var sc = scoreOf(it);
         if (sc < F.dmin - 1e-9 || sc > F.dmax + 1e-9) return false;
         return true;
@@ -17532,7 +17600,12 @@ body.climate-layer-on #tools{z-index:44}
       });
       chipRow(fLv, LVS, 'lv', countBy(function (it) { return it.band; }));
       chipRow(fTheme, themeList(), 'theme', null);
-      chipRow(fType, TYPES, 'type', countBy(function (it) { return it.type; }));
+      /* 题型是三档"能筛到"的数量，不是互斥分组：材料题只要有小问是选择题，两边都算 */
+      var tcnt = { choice: 0, short: 0, material: 0 };
+      bank.items.forEach(function (it) {
+        ['choice', 'short', 'material'].forEach(function (v) { if (typeHit(it, v)) tcnt[v]++; });
+      });
+      chipRow(fType, TYPES, 'type', tcnt);
       syncRange();
       chipRow(fN, NS, 'n', null);
       /* 选了「自定义」就在同一行后面挂个数字框，输入即生效（不重渲染，
@@ -17587,7 +17660,11 @@ body.climate-layer-on #tools{z-index:44}
       var nodes = cardEl.querySelectorAll('.ex-cn');
       for (var i = 0; i < nodes.length; i++) {
         nodes[i].classList.toggle('on', i === at);
-        nodes[i].classList.toggle('done', !!marks[i]);
+        /* 材料题要整题答完才算做完 —— 半途答了两小问，卡上标"完成"、
+           结算却按跳过算，两边说法会打架 */
+        var mk = marks[i];
+        var fin = !!mk && !(qs[i] && qs[i].subs && !groupDone(qs[i], mk));
+        nodes[i].classList.toggle('done', fin);
       }
       var cur = cardEl.querySelector('.ex-cn.on');
       if (cur && cur.scrollIntoView) cur.scrollIntoView({ block: 'nearest' });
@@ -17756,7 +17833,8 @@ body.climate-layer-on #tools{z-index:44}
       extraEl.textContent = '';
       tag(it.band === '高中' ? '高中' : it.grade, true);
       tag(it.theme);
-      tag(it.type === 'choice' ? '选择题' : (it.type === 'material' ? '材料题' : '简答题'));
+      tag(it.subs ? ('材料题 · ' + it.subs.length + ' 小题')
+        : (it.type === 'choice' ? '选择题' : (it.type === 'material' ? '材料题' : '简答题')));
       tag('掌握分 ' + scoreOf(it).toFixed(1));
       if (matEl) {
         if (it.material) {
@@ -17776,14 +17854,18 @@ body.climate-layer-on #tools{z-index:44}
         }
         else { matEl.textContent = ''; matEl.hidden = true; }
       }
-      qEl.textContent = splitEnum(it.q);
+      /* 材料题的题干都在小问里，主问题位置留空 —— 不然会多出一行空段落 */
+      qEl.textContent = it.subs ? '' : splitEnum(it.q);
+      qEl.hidden = !!it.subs;
       optsEl.textContent = '';
       if (figREl) figREl.textContent = '';
       if (figLEl) figLEl.textContent = '';
       if (it.figure) showFig(it, 'L');     // 真题自带材料图（暂时没有题目用）
       prefetchFig(it);                     // 解析要用的图，趁答题这几秒先取好
 
-      if (it.type === 'choice') {
+      if (it.subs) {
+        renderGroup(it);
+      } else if (it.type === 'choice') {
         (it.opts || []).forEach(function (txt2, i) {
           var b = el('button', 'ex-opt');
           b.type = 'button';
@@ -17854,6 +17936,155 @@ body.climate-layer-on #tools{z-index:44}
       showExp(it);
       showFig(it, 'R');                    // 解析出来了，图跟着解析一起给
       nextEl.classList.add('pri');
+    }
+
+    /* ---------- 材料题：一整题 ----------
+       材料一份在顶上，下面（1）（2）（3）连着。选择小问点一下只判自己那一问；
+       简答小问统一"看参考答案"再自评。全部答完才出这一整题的解析与来源，
+       答题卡只占一格 —— 一题材料题就是一题。 */
+
+    function groupDone(it, mk) {
+      for (var i = 0; i < it.subs.length; i++) {
+        if (it.subs[i].opts && it.subs[i].opts.length && mk.picks[i] == null) return false;
+      }
+      return true;
+    }
+    function subBox(si) {
+      return optsEl.querySelector('.ex-mi[data-i="' + si + '"]');
+    }
+
+    function renderGroup(it) {
+      var wrap = el('div', 'ex-grp');
+      it.subs.forEach(function (sub, si) {
+        var box = el('div', 'ex-mi');
+        box.setAttribute('data-i', String(si));
+        var qp = el('p', 'ex-mi-q');
+        qp.appendChild(el('i', 'ex-mi-no', '（' + (si + 1) + '）'));
+        qp.appendChild(document.createTextNode(splitEnum(sub.q)));
+        box.appendChild(qp);
+        if (sub.opts && sub.opts.length) {
+          var ob = el('div', 'ex-opts');
+          sub.opts.forEach(function (txt2, oi) {
+            var b = el('button', 'ex-opt');
+            b.type = 'button';
+            b.appendChild(el('span', 'k', 'ABCD'.charAt(oi)));
+            b.appendChild(el('span', 'v', txt2));
+            b.appendChild(el('span', 'mk', ''));
+            b.addEventListener('click', function () { pickMi(si, oi); });
+            ob.appendChild(b);
+          });
+          box.appendChild(ob);
+        }
+        wrap.appendChild(box);
+      });
+      optsEl.appendChild(wrap);
+      /* 有简答小问（综合题）：卷面上就是"写出答案"，给一颗统一的看参考答案 */
+      if (it.subs.some(function (s) { return !(s.opts && s.opts.length); })) {
+        var rv = el('button', 'ex-reveal', '看参考答案');
+        rv.type = 'button';
+        rv.addEventListener('click', function () { revealGroup(false); });
+        optsEl.appendChild(rv);
+      }
+    }
+
+    function paintSub(si, pickIdx) {
+      var it = qs[at], sub = it && it.subs && it.subs[si], box = subBox(si);
+      if (!sub || !box) return;
+      var nodes = box.querySelectorAll('.ex-opt');
+      for (var k = 0; k < nodes.length; k++) {
+        var n = nodes[k];
+        n.classList.remove('ok', 'bad', 'dim');
+        if (k === sub.ans) n.classList.add('ok');
+        else if (k === pickIdx) n.classList.add('bad');
+        else n.classList.add('dim');
+        n.querySelector('.mk').textContent =
+          k === sub.ans ? '正确答案' : (k === pickIdx ? '你的选择' : '');
+      }
+    }
+
+    /* 答案和解析挂到各自的**小问**下面，不集中到题尾 ——
+       四小问共用一个解析块，看的人得自己对题号，很容易错位 */
+    function fillSubAnswer(si) {
+      var it = qs[at], sub = it && it.subs && it.subs[si], box = subBox(si);
+      if (!sub || !box || box.__ans) return;
+      box.__ans = 1;
+      if (!(sub.opts && sub.opts.length)) {
+        var a = el('div', 'ex-ans');
+        a.appendChild(el('b', '', '参考答案'));
+        a.appendChild(el('p', '', sub.ansText || sub.ans || '（这道小题暂时没有参考答案）'));
+        box.appendChild(a);
+      }
+      if (sub.exp) {
+        var d = el('div', 'ex-exp');
+        d.appendChild(el('b', '', '解析'));
+        d.appendChild(el('p', '', sub.exp));
+        box.appendChild(d);
+      }
+    }
+
+    function showGroupAnswers() {
+      var it = qs[at];
+      if (!it || !it.subs) return;
+      extraEl.textContent = '';
+      it.subs.forEach(function (sub, si) { fillSubAnswer(si); });
+      extraEl.appendChild(el('p', 'ex-src', '来源：' + it.src));
+    }
+
+    function pickMi(si, oi) {
+      var it = qs[at];
+      if (!it || !it.subs) return;
+      var mk = marks[at];
+      if (!mk) mk = marks[at] = { picks: [], ok: false };
+      if (mk.picks[si] != null) return;            // 这一小问已经答过
+      mk.picks[si] = oi;
+      paintSub(si, oi);
+      if (!groupDone(it, mk)) { syncCard(); return; }
+      mk.ok = it.subs.every(function (sub, k) { return mk.picks[k] === sub.ans; });
+      record(it, mk.ok);                           // 整题答完才记账（错题本一条）
+      showGroupAnswers();
+      nextEl.classList.add('pri');
+      syncCard();
+    }
+
+    function revealGroup(review) {
+      var it = qs[at];
+      if (!it || !it.subs) return;
+      var mk = marks[at] || (marks[at] = { picks: [], ok: false });
+      mk.revealed = true;
+      var rv = optsEl.querySelector('.ex-reveal');
+      if (rv && rv.parentNode) rv.parentNode.removeChild(rv);
+      showGroupAnswers();
+      if (review) {
+        var txt = mk.ok ? '已记为答对'
+          : ((mk.judged || groupDone(it, mk)) ? '已记为答错 · 已进错题本' : '这一题本组没有作答');
+        if (!extraEl.querySelector('.ex-marked')) markLine(txt);
+        return;
+      }
+      if (mk.judged) return;
+      var row = el('div', 'ex-judge');
+      var b1 = el('button', 'ok');
+      var b2 = el('button', 'no');
+      b1.type = 'button'; b2.type = 'button';
+      b1.setAttribute('aria-label', '我答对了');
+      b2.setAttribute('aria-label', '没答上来');
+      b1.innerHTML = TICK_SVG;
+      b2.innerHTML = CROSS_SVG;
+      b1.addEventListener('click', function () { judgeGroup(true, b1, b2); });
+      b2.addEventListener('click', function () { judgeGroup(false, b1, b2); });
+      row.appendChild(b1); row.appendChild(b2);
+      optsEl.appendChild(row);
+    }
+
+    function judgeGroup(ok, b1, b2) {
+      var it = qs[at];
+      var mk = marks[at] || (marks[at] = { picks: [], ok: false });
+      mk.ok = ok; mk.judged = true;
+      record(it, ok);
+      b1.disabled = true; b2.disabled = true;
+      (ok ? b1 : b2).classList.add('picked');
+      if (!extraEl.querySelector('.ex-marked')) markLine(ok ? '已记为答对' : '已记为答错 · 已进错题本');
+      nextEl.classList.add('pri');
+      syncCard();
     }
 
     /* "已记为答对"这类话挪到解析**下面**：放在勾叉和解析之间，它会占一行，
@@ -17933,6 +18164,12 @@ body.climate-layer-on #tools{z-index:44}
 
     function restore(mk) {
       var it = qs[at];
+      if (it.subs) {
+        (mk.picks || []).forEach(function (p, si) { if (p != null) paintSub(si, p); });
+        if (mk.revealed || groupDone(it, mk)) revealGroup(true);
+        nextEl.classList.add('pri');
+        return;
+      }
       if (it.type === 'choice') {
         var nodes = optsEl.querySelectorAll('.ex-opt');
         locked = true;
@@ -17971,6 +18208,8 @@ body.climate-layer-on #tools{z-index:44}
       var ok = 0, bad = 0, done = 0, wl = [];
       for (var i = 0; i < qs.length; i++) {
         var mk = marks[i];
+        /* 材料题只答了其中两小问 = 没做完，按跳过算，别算成"做错进错题本" */
+        if (mk && qs[i].subs && !groupDone(qs[i], mk)) mk = null;
         if (!mk) continue;
         done++;
         if (mk.ok) ok++;
