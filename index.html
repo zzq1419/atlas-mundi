@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-26-L">
+<meta name="build" content="2026-11-26-M">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -984,10 +984,15 @@
   /* 0.7s 太拖：名字已经换了、画还在慢慢透，看着就是"图没跟上"。
      改成 0.3s，并且新图永远压在上面淡入（见 showShot 里的 zIndex）——
      两层交叉淡会出现"两边都半透明"的糊，压在上面的新图直接盖住就行。 */
+  /* 0.22s：再长就会"名字已经换了、画还在慢慢透"。照片永远压在上面，新图一到就盖住旧图。 */
   .ex-g-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
-    opacity:0;transition:opacity .3s ease;background:#E7EAEE}
+    opacity:0;transition:opacity .22s ease;background:#E7EAEE}
   .ex-g.on{opacity:1}
   .ex-g-img.on{opacity:1}
+  /* 说明跟照片一起淡进来，别让文字先到位（用户原话："先切换的名字才换的图像"）。
+     用一次性动画而不是 transition：连续换图时每次都能重新起跑。 */
+  @keyframes exCapIn{from{opacity:0}to{opacity:1}}
+  .ex-g-cap.in{animation:exCapIn .2s ease both}
   /* 照片可能是雪原、云海、白墙这类浅色 —— 半透明白底 + 白字会整块消失，
      实测用户就是在这个状态下看到"国家图集"和箭头都不见了。
      底提到 .94 再加投影，任何照片上都读得出。 */
@@ -1018,7 +1023,9 @@
     padding:clamp(20px,4vw,56px)}
   #ex-lb[hidden]{display:none !important}
   #ex-lb-img{max-width:100%;max-height:calc(100dvh - 150px);
-    object-fit:contain;border-radius:6px;box-shadow:0 30px 70px rgba(0,0,0,.6)}
+    object-fit:contain;border-radius:6px;box-shadow:0 30px 70px rgba(0,0,0,.6);
+    opacity:0;transition:opacity .18s ease}
+  #ex-lb-img.on{opacity:1}
   .ex-lb-cap{position:absolute;left:0;right:0;bottom:clamp(18px,4vh,44px);
     text-align:center;pointer-events:none}
   .ex-lb-cap b{display:block;font-size:20px;font-weight:600;color:#F4F7FB}
@@ -17357,6 +17364,7 @@ body.climate-layer-on #tools{z-index:44}
     function setPage(p) { root.setAttribute('data-page', p); }
     var gName = $('ex-g-name'), gSub = $('ex-g-sub');
     var gA = $('ex-g-a'), gB = $('ex-g-b');
+    var gCapEl = document.querySelector('.ex-g-cap');
 
     /* ---- 存档 ---- */
     var KEY = 'atlas.exam.v1';
@@ -18139,41 +18147,83 @@ body.climate-layer-on #tools{z-index:44}
       }
     }
 
+    /* 说明跟照片一起淡进来（CSS 里 exCapIn）—— 文字先到位就是用户说的
+       "名字换了、图还在慢慢透"。 */
+    function setGalText(it) {
+      var same = (gName.textContent === it.name);   // 名字没变就别再淡入一次
+      gName.textContent = it.name;
+      gSub.textContent = it.cap || '';
+      if (gCapEl && !same) {
+        gCapEl.classList.remove('in');
+        void gCapEl.offsetWidth;      // 重排一次，动画才会重新起跑
+        gCapEl.classList.add('in');
+      }
+    }
+
     function showShot(k, force) {
       var it = gal.list[k];
       if (!it) return;
-      var next = gal.flip ? gB : gA;
-      var prev = gal.flip ? gA : gB;
+      var vis = gal.flip ? gA : gB;          // 现在正在画的那一层
       /* 同一张照片已经挂在屏幕上（回到选题页、退出再进都会走到这儿），
          就别再赋一次 src —— 重新赋 src 会把已经在画的那一帧丢掉，
          等解码的那几十毫秒里露出空底，看起来就是"图集亮白了一下"。 */
-      var cur = gal.flip ? gA : gB;
-      if (!force && gal.cur === it.url && cur.classList.contains('on') &&
-          cur.complete && cur.naturalWidth) {
-        gName.textContent = it.name;
-        gSub.textContent = it.cap;
+      if (!force && gal.cur === it.url && vis.classList.contains('on') &&
+          vis.complete && vis.naturalWidth) {
+        gal.i = k;
+        setGalText(it);
         preloadNext();
         return;
       }
+      /* 一次只跑一个换图。9 秒的自动切换正好撞上用户点「下一张」时，两次换图
+         会同时去改两层 img：名字是后一次写的、照片是前一次画的，中途还被清过位图
+         —— 用户看到的就是"名字换了、图没换"和一块白。后来的请求先记着，画完再发。 */
+      if (gal.busy) { gal.want = k; return; }
+
+      var next = gal.flip ? gB : gA;         // 要换上来的那一层
+      var prev = vis;
+      gal.busy = true;
+      /* 双保险：连点两下时这层可能还带着上一轮的 .on（上轮淡出计时还没走完），
+         必须先按 opacity:0 定住再换 src。否则位图一清、它又不透明，就是一块白。 */
+      if (next.classList.contains('on')) {
+        if (gal.offT) { clearTimeout(gal.offT); gal.offT = 0; }
+        next.classList.remove('on');
+        void next.offsetWidth;
+      }
+      /* 一轮结束：先放行记下来的那次请求，没有才把按钮的 busy 收掉 */
+      var settle = function () {
+        gal.busy = false;
+        if (gal.want >= 0) {
+          var w = gal.want; gal.want = -1;
+          showShot(w);
+        } else if (gNext) {
+          gNext.classList.remove('busy');
+        }
+      };
       next.onload = function () {
         var paint = function () {
-          /* 只在新旧两层之间轮换：原来用 ++gal.z 一路递增，
-             换够十来张就涨过 .ex-g-tag(10) / .ex-g-next(11)，
-             照片把「国家图集」和箭头整个盖住 —— 用户看到的就是"它们不见了"。 */
-          next.style.zIndex = (gal.z++ % 2) + 1;   // 新图压在旧图上面淡入
+          /* 这张在下载的时候用户又点了一下：别画了，直接去做用户要的那张。
+             否则会先闪一下自动切的那国、再换成用户点的 —— 就是"我点的那张呢"。 */
+          if (gal.want >= 0) { settle(); return; }
+          if (gal.offT) { clearTimeout(gal.offT); gal.offT = 0; }
+          next.style.zIndex = (gal.z++ % 2) + 1;   // 新图永远压在旧图上面
           next.classList.add('on');
           /* 旧图等新图铺满再撤，否则淡入过程中会露出底下的浅灰 */
-          setTimeout(function () { prev.classList.remove('on'); }, 320);
+          gal.offT = setTimeout(function () {
+            prev.classList.remove('on');
+            gal.offT = 0;
+          }, 240);
           gal.flip = !gal.flip;
           gal.cur = it.url;
-          gName.textContent = it.name;
-          gSub.textContent = it.cap;
+          gal.i = k;
+          /* alt 写全：读屏能读，自动化自检也靠它核对"字和图是不是同一张" */
+          next.alt = it.name + (it.cap ? '：' + it.cap : '');
+          setGalText(it);
           gal.fails = 0;
           gal.shown++;
           rememberSeen(it.iso);
           if (gBox) gBox.classList.add('on');     // 第一张到位才把相框里的画露出来
-          if (gNext) gNext.classList.remove('busy');
           preloadNext();
+          settle();
         };
         if (!next.naturalWidth) { next.onerror(); return; }   // 位图是空的，当失败处理
         if (next.decode) next.decode().then(paint).catch(function () { next.onerror(); });
@@ -18191,20 +18241,22 @@ body.climate-layer-on #tools{z-index:44}
         gal.fails = (gal.fails || 0) + 1;
         if (gal.fails > 4) {
           galStop();
+          gal.busy = false;
           if (gNext) gNext.classList.remove('busy');
           gName.textContent = '图集暂时取不到';
           gSub.textContent = '照片加载失败，稍后再试';
           if (gBox) gBox.classList.add('on');     // 收掉蒙层，让"取不到"这句能被看见
           return;
         }
-        gal.i = (gal.i + 1) % gal.list.length;
-        showShot(gal.i);
+        gal.busy = false;
+        showShot((k + 1) % gal.list.length);
       };
       next.__fb = null;
       next.src = assetSrc(it.url, it.v);
     }
 
-    function galNext() {
+    var GAL_MS = 9000;
+    function galNext(manual) {
       if (!gal.ready) return;
       if (gNext) gNext.classList.add('busy');
       gal.i++;
@@ -18216,16 +18268,28 @@ body.climate-layer-on #tools{z-index:44}
       }
       preloadNext();
       showShot(gal.i);
+      /* 手动翻过就重新计时。原来 9 秒的定时器不管点击，用户在 8.9 秒点了一下，
+         0.1 秒后那张就被自动翻走 —— "我点的那张呢？" */
+      if (manual) galArm();
+    }
+    function galArm() {
+      if (gal.timer) clearInterval(gal.timer);
+      gal.timer = setInterval(function () { galNext(); }, GAL_MS);
     }
     function galStart() {
       if (!gal.ready) return;
       showShot(gal.i);
-      if (gal.timer) clearInterval(gal.timer);
-      /* 原来 5.2 秒一张，照片还没看明白就换了；9 秒刚好读完国名 + 地标名 */
-      gal.timer = setInterval(galNext, 9000);
+      galArm();
     }
     function galStop() {
       if (gal.timer) { clearInterval(gal.timer); gal.timer = 0; }
+    }
+    /* 重进图集：先换一张再开轮播。原来写的是 galStart(); galNext();
+       等于先按这张播、再立刻翻下一张，每次进来都要白闪一下。 */
+    function galResume() {
+      if (!gal.ready) { galBoot(); return; }
+      if (gal.shown) gal.i = (gal.i + 1) % gal.list.length;
+      galStart();
     }
     /* cards.json 944KB，首屏之后才取；没到就等，等到就建图集。 */
     function galBoot() {
@@ -18242,14 +18306,53 @@ body.climate-layer-on #tools{z-index:44}
     /* ---- 点照片放大看 ----
        大图直接用图集当前那张的 URL（已经预取过，不会再等）。
        打开时把自动播放停掉，否则大图看着看着底下标题就换了。 */
+    /* 放大层只有一个 <img>，直接换 src 的那几十毫秒是空的 —— 名字先换、图上还一片白，
+       跟图集是同一个毛病。做法也一样：先在内存里解码，好了再一次性换 src + 文字。 */
+    var lbSeq = 0;
+    /* 预取一张图，等它真的能画了再回调：onload 不等于能画，decode 才算。
+       OBS 上取不到就退回仓库相对路径（跟图集里那套兜底一样）——
+       实测 OBS 的 webp 会被浏览器以 ORB 拦掉，直接赋给大图就是一块空白。 */
+    function lbPreload(url, rel) {
+      return new Promise(function (res) {
+        var im = new Image();
+        var ok = function () {
+          if (im.decode) im.decode().then(function () { res(im.src); }).catch(function () { res(im.src); });
+          else res(im.src);
+        };
+        im.onload = ok;
+        im.onerror = function () {
+          if (rel && !im.__fb) { im.__fb = 1; im.src = rel; return; }
+          res('');                            // 两条路都不通，宁可留着上一张也不给白屏
+        };
+        im.src = url;
+      });
+    }
+    function lbShow(it, knownSrc) {
+      if (!it || !lb) return;
+      var my = ++lbSeq;
+      var rel = it.url + (BUILD_TAG ? '?v=' + encodeURIComponent(BUILD_TAG) : '');
+      lbPreload(knownSrc || assetSrc(it.url, it.v), rel).then(function (good) {
+        if (my !== lbSeq || !good) return;    // 期间又翻了一张 / 图没下来，这次作废
+        if (lbImg.getAttribute('src') !== good) lbImg.src = good;
+        lbImg.alt = it.name + (it.cap ? '：' + it.cap : '');
+        lbImg.classList.add('on');            // 能画了才显形
+        lbName.textContent = it.name;
+        lbSub.textContent = it.cap || '';
+      });
+    }
+    /* 屏幕上正在画的那张图的实际地址（OBS 失败时会自动退回相对路径，
+       所以要读 currentSrc，而不是重新拼一次 URL） */
+    function liveSrc() {
+      var el = gal.flip ? gA : gB;
+      if (el.classList.contains('on') && el.naturalWidth) return el.currentSrc || el.src;
+      return '';
+    }
     function openLB() {
       var it = gal.list[gal.i];
       if (!it || !lb) return;
-      lbImg.src = assetSrc(it.url, it.v);
-      lbImg.alt = it.name + (it.cap ? '：' + it.cap : '');
-      lbName.textContent = it.name;
-      lbSub.textContent = it.cap || '';
       lb.hidden = false;
+      lbImg.classList.remove('on');           // 先不显形，等新图能画了再淡进来
+      lbShow(it, liveSrc());                  // 直接用屏幕上这一张，绝不再下一次网络
       galStop();
     }
     function closeLB() {
@@ -18262,14 +18365,8 @@ body.climate-layer-on #tools{z-index:44}
       if (!gal.ready) return;
       gal.i = (gal.i + d + gal.list.length) % gal.list.length;
       preloadNext();
-      showShot(gal.i);
-      var it = gal.list[gal.i];
-      if (it) {
-        lbImg.src = it.url;
-        lbImg.alt = it.name;
-        lbName.textContent = it.name;
-        lbSub.textContent = it.cap || '';
-      }
+      showShot(gal.i);                  // 底下那张也跟着换，关掉大图就是同一张
+      lbShow(gal.list[gal.i]);           // 新的一张在图集里还没画完，这里自己预取
     }
 
     /* ---- 进入 / 退出 ----
@@ -18406,18 +18503,14 @@ body.climate-layer-on #tools{z-index:44}
           });
       }
       renderSetup();                     // 已加载过就立刻重画
-      if (!gal.ready) galBoot();
-      else if (gal.shown) { galStart(); galNext(); }   // 重进一次就换一张，别老是同一张
-      else galStart();
+      galResume();                       // 重进一次就换一张，别老是同一张
     }
     function toSetup() {
       runEl.hidden = true; doneEl.hidden = true; setupEl.hidden = false;
       setPage('set');
       leftEl.scrollTop = 0;
       renderSetup();
-      if (!gal.ready) galBoot();
-      else if (gal.shown) { galStart(); galNext(); }
-      else galStart();
+      galResume();
     }
     function leave() {
       examOpen = false;
@@ -18466,12 +18559,20 @@ body.climate-layer-on #tools{z-index:44}
     if (earthEl) earthEl.addEventListener('click', leave);
     if (gNext) gNext.addEventListener('click', function (e) {
       e.stopPropagation();          // 别让"下一张"顺手把放大层也点开
-      galNext();
+      galNext(true);                // true = 手动：翻完重新计 9 秒
     });
     var gBox = document.querySelector('.ex-g');
     if (gBox) {
       gBox.setAttribute('title', '点击放大');
       gBox.addEventListener('click', openLB);
+      /* 鼠标停在上头就停表，移开再给满 9 秒。正在看的那张被自动换走，比换得慢更难受。 */
+      gBox.addEventListener('mouseenter', galStop);
+      gBox.addEventListener('mouseleave', function () {
+        if (!gal.ready) return;
+        if (lb && !lb.hidden) return;              // 放大层开着，等关掉再恢复
+        if (!document.body.classList.contains('exam-mode')) return;
+        galArm();
+      });
     }
     if (lb) {
       lb.addEventListener('click', function (e) {
