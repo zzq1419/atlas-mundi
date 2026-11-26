@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-26-P">
+<meta name="build" content="2026-11-26-Q">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -17422,7 +17422,10 @@ body.climate-layer-on #tools{z-index:44}
           out.push(g);
         }
         g.subs.push({
-          q: q.q, opts: q.opts || [], ans: q.ans, ansText: q.ansText || '',
+          /* 源数据的小问自带"（1）（2）"编号，界面上是我们自己编的号，
+             不剥掉就会渲染成"（1）（1）分析寒冷的气候…" */
+          q: String(q.q || '').replace(/^[\s\u3000]*[（(]\s*\d{1,2}\s*[)）][\s\u3000]*/, ''),
+          opts: q.opts || [], ans: q.ans, ansText: q.ansText || '',
           exp: q.exp || '', no: q.no, score: scoreOf(q)
         });
         if (!g.figure && q.figure) { g.figure = q.figure; g.figureAlt = q.figureAlt || ''; }
