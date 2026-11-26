@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-26-Q">
+<meta name="build" content="2026-11-27-A">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -1126,6 +1126,11 @@
      660 对 16.5px 的选项来说仍然宽松。 */
   .ex-stage{display:grid;grid-template-columns:1fr minmax(0,clamp(660px,44vw,820px)) 1fr;
     gap:clamp(16px,2vw,36px);align-items:start;min-height:100%}
+  /* 右侧出图时整条题列往左让位：左边空档收成 0.3fr，省下来的全给题图。
+     1440 屏上右栏从 360 涨到 555，图从 360 涨到 555 —— 图是给解析配的，
+     那么小一张根本看不清经纬网和地名。没图时仍然左右对称，题在正中。 */
+  .ex-stage.has-fig{
+    grid-template-columns:minmax(0,.18fr) minmax(0,clamp(660px,44vw,820px)) minmax(0,1fr)}
   .ex-col{min-width:0;padding:clamp(24px,9vh,92px) 0 24px}
   /* 题图：和题干顶端对齐（同一条留白），宽度吃满两侧空档。
      没画图的卡留空 —— 不摆占位框，免得每道题都挂着一块灰。 */
@@ -1141,7 +1146,7 @@
   #ex-fig-l{grid-column:1}
   #ex-fig-r{grid-column:3}
   .ex-stage .ex-col{grid-column:2}
-  .ex-fig svg{width:100%;height:auto;display:block;max-width:520px;
+  .ex-fig svg{width:100%;height:auto;display:block;max-width:600px;
     border-radius:6px;box-shadow:0 1px 3px rgba(20,24,31,.06);
     animation:figIn .24s ease both}
   @keyframes figIn{from{opacity:0}to{opacity:1}}
@@ -17372,6 +17377,7 @@ body.climate-layer-on #tools{z-index:44}
     var pickTitle = $('ex-pick-title'), pickSub = $('ex-pick-sub'), pickX = $('ex-pick-x');
     var mainEl = $('ex-main');
     var figLEl = $('ex-fig-l'), figREl = $('ex-fig-r');
+    var stageEl = document.querySelector('.ex-stage');
 
     /* 三个页面（选题 / 答题 / 结算）由 data-page 驱动：答题页不显示右栏图集，
        题目落在页面正中，左右两栏留给题图。 */
@@ -17863,6 +17869,7 @@ body.climate-layer-on #tools{z-index:44}
       optsEl.textContent = '';
       if (figREl) figREl.textContent = '';
       if (figLEl) figLEl.textContent = '';
+      if (stageEl) stageEl.classList.remove('has-fig');   // 有图/没图是两套栅格
       if (it.figure) showFig(it, 'L');     // 真题自带材料图（暂时没有题目用）
       prefetchFig(it);                     // 解析要用的图，趁答题这几秒先取好
 
@@ -18318,6 +18325,7 @@ body.climate-layer-on #tools{z-index:44}
         var put = function (svg) {
           if (qs[at] !== it) return;
           box.innerHTML = svg;
+          if (where !== 'L' && stageEl) stageEl.classList.add('has-fig');
           placeFig(box);            // 摆位：底边贴解析下沿
         };
         if (figCache[it.card]) { put(figCache[it.card]); return; }
