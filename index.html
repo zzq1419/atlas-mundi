@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-27-A">
+<meta name="build" content="2026-11-27-B">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -1124,13 +1124,11 @@
      —— 选择题实测顶 61~121px，简答题更多。现在内容只往下长，题目一动不动。 */
   /* 题干列从 760 收到 660：两侧的题图才放得下（1440 屏上从 296 涨到 360），
      660 对 16.5px 的选项来说仍然宽松。 */
-  .ex-stage{display:grid;grid-template-columns:1fr minmax(0,clamp(660px,44vw,820px)) 1fr;
+  /* 题列固定偏左：左空档 0.18fr，右边全留给题图（1440 屏上图能到 463）。
+     以前是"有图才左移"，于是翻题时整列在 438 和 248 之间来回跳，眼睛一直重新对焦；
+     现在所有题都停在同一处，图有没有都在这个位置。 */
+  .ex-stage{display:grid;grid-template-columns:minmax(0,.18fr) minmax(0,clamp(660px,44vw,820px)) minmax(0,1fr);
     gap:clamp(16px,2vw,36px);align-items:start;min-height:100%}
-  /* 右侧出图时整条题列往左让位：左边空档收成 0.3fr，省下来的全给题图。
-     1440 屏上右栏从 360 涨到 555，图从 360 涨到 555 —— 图是给解析配的，
-     那么小一张根本看不清经纬网和地名。没图时仍然左右对称，题在正中。 */
-  .ex-stage.has-fig{
-    grid-template-columns:minmax(0,.18fr) minmax(0,clamp(660px,44vw,820px)) minmax(0,1fr)}
   .ex-col{min-width:0;padding:clamp(24px,9vh,92px) 0 24px}
   /* 题图：和题干顶端对齐（同一条留白），宽度吃满两侧空档。
      没画图的卡留空 —— 不摆占位框，免得每道题都挂着一块灰。 */
@@ -1239,8 +1237,12 @@
 
   .ex-foot{flex:0 0 auto;border-top:1px solid rgba(20,24,31,.1);
     padding:11px 0 calc(11px + env(safe-area-inset-bottom))}
-  .ex-foot-in{width:100%;max-width:760px;margin:0 auto;
-    display:flex;align-items:center;gap:9px}
+  /* 页脚用和题目**同一套栅格**：收藏落在题列左边界、下一题落在右边界。
+     以前是 760px 居中的一条，跟偏左的题列错开一截，眼睛每次都要横跳。 */
+  .ex-foot-in{width:100%;display:grid;align-items:center;
+    grid-template-columns:minmax(0,.18fr) minmax(0,clamp(660px,44vw,820px)) minmax(0,1fr);
+    gap:clamp(16px,2vw,36px)}
+  .ex-foot-row{grid-column:2;display:flex;align-items:center;gap:9px;min-width:0}
   .ex-btn{font:inherit;font-size:13px;padding:9px 15px;border-radius:8px;
     border:1px solid rgba(20,24,31,.16);background:#fff;color:#4C5666;
     cursor:pointer;transition:none;-webkit-tap-highlight-color:transparent}
@@ -1278,6 +1280,8 @@
       flex:1;max-width:none;padding:0 18px}
     .ex-right{display:none}
     .ex-stage{display:block;align-content:normal}
+    .ex-foot-in{display:block}
+    .ex-foot-row{display:flex}
     .ex-fig{display:none}
     .ex-col{padding:18px 0 8px}
     .ex-q{font-size:17.5px;line-height:1.8}
@@ -3623,11 +3627,13 @@ body.climate-layer-on #tools{z-index:44}
         </div>
         <div class="ex-foot">
           <div class="ex-foot-in">
-            <button class="ex-btn" id="ex-fav" type="button">收藏</button>
-            <span class="ex-sp"></span>
-            <span class="ex-kbd" id="ex-kbd">1–4 选择 · Enter 下一题 · F 收藏</span>
-            <button class="ex-btn" id="ex-prev" type="button">上一题</button>
-            <button class="ex-btn pri" id="ex-next" type="button">下一题</button>
+            <div class="ex-foot-row">
+              <button class="ex-btn" id="ex-fav" type="button">收藏</button>
+              <span class="ex-sp"></span>
+              <span class="ex-kbd" id="ex-kbd">1–4 选择 · Enter 下一题 · F 收藏</span>
+              <button class="ex-btn" id="ex-prev" type="button">上一题</button>
+              <button class="ex-btn pri" id="ex-next" type="button">下一题</button>
+            </div>
           </div>
         </div>
       </div>
@@ -17377,7 +17383,6 @@ body.climate-layer-on #tools{z-index:44}
     var pickTitle = $('ex-pick-title'), pickSub = $('ex-pick-sub'), pickX = $('ex-pick-x');
     var mainEl = $('ex-main');
     var figLEl = $('ex-fig-l'), figREl = $('ex-fig-r');
-    var stageEl = document.querySelector('.ex-stage');
 
     /* 三个页面（选题 / 答题 / 结算）由 data-page 驱动：答题页不显示右栏图集，
        题目落在页面正中，左右两栏留给题图。 */
@@ -17483,6 +17488,17 @@ body.climate-layer-on #tools{z-index:44}
         var nReal = 0;
         for (var ri = 0; ri < r.length; ri++) if (r[ri].cat === '真题') nReal++;
         bank = { items: g.concat(r), nCard: g.length, nReal: nReal, nExtra: r.length - nReal };
+        /* 材料图一共 4 张、几十 KB：题库一进来就取进缓存。
+           不然翻到那道题才发请求，图上永远是"先空一块、再咚地出现"。 */
+        var seenFig = {};
+        bank.items.forEach(function (it) {
+          var f = it.figure;
+          if (!f || seenFig[f]) return;
+          seenFig[f] = 1;
+          var im = new Image();
+          im.src = f;
+          if (im.decode) im.decode().catch(function () {});
+        });
         return bank;
       }).catch(function (err) { bankP = null; throw err; });
       return bankP;
@@ -17507,6 +17523,15 @@ body.climate-layer-on #tools{z-index:44}
       if (v === 'short') return it.subs.some(function (s) { return !(s.opts && s.opts.length); });
       return false;
     }
+    /* 材料图的原始像素尺寸。只有 4 张，写在代码里比再发一次请求好；
+       给 <img> 带上 width/height，浏览器在图片还没到时就按比例把高度留出来 ——
+       否则图一到就"咚"地把下面的字挤下去（用户说的"把文字挤下去"）。 */
+    var FIG_DIM = {
+      'gk-2024jia-36.png': [586, 376],
+      'gk-2024jia-37.png': [470, 311],
+      'gk-2024xb-36.png': [471, 285],
+      'gk-2024xb-37.png': [382, 159]
+    };
     function scoreOf(it) {
       if (it && typeof it.score === 'number') return it.score;
       return (it && it.diff ? it.diff : 2) * 2.2;      // 老题库兜底
@@ -17858,6 +17883,11 @@ body.climate-layer-on #tools{z-index:44}
             fi.src = it.figure;
             fi.alt = it.figureAlt || '材料配图';
             fi.loading = 'eager';
+            fi.decoding = 'sync';        // 小图，别让它异步解码后晚一帧才显形
+            /* 宽高只用来定比例（CSS 是 width:100%;height:auto）：
+               有它，图没下来之前高度就已经占住，文字不会被顶下去 */
+            var dm = FIG_DIM[String(it.figure).split('/').pop()];
+            if (dm) { fi.width = dm[0]; fi.height = dm[1]; }
             matEl.appendChild(fi);
           }
         }
@@ -17869,7 +17899,6 @@ body.climate-layer-on #tools{z-index:44}
       optsEl.textContent = '';
       if (figREl) figREl.textContent = '';
       if (figLEl) figLEl.textContent = '';
-      if (stageEl) stageEl.classList.remove('has-fig');   // 有图/没图是两套栅格
       if (it.figure) showFig(it, 'L');     // 真题自带材料图（暂时没有题目用）
       prefetchFig(it);                     // 解析要用的图，趁答题这几秒先取好
 
@@ -18325,7 +18354,6 @@ body.climate-layer-on #tools{z-index:44}
         var put = function (svg) {
           if (qs[at] !== it) return;
           box.innerHTML = svg;
-          if (where !== 'L' && stageEl) stageEl.classList.add('has-fig');
           placeFig(box);            // 摆位：底边贴解析下沿
         };
         if (figCache[it.card]) { put(figCache[it.card]); return; }
