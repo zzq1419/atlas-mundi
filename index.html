@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-26-I">
+<meta name="build" content="2026-11-26-J">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -873,8 +873,12 @@
   #exam{position:fixed;inset:0;z-index:92;background:#fff;display:none;
     color:#14181F;overflow:hidden;-webkit-font-smoothing:antialiased}
   #exam [hidden]{display:none !important}
-  body.exam-mode{overflow:hidden}
+  body.exam-mode,body.exam-wiping{overflow:hidden}
   body.exam-mode #exam{display:block}
+  /* 转场进行中的过渡态：白层要显示，但底下那堆 GUI 先别撤 ——
+     线扫到哪儿，哪儿才被白色盖住；没扫到的地方还是原来的地球和工具栏。 */
+  body.exam-wiping #exam{display:block}
+  body.exam-wiping #rotate-hint,body.exam-wiping #build-tag{display:none !important}
   body.exam-mode #rotate-hint,body.exam-mode #build-tag{display:none !important}
   body.exam-mode #topbar,body.exam-mode #tools,
   body.exam-mode #q-res,body.exam-mode .search-wrap,body.exam-mode #detail,
@@ -882,9 +886,14 @@
   body.exam-mode #time-pins,body.exam-mode #tip{display:none !important}
 
   /* 转场用的竖线：独立于 #exam（否则会被 clip-path 一起裁掉） */
-  .ex-wipe{position:fixed;top:0;bottom:0;right:0;width:2px;z-index:120;
-    background:#14181F;box-shadow:0 0 16px rgba(20,24,31,.55);opacity:0;
-    pointer-events:none}
+  /* 转场时白层会被临时抬到 9999999 去盖住所有 GUI，竖线必须比它还高，
+     否则那道"刀口"会被白纸盖住，只剩一条硬边。
+     线本身用白的：它始终压在"还没被扫到"的那一侧，也就是深色的地球画面上，
+     黑线在那儿是看不见的；白刃划过深空才像一道光在切纸，扫进白区后自然融掉。 */
+  .ex-wipe{position:fixed;top:0;bottom:0;right:0;width:3px;z-index:99999999;
+    background:linear-gradient(90deg,rgba(255,255,255,0),#fff 35%,#fff 65%,rgba(255,255,255,0));
+    box-shadow:0 0 26px rgba(255,255,255,.75),0 0 8px rgba(255,255,255,.9);
+    opacity:0;pointer-events:none}
   .ex-shell{display:flex;height:100vh;height:100dvh;position:relative}
   /* 返回地球钉在右上角 —— 和做题页的「返回选题」同一个落点，
      手不用在两个位置之间来回找。做题页那格由 ex-exit 占着，这里让位。 */
@@ -905,7 +914,7 @@
   .ex-cn.on{background:#14181F;color:#fff;border-color:#14181F}
 
   /* ---------- 选题列表（错题 / 收藏 / 某个来源的全部题） ---------- */
-  .ex-pick{position:absolute;inset:0;z-index:20;background:rgba(20,24,31,.28);
+  .ex-pick{position:absolute;inset:0;z-index:40;background:rgba(20,24,31,.28);
     display:flex;align-items:center;justify-content:center;padding:24px}
   .ex-pick[hidden]{display:none}
   .ex-pick-box{width:min(720px,100%);max-height:100%;display:flex;flex-direction:column;
@@ -963,7 +972,10 @@
      不透明出一帧——照片区那下"亮白"有一半是它。删掉，观感不变、还省一次全屏快照。 */
   /* 图集不铺微光骨架（那层扫光才是"亮白一下"的元凶）。空档期留一块安静的
      浅灰：比白纸暗一档，不跳；深色垫试过，加载慢的时候整块像黑屏，更吓人。 */
-  .ex-g{position:relative;width:100%;height:100%;border-radius:10px;
+  /* z-index:0 不是为了压谁，是为了**建立层叠上下文**：里面的地名/说明/按钮
+     用了 z-index:30/31（要压住照片），不圈住的话它们会跑出相框，压到错题本
+     弹层（z-index:20）上面去 —— 就是"穿模"。 */
+  .ex-g{position:relative;z-index:0;width:100%;height:100%;border-radius:10px;
     overflow:hidden;background:#E7EAEE;cursor:zoom-in;
     opacity:0;transition:opacity .22s ease;
     box-shadow:0 1px 5px rgba(9,13,19,.32),
@@ -18267,7 +18279,7 @@ body.climate-layer-on #tools{z-index:44}
     /* ---------- 进出转场 ----------
        一条 2px 竖线横扫屏幕，划过的部分露出答题层（用 clip-path 揭幕），
        配一记白噪声扫频的"刷"。dir>0 进场（右→左），dir<0 退场（左→右）。 */
-    var wipeEl = null;
+    var wipeEl = null, examOpen = false;
     function ensureWipe() {
       if (wipeEl) return wipeEl;
       wipeEl = document.createElement('div');
@@ -18276,53 +18288,88 @@ body.climate-layer-on #tools{z-index:44}
       document.body.appendChild(wipeEl);
       return wipeEl;
     }
-    function swipeSound() {
+    /* 一记"刷"：短、脆、扫频往下走，像一张纸边从屏幕上划过。
+       原来是 2800→520Hz + Q1.1 + 0.42s 的宽带噪声 —— 那段落在中低频，
+       听感就是"呼"的一声闷响，也就是用户说的噪音。 */
+    function swipeSound(ms) {
       try {
         var C = window.AudioContext || window.webkitAudioContext;
         if (!C) return;
         var ac = window.__ac || (window.__ac = new C());
         if (ac.state === 'suspended') ac.resume();
-        var dur = 0.42;
-        var buf = ac.createBuffer(1, Math.floor(ac.sampleRate * dur), ac.sampleRate);
+        var dur = Math.max(0.28, Math.min(0.55, (ms || 620) / 1000 * 0.82));
+        var sr = ac.sampleRate, n = Math.floor(sr * dur);
+        var buf = ac.createBuffer(1, n, sr);
         var d = buf.getChannelData(0);
-        for (var i = 0; i < d.length; i++) {
-          var t = i / d.length;
-          d[i] = (Math.random() * 2 - 1) * Math.pow(1 - t, 2.4);
+        for (var i = 0; i < n; i++) {
+          var t = i / n;
+          var env = Math.pow(1 - t, 3.2);
+          if (t < 0.01) env *= t / 0.01;          // 8~10ms 起音，避免"啪"的爆音
+          d[i] = (Math.random() * 2 - 1) * env;
         }
         var src = ac.createBufferSource(); src.buffer = buf;
-        var bp = ac.createBiquadFilter(); bp.type = 'bandpass'; bp.Q.value = 1.1;
-        bp.frequency.setValueAtTime(2800, ac.currentTime);
-        bp.frequency.exponentialRampToValueAtTime(520, ac.currentTime + dur);
-        var g = ac.createGain(); g.gain.value = 0.10;
-        src.connect(bp); bp.connect(g); g.connect(ac.destination);
-        src.start();
+        var t0 = ac.currentTime;
+        // 先切掉低频：闷声全在 400Hz 以下
+        var hp = ac.createBiquadFilter();
+        hp.type = 'highpass'; hp.frequency.value = 560; hp.Q.value = 0.7;
+        // 再让中心频率从高处压下来，这一下是"刷"而不是"嘶"
+        var bp = ac.createBiquadFilter();
+        bp.type = 'bandpass'; bp.Q.value = 0.8;
+        bp.frequency.setValueAtTime(6400, t0);
+        bp.frequency.exponentialRampToValueAtTime(1250, t0 + dur * 0.92);
+        var g = ac.createGain();
+        g.gain.setValueAtTime(0.0001, t0);
+        g.gain.exponentialRampToValueAtTime(0.15, t0 + 0.018);
+        g.gain.exponentialRampToValueAtTime(0.0006, t0 + dur);
+        src.connect(hp); hp.connect(bp); bp.connect(g); g.connect(ac.destination);
+        src.start(t0); src.stop(t0 + dur);
       } catch (e) {}
     }
-    function wipe(dir) {
+
+    /* 扫幕：dir>0 进场（白层从右往左揭开），dir<0 退场（从右往左收走）。 */
+    var WIPE_MS = 660;
+    var wipeSeq = 0;
+    function wipe(dir, done) {
       var ex = root, ln = ensureWipe();
-      if (!ex || !ln) return;
+      var my = ++wipeSeq;
+      if (!ex || !ln) { if (done) done(); return; }
       var from = dir > 0 ? 'inset(0 0 0 100%)' : 'inset(0 0 0 0)';
       var to = dir > 0 ? 'inset(0 0 0 0)' : 'inset(0 0 0 100%)';
       var x0 = dir > 0 ? 'translateX(0)' : 'translateX(-100vw)';
       var x1 = dir > 0 ? 'translateX(-100vw)' : 'translateX(0)';
+      var ease = 'cubic-bezier(.45,0,.55,1)';    // 接近匀速，才像"扫过"而不是"甩过去"
       ex.style.transition = 'none';
       ex.style.clipPath = from;
       ln.style.transition = 'none';
       ln.style.transform = x0;
       ln.style.opacity = '1';
       void ex.offsetWidth;
-      ex.style.transition = 'clip-path .44s cubic-bezier(.72,0,.28,1)';
-      ln.style.transition = 'transform .44s cubic-bezier(.72,0,.28,1), opacity .1s ease .34s';
+      ex.style.transition = 'clip-path ' + WIPE_MS + 'ms ' + ease;
+      ln.style.transition = 'transform ' + WIPE_MS + 'ms ' + ease +
+        ', opacity .12s ease ' + (WIPE_MS - 100) + 'ms';
       ex.style.clipPath = to;
       ln.style.transform = x1;
       ln.style.opacity = '0';
-      swipeSound();
+      swipeSound(WIPE_MS);
+      setTimeout(function () { if (my === wipeSeq && done) done(); }, WIPE_MS + 30);
     }
 
     function open() {
-      document.body.classList.add('exam-mode');
-      wipe(1);
-      globe.examOn = true;               // 停掉地球渲染，省电也省重绘
+      examOpen = true;
+      /* 关键：转场这段时间**先不让地球停渲染、也不撤 GUI**。
+         白层临时提到最顶层，线扫到哪儿，哪儿的画面才被盖成白的；
+         没扫到的地方（左边那半）还是原来的地球和工具栏。
+         原来是一上来就 exam-mode（GUI 全 display:none）+ examOn=true
+         （画布停画，WebGL 缓冲被清空），所以左边先黑一片，再等线划过来。 */
+      document.body.classList.add('exam-wiping');
+      root.style.zIndex = '9999999';
+      wipe(1, function () {
+        if (!examOpen) return;
+        document.body.classList.remove('exam-wiping');
+        document.body.classList.add('exam-mode');
+        root.style.zIndex = '';
+        globe.examOn = true;             // 转场结束才停地球，省电也省重绘
+      });
       setupEl.hidden = false; runEl.hidden = true; doneEl.hidden = true;
       setPage('set');
       leftEl.scrollTop = 0;
@@ -18348,20 +18395,25 @@ body.climate-layer-on #tools{z-index:44}
       else galStart();
     }
     function leave() {
+      examOpen = false;
       closeLB();
-      /* 退场先把线扫回去（左→右），扫完再真正撤掉答题层 ——
-         立刻 remove('exam-mode') 的话 clip-path 动画没有对象可演。 */
-      wipe(-1);
-      setTimeout(function () {
-        document.body.classList.remove('exam-mode');
+      /* 退场反过来：地球**立刻**恢复渲染（线扫过去时它已经在那儿了），
+         GUI 也立刻回来；白层还留在最顶层靠 clip-path 从左往右收走。
+         收完才真正把答题层关掉。 */
+      document.body.classList.add('exam-wiping');
+      document.body.classList.remove('exam-mode');
+      root.style.zIndex = '9999999';
+      globe.examOn = false;
+      globe.lastMs = 0;                  // 别让停掉这段时间变成一次巨大 dtf
+      wipe(-1, function () {
+        document.body.classList.remove('exam-wiping');
+        root.style.zIndex = '';
         root.style.transition = 'none';
         root.style.clipPath = '';
-        globe.examOn = false;
-        globe.lastMs = 0;                // 别让停掉这段时间变成一次巨大 dtf
         galStop();
         setupEl.hidden = false; runEl.hidden = true; doneEl.hidden = true;
         renderSetup();
-      }, 450);
+      });
     }
 
     [dminEl, dmaxEl].forEach(function (el2) {
