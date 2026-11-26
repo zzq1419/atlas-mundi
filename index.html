@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-26-M">
+<meta name="build" content="2026-11-26-N">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -984,15 +984,13 @@
   /* 0.7s 太拖：名字已经换了、画还在慢慢透，看着就是"图没跟上"。
      改成 0.3s，并且新图永远压在上面淡入（见 showShot 里的 zIndex）——
      两层交叉淡会出现"两边都半透明"的糊，压在上面的新图直接盖住就行。 */
-  /* 0.22s：再长就会"名字已经换了、画还在慢慢透"。照片永远压在上面，新图一到就盖住旧图。 */
+  /* 硬切，不做淡入。淡入的过程中旧图还在（opacity 1），新名字已经挂上了 ——
+     用户一眼就是"字换了、图还是上一张"。两层叠着，同一帧换掉，名字和图绝对同步。 */
   .ex-g-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
-    opacity:0;transition:opacity .22s ease;background:#E7EAEE}
+    opacity:0;background:#E7EAEE}
   .ex-g.on{opacity:1}
   .ex-g-img.on{opacity:1}
-  /* 说明跟照片一起淡进来，别让文字先到位（用户原话："先切换的名字才换的图像"）。
-     用一次性动画而不是 transition：连续换图时每次都能重新起跑。 */
-  @keyframes exCapIn{from{opacity:0}to{opacity:1}}
-  .ex-g-cap.in{animation:exCapIn .2s ease both}
+
   /* 照片可能是雪原、云海、白墙这类浅色 —— 半透明白底 + 白字会整块消失，
      实测用户就是在这个状态下看到"国家图集"和箭头都不见了。
      底提到 .94 再加投影，任何照片上都读得出。 */
@@ -1017,17 +1015,22 @@
   /* 换图要等一两百毫秒：按钮先暗一格，手一按就有动静 */
   .ex-g-next.busy{opacity:.42}
 
-  /* 点照片放大看：深色幕 + 大图 + 名称，点背景/×/Esc 关 */
+  /* 点照片放大看：深色幕 + 大图 + 名称，点背景/×/Esc 关。
+     大图是两层叠着换的：单个 <img> 换 src 时元素会先塌成 0 高，
+     下面立刻空出一块黑、名字跟着跳 —— 用户说的"闪黑一下"。
+     画框尺寸由 JS 按图片原始比例算好（fitLbStage），说明放在画框外面正常排，
+     照片多高它就落在多高，绝不会被照片边缘切掉一半。 */
   #ex-lb{position:fixed;inset:0;z-index:96;background:rgba(8,10,14,.93);
-    display:flex;align-items:center;justify-content:center;
-    padding:clamp(20px,4vw,56px)}
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    gap:16px;padding:clamp(20px,4vw,48px)}
   #ex-lb[hidden]{display:none !important}
-  #ex-lb-img{max-width:100%;max-height:calc(100dvh - 150px);
+  #ex-lb .ex-lb-stage{position:relative;flex:0 0 auto}
+  #ex-lb .ex-lb-img{position:absolute;inset:0;width:100%;height:100%;
     object-fit:contain;border-radius:6px;box-shadow:0 30px 70px rgba(0,0,0,.6);
-    opacity:0;transition:opacity .18s ease}
-  #ex-lb-img.on{opacity:1}
-  .ex-lb-cap{position:absolute;left:0;right:0;bottom:clamp(18px,4vh,44px);
-    text-align:center;pointer-events:none}
+    opacity:0}
+  #ex-lb .ex-lb-img.on{opacity:1}
+  #ex-lb .ex-lb-cap{flex:0 0 auto;text-align:center;pointer-events:none;
+    max-width:min(90vw,860px)}
   .ex-lb-cap b{display:block;font-size:20px;font-weight:600;color:#F4F7FB}
   .ex-lb-cap span{display:block;font-size:13px;color:rgba(226,236,248,.7);margin-top:5px}
   .ex-lb-x{position:absolute;right:20px;top:18px;width:38px;height:38px;
@@ -3649,7 +3652,10 @@ body.climate-layer-on #tools{z-index:44}
 
   <!-- 图集放大层：点相框里的照片打开，点背景 / × / Esc 关闭，←→ 换张 -->
   <div id="ex-lb" hidden aria-label="放大的图集照片">
-    <img id="ex-lb-img" alt="">
+    <div class="ex-lb-stage" id="ex-lb-stage">
+      <img class="ex-lb-img" id="ex-lb-a" alt="">
+      <img class="ex-lb-img" id="ex-lb-b" alt="">
+    </div>
     <div class="ex-lb-cap"><b id="ex-lb-name"></b><span id="ex-lb-sub"></span></div>
     <button class="ex-lb-x" id="ex-lb-x" type="button" aria-label="关闭">&#215;</button>
     <button class="ex-lb-nav l" id="ex-lb-prev" type="button" aria-label="上一张">&#8249;</button>
@@ -17344,7 +17350,8 @@ body.climate-layer-on #tools{z-index:44}
     var fLv = $('f-lv'), fTheme = $('f-theme'), fType = $('f-type'), fN = $('f-n');
     var fSrc = $('f-src'), matEl = $('ex-mat');
     var dminEl = $('f-dmin'), dmaxEl = $('f-dmax'), dHint = $('ex-dhint');
-    var lb = $('ex-lb'), lbImg = $('ex-lb-img'), lbName = $('ex-lb-name'), lbSub = $('ex-lb-sub');
+    var lb = $('ex-lb'), lbA = $('ex-lb-a'), lbB = $('ex-lb-b'), lbStage = $('ex-lb-stage');
+    var lbName = $('ex-lb-name'), lbSub = $('ex-lb-sub');
     var wrongBtn = $('ex-wrongbtn'), favBtn = $('ex-favbtn');
     var barEl = $('ex-bar'), idxEl = $('ex-idx'), metaEl = $('ex-meta'), qEl = $('ex-q');
     var optsEl = $('ex-opts'), extraEl = $('ex-extra'), favEl = $('ex-fav');
@@ -18149,15 +18156,10 @@ body.climate-layer-on #tools{z-index:44}
 
     /* 说明跟照片一起淡进来（CSS 里 exCapIn）—— 文字先到位就是用户说的
        "名字换了、图还在慢慢透"。 */
+    /* 文字和照片在同一帧换掉，不做任何淡入 —— 淡入就是"字先到、图后到"的根 */
     function setGalText(it) {
-      var same = (gName.textContent === it.name);   // 名字没变就别再淡入一次
       gName.textContent = it.name;
       gSub.textContent = it.cap || '';
-      if (gCapEl && !same) {
-        gCapEl.classList.remove('in');
-        void gCapEl.offsetWidth;      // 重排一次，动画才会重新起跑
-        gCapEl.classList.add('in');
-      }
     }
 
     function showShot(k, force) {
@@ -18207,11 +18209,7 @@ body.climate-layer-on #tools{z-index:44}
           if (gal.offT) { clearTimeout(gal.offT); gal.offT = 0; }
           next.style.zIndex = (gal.z++ % 2) + 1;   // 新图永远压在旧图上面
           next.classList.add('on');
-          /* 旧图等新图铺满再撤，否则淡入过程中会露出底下的浅灰 */
-          gal.offT = setTimeout(function () {
-            prev.classList.remove('on');
-            gal.offT = 0;
-          }, 240);
+          prev.classList.remove('on');             // 同一帧撤旧图：硬切，不叠影
           gal.flip = !gal.flip;
           gal.cur = it.url;
           gal.i = k;
@@ -18308,7 +18306,7 @@ body.climate-layer-on #tools{z-index:44}
        打开时把自动播放停掉，否则大图看着看着底下标题就换了。 */
     /* 放大层只有一个 <img>，直接换 src 的那几十毫秒是空的 —— 名字先换、图上还一片白，
        跟图集是同一个毛病。做法也一样：先在内存里解码，好了再一次性换 src + 文字。 */
-    var lbSeq = 0;
+    var lbSeq = 0, lbFlip = false, lbNat = null;
     /* 预取一张图，等它真的能画了再回调：onload 不等于能画，decode 才算。
        OBS 上取不到就退回仓库相对路径（跟图集里那套兜底一样）——
        实测 OBS 的 webp 会被浏览器以 ORB 拦掉，直接赋给大图就是一块空白。 */
@@ -18327,17 +18325,41 @@ body.climate-layer-on #tools{z-index:44}
         im.src = url;
       });
     }
+    /* 按图片原始比例把画框定死。两层 img 都是 absolute 铺满画框，
+       换图时画框尺寸不变 —— 既不会塌成 0 高闪黑，说明也不会跟着跳。 */
+    function fitLbStage() {
+      if (!lbNat || !lbStage) return;
+      var availH = Math.max(220, window.innerHeight - 200);   // 上方留边 + 下方说明
+      var availW = Math.max(220, Math.min(window.innerWidth - 170, 1180));
+      var k = Math.min(availW / lbNat[0], availH / lbNat[1], 1.25);
+      lbStage.style.width = Math.round(lbNat[0] * k) + 'px';
+      lbStage.style.height = Math.round(lbNat[1] * k) + 'px';
+    }
+    window.addEventListener('resize', function () { if (lb && !lb.hidden) fitLbStage(); });
+
     function lbShow(it, knownSrc) {
       if (!it || !lb) return;
       var my = ++lbSeq;
       var rel = it.url + (BUILD_TAG ? '?v=' + encodeURIComponent(BUILD_TAG) : '');
       lbPreload(knownSrc || assetSrc(it.url, it.v), rel).then(function (good) {
         if (my !== lbSeq || !good) return;    // 期间又翻了一张 / 图没下来，这次作废
-        if (lbImg.getAttribute('src') !== good) lbImg.src = good;
-        lbImg.alt = it.name + (it.cap ? '：' + it.cap : '');
-        lbImg.classList.add('on');            // 能画了才显形
-        lbName.textContent = it.name;
-        lbSub.textContent = it.cap || '';
+        var next = lbFlip ? lbB : lbA;        // 换到另一层，旧图原地不动
+        var prev = lbFlip ? lbA : lbB;
+        var put = function () {
+          if (my !== lbSeq) return;
+          if (next.getAttribute('src') !== good) next.src = good;
+          lbNat = [next.naturalWidth, next.naturalHeight];
+          fitLbStage();                       // 先按新图定尺寸，再同一帧换显示
+          next.alt = it.name + (it.cap ? '：' + it.cap : '');
+          next.classList.add('on');
+          prev.classList.remove('on');
+          lbFlip = !lbFlip;
+          lbName.textContent = it.name;
+          lbSub.textContent = it.cap || '';
+        };
+        if (next.getAttribute('src') !== good) next.src = good;
+        if (next.decode) next.decode().then(put).catch(put);
+        else put();
       });
     }
     /* 屏幕上正在画的那张图的实际地址（OBS 失败时会自动退回相对路径，
@@ -18351,7 +18373,6 @@ body.climate-layer-on #tools{z-index:44}
       var it = gal.list[gal.i];
       if (!it || !lb) return;
       lb.hidden = false;
-      lbImg.classList.remove('on');           // 先不显形，等新图能画了再淡进来
       lbShow(it, liveSrc());                  // 直接用屏幕上这一张，绝不再下一次网络
       galStop();
     }
@@ -18581,7 +18602,10 @@ body.climate-layer-on #tools{z-index:44}
       $('ex-lb-x').addEventListener('click', closeLB);
       $('ex-lb-prev').addEventListener('click', function (e) { e.stopPropagation(); lbStep(-1); });
       $('ex-lb-next').addEventListener('click', function (e) { e.stopPropagation(); lbStep(1); });
-      if (lbImg) lbImg.addEventListener('click', function (e) { e.stopPropagation(); });
+      /* 点在图上是"别关"，两层都要挂 */
+      [lbA, lbB].forEach(function (im) {
+        if (im) im.addEventListener('click', function (e) { e.stopPropagation(); });
+      });
     }
     againEl.addEventListener('click', function () {
       start(lastMode === 'wrong' ? 'wrong' : (lastMode === 'fav' ? 'fav' : 'set'));
