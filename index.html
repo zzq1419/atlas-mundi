@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-27-B">
+<meta name="build" content="2026-11-27-C">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -1138,13 +1138,18 @@
      底部留 24px 是抵掉 .ex-col 的下内边距，不然会低出去一截。 */
   .ex-fig{min-width:0;align-self:start;display:flex;align-items:flex-start;
     justify-content:flex-end;padding:0}
-  #ex-fig-r{justify-content:flex-start}
+  #ex-fig-r{justify-content:flex-start;position:relative}
+  /* 题图位的磁场点阵：绝对定位铺满题图位（宽高比照题图 1.62），
+     不占布局位置 —— 图一插进来就能盖住它，不会把图挤到下面去 */
+  .ex-lat{position:absolute;left:0;top:0;width:100%;max-width:600px;
+    border-radius:8px;opacity:0;transition:opacity .3s ease;pointer-events:none}
+  .ex-lat.on{opacity:1}
   /* 空的图位必须退出栅格（不然它会白占一列），所以列位写死在 ID 上 */
   .ex-fig:empty{display:none}
   #ex-fig-l{grid-column:1}
   #ex-fig-r{grid-column:3}
   .ex-stage .ex-col{grid-column:2}
-  .ex-fig svg{width:100%;height:auto;display:block;max-width:600px;
+  .ex-fig svg{width:100%;height:auto;display:block;max-width:600px;position:relative;z-index:1;
     border-radius:6px;box-shadow:0 1px 3px rgba(20,24,31,.06);
     animation:figIn .24s ease both}
   @keyframes figIn{from{opacity:0}to{opacity:1}}
@@ -17859,6 +17864,112 @@ body.climate-layer-on #tools{z-index:44}
       });
     }
 
+    /* ---- 题图位的磁场点阵 ----
+       答题时右侧题图位是空的，留一块白很死。这里铺一层点阵：鼠标附近的点被推开、
+       带一点切向偏转、亮一档；指针移开后弹回原位。
+       规矩：**只在没有题图的时候存在**，解析图一插进来就淡出消失。 */
+    var lat = { cv: null, ctx: null, raf: 0, tOn: 0, dots: [], w: 0, h: 0,
+                tx: -1e4, ty: -1e4, mx: -1e4, my: -1e4 };
+    var LAT_R = 190;        // 磁场影响半径
+    var LAT_GAP = 21;       // 点距
+    var LAT_RATIO = 1.62;   // 与常见题图一致的宽高比
+    var LAT_STILL = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+
+    function sizeLattice() {
+      var cv = lat.cv;
+      if (!cv || !lat.ctx) return;
+      var w = cv.clientWidth || 420;
+      var h = Math.round(w / LAT_RATIO);
+      var dpr = Math.min(2, window.devicePixelRatio || 1);
+      lat.w = w; lat.h = h;
+      cv.style.height = h + 'px';
+      cv.width = Math.round(w * dpr);
+      cv.height = Math.round(h * dpr);
+      lat.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      var dots = [];
+      for (var y = LAT_GAP * 0.8; y < h - 3; y += LAT_GAP) {
+        for (var x = LAT_GAP * 0.8; x < w - 3; x += LAT_GAP) {
+          /* 每个点带自己的相位，呼吸时才不会整片一起动（那就成脉冲了） */
+          dots.push({ x: x, y: y, dx: 0, dy: 0, px: 0, py: 0, ph: (x * 0.07 + y * 0.13) % 6.283 });
+        }
+      }
+      lat.dots = dots;
+    }
+
+    function mountLattice(box) {
+      if (!box) return;
+      if (lat.cv && lat.cv.parentNode === box) return;
+      unmountLattice(true);
+      var cv = document.createElement('canvas');
+      cv.className = 'ex-lat';
+      cv.setAttribute('aria-hidden', 'true');
+      box.appendChild(cv);
+      lat.cv = cv;
+      lat.ctx = cv.getContext('2d');
+      lat.mx = lat.tx; lat.my = lat.ty;
+      sizeLattice();
+      /* 晚 140ms 再显形：已答过的题会立刻插图，这一小段延迟让点阵根本来不及闪 */
+      lat.tOn = setTimeout(function () { if (lat.cv === cv) cv.classList.add('on'); }, 140);
+      if (!lat.raf) lat.raf = requestAnimationFrame(tickLattice);
+    }
+
+    function unmountLattice(now) {
+      if (lat.tOn) { clearTimeout(lat.tOn); lat.tOn = 0; }
+      var cv = lat.cv;
+      if (!cv) return;
+      lat.cv = null; lat.ctx = null;
+      if (lat.raf) { cancelAnimationFrame(lat.raf); lat.raf = 0; }
+      if (now) { if (cv.parentNode) cv.parentNode.removeChild(cv); return; }
+      cv.classList.remove('on');
+      setTimeout(function () { if (cv.parentNode) cv.parentNode.removeChild(cv); }, 340);
+    }
+
+    function tickLattice(ts) {
+      lat.raf = 0;
+      var cv = lat.cv, ctx = lat.ctx;
+      if (!cv || !ctx) return;
+      if (!LAT_STILL) lat.raf = requestAnimationFrame(tickLattice);
+      if (!cv.offsetParent) return;              // 窄屏把图位收起来了，别白画
+      var t = (ts || 0) / 1000;
+      /* 指针位置也缓一道：鼠标是跳的，点阵要"跟得上、但不硬跟" */
+      lat.mx += (lat.tx - lat.mx) * 0.16;
+      lat.my += (lat.ty - lat.my) * 0.16;
+      ctx.clearRect(0, 0, lat.w, lat.h);
+      for (var i = 0; i < lat.dots.length; i++) {
+        var d = lat.dots[i];
+        var vx = d.x - lat.mx, vy = d.y - lat.my;
+        var dist = Math.sqrt(vx * vx + vy * vy) || 1;
+        var k = 1 - dist / LAT_R;
+        if (k < 0) k = 0;
+        k = k * k * (3 - 2 * k);                 // smoothstep：边缘不留一圈硬边
+        var ux = vx / dist, uy = vy / dist;
+        /* 径向推开 + 切向偏转 = 磁铁旁边的铁屑；再叠一层极慢的呼吸 */
+        var br = Math.sin(t * 0.55 + d.ph) * 0.9;
+        d.px = ux * (30 * k + br) - uy * 16 * k;
+        d.py = uy * (30 * k + br) + ux * 16 * k;
+        d.dx += (d.px - d.dx) * 0.13;            // 位移本身再追一次，才叫丝滑
+        d.dy += (d.py - d.dy) * 0.13;
+        ctx.fillStyle = 'rgba(92,116,148,' + (0.26 + 0.42 * k).toFixed(3) + ')';
+        ctx.beginPath();
+        ctx.arc(d.x + d.dx, d.y + d.dy, 1.15 + 1.45 * k, 0, 6.2832);
+        ctx.fill();
+      }
+    }
+
+    /* 指针在答题区里挪：换算成画布坐标（题图位可能随页面滚动，所以要现取 rect） */
+    root.addEventListener('pointermove', function (e) {
+      if (!lat.cv) return;
+      var r = lat.cv.getBoundingClientRect();
+      lat.tx = e.clientX - r.left;
+      lat.ty = e.clientY - r.top;
+    }, { passive: true });
+    root.addEventListener('pointerleave', function () {
+      lat.tx = lat.ty = -1e4;                    // 离开就松手，点自己弹回去
+    }, { passive: true });
+    window.addEventListener('resize', function () {
+      if (lat.cv) { sizeLattice(); if (LAT_STILL) tickLattice(0); }
+    });
+
     function renderQ() {
       var it = qs[at];
       if (!it) return finish();
@@ -17897,8 +18008,10 @@ body.climate-layer-on #tools{z-index:44}
       qEl.textContent = it.subs ? '' : splitEnum(it.q);
       qEl.hidden = !!it.subs;
       optsEl.textContent = '';
+      unmountLattice(true);
       if (figREl) figREl.textContent = '';
       if (figLEl) figLEl.textContent = '';
+      mountLattice(figREl);        // 空着的题图位铺一层磁场点阵（有图时会被顶掉）
       if (it.figure) showFig(it, 'L');     // 真题自带材料图（暂时没有题目用）
       prefetchFig(it);                     // 解析要用的图，趁答题这几秒先取好
 
@@ -18244,6 +18357,7 @@ body.climate-layer-on #tools{z-index:44}
     }
 
     function finish() {
+      unmountLattice(true);          // 结算页用不着那张画布，别让 rAF 空转
       var ok = 0, bad = 0, done = 0, wl = [];
       for (var i = 0; i < qs.length; i++) {
         var mk = marks[i];
@@ -18353,6 +18467,7 @@ body.climate-layer-on #tools{z-index:44}
         if (!map[it.card] || qs[at] !== it) return;
         var put = function (svg) {
           if (qs[at] !== it) return;
+          if (where !== 'L') unmountLattice(false);   // 题图来了，点阵退场
           box.innerHTML = svg;
           placeFig(box);            // 摆位：底边贴解析下沿
         };
@@ -18805,6 +18920,7 @@ body.climate-layer-on #tools{z-index:44}
       galResume();                       // 重进一次就换一张，别老是同一张
     }
     function toSetup() {
+      unmountLattice(true);
       runEl.hidden = true; doneEl.hidden = true; setupEl.hidden = false;
       setPage('set');
       leftEl.scrollTop = 0;
