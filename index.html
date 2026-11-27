@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-28-A">
+<meta name="build" content="2026-11-28-B">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -1227,8 +1227,10 @@
   .ex-mi-no{font-style:normal;font-weight:600;color:#8A94A3;margin-right:4px}
   .ex-mi .ex-ans,.ex-mi .ex-exp{margin-top:12px}
   /* 材料配图：线图居多，白底、细边框，别用阴影压得太重 */
-  .ex-mat-fig{display:block;max-width:100%;height:auto;margin:12px 0 2px;
-    border-radius:4px;background:#fff}
+  /* 材料图限高：山东卷 19 题是三张图竖着拼的，不限高会顶出两屏，
+     把下面所有小问都挤到看不见的地方 */
+  .ex-mat-fig{display:block;max-width:100%;max-height:54vh;width:auto;height:auto;
+    margin:12px auto 2px;border-radius:4px;background:#fff}
   /* 选择题自带的题图（地图/照片）：居中、限高，别把选项挤出屏幕 */
   .ex-qfig-wrap{margin:4px 0 16px}
   .ex-qfig{display:block;max-width:100%;max-height:36vh;width:auto;height:auto;
@@ -3650,10 +3652,25 @@ body.climate-layer-on #tools{z-index:44}
         <div class="ex-fs">
           <div class="ex-f"><span>考试</span><div class="ex-chips" id="f-exam"></div></div>
           <div class="ex-f"><span>年份</span><div class="ex-chips" id="f-year"></div></div>
-          <div class="ex-f"><span>卷别</span>
+          <div class="ex-f" id="f-paperrow"><span>卷别</span>
             <div class="ex-dd" id="dd-paper">
               <button class="ex-dd-btn" type="button" aria-haspopup="listbox" aria-expanded="false">
                 <span class="ex-dd-label">全部卷别</span><i class="ex-dd-caret"></i>
+              </button>
+              <div class="ex-dd-list" role="listbox" hidden></div>
+            </div></div>
+          <!-- 中考是省市两级命题：先选省，再选市（省级统考的省，"市"里只有"全省统一"） -->
+          <div class="ex-f" id="f-provrow" hidden><span>省份</span>
+            <div class="ex-dd" id="dd-prov">
+              <button class="ex-dd-btn" type="button" aria-haspopup="listbox" aria-expanded="false">
+                <span class="ex-dd-label">全部省份</span><i class="ex-dd-caret"></i>
+              </button>
+              <div class="ex-dd-list" role="listbox" hidden></div>
+            </div></div>
+          <div class="ex-f" id="f-cityrow" hidden><span>城市</span>
+            <div class="ex-dd" id="dd-city">
+              <button class="ex-dd-btn" type="button" aria-haspopup="listbox" aria-expanded="false">
+                <span class="ex-dd-label">全部城市</span><i class="ex-dd-caret"></i>
               </button>
               <div class="ex-dd-list" role="listbox" hidden></div>
             </div></div>
@@ -17449,7 +17466,7 @@ body.climate-layer-on #tools{z-index:44}
     var setupEl = $('ex-setup'), runEl = $('ex-run'), doneEl = $('ex-done');
     var subEl = $('ex-sub'), cntEl = $('ex-count'), startEl = $('ex-start');
     var fExam = $('f-exam'), fYear = $('f-year');
-    var ddPaper = null, ddTheme = null;
+    var ddPaper = null, ddTheme = null, ddProv = null, ddCity = null;
     var fType = $('f-type'), fN = $('f-n');
     var matEl = $('ex-mat');
     var dminEl = $('f-dmin'), dmaxEl = $('f-dmax'), dHint = $('ex-dhint');
@@ -17609,7 +17626,8 @@ body.climate-layer-on #tools{z-index:44}
 
     /* 难度不再分三档，改成 0–10（一位小数）的"掌握分"区间：
        score 表示"大概考到多少分（满分 10）才拿得下这道题"。 */
-    var F = { exam: '', year: '', paper: '', theme: '', type: '', dmin: 0, dmax: 10, n: '20' };
+    var F = { exam: '', year: '', paper: '', prov: '', city: '',
+              theme: '', type: '', dmin: 0, dmax: 10, n: '20' };
     var qs = [], at = 0, marks = [], t0 = 0, locked = false, lastMode = 'set';
 
     var EXAMS = [{ v: '', t: '全部' }, { v: 'gk', t: '高考' }, { v: 'zk', t: '中考' }];
@@ -17659,6 +17677,9 @@ body.climate-layer-on #tools{z-index:44}
         if (F.exam && ex !== F.exam) return false;
         if (F.year && String(it.year || '') !== F.year) return false;
         if (F.paper && (it.paper || '') !== F.paper) return false;
+        /* 中考按 省 → 市 两级：省级统考的卷子 city 记作「全省统一」 */
+        if (F.prov && (it.prov || '') !== F.prov) return false;
+        if (F.city && (it.city || '') !== F.city) return false;
         if (F.theme && it.theme !== F.theme) return false;
         if (!typeHit(it, F.type)) return false;
         var sc = scoreOf(it);
@@ -17751,6 +17772,17 @@ body.climate-layer-on #tools{z-index:44}
 
     /* 卷别下拉：只列当前「考试 + 年份」下真实存在的卷，选完自动回筛选 */
     function fillPapers() {
+      var isZk = (F.exam === 'zk');
+      var rows = [$('f-paperrow'), $('f-provrow'), $('f-cityrow')];
+      if (rows[0]) rows[0].hidden = isZk;
+      if (rows[1]) rows[1].hidden = !isZk;
+      if (rows[2]) rows[2].hidden = !isZk;
+      /* 两套筛选互不相干：切到中考就把「卷别」清掉，切回高考就把省市清掉，
+         否则会带着上一套的条件筛出空集 */
+      if (isZk) F.paper = '';
+      else { F.prov = ''; F.city = ''; }
+      if (isZk) { fillProvs(); return; }
+
       if (!ddPaper) ddPaper = makeDD($('dd-paper'), function (v) { F.paper = v; renderSetup(); });
       var set = {};
       bank.items.forEach(function (it) {
@@ -17764,7 +17796,41 @@ body.climate-layer-on #tools{z-index:44}
       ddPaper.render(opts, F.paper, '全部卷别');
     }
 
-    /* 主题也改下拉：9 个主题铺成 chip 要占两行，是这屏最高的一块 */
+    /* 中考：省份 → 城市。省级统考的省，城市列表里只有「全省统一」。 */
+    function fillProvs() {
+      if (!ddProv) ddProv = makeDD($('dd-prov'), function (v) {
+        F.prov = v;
+        F.city = '';                 // 换省就把市清掉，否则会筛出空集
+        renderSetup();
+      });
+      var set = {};
+      bank.items.forEach(function (it) {
+        if ((it.exam || 'gk') !== 'zk') return;
+        if (F.year && String(it.year || '') !== F.year) return;
+        if (it.prov) set[it.prov] = 1;
+      });
+      var opts = [{ v: '', t: '全部省份' }];
+      Object.keys(set).sort().forEach(function (p) { opts.push({ v: p, t: p }); });
+      if (F.prov && !set[F.prov]) F.prov = '';
+      ddProv.render(opts, F.prov, '全部省份');
+      fillCities();
+    }
+
+    function fillCities() {
+      if (!ddCity) ddCity = makeDD($('dd-city'), function (v) { F.city = v; renderSetup(); });
+      var set = {};
+      bank.items.forEach(function (it) {
+        if ((it.exam || 'gk') !== 'zk') return;
+        if (F.year && String(it.year || '') !== F.year) return;
+        if (F.prov && (it.prov || '') !== F.prov) return;
+        if (it.city) set[it.city] = 1;
+      });
+      var opts = [{ v: '', t: '全部城市' }];
+      Object.keys(set).sort().forEach(function (c) { opts.push({ v: c, t: c }); });
+      if (F.city && !set[F.city]) F.city = '';
+      ddCity.render(opts, F.city, '全部城市');
+    }
+
     function fillThemes() {
       if (!ddTheme) ddTheme = makeDD($('dd-theme'), function (v) { F.theme = v; renderSetup(); });
       var set = {};
