@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-27-T">
+<meta name="build" content="2026-11-28-A">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -1229,6 +1229,10 @@
   /* 材料配图：线图居多，白底、细边框，别用阴影压得太重 */
   .ex-mat-fig{display:block;max-width:100%;height:auto;margin:12px 0 2px;
     border-radius:4px;background:#fff}
+  /* 选择题自带的题图（地图/照片）：居中、限高，别把选项挤出屏幕 */
+  .ex-qfig-wrap{margin:4px 0 16px}
+  .ex-qfig{display:block;max-width:100%;max-height:36vh;width:auto;height:auto;
+    margin:0 auto;border-radius:4px;background:#fff}
   /* 材料里的表格（降雨过程数据这类）：原来一格一行竖着排下来，得有半屏长 */
   .ex-mat-table{width:auto;max-width:100%;margin:10px 0 2px;border-collapse:collapse;
     font-size:13.5px;line-height:1.5;color:#374151;background:#fff;
@@ -17507,7 +17511,8 @@ body.climate-layer-on #tools{z-index:44}
         if (!g) {
           g = byKey[key] = {
             type: 'material', cat: q.cat || '真题', band: q.band, grade: q.grade, lv: q.lv,
-            theme: q.theme, tags: q.tags, year: q.year, paper: q.paper,
+            /* exam 必须带过来：漏了的话所有题组都被当成高考，中考的材料题会串到高考档里去 */
+            exam: q.exam, theme: q.theme, tags: q.tags, year: q.year, paper: q.paper,
             material: mat, figure: q.figure || '', figureAlt: q.figureAlt || '',
             subs: [], score: 0, diff: 0,
             /* 归并前的原始小题 id 全留着：错题本/收藏存的是作答时的 id，
@@ -18114,8 +18119,11 @@ body.climate-layer-on #tools{z-index:44}
        每个序号前断一行，就是卷子上一条一条列的样子。 */
     function splitEnum(t) {
       if (!t) return '';
-      return t.replace(/[ \t]*([①②③④⑤⑥])/g, function (m, c, off) {
-        return off === 0 ? c : '\n' + c;
+      /* 只在"圈号前面是空白"时断行：那才是并列的几个选项（①②③④ 各占一行）。
+         像"超出____①的垂直距离"这种行内引用，圈号紧跟在文字后面，不能断，
+         否则一句话会被劈成三行（中考填空就这么被劈过）。 */
+      return t.replace(/[ \t\u3000]+([①②③④⑤⑥])/g, function (m, c) {
+        return '\n' + c;
       })
     }
 
@@ -18346,12 +18354,30 @@ body.climate-layer-on #tools{z-index:44}
       /* 材料题的题干都在小问里，主问题位置留空 —— 不然会多出一行空段落 */
       qEl.textContent = it.subs ? '' : splitEnum(it.q);
       qEl.hidden = !!it.subs;
+      /* 没有材料、只带一张图的选择题（中考卷里常见）：图就摆在题干和选项之间，
+         走正常文档流。放到右侧那个"题图位"里会被当成浮层压成缩略图。 */
+      var oldQf = document.getElementById('ex-qfig-wrap');
+      if (oldQf && oldQf.parentNode) oldQf.parentNode.removeChild(oldQf);
+      if (it.figure && !it.material) {
+        var qfw = el('div', 'ex-qfig-wrap');
+        qfw.id = 'ex-qfig-wrap';
+        var qim = document.createElement('img');
+        qim.className = 'ex-qfig';
+        qim.src = it.figure;
+        qim.alt = it.figureAlt || '题图';
+        qim.loading = 'eager';
+        qim.decoding = 'sync';
+        if (it.figW && it.figH) { qim.width = it.figW; qim.height = it.figH; }
+        qfw.appendChild(qim);
+        optsEl.parentNode.insertBefore(qfw, optsEl);
+      }
       optsEl.textContent = '';
       unmountLattice(true);
       if (figREl) figREl.textContent = '';
       if (figLEl) figLEl.textContent = '';
       mountLattice(figREl);        // 空着的题图位铺一层磁场点阵（有图时会被顶掉）
-      if (it.figure) showFig(it, 'L');     // 真题自带材料图（暂时没有题目用）
+      /* 材料题（含题组）的图已经挂在材料块末尾了，这里只处理"没有材料、只有图"的选择题 */
+      if (it.figure && !it.material) showFig(it, 'L');
       prefetchFig(it);                     // 解析要用的图，趁答题这几秒先取好
 
       if (it.subs) {
