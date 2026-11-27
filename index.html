@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-27-N">
+<meta name="build" content="2026-11-27-P">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -1094,15 +1094,27 @@
     cursor:pointer;transition:none;-webkit-tap-highlight-color:transparent}
   .ex-start:hover{background:#000;border-color:#000}
   .ex-start:disabled{background:#E3E6EA;border-color:#E3E6EA;color:#8A93A1;cursor:default}
-  /* 卷别用下拉：三十几个卷别铺成 chip 会把这一块撑成一堵墙 */
-  .ex-sel{font:inherit;font-size:13px;height:29px;padding:0 26px 0 11px;border-radius:8px;
-    border:1px solid rgba(20,24,31,.16);background:#fff;color:#14181F;cursor:pointer;
-    appearance:none;-webkit-appearance:none;
-    background-image:linear-gradient(45deg,transparent 50%,#6B7480 50%),linear-gradient(135deg,#6B7480 50%,transparent 50%);
-    background-position:calc(100% - 15px) 12px,calc(100% - 10px) 12px;
-    background-size:5px 5px,5px 5px;background-repeat:no-repeat}
-  .ex-sel:focus{outline:none;border-color:rgba(20,24,31,.45);box-shadow:0 0 0 3px rgba(20,24,31,.06)}
-  .ex-sel option{background:#fff;color:#14181F}
+  /* 卷别/主题用自定义下拉：原生 select 的展开弹层由浏览器绘制，
+     左侧那条缝和边框都不归 CSS 管，换成自己画的才能控制位置和样式。 */
+  .ex-dd{position:relative;display:inline-block}
+  .ex-dd-btn{font:inherit;font-size:13px;height:29px;display:inline-flex;align-items:center;
+    gap:9px;padding:0 11px;border-radius:8px;border:1px solid rgba(20,24,31,.16);
+    background:#fff;color:#14181F;cursor:pointer;transition:none}
+  .ex-dd-btn:hover{border-color:rgba(20,24,31,.34)}
+  .ex-dd-btn[aria-expanded="true"]{border-color:#14181F;box-shadow:0 0 0 3px rgba(20,24,31,.06)}
+  .ex-dd-caret{width:0;height:0;border-left:4px solid transparent;border-right:4px solid transparent;
+    border-top:5px solid #6B7480;transform:translateY(1px)}
+  .ex-dd-btn[aria-expanded="true"] .ex-dd-caret{transform:translateY(1px) rotate(180deg)}
+  .ex-dd-list{position:absolute;top:calc(100% + 5px);left:0;z-index:70;min-width:100%;
+    max-height:264px;overflow-y:auto;background:#fff;border:1px solid rgba(20,24,31,.12);
+    border-radius:10px;box-shadow:0 14px 30px rgba(9,13,19,.18);padding:5px;
+    min-width:150px}
+  .ex-dd-list[hidden]{display:none}
+  .ex-dd-opt{display:block;width:100%;text-align:left;font:inherit;font-size:13px;
+    padding:9px 12px;border-radius:7px;border:0;background:transparent;color:#2B3440;
+    cursor:pointer;transition:none;white-space:nowrap}
+  .ex-dd-opt:hover{background:#F2F4F7}
+  .ex-dd-opt.on{background:#14181F;color:#fff}
   .ex-nc{display:inline-flex;align-items:center;gap:5px;margin:0 0 0 2px;height:29px}
   /* 和难度那两个输入框同一套：直角小圆角、固定高度，聚焦不再变形 */
   .ex-nc-in{width:56px;height:29px;box-sizing:border-box;font:inherit;font-size:13px;
@@ -3602,8 +3614,20 @@ body.climate-layer-on #tools{z-index:44}
         <div class="ex-fs">
           <div class="ex-f"><span>考试</span><div class="ex-chips" id="f-exam"></div></div>
           <div class="ex-f"><span>年份</span><div class="ex-chips" id="f-year"></div></div>
-          <div class="ex-f"><span>卷别</span><select class="ex-sel" id="f-paper" aria-label="卷别"></select></div>
-          <div class="ex-f"><span>主题</span><select class="ex-sel" id="f-theme" aria-label="主题"></select></div>
+          <div class="ex-f"><span>卷别</span>
+            <div class="ex-dd" id="dd-paper">
+              <button class="ex-dd-btn" type="button" aria-haspopup="listbox" aria-expanded="false">
+                <span class="ex-dd-label">全部卷别</span><i class="ex-dd-caret"></i>
+              </button>
+              <div class="ex-dd-list" role="listbox" hidden></div>
+            </div></div>
+          <div class="ex-f"><span>主题</span>
+            <div class="ex-dd" id="dd-theme">
+              <button class="ex-dd-btn" type="button" aria-haspopup="listbox" aria-expanded="false">
+                <span class="ex-dd-label">全部主题</span><i class="ex-dd-caret"></i>
+              </button>
+              <div class="ex-dd-list" role="listbox" hidden></div>
+            </div></div>
           <div class="ex-f"><span>题型</span><div class="ex-chips" id="f-type"></div></div>
           <div class="ex-f"><span>难度</span>
             <div class="ex-range">
@@ -17388,8 +17412,8 @@ body.climate-layer-on #tools{z-index:44}
     var $ = function (id) { return document.getElementById(id); };
     var setupEl = $('ex-setup'), runEl = $('ex-run'), doneEl = $('ex-done');
     var subEl = $('ex-sub'), cntEl = $('ex-count'), startEl = $('ex-start');
-    var fExam = $('f-exam'), fYear = $('f-year'), fPaper = $('f-paper');
-    var fTheme = $('f-theme');
+    var fExam = $('f-exam'), fYear = $('f-year');
+    var ddPaper = null, ddTheme = null;
     var fType = $('f-type'), fN = $('f-n');
     var matEl = $('ex-mat');
     var dminEl = $('f-dmin'), dmaxEl = $('f-dmax'), dHint = $('ex-dhint');
@@ -17601,33 +17625,98 @@ body.climate-layer-on #tools{z-index:44}
         return true;
       });
     }
+    /* ---------- 自定义下拉 ----------
+       原生 select 的弹层由浏览器绘制，左边那道缝和边框都改不到，所以自己画一层。
+       键盘：Esc 关、↑↓ 移动、Enter 选中；点空白处自动关。 */
+    function makeDD(root, onPick) {
+      if (!root) return null;
+      var btn = root.querySelector('.ex-dd-btn');
+      var lab = root.querySelector('.ex-dd-label');
+      var list = root.querySelector('.ex-dd-list');
+      var cur = '';
+
+      function close() {
+        if (list.hidden) return;
+        list.hidden = true;
+        btn.setAttribute('aria-expanded', 'false');
+      }
+      function pick(v) {
+        cur = v;
+        var hit = null;
+        Array.prototype.forEach.call(list.children, function (o) {
+          var on = o.getAttribute('data-v') === v;
+          o.classList.toggle('on', on);
+          if (on) hit = o;
+        });
+        lab.textContent = hit ? hit.textContent : (list.firstChild ? list.firstChild.textContent : '');
+        onPick(v);
+      }
+      function render(items, value, placeholder) {
+        cur = value || '';
+        list.textContent = '';
+        var found = false;
+        items.forEach(function (it) {
+          var o = document.createElement('button');
+          o.type = 'button';
+          o.className = 'ex-dd-opt' + (it.v === cur ? ' on' : '');
+          o.setAttribute('data-v', it.v);
+          o.setAttribute('role', 'option');
+          o.textContent = it.t;
+          if (it.v === cur) found = true;
+          o.addEventListener('click', function (e) { e.stopPropagation(); close(); pick(it.v); });
+          list.appendChild(o);
+        });
+        lab.textContent = found
+          ? (list.querySelector('.on').textContent)
+          : (placeholder || (items[0] ? items[0].t : ''));
+      }
+      btn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        var willOpen = list.hidden;
+        Array.prototype.forEach.call(document.querySelectorAll('.ex-dd-list'), function (l) {
+          if (l !== list) l.hidden = true;
+        });
+        list.hidden = !willOpen;
+        btn.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
+        if (willOpen) {
+          var on = list.querySelector('.on');
+          if (on) on.scrollIntoView({ block: 'nearest' });
+        }
+      });
+      document.addEventListener('click', close);
+      btn.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') { close(); return; }
+        if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+          e.preventDefault();
+          var opts = Array.prototype.slice.call(list.children);
+          if (!opts.length) return;
+          if (list.hidden) { list.hidden = false; btn.setAttribute('aria-expanded', 'true'); }
+          var i = opts.indexOf(document.activeElement);
+          var n = e.key === 'ArrowDown' ? Math.min(opts.length - 1, i + 1) : Math.max(0, i < 0 ? 0 : i - 1);
+          opts[n].focus();
+        }
+      });
+      return { render: render, close: close };
+    }
+
     /* 卷别下拉：只列当前「考试 + 年份」下真实存在的卷，选完自动回筛选 */
     function fillPapers() {
-      if (!fPaper) return;
-      var prev = F.paper, set = {};
+      if (!ddPaper) ddPaper = makeDD($('dd-paper'), function (v) { F.paper = v; renderSetup(); });
+      var set = {};
       bank.items.forEach(function (it) {
         if (F.exam && (it.exam || 'gk') !== F.exam) return;
         if (F.year && String(it.year || '') !== F.year) return;
         if (it.paper) set[it.paper] = 1;
       });
-      var list = Object.keys(set).sort();
-      fPaper.textContent = '';
-      var o0 = document.createElement('option');
-      o0.value = ''; o0.textContent = '全部卷别';
-      fPaper.appendChild(o0);
-      list.forEach(function (pn) {
-        var o = document.createElement('option');
-        o.value = pn; o.textContent = pn;
-        fPaper.appendChild(o);
-      });
-      if (prev && set[prev]) fPaper.value = prev;
-      else F.paper = '';
-      fPaper.onchange = function () { F.paper = fPaper.value; renderSetup(); };
+      var opts = [{ v: '', t: '全部卷别' }];
+      Object.keys(set).sort().forEach(function (pn) { opts.push({ v: pn, t: pn }); });
+      if (F.paper && !set[F.paper]) F.paper = '';   // 换考试/年份后原卷别可能不存在了
+      ddPaper.render(opts, F.paper, '全部卷别');
     }
 
     /* 主题也改下拉：9 个主题铺成 chip 要占两行，是这屏最高的一块 */
     function fillThemes() {
-      if (!fTheme) return;
+      if (!ddTheme) ddTheme = makeDD($('dd-theme'), function (v) { F.theme = v; renderSetup(); });
       var set = {};
       bank.items.forEach(function (it) {
         if (F.exam && (it.exam || 'gk') !== F.exam) return;
@@ -17635,19 +17724,10 @@ body.climate-layer-on #tools{z-index:44}
         if (it.paper && F.paper && it.paper !== F.paper) return;
         if (it.theme) set[it.theme] = 1;
       });
-      var list = Object.keys(set).sort();
-      fTheme.textContent = '';
-      var o0 = document.createElement('option');
-      o0.value = ''; o0.textContent = '全部主题';
-      fTheme.appendChild(o0);
-      list.forEach(function (th) {
-        var o = document.createElement('option');
-        o.value = th; o.textContent = th;
-        fTheme.appendChild(o);
-      });
-      if (F.theme && set[F.theme]) fTheme.value = F.theme;
-      else F.theme = '';
-      fTheme.onchange = function () { F.theme = fTheme.value; renderSetup(); };
+      var opts = [{ v: '', t: '全部主题' }];
+      Object.keys(set).sort().forEach(function (th) { opts.push({ v: th, t: th }); });
+      if (F.theme && !set[F.theme]) F.theme = '';
+      ddTheme.render(opts, F.theme, '全部主题');
     }
 
     function countBy(fn) {
