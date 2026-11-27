@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-27-M">
+<meta name="build" content="2026-11-27-N">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -1068,8 +1068,10 @@
     border:1px solid rgba(20,24,31,.14);background:#fff;
     color:#4C5666;cursor:pointer;transition:none;-webkit-tap-highlight-color:transparent}
   .ex-chip:hover{border-color:rgba(20,24,31,.42);color:#14181F}
-  .ex-chip.on{border-color:#14181F;background:rgba(20,24,31,.05);
-    color:#14181F;font-weight:600}
+  /* 选中态原来用 font-weight:600 —— 字一粗 chip 就变宽，旁边的按钮跟着位移。
+     改成加一圈 inset 描边 + 稍深的底，观感一样"被选中"，宽度一个像素都不变。 */
+  .ex-chip.on{border-color:#14181F;background:rgba(20,24,31,.075);
+    color:#14181F;box-shadow:inset 0 0 0 1px #14181F}
   .ex-chip i{font-style:normal;font-size:10px;color:#9AA3B0;margin-left:5px;font-weight:400}
   .ex-chip.on i{color:#14181F}
   /* 难度不再分三档，改成 0–10 的区间（带一位小数），直接填两个端点 */
@@ -1083,7 +1085,8 @@
   .ex-num:focus{outline:none;border-color:#14181F;box-shadow:0 0 0 3px rgba(20,24,31,.07)}
   .ex-dash{color:#A6AEBA;font-size:13px}
   .ex-rhint{font-size:12px;color:#8A93A1;margin-left:2px}
-  .ex-count{font-size:13px;color:#7A8494;margin:18px 0 11px}
+  .ex-count{font-size:13px;color:#7A8494;margin:18px 0 11px;
+    font-variant-numeric:tabular-nums}
   .ex-count b{font-size:16px;color:#14181F;font-weight:600}
   .ex-start{width:100%;font:inherit;font-size:14.5px;font-weight:500;padding:13px 0;
     font-variant-numeric:tabular-nums;
@@ -1098,7 +1101,8 @@
     background-image:linear-gradient(45deg,transparent 50%,#6B7480 50%),linear-gradient(135deg,#6B7480 50%,transparent 50%);
     background-position:calc(100% - 15px) 12px,calc(100% - 10px) 12px;
     background-size:5px 5px,5px 5px;background-repeat:no-repeat}
-  .ex-sel:focus{outline:none;border-color:rgba(20,24,31,.45)}
+  .ex-sel:focus{outline:none;border-color:rgba(20,24,31,.45);box-shadow:0 0 0 3px rgba(20,24,31,.06)}
+  .ex-sel option{background:#fff;color:#14181F}
   .ex-nc{display:inline-flex;align-items:center;gap:5px;margin:0 0 0 2px;height:29px}
   /* 和难度那两个输入框同一套：直角小圆角、固定高度，聚焦不再变形 */
   .ex-nc-in{width:56px;height:29px;box-sizing:border-box;font:inherit;font-size:13px;
@@ -17573,9 +17577,8 @@ body.climate-layer-on #tools{z-index:44}
       if (it && typeof it.score === 'number') return it.score;
       return (it && it.diff ? it.diff : 2) * 2.2;      // 老题库兜底
     }
-    var NS = [{ v: '10', t: '10 题' }, { v: '20', t: '20 题' },
-              { v: '30', t: '30 题' }, { v: 'all', t: '全部' },
-              { v: 'custom', t: '自定义' }];
+    var NS = [{ v: 'all', t: '全部' }, { v: '10', t: '10 题' }, { v: '20', t: '20 题' },
+              { v: '30', t: '30 题' }, { v: 'custom', t: '自定义' }];
     /* 自定义题量：F.nCustom 是用户填的数，没填过就按 20 起 */
     function pickN(list) {
       if (F.n === 'all') return list.length;
