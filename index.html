@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-27-K">
+<meta name="build" content="2026-11-27-L">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -1088,6 +1088,14 @@
     cursor:pointer;transition:none;-webkit-tap-highlight-color:transparent}
   .ex-start:hover{background:#000;border-color:#000}
   .ex-start:disabled{background:#E3E6EA;border-color:#E3E6EA;color:#8A93A1;cursor:default}
+  /* 卷别用下拉：三十几个卷别铺成 chip 会把这一块撑成一堵墙 */
+  .ex-sel{font:inherit;font-size:13px;height:29px;padding:0 26px 0 11px;border-radius:8px;
+    border:1px solid rgba(20,24,31,.16);background:#fff;color:#14181F;cursor:pointer;
+    appearance:none;-webkit-appearance:none;
+    background-image:linear-gradient(45deg,transparent 50%,#6B7480 50%),linear-gradient(135deg,#6B7480 50%,transparent 50%);
+    background-position:calc(100% - 15px) 12px,calc(100% - 10px) 12px;
+    background-size:5px 5px,5px 5px;background-repeat:no-repeat}
+  .ex-sel:focus{outline:none;border-color:rgba(20,24,31,.45)}
   .ex-nc{display:inline-flex;align-items:center;gap:5px;margin:0 0 0 2px;height:29px}
   /* 和难度那两个输入框同一套：直角小圆角、固定高度，聚焦不再变形 */
   .ex-nc-in{width:56px;height:29px;box-sizing:border-box;font:inherit;font-size:13px;
@@ -3586,8 +3594,9 @@ body.climate-layer-on #tools{z-index:44}
         <p class="ex-sub" id="ex-sub">正在载入题库…</p>
 
         <div class="ex-fs">
-          <div class="ex-f"><span>来源</span><div class="ex-chips" id="f-src"></div></div>
-          <div class="ex-f"><span>学段</span><div class="ex-chips" id="f-lv"></div></div>
+          <div class="ex-f"><span>考试</span><div class="ex-chips" id="f-exam"></div></div>
+          <div class="ex-f"><span>年份</span><div class="ex-chips" id="f-year"></div></div>
+          <div class="ex-f"><span>卷别</span><select class="ex-sel" id="f-paper" aria-label="卷别"></select></div>
           <div class="ex-f"><span>主题</span><div class="ex-chips" id="f-theme"></div></div>
           <div class="ex-f"><span>题型</span><div class="ex-chips" id="f-type"></div></div>
           <div class="ex-f"><span>难度</span>
@@ -17373,8 +17382,9 @@ body.climate-layer-on #tools{z-index:44}
     var $ = function (id) { return document.getElementById(id); };
     var setupEl = $('ex-setup'), runEl = $('ex-run'), doneEl = $('ex-done');
     var subEl = $('ex-sub'), cntEl = $('ex-count'), startEl = $('ex-start');
-    var fLv = $('f-lv'), fTheme = $('f-theme'), fType = $('f-type'), fN = $('f-n');
-    var fSrc = $('f-src'), matEl = $('ex-mat');
+    var fExam = $('f-exam'), fYear = $('f-year'), fPaper = $('f-paper');
+    var fTheme = $('f-theme'), fType = $('f-type'), fN = $('f-n');
+    var matEl = $('ex-mat');
     var dminEl = $('f-dmin'), dmaxEl = $('f-dmax'), dHint = $('ex-dhint');
     var lb = $('ex-lb'), lbA = $('ex-lb-a'), lbB = $('ex-lb-b'), lbStage = $('ex-lb-stage');
     var lbName = $('ex-lb-name'), lbSub = $('ex-lb-sub');
@@ -17498,8 +17508,10 @@ body.climate-layer-on #tools{z-index:44}
       }
       /* 知识卡题和真题分两个文件放：题库以后还会长，混在一个文件里每次都要重下。
          真题缺失（没部署好 / 断网）不能把整个答题模式拖垮，所以它单独 catch。 */
+      /* 知识卡随堂题不再进题库：含金量不够，题库只留真题。
+         geo.json 文件仍保留，想恢复把下面这行的空数组换回 getBank(...) 即可。 */
       bankP = Promise.all([
-        getBank('assets/bank/geo.json'),
+        Promise.resolve({ items: [] }),
         getBank('assets/bank/real.json').catch(function () { return { items: [] }; })
       ]).then(function (a) {
         var g = (a[0] && a[0].items) ? a[0].items : [];
@@ -17525,11 +17537,10 @@ body.climate-layer-on #tools{z-index:44}
 
     /* 难度不再分三档，改成 0–10（一位小数）的"掌握分"区间：
        score 表示"大概考到多少分（满分 10）才拿得下这道题"。 */
-    var F = { src: '', lv: '', theme: '', type: '', dmin: 0, dmax: 10, n: '20' };
+    var F = { exam: '', year: '', paper: '', theme: '', type: '', dmin: 0, dmax: 10, n: '20' };
     var qs = [], at = 0, marks = [], t0 = 0, locked = false, lastMode = 'set';
 
-    var SRCS = [{ v: '', t: '全部' }, { v: 'card', t: '知识卡' }, { v: 'real', t: '高考真题' }];
-    var LVS = [{ v: '', t: '全部' }, { v: '初中', t: '初中' }, { v: '高中', t: '高中' }];
+    var EXAMS = [{ v: '', t: '全部' }, { v: 'gk', t: '高考' }, { v: 'zk', t: '中考' }];
     /* 题型四档，语义互斥：
          choice     无材料的选项题
          matchoice  有材料、小问全是选项的题组（几道选择共用一段材料）
@@ -17572,12 +17583,11 @@ body.climate-layer-on #tools{z-index:44}
     function pool() {
       if (!bank) return [];
       return bank.items.filter(function (it) {
-        /* 两档来源：知识卡随堂题（geo.json）/ 高考真题（real.json）。
-           真题里既有选择题也有材料题，靠 cat 区分。 */
-        var isReal = it.cat === '真题';
-        if (F.src === 'real' && !isReal) return false;
-        if (F.src === 'card' && isReal) return false;
-        if (F.lv && it.band !== F.lv) return false;
+        /* 三级：考试（高考/中考）→ 年份 → 卷别。老数据没有 exam 字段，一律当高考。 */
+        var ex = it.exam || 'gk';
+        if (F.exam && ex !== F.exam) return false;
+        if (F.year && String(it.year || '') !== F.year) return false;
+        if (F.paper && (it.paper || '') !== F.paper) return false;
         if (F.theme && it.theme !== F.theme) return false;
         if (!typeHit(it, F.type)) return false;
         var sc = scoreOf(it);
@@ -17585,6 +17595,30 @@ body.climate-layer-on #tools{z-index:44}
         return true;
       });
     }
+    /* 卷别下拉：只列当前「考试 + 年份」下真实存在的卷，选完自动回筛选 */
+    function fillPapers() {
+      if (!fPaper) return;
+      var prev = F.paper, set = {};
+      bank.items.forEach(function (it) {
+        if (F.exam && (it.exam || 'gk') !== F.exam) return;
+        if (F.year && String(it.year || '') !== F.year) return;
+        if (it.paper) set[it.paper] = 1;
+      });
+      var list = Object.keys(set).sort();
+      fPaper.textContent = '';
+      var o0 = document.createElement('option');
+      o0.value = ''; o0.textContent = '全部卷别';
+      fPaper.appendChild(o0);
+      list.forEach(function (pn) {
+        var o = document.createElement('option');
+        o.value = pn; o.textContent = pn;
+        fPaper.appendChild(o);
+      });
+      if (prev && set[prev]) fPaper.value = prev;
+      else F.paper = '';
+      fPaper.onchange = function () { F.paper = fPaper.value; renderSetup(); };
+    }
+
     function countBy(fn) {
       var m = {};
       (bank ? bank.items : []).forEach(function (it) {
@@ -17643,19 +17677,34 @@ body.climate-layer-on #tools{z-index:44}
       var list = pool();
       var jr = 0, sr = 0;
       bank.items.forEach(function (it) { if (it.band === '高中') sr++; else jr++; });
-      subEl.textContent = '题库 ' + bank.items.length + ' 题 · 知识卡 ' + (bank.nCard || 0) +
-        ' · 高考真题 ' + (bank.nReal || 0);
-      chipRow(fSrc, SRCS, 'src', countBy(function (it) {
-        return it.cat === '真题' ? 'real' : 'card';
-      }));
+      var nGk = 0, nZk = 0;
+      bank.items.forEach(function (it) { if ((it.exam || 'gk') === 'zk') nZk++; else nGk++; });
+      subEl.textContent = '题库 ' + bank.items.length + ' 题 · 高考 ' + nGk + ' · 中考 ' + nZk;
+      chipRow(fExam, EXAMS, 'exam', countBy(function (it) { return it.exam || 'gk'; }));
+      /* 年份只列当前考试类型下真实存在的年份，选完再看卷别 */
+      var yset = {};
+      bank.items.forEach(function (it) {
+        if (F.exam && (it.exam || 'gk') !== F.exam) return;
+        if (it.year) yset[it.year] = 1;
+      });
+      var years = Object.keys(yset).sort().reverse();
+      var YS = [{ v: '', t: '全部' }].concat(years.map(function (y) { return { v: y, t: y + ' 年' }; }));
+      chipRow(fYear, YS, 'year', (function () {
+        var m = {};
+        bank.items.forEach(function (it) {
+          if (F.exam && (it.exam || 'gk') !== F.exam) return;
+          if (it.year) m[it.year] = (m[it.year] || 0) + 1;
+        });
+        return m;
+      })());
+      fillPapers();
       /* 来源：单击是筛选，双击把这档题全部列出来（方便直接挑几道做）。 */
-      Array.prototype.forEach.call(fSrc.querySelectorAll('button'), function (b, i) {
-        var v = (SRCS[i] || {}).v;
+      Array.prototype.forEach.call(fExam.querySelectorAll('button'), function (b, i) {
+        var v = (EXAMS[i] || {}).v;
         if (!v) return;
         b.title = '单击筛选，双击看这一档的全部题目';
-        b.addEventListener('dblclick', function (e) { e.preventDefault(); openPick('src', v); });
+        b.addEventListener('dblclick', function (e) { e.preventDefault(); openPick('exam', v); });
       });
-      chipRow(fLv, LVS, 'lv', countBy(function (it) { return it.band; }));
       chipRow(fTheme, themeList(), 'theme', null);
       /* 题型现在四档互斥，直接按 type 计数（以前是三档、还有交叉命中，
          写死了 choice/short/material 三个键，新增的 matchoice 就数不出来）。 */
@@ -17750,8 +17799,8 @@ body.climate-layer-on #tools{z-index:44}
     function pickSource(kind, val) {
       if (kind === 'wrong') return bank.items.filter(function (it) { return !!S.wrong[it.id]; });
       if (kind === 'fav') return bank.items.filter(function (it) { return !!S.fav[it.id]; });
-      var isReal = (val === 'real');
-      return bank.items.filter(function (it) { return (it.cat === '真题') === isReal; });
+      if (kind === 'exam') return bank.items.filter(function (it) { return (it.exam || 'gk') === val; });
+      return bank.items.slice();
     }
     function syncPick() {
       var n = 0;
@@ -17792,7 +17841,7 @@ body.climate-layer-on #tools{z-index:44}
       if (kind !== 'src') items.forEach(function (it) { pickSel[it.id] = true; });
       pickTitle.textContent = kind === 'wrong' ? '错题本'
         : (kind === 'fav' ? '收藏'
-        : (val === 'real' ? '高考真题' : '知识卡随堂题'));
+        : (val === 'zk' ? '中考真题' : '高考真题'));
       pickTotal = items.length;
       pickEl.hidden = false;
       renderPick(items);
