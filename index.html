@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-27-E">
+<meta name="build" content="2026-11-27-F">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -17901,35 +17901,16 @@ body.climate-layer-on #tools{z-index:44}
       lat.dots = dots;
     }
 
-    /* 点阵要和题图**同一个位置**：解析图是按"底边贴最后一块内容的下沿"摆的（见 placeFig），
-       点阵照同一套规则算。这样图出现时就长在同一块地方，不会从上面跳下来。 */
+    /* 点阵的位置**固定**：只跟题干第一行走，比它低 28px。
+       以前是"底边贴内容下沿"，于是短题停在上面、材料题掉到下面，翻题时整块上下乱跳。
+       现在所有题都在同一条水平线上，眼睛不用重新找。 */
     function placeLattice() {
       var cv = lat.cv, col = optsEl.parentNode;
       if (!cv || !col || !figREl) return;
-      var last = extraEl.lastElementChild || optsEl;
-      if (!last) return;
-      var top = figREl.getBoundingClientRect().top;
-      var want = last.getBoundingClientRect().bottom - lat.h;   // 和解析图一样：底边贴内容下沿
-      /* 内容比点阵还短时，"底边贴内容"会把它顶到标题上方去 —— 上面至少要和
-         题干/材料的第一行齐平，看起来才像同一篇文章里的插图 */
       var first = col.firstElementChild;
-      var top0 = (first ? first.getBoundingClientRect().top : top) - top;
-      if (want - top < top0) want = top + top0;
-      /* 材料题很长（材料 + 四小问），底边一贴就贴到屏幕外面去了 —— 夹住 */
-      var lim = (mainEl ? mainEl.getBoundingClientRect().bottom : window.innerHeight) - 24 - lat.h;
-      if (want > lim) want = lim;
-      cv.style.top = Math.max(0, Math.round(want - top)) + 'px';
-    }
-    var latRO = null, latCol = null;
-    function bindLatticeRO() {
-      if (!('ResizeObserver' in window)) return;
-      if (!latRO) latRO = new ResizeObserver(function () { placeLattice(); });
-      var col = optsEl.parentNode;
-      if (col && latCol !== col) {
-        if (latCol) latRO.unobserve(latCol);
-        latCol = col;
-        latRO.observe(col);      // 题目内容变高变矮（出解析、材料题展开）都跟着重摆
-      }
+      var base = first ? first.getBoundingClientRect().top : col.getBoundingClientRect().top;
+      var top = base - figREl.getBoundingClientRect().top + 28;
+      cv.style.top = Math.max(0, Math.round(top)) + 'px';
     }
 
     function mountLattice(box) {
@@ -17946,7 +17927,6 @@ body.climate-layer-on #tools{z-index:44}
       box.style.paddingTop = '';     // 上一张解析图留下的下推量，别带到点阵上
       sizeLattice();
       placeLattice();
-      bindLatticeRO();
       /* 晚 140ms 再显形：已答过的题会立刻插图，这一小段延迟让点阵根本来不及闪 */
       lat.tOn = setTimeout(function () {
         if (lat.cv !== cv) return;
@@ -18013,7 +17993,10 @@ body.climate-layer-on #tools{z-index:44}
       lat.tx = lat.ty = -1e4;                    // 离开就松手，点自己弹回去
     }, { passive: true });
     window.addEventListener('resize', function () {
-      if (lat.cv) { sizeLattice(); if (LAT_STILL) tickLattice(0); }
+      if (!lat.cv) return;
+      sizeLattice();
+      placeLattice();
+      if (LAT_STILL) tickLattice(0);
     });
 
     function renderQ() {
