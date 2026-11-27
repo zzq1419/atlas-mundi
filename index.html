@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-27-C">
+<meta name="build" content="2026-11-27-E">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -1144,6 +1144,9 @@
   .ex-lat{position:absolute;left:0;top:0;width:100%;max-width:600px;
     border-radius:8px;opacity:0;transition:opacity .3s ease;pointer-events:none}
   .ex-lat.on{opacity:1}
+  /* 出解析时内容会变高，点阵要跟着往下挪到题图的位置 —— 这一段必须动起来，
+     不然它会在同一帧里"啪"地跳下去 */
+  .ex-lat.mv{transition:opacity .3s ease, top .34s cubic-bezier(.4,0,.2,1)}
   /* 空的图位必须退出栅格（不然它会白占一列），所以列位写死在 ID 上 */
   .ex-fig:empty{display:none}
   #ex-fig-l{grid-column:1}
@@ -17872,7 +17875,7 @@ body.climate-layer-on #tools{z-index:44}
                 tx: -1e4, ty: -1e4, mx: -1e4, my: -1e4 };
     var LAT_R = 190;        // 磁场影响半径
     var LAT_GAP = 21;       // 点距
-    var LAT_RATIO = 1.62;   // 与常见题图一致的宽高比
+    var LAT_RATIO = 4 / 3;  // 解析图全是 480×360，点阵就用 4:3，尺寸和题图一模一样
     var LAT_STILL = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
 
     function sizeLattice() {
@@ -17887,13 +17890,46 @@ body.climate-layer-on #tools{z-index:44}
       cv.height = Math.round(h * dpr);
       lat.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       var dots = [];
-      for (var y = LAT_GAP * 0.8; y < h - 3; y += LAT_GAP) {
-        for (var x = LAT_GAP * 0.8; x < w - 3; x += LAT_GAP) {
+      /* 内缩 12px：点最大会被推开 34px，但下面的 edgeK 会按"离边多远"把位移压回去，
+         所以点永远不会被画布边缘切掉半颗（那半颗点连起来就是一条脏线） */
+      for (var y = 12; y < h - 8; y += LAT_GAP) {
+        for (var x = 12; x < w - 8; x += LAT_GAP) {
           /* 每个点带自己的相位，呼吸时才不会整片一起动（那就成脉冲了） */
           dots.push({ x: x, y: y, dx: 0, dy: 0, px: 0, py: 0, ph: (x * 0.07 + y * 0.13) % 6.283 });
         }
       }
       lat.dots = dots;
+    }
+
+    /* 点阵要和题图**同一个位置**：解析图是按"底边贴最后一块内容的下沿"摆的（见 placeFig），
+       点阵照同一套规则算。这样图出现时就长在同一块地方，不会从上面跳下来。 */
+    function placeLattice() {
+      var cv = lat.cv, col = optsEl.parentNode;
+      if (!cv || !col || !figREl) return;
+      var last = extraEl.lastElementChild || optsEl;
+      if (!last) return;
+      var top = figREl.getBoundingClientRect().top;
+      var want = last.getBoundingClientRect().bottom - lat.h;   // 和解析图一样：底边贴内容下沿
+      /* 内容比点阵还短时，"底边贴内容"会把它顶到标题上方去 —— 上面至少要和
+         题干/材料的第一行齐平，看起来才像同一篇文章里的插图 */
+      var first = col.firstElementChild;
+      var top0 = (first ? first.getBoundingClientRect().top : top) - top;
+      if (want - top < top0) want = top + top0;
+      /* 材料题很长（材料 + 四小问），底边一贴就贴到屏幕外面去了 —— 夹住 */
+      var lim = (mainEl ? mainEl.getBoundingClientRect().bottom : window.innerHeight) - 24 - lat.h;
+      if (want > lim) want = lim;
+      cv.style.top = Math.max(0, Math.round(want - top)) + 'px';
+    }
+    var latRO = null, latCol = null;
+    function bindLatticeRO() {
+      if (!('ResizeObserver' in window)) return;
+      if (!latRO) latRO = new ResizeObserver(function () { placeLattice(); });
+      var col = optsEl.parentNode;
+      if (col && latCol !== col) {
+        if (latCol) latRO.unobserve(latCol);
+        latCol = col;
+        latRO.observe(col);      // 题目内容变高变矮（出解析、材料题展开）都跟着重摆
+      }
     }
 
     function mountLattice(box) {
@@ -17907,9 +17943,16 @@ body.climate-layer-on #tools{z-index:44}
       lat.cv = cv;
       lat.ctx = cv.getContext('2d');
       lat.mx = lat.tx; lat.my = lat.ty;
+      box.style.paddingTop = '';     // 上一张解析图留下的下推量，别带到点阵上
       sizeLattice();
+      placeLattice();
+      bindLatticeRO();
       /* 晚 140ms 再显形：已答过的题会立刻插图，这一小段延迟让点阵根本来不及闪 */
-      lat.tOn = setTimeout(function () { if (lat.cv === cv) cv.classList.add('on'); }, 140);
+      lat.tOn = setTimeout(function () {
+        if (lat.cv !== cv) return;
+        cv.classList.add('mv');      // 首帧摆位之后再允许 top 过渡
+        cv.classList.add('on');
+      }, 140);
       if (!lat.raf) lat.raf = requestAnimationFrame(tickLattice);
     }
 
@@ -17943,10 +17986,13 @@ body.climate-layer-on #tools{z-index:44}
         if (k < 0) k = 0;
         k = k * k * (3 - 2 * k);                 // smoothstep：边缘不留一圈硬边
         var ux = vx / dist, uy = vy / dist;
+        /* 越靠边越不许动：否则点会被画布边缘切半，连成一条脏线 */
+        var edgeK = Math.min(d.x, lat.w - d.x, d.y, lat.h - d.y) / 40;
+        if (edgeK > 1) edgeK = 1;
         /* 径向推开 + 切向偏转 = 磁铁旁边的铁屑；再叠一层极慢的呼吸 */
         var br = Math.sin(t * 0.55 + d.ph) * 0.9;
-        d.px = ux * (30 * k + br) - uy * 16 * k;
-        d.py = uy * (30 * k + br) + ux * 16 * k;
+        d.px = (ux * (30 * k + br) - uy * 16 * k) * edgeK;
+        d.py = (uy * (30 * k + br) + ux * 16 * k) * edgeK;
         d.dx += (d.px - d.dx) * 0.13;            // 位移本身再追一次，才叫丝滑
         d.dy += (d.py - d.dy) * 0.13;
         ctx.fillStyle = 'rgba(92,116,148,' + (0.26 + 0.42 * k).toFixed(3) + ')';
@@ -18052,6 +18098,7 @@ body.climate-layer-on #tools{z-index:44}
       nextEl.textContent = (at === qs.length - 1) ? '完成' : '下一题';
       syncFav();
       if (marks[at]) restore(marks[at]);
+      placeLattice();          // 内容已排好，把点阵摆到题图该在的位置
     }
 
     function syncFav() {
@@ -18467,9 +18514,20 @@ body.climate-layer-on #tools{z-index:44}
         if (!map[it.card] || qs[at] !== it) return;
         var put = function (svg) {
           if (qs[at] !== it) return;
+          var dead = (where !== 'L') ? lat.cv : null;
           if (where !== 'L') unmountLattice(false);   // 题图来了，点阵退场
-          box.innerHTML = svg;
+          box.innerHTML = svg;                        // 这一步会把 dead 从 DOM 摘掉
           placeFig(box);            // 摆位：底边贴解析下沿
+          if (dead) {
+            /* 点阵先滑到图的位置再淡出：图是"长"出来的，不是凭空跳到别处 */
+            var s2 = box.querySelector('svg');
+            if (s2) {
+              box.appendChild(dead);
+              var to = s2.getBoundingClientRect().top - box.getBoundingClientRect().top;
+              void dead.offsetWidth;
+              dead.style.top = Math.max(0, Math.round(to)) + 'px';
+            }
+          }
         };
         if (figCache[it.card]) { put(figCache[it.card]); return; }
         fetch(figUrl(it.card), { cache: 'force-cache' }).then(function (r) {
