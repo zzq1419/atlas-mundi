@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-27-P">
+<meta name="build" content="2026-11-27-Q">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -924,8 +924,13 @@
   .ex-pick-hd b{font-size:16px;font-weight:600;color:#14181F}
   .ex-pick-sub{font-size:12.5px;color:#7A8494}
   .ex-pick-hd .ex-x{margin-left:auto}
+  /* 滚动条一出来就占 15px，列表里的行会比底部「开始做题」窄一截 ——
+     隐藏滚动条，滚轮/触控板照样滚，左右边缘就和按钮对齐了 */
   .ex-pick-list{flex:1;min-height:0;overflow-y:auto;padding:12px 16px;display:flex;
-    flex-direction:column;gap:9px}
+    flex-direction:column;gap:9px;scrollbar-width:none;-ms-overflow-style:none}
+  .ex-pick-list::-webkit-scrollbar{display:none}
+  .ex-pick-empty{margin:auto;padding:36px 10px;text-align:center;font-size:13.5px;
+    line-height:1.8;color:#8A93A1}
   .ex-pick-row{display:flex;flex-direction:column;gap:5px;text-align:left;width:100%;
     font:inherit;padding:13px 15px;border-radius:10px;cursor:pointer;
     border:1px solid rgba(20,24,31,.12);background:#fff;transition:none}
@@ -934,6 +939,8 @@
   .ex-pick-q{font-size:14px;line-height:1.6;color:#232B36}
   .ex-pick-src{font-size:11.5px;color:#8A93A1;letter-spacing:.02em}
   .ex-pick-ft{padding:14px 16px 18px;border-top:1px solid rgba(20,24,31,.08)}
+  /* 计数为 0 时只压低文字，不禁用 —— 点开能看到「错题本里还没有题目」 */
+  .ex-quick .is-zero{color:#9AA3B0}
   .ex-pick-ft .ex-start{width:100%}
   /* 滚动条彻底不画（选题页本来就要"刚好放下"，画出来反而提示"还有东西没看到"）；
      内容真超长时仍能滚，不是 overflow:hidden 那种卡死 */
@@ -1105,16 +1112,23 @@
   .ex-dd-caret{width:0;height:0;border-left:4px solid transparent;border-right:4px solid transparent;
     border-top:5px solid #6B7480;transform:translateY(1px)}
   .ex-dd-btn[aria-expanded="true"] .ex-dd-caret{transform:translateY(1px) rotate(180deg)}
-  .ex-dd-list{position:absolute;top:calc(100% + 5px);left:0;z-index:70;min-width:100%;
+  /* 宽度严格跟按钮一致（width:100%，不再有 min-width:150px 把短按钮撑宽）；
+     滚动条隐藏 —— 鼠标滚轮照样能滑，但不占竖向空间，选项右边缘才能和按钮齐 */
+  .ex-dd-list{position:absolute;top:calc(100% + 5px);left:0;z-index:70;width:100%;
     max-height:264px;overflow-y:auto;background:#fff;border:1px solid rgba(20,24,31,.12);
     border-radius:10px;box-shadow:0 14px 30px rgba(9,13,19,.18);padding:5px;
-    min-width:150px}
+    scrollbar-width:none;-ms-overflow-style:none}
+  .ex-dd-list::-webkit-scrollbar{display:none}
   .ex-dd-list[hidden]{display:none}
+  /* 字号与内边距对齐按钮（13px / 左 11px），选项文字和按钮文字左边缘在同一条竖线上 */
   .ex-dd-opt{display:block;width:100%;text-align:left;font:inherit;font-size:13px;
-    padding:9px 12px;border-radius:7px;border:0;background:transparent;color:#2B3440;
-    cursor:pointer;transition:none;white-space:nowrap}
+    line-height:1.45;padding:8px 11px;border-radius:7px;border:0;background:transparent;
+    color:#2B3440;cursor:pointer;transition:none;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .ex-dd-opt:hover{background:#F2F4F7}
-  .ex-dd-opt.on{background:#14181F;color:#fff}
+  /* 选中样式与上面的 chip 完全一致（白底 + 深色内描边 + 稍深底色）。
+     原来反白（黑底白字）在整片浅色控件里太跳，而且和 chip 的"选中"不是同一种语言。 */
+  .ex-dd-opt.on{background:rgba(20,24,31,.075);color:#14181F;box-shadow:inset 0 0 0 1px #14181F}
   .ex-nc{display:inline-flex;align-items:center;gap:5px;margin:0 0 0 2px;height:29px}
   /* 和难度那两个输入框同一套：直角小圆角、固定高度，聚焦不再变形 */
   .ex-nc-in{width:56px;height:29px;box-sizing:border-box;font:inherit;font-size:13px;
@@ -17477,10 +17491,14 @@ body.climate-layer-on #tools{z-index:44}
             type: 'material', cat: q.cat || '真题', band: q.band, grade: q.grade, lv: q.lv,
             theme: q.theme, tags: q.tags, year: q.year, paper: q.paper,
             material: mat, figure: q.figure || '', figureAlt: q.figureAlt || '',
-            subs: [], score: 0, diff: 0
+            subs: [], score: 0, diff: 0,
+            /* 归并前的原始小题 id 全留着：错题本/收藏存的是作答时的 id，
+               题组 id 是 'mat-年份-卷-题号'，两边对不上就会「点了没反应」 */
+            raw: []
           };
           out.push(g);
         }
+        if (q.id) g.raw.push(q.id);
         g.subs.push({
           /* 源数据的小问自带"（1）（2）"编号，界面上是我们自己编的号，
              不剥掉就会渲染成"（1）（1）分析寒冷的气候…" */
@@ -17666,9 +17684,18 @@ body.climate-layer-on #tools{z-index:44}
           o.addEventListener('click', function (e) { e.stopPropagation(); close(); pick(it.v); });
           list.appendChild(o);
         });
-        lab.textContent = found
-          ? (list.querySelector('.on').textContent)
-          : (placeholder || (items[0] ? items[0].t : ''));
+        /* 按钮先撑到能放下最长的那一项：列表是 width:100%，只有按钮够宽，
+           选项才既与按钮同宽、又不会被截成省略号（「2025 湖南卷」这种名字长）。
+           量法是把标签临时换成每一项读一次 offsetWidth，再恢复 —— 比 canvas 测字省事。 */
+        var keep = found ? list.querySelector('.on').textContent : (placeholder || (items[0] ? items[0].t : ''));
+        var maxW = 0;
+        btn.style.minWidth = '0px';
+        for (var mi = 0; mi < items.length; mi++) {
+          lab.textContent = items[mi].t;
+          if (btn.offsetWidth > maxW) maxW = btn.offsetWidth;
+        }
+        lab.textContent = keep;
+        btn.style.minWidth = Math.ceil(maxW) + 'px';
       }
       btn.addEventListener('click', function (e) {
         e.stopPropagation();
@@ -17760,11 +17787,17 @@ body.climate-layer-on #tools{z-index:44}
       }));
     }
     function syncQuick() {
-      var wn = Object.keys(S.wrong).length, fn = Object.keys(S.fav).length;
+      /* 数的是「题库里还能找到的」，不是 localStorage 里的键数：
+         键里可能残留已下线的题（知识卡随堂题），按键数按钮是可点的，
+         点开却一条都筛不出来，表现就是没反应。 */
+      var wn = countMark(S.wrong), fn = countMark(S.fav);
       wrongBtn.innerHTML = '错题本 <b>' + wn + '</b>';
       favBtn.innerHTML = '收藏 <b>' + fn + '</b>';
-      wrongBtn.disabled = !wn;
-      favBtn.disabled = !fn;
+      /* 不再 disabled：为空时按钮灰掉、点下去毫无反应，用户根本不知道发生了什么
+         （错题本里可能还留着已下线题目的旧记录，计数是 0 但用户以为有）。
+         现在一律可点，点开给空态说明。 */
+      wrongBtn.classList.toggle('is-zero', !wn);
+      favBtn.classList.toggle('is-zero', !fn);
     }
     function readRange() {
       var a = parseFloat(dminEl.value), b = parseFloat(dmaxEl.value);
@@ -17907,9 +17940,31 @@ body.climate-layer-on #tools{z-index:44}
 
     /* ---------- 选题列表（错题 / 收藏 / 某个来源的全部题） ---------- */
     var pickSel = {}, pickTotal = 0;
+    /* 这条题有没有被记进 map（错题/收藏）。
+       除了题组自己的 id，还要看归并前的原始小题 id —— 老记录是按小题 id 存的，
+       只比 it.id 的话这些记录一条都匹配不上，界面上就是「点了没反应」。 */
+    function hasMark(map, it) {
+      if (map[it.id]) return true;
+      if (it.raw) {
+        for (var i = 0; i < it.raw.length; i++) if (map[it.raw[i]]) return true;
+      }
+      if (it.subs) {
+        for (var j = 0; j < it.subs.length; j++) {
+          if (it.subs[j].id && map[it.subs[j].id]) return true;
+        }
+      }
+      return false;
+    }
+    function countMark(map) {
+      /* syncQuick 在题库加载完之前就会被调用一次（渲染空态），这里必须挡一下 */
+      if (!bank || !bank.items) return 0;
+      var n = 0;
+      bank.items.forEach(function (it) { if (hasMark(map, it)) n++; });
+      return n;
+    }
     function pickSource(kind, val) {
-      if (kind === 'wrong') return bank.items.filter(function (it) { return !!S.wrong[it.id]; });
-      if (kind === 'fav') return bank.items.filter(function (it) { return !!S.fav[it.id]; });
+      if (kind === 'wrong') return bank.items.filter(function (it) { return hasMark(S.wrong, it); });
+      if (kind === 'fav') return bank.items.filter(function (it) { return hasMark(S.fav, it); });
       if (kind === 'exam') return bank.items.filter(function (it) { return (it.exam || 'gk') === val; });
       return bank.items.slice();
     }
@@ -17924,12 +17979,20 @@ body.climate-layer-on #tools{z-index:44}
     }
     function renderPick(items) {
       pickListEl.textContent = '';
+      if (!items.length) { pickEmpty(); syncPick(); return; }
       items.forEach(function (it) {
         var row = el('button', 'ex-pick-row');
         row.type = 'button';
-        row.appendChild(el('span', 'ex-pick-q', (it.q || '').slice(0, 52)));
+        /* 题组的 q 是「材料题 · 材料开头 34 字…」，读起来是半句话；
+           改成直接给第一小问，一眼能认出是哪道题。 */
+        var brief = it.q || '';
+        if (it.subs && it.subs.length) {
+          brief = '（' + it.subs.length + ' 小问）' + (it.subs[0].q || '');
+        }
+        row.appendChild(el('span', 'ex-pick-q', brief.slice(0, 52)));
         row.appendChild(el('span', 'ex-pick-src',
-          (it.src || '') + (it.type === 'material' ? ' · 材料题' : '') +
+          (it.src || '') +
+          (it.type === 'material' ? ' · 材料问答题' : (it.type === 'matchoice' ? ' · 材料选择题' : '')) +
           (it.theme ? ' · ' + it.theme : '')));
         if (pickSel[it.id]) row.classList.add('on');
         row.addEventListener('click', function () {
@@ -17944,7 +18007,6 @@ body.climate-layer-on #tools{z-index:44}
     function openPick(kind, val) {
       if (!bank) return;
       var items = pickSource(kind, val);
-      if (!items.length) return;
       /* 错题本/收藏默认全选（点进来就是为了做掉它们）；
          按来源看全部题目时不预选 —— 一百多道全勾上等于没有选择，
          用户要的是"挑几道"。 */
@@ -17958,6 +18020,15 @@ body.climate-layer-on #tools{z-index:44}
       renderPick(items);
       pickListEl.scrollTop = 0;
     }
+    function pickEmpty() {
+      pickListEl.textContent = '';
+      var box = el('div', 'ex-pick-empty',
+        pickTitle.textContent === '错题本'
+          ? '错题本里还没有题目。\n做错的题会自动收进来。'
+          : '还没有收藏的题目。\n做题时点右上角的星标即可收藏。');
+      box.style.whiteSpace = 'pre-line';
+      pickListEl.appendChild(box);
+    }
     function closePick() { if (pickEl) pickEl.hidden = true; }
 
     function start(mode, forced) {
@@ -17969,9 +18040,9 @@ body.climate-layer-on #tools{z-index:44}
         mode = 'pick';
       } else {
         if (mode === 'wrong') {
-          list = bank.items.filter(function (it) { return !!S.wrong[it.id]; });
+          list = bank.items.filter(function (it) { return hasMark(S.wrong, it); });
         } else if (mode === 'fav') {
-          list = bank.items.filter(function (it) { return !!S.fav[it.id]; });
+          list = bank.items.filter(function (it) { return hasMark(S.fav, it); });
         } else {
           list = pool();
         }
