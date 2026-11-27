@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-27-S">
+<meta name="build" content="2026-11-27-T">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -1109,18 +1109,23 @@
     gap:9px;padding:0 11px;border-radius:8px;border:1px solid rgba(20,24,31,.16);
     background:#fff;color:#14181F;cursor:pointer;transition:none}
   .ex-dd-btn:hover{border-color:rgba(20,24,31,.34)}
-  .ex-dd-btn[aria-expanded="true"]{border-color:#14181F;box-shadow:0 0 0 3px rgba(20,24,31,.06)}
+  /* 展开时按钮下面两个角变直、去掉外圈光晕，跟列表连成一整块；
+     底边框压到和列表内部分隔线一样的浅度，看上去是同一块里的分行线 */
+  .ex-dd-btn[aria-expanded="true"]{border-color:rgba(20,24,31,.16);
+    border-bottom-color:rgba(20,24,31,.10);
+    border-bottom-left-radius:0;border-bottom-right-radius:0;box-shadow:none}
   .ex-dd-caret{width:0;height:0;border-left:4px solid transparent;border-right:4px solid transparent;
     border-top:5px solid #6B7480;transform:translateY(1px)}
   .ex-dd-btn[aria-expanded="true"] .ex-dd-caret{transform:translateY(1px) rotate(180deg)}
   /* 宽度严格跟按钮一致（width:100%，不再有 min-width:150px 把短按钮撑宽）；
      滚动条隐藏 —— 鼠标滚轮照样能滑，但不占竖向空间，选项右边缘才能和按钮齐 */
-  /* 左右 padding 归零：列表原来有 5px，选项再缩 5px，选中框就比按钮窄一圈、
-     文字也往右错开 5px。现在选项铺满整行，文字与按钮文字同一条竖线。 */
-  .ex-dd-list{position:absolute;top:calc(100% + 5px);left:0;z-index:70;width:100%;
+  /* 列表和按钮拼成一块：上移 1px 吃掉按钮的下边框、自己不要上边框，
+     圆角只留下面两个 —— 当中那条线就是按钮的底边框。
+     左右 padding 归零，选项铺满整行，文字与按钮文字同一条竖线。 */
+  .ex-dd-list{position:absolute;top:100%;left:0;z-index:70;width:100%;
     max-height:264px;overflow-y:auto;overflow-x:hidden;background:#fff;
-    border:1px solid rgba(20,24,31,.12);border-radius:10px;
-    box-shadow:0 14px 30px rgba(9,13,19,.18);padding:5px 0;
+    border:1px solid rgba(20,24,31,.12);border-top:0;border-radius:0 0 10px 10px;
+    box-shadow:0 16px 30px -6px rgba(9,13,19,.22);padding:4px 0 6px;
     scrollbar-width:none;-ms-overflow-style:none}
   .ex-dd-list::-webkit-scrollbar{display:none}
   .ex-dd-list[hidden]{display:none}
@@ -17664,43 +17669,44 @@ body.climate-layer-on #tools{z-index:44}
       var btn = root.querySelector('.ex-dd-btn');
       var lab = root.querySelector('.ex-dd-label');
       var list = root.querySelector('.ex-dd-list');
-      var cur = '';
+      var cur = '', cache = [];
 
       function close() {
         if (list.hidden) return;
         list.hidden = true;
         btn.setAttribute('aria-expanded', 'false');
       }
+      function labelOf(v) {
+        for (var i = 0; i < cache.length; i++) if (cache[i].v === v) return cache[i].t;
+        return '';
+      }
       function pick(v) {
         cur = v;
-        var hit = null;
-        Array.prototype.forEach.call(list.children, function (o) {
-          var on = o.getAttribute('data-v') === v;
-          o.classList.toggle('on', on);
-          if (on) hit = o;
-        });
-        lab.textContent = hit ? hit.textContent : (list.firstChild ? list.firstChild.textContent : '');
+        lab.textContent = labelOf(v) || lab.textContent;
         onPick(v);
       }
       function render(items, value, placeholder) {
+        cache = items.slice();
         cur = value || '';
         list.textContent = '';
-        var found = false;
+        /* 当前项就是按钮上显示的那个，列表里不再重复 ——
+           不然拉开第一行和按钮写的一模一样，还得再"选中"一次，纯属多余。
+           （当前是「全部」时列表里没有「全部」，但你已经在全部了，本来也没有可回退的） */
         items.forEach(function (it) {
+          if (it.v === cur) return;
           var o = document.createElement('button');
           o.type = 'button';
-          o.className = 'ex-dd-opt' + (it.v === cur ? ' on' : '');
+          o.className = 'ex-dd-opt';
           o.setAttribute('data-v', it.v);
           o.setAttribute('role', 'option');
           o.textContent = it.t;
-          if (it.v === cur) found = true;
           o.addEventListener('click', function (e) { e.stopPropagation(); close(); pick(it.v); });
           list.appendChild(o);
         });
         /* 按钮先撑到能放下最长的那一项：列表是 width:100%，只有按钮够宽，
            选项才既与按钮同宽、又不会被截成省略号（「2025 湖南卷」这种名字长）。
            量法是把标签临时换成每一项读一次 offsetWidth，再恢复 —— 比 canvas 测字省事。 */
-        var keep = found ? list.querySelector('.on').textContent : (placeholder || (items[0] ? items[0].t : ''));
+        var keep = labelOf(cur) || placeholder || (items[0] ? items[0].t : '');
         var maxW = 0;
         btn.style.minWidth = '0px';
         for (var mi = 0; mi < items.length; mi++) {
@@ -17712,16 +17718,15 @@ body.climate-layer-on #tools{z-index:44}
       }
       btn.addEventListener('click', function (e) {
         e.stopPropagation();
+        /* 没有别的可选项就别展开一个空面板 */
+        if (!list.children.length) { close(); return; }
         var willOpen = list.hidden;
         Array.prototype.forEach.call(document.querySelectorAll('.ex-dd-list'), function (l) {
           if (l !== list) l.hidden = true;
         });
         list.hidden = !willOpen;
         btn.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
-        if (willOpen) {
-          var on = list.querySelector('.on');
-          if (on) on.scrollIntoView({ block: 'nearest' });
-        }
+        if (willOpen) list.scrollTop = 0;
       });
       document.addEventListener('click', close);
       btn.addEventListener('keydown', function (e) {
