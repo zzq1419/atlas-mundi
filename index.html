@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-27-R">
+<meta name="build" content="2026-11-27-S">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -1125,9 +1125,10 @@
   .ex-dd-list::-webkit-scrollbar{display:none}
   .ex-dd-list[hidden]{display:none}
   /* 字号与内边距对齐按钮（13px / 左 11px），选项文字和按钮文字左边缘在同一条竖线上 */
-  /* 11px + 列表那 1px 边框 = 12px，正好等于按钮的 border 1 + padding 11 */
+  /* 11px + 列表那 1px 边框 = 12px，正好等于按钮的 border 1 + padding 11。
+     圆角跟下拉按钮一致（8px）：只对齐边缘，别把控件改成长方形。 */
   .ex-dd-opt{display:block;width:100%;text-align:left;font:inherit;font-size:13px;
-    line-height:1.45;padding:8px 11px;border-radius:0;border:0;background:transparent;
+    line-height:1.45;padding:8px 11px;border-radius:8px;border:0;background:transparent;
     color:#2B3440;cursor:pointer;transition:none;
     white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .ex-dd-opt:hover{background:#F2F4F7}
