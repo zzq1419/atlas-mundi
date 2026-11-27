@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-27-F">
+<meta name="build" content="2026-11-27-G">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -17480,7 +17480,10 @@ body.climate-layer-on #tools{z-index:44}
          再回落到源站，那样第一次进来白等两个往返。 */
       var v = BUILD_TAG ? '?v=' + encodeURIComponent(BUILD_TAG) : '';
       function getBank(p) {
-        return fetch(p + v, { cache: 'force-cache' }).then(function (r) {
+        /* 不能再用 force-cache：题库变了但 BUILD_TAG 没变时，浏览器会一直吃旧文件
+           （实测：real.json 已经从 128 条换到 232 条，页面里还是老题库）。
+           no-cache 每次向服务器验一次 ETag，没变就 304，几乎零开销；变了就拿到新版。 */
+        return fetch(p + v, { cache: 'no-cache' }).then(function (r) {
           if (!r.ok) throw new Error('HTTP ' + r.status);
           return r.json();
         });
@@ -18027,6 +18030,9 @@ body.climate-layer-on #tools{z-index:44}
             /* 宽高只用来定比例（CSS 是 width:100%;height:auto）：
                有它，图没下来之前高度就已经占住，文字不会被顶下去 */
             var dm = FIG_DIM[String(it.figure).split('/').pop()];
+            /* 2025 年那批真题图是现裁的，尺寸写在题库里（figW/figH），
+               不在 FIG_DIM 白名单里也要能占到位置 */
+            if (!dm && it.figW && it.figH) dm = [it.figW, it.figH];
             if (dm) { fi.width = dm[0]; fi.height = dm[1]; }
             matEl.appendChild(fi);
           }
@@ -18091,10 +18097,18 @@ body.climate-layer-on #tools{z-index:44}
       favEl.textContent = on ? '已收藏' : '收藏';
     }
 
+    /* 2025 年那批真题只有官方答案、没有文字解析（原卷只给答案），
+       写"暂时没有解析"等于什么都不说，不如把答案和出处讲清楚 */
+    function noExpText(it, ans) {
+      if (it && it.cat === '真题') {
+        return '原卷未附文字解析，官方答案为「' + 'ABCD'.charAt(ans) + '」。';
+      }
+      return '（这道题暂时没有解析）';
+    }
     function showExp(it) {
       var d = el('div', 'ex-exp');
       d.appendChild(el('b', '', '解析'));
-      d.appendChild(el('p', '', it.exp || '（这道题暂时没有解析）'));
+      d.appendChild(el('p', '', it.exp || noExpText(it, it.ans)));
       extraEl.appendChild(d);
       extraEl.appendChild(el('p', 'ex-src', '来源：' + it.src));
     }
@@ -18196,10 +18210,10 @@ body.climate-layer-on #tools{z-index:44}
         a.appendChild(el('p', '', sub.ansText || sub.ans || '（这道小题暂时没有参考答案）'));
         box.appendChild(a);
       }
-      if (sub.exp) {
+      if (sub.exp || (sub.opts && sub.opts.length)) {
         var d = el('div', 'ex-exp');
         d.appendChild(el('b', '', '解析'));
-        d.appendChild(el('p', '', sub.exp));
+        d.appendChild(el('p', '', sub.exp || noExpText(it, sub.ans)));
         box.appendChild(d);
       }
     }
@@ -18434,7 +18448,7 @@ body.climate-layer-on #tools{z-index:44}
       if (FIG) return Promise.resolve(FIG);
       if (FIG_P) return FIG_P;
       FIG_P = fetch('assets/bank/fig/index.json' + (BUILD_TAG ? '?v=' + encodeURIComponent(BUILD_TAG) : ''),
-                    { cache: 'force-cache' })
+                    { cache: 'no-cache' })
         .then(function (r) { return r.ok ? r.json() : { cards: [] }; })
         .then(function (j) { FIG = {}; (j.cards || []).forEach(function (c) { FIG[c] = 1; }); return FIG; })
         .catch(function () { FIG = {}; return FIG; });
@@ -18458,7 +18472,7 @@ body.climate-layer-on #tools{z-index:44}
       if (!it || !it.card || figCache[it.card]) return;
       loadFigIndex().then(function (map) {
         if (!map[it.card] || figCache[it.card]) return;
-        fetch(figUrl(it.card), { cache: 'force-cache' })
+        fetch(figUrl(it.card), { cache: 'no-cache' })
           .then(function (r) { return r.ok ? r.text() : Promise.reject(new Error('' + r.status)); })
           .then(function (txt) { figCache[it.card] = txt; })
           .catch(function () {});
@@ -18513,7 +18527,7 @@ body.climate-layer-on #tools{z-index:44}
           }
         };
         if (figCache[it.card]) { put(figCache[it.card]); return; }
-        fetch(figUrl(it.card), { cache: 'force-cache' }).then(function (r) {
+        fetch(figUrl(it.card), { cache: 'no-cache' }).then(function (r) {
           if (!r.ok) throw new Error('HTTP ' + r.status);
           return r.text();
         }).then(function (txt) {
