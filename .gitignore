@@ -80,3 +80,6 @@ shots_*/
 _real/*.json
 _real/*.html
 _real/*.png
+
+# 真题原卷 PDF（189MB，只是加工中间产物，不进仓库）
+_real/web/pdf/
