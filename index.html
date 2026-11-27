@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-27-Q">
+<meta name="build" content="2026-11-27-R">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -1077,8 +1077,9 @@
   .ex-chip:hover{border-color:rgba(20,24,31,.42);color:#14181F}
   /* 选中态原来用 font-weight:600 —— 字一粗 chip 就变宽，旁边的按钮跟着位移。
      改成加一圈 inset 描边 + 稍深的底，观感一样"被选中"，宽度一个像素都不变。 */
-  .ex-chip.on{border-color:#14181F;background:rgba(20,24,31,.075);
-    color:#14181F;box-shadow:inset 0 0 0 1px #14181F}
+  /* 描边只留 border 那 1px。之前又叠了 box-shadow inset 1px，
+     两条线并排视觉上就是 2px 的黑框，比其他按钮都粗。 */
+  .ex-chip.on{border-color:#14181F;background:rgba(20,24,31,.07);color:#14181F}
   .ex-chip i{font-style:normal;font-size:10px;color:#9AA3B0;margin-left:5px;font-weight:400}
   .ex-chip.on i{color:#14181F}
   /* 难度不再分三档，改成 0–10 的区间（带一位小数），直接填两个端点 */
@@ -1114,15 +1115,19 @@
   .ex-dd-btn[aria-expanded="true"] .ex-dd-caret{transform:translateY(1px) rotate(180deg)}
   /* 宽度严格跟按钮一致（width:100%，不再有 min-width:150px 把短按钮撑宽）；
      滚动条隐藏 —— 鼠标滚轮照样能滑，但不占竖向空间，选项右边缘才能和按钮齐 */
+  /* 左右 padding 归零：列表原来有 5px，选项再缩 5px，选中框就比按钮窄一圈、
+     文字也往右错开 5px。现在选项铺满整行，文字与按钮文字同一条竖线。 */
   .ex-dd-list{position:absolute;top:calc(100% + 5px);left:0;z-index:70;width:100%;
-    max-height:264px;overflow-y:auto;background:#fff;border:1px solid rgba(20,24,31,.12);
-    border-radius:10px;box-shadow:0 14px 30px rgba(9,13,19,.18);padding:5px;
+    max-height:264px;overflow-y:auto;overflow-x:hidden;background:#fff;
+    border:1px solid rgba(20,24,31,.12);border-radius:10px;
+    box-shadow:0 14px 30px rgba(9,13,19,.18);padding:5px 0;
     scrollbar-width:none;-ms-overflow-style:none}
   .ex-dd-list::-webkit-scrollbar{display:none}
   .ex-dd-list[hidden]{display:none}
   /* 字号与内边距对齐按钮（13px / 左 11px），选项文字和按钮文字左边缘在同一条竖线上 */
+  /* 11px + 列表那 1px 边框 = 12px，正好等于按钮的 border 1 + padding 11 */
   .ex-dd-opt{display:block;width:100%;text-align:left;font:inherit;font-size:13px;
-    line-height:1.45;padding:8px 11px;border-radius:7px;border:0;background:transparent;
+    line-height:1.45;padding:8px 11px;border-radius:0;border:0;background:transparent;
     color:#2B3440;cursor:pointer;transition:none;
     white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .ex-dd-opt:hover{background:#F2F4F7}
@@ -1218,6 +1223,13 @@
   /* 材料配图：线图居多，白底、细边框，别用阴影压得太重 */
   .ex-mat-fig{display:block;max-width:100%;height:auto;margin:12px 0 2px;
     border-radius:4px;background:#fff}
+  /* 材料里的表格（降雨过程数据这类）：原来一格一行竖着排下来，得有半屏长 */
+  .ex-mat-table{width:auto;max-width:100%;margin:10px 0 2px;border-collapse:collapse;
+    font-size:13.5px;line-height:1.5;color:#374151;background:#fff;
+    font-variant-numeric:tabular-nums}
+  .ex-mat-table th,.ex-mat-table td{border:1px solid #D5DBE3;padding:6px 12px;
+    text-align:center;white-space:nowrap}
+  .ex-mat-table th{background:#F6F7F9;font-weight:600;color:#14181F}
   .ex-q{font-size:20px;line-height:1.8;margin:0 0 20px;color:#14181F;font-weight:500;
     white-space:pre-line}
   @media (min-width:1700px){
@@ -18112,6 +18124,50 @@ body.climate-layer-on #tools{z-index:44}
       });
     }
 
+    /* 材料里的表格。
+       源数据是从网页/PDF 扒下来的，表格被拆成"一格一行"，直接 pre-wrap 会竖着铺半屏。
+       约定：材料文本里用
+         [[table]]
+         表头1|表头2|表头3
+         值1|值2|值3
+         [[/table]]
+       包住的行按表格渲染，其余部分照旧走 splitEnum / splitMat。 */
+    function buildMatTable(src) {
+      var tb = document.createElement('table');
+      tb.className = 'ex-mat-table';
+      src.split('\n').forEach(function (line, i) {
+        if (!line.trim()) return;
+        var tr = document.createElement('tr');
+        line.split('|').forEach(function (cell) {
+          var c = document.createElement(i === 0 ? 'th' : 'td');
+          c.textContent = cell.trim();
+          tr.appendChild(c);
+        });
+        tb.appendChild(tr);
+      });
+      return tb;
+    }
+    /* 把材料填进 matEl：文本段与 table 段交替出现 */
+    function fillMaterial(box, text) {
+      box.textContent = '';
+      if (!text) return;
+      var re = /\[\[table\]\]([\s\S]*?)\[\[\/table\]\]/g, last = 0, m;
+      function putText(t) {
+        t = splitMat(splitEnum(t)).replace(/^\n+|\n+$/g, '');
+        if (!t.trim()) return;
+        var d = document.createElement('div');
+        d.className = 'ex-mat-p';
+        d.textContent = t;
+        box.appendChild(d);
+      }
+      while ((m = re.exec(text)) !== null) {
+        putText(text.slice(last, m.index));
+        box.appendChild(buildMatTable(m[1]));
+        last = re.lastIndex;
+      }
+      putText(text.slice(last));
+    }
+
     /* ---- 题图位的磁场点阵 ----
        答题时右侧题图位是空的，留一块白很死。这里铺一层点阵：鼠标附近的点被推开、
        带一点切向偏转、亮一档；指针移开后弹回原位。
@@ -18257,7 +18313,7 @@ body.climate-layer-on #tools{z-index:44}
       tag('掌握分 ' + scoreOf(it).toFixed(1));
       if (matEl) {
         if (it.material) {
-          matEl.textContent = splitMat(splitEnum(it.material));
+          fillMaterial(matEl, it.material);
           matEl.hidden = false;
           /* 真题的材料图是位图（扫描件/线图），跟知识卡题那种内联 SVG 不是一回事，
              所以直接挂在材料块末尾，跟着材料一起走 —— 卷面上图也就在材料下面。
