@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-27-L">
+<meta name="build" content="2026-11-27-M">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -1049,14 +1049,17 @@
   /* 选题页要"刚好放得下"：整列撑满视口，5 组筛选在中间按剩余高度均分，
      计数/开始/错题本贴底 —— 不留一段谁也没用的空白，也永远不出滚动条 */
   .ex-setup{flex:1;display:flex;flex-direction:column;padding:24px 0 22px}
+  /* 主题/卷别都改下拉之后每行都是等高的一行，space-evenly 就能均匀铺满整屏；
+     之前"有疏有密"是因为主题占两行、卷别只占一行，均分时高度差被放大了。 */
   .ex-fs{flex:1;display:flex;flex-direction:column;justify-content:space-evenly;
-    padding:8px 0}
+    padding:2px 0}
   .ex-cta{flex:0 0 auto}
   .ex-hrow{display:flex;align-items:baseline;justify-content:space-between;margin:0 0 6px}
   .ex-h1{font-size:23px;font-weight:600;letter-spacing:-.01em;margin:0}
   .ex-sub{font-size:12.5px;color:#7A8494;margin:0 0 20px}
   .ex-f{margin:0}
-  .ex-f>span{display:block;font-size:11px;letter-spacing:.12em;color:#8A93A1;margin-bottom:6px}
+  .ex-f+.ex-f{margin-top:0}
+  .ex-f>span{display:block;margin-bottom:6px;font-size:11px;letter-spacing:.12em;color:#8A93A1;margin-bottom:6px}
   /* align-items 默认是 stretch：往这一行塞一个高一点的输入框，
      同一行的所有 chip 会被一起拉高 —— 看起来就是"点了自定义全都变大了"。 */
   .ex-chips{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
@@ -3591,13 +3594,12 @@ body.climate-layer-on #tools{z-index:44}
         <div class="ex-hrow">
           <h1 class="ex-h1">地理答题</h1>
         </div>
-        <p class="ex-sub" id="ex-sub">正在载入题库…</p>
 
         <div class="ex-fs">
           <div class="ex-f"><span>考试</span><div class="ex-chips" id="f-exam"></div></div>
           <div class="ex-f"><span>年份</span><div class="ex-chips" id="f-year"></div></div>
           <div class="ex-f"><span>卷别</span><select class="ex-sel" id="f-paper" aria-label="卷别"></select></div>
-          <div class="ex-f"><span>主题</span><div class="ex-chips" id="f-theme"></div></div>
+          <div class="ex-f"><span>主题</span><select class="ex-sel" id="f-theme" aria-label="主题"></select></div>
           <div class="ex-f"><span>题型</span><div class="ex-chips" id="f-type"></div></div>
           <div class="ex-f"><span>难度</span>
             <div class="ex-range">
@@ -17383,7 +17385,8 @@ body.climate-layer-on #tools{z-index:44}
     var setupEl = $('ex-setup'), runEl = $('ex-run'), doneEl = $('ex-done');
     var subEl = $('ex-sub'), cntEl = $('ex-count'), startEl = $('ex-start');
     var fExam = $('f-exam'), fYear = $('f-year'), fPaper = $('f-paper');
-    var fTheme = $('f-theme'), fType = $('f-type'), fN = $('f-n');
+    var fTheme = $('f-theme');
+    var fType = $('f-type'), fN = $('f-n');
     var matEl = $('ex-mat');
     var dminEl = $('f-dmin'), dmaxEl = $('f-dmax'), dHint = $('ex-dhint');
     var lb = $('ex-lb'), lbA = $('ex-lb-a'), lbB = $('ex-lb-b'), lbStage = $('ex-lb-stage');
@@ -17546,9 +17549,9 @@ body.climate-layer-on #tools{z-index:44}
          matchoice  有材料、小问全是选项的题组（几道选择共用一段材料）
          material   有材料、要自己写答案的题组（36/37 那种）
          short      无材料的问答 */
+    /* 现在只有真题，题型三类。「简答题」是知识卡随堂题的遗物，考试里没有这种题型。 */
     var TYPES = [{ v: '', t: '全部' }, { v: 'choice', t: '选择题' },
-                 { v: 'matchoice', t: '材料选择题' }, { v: 'material', t: '材料问答题' },
-                 { v: 'short', t: '简答题' }];
+                 { v: 'matchoice', t: '材料选择题' }, { v: 'material', t: '材料问答题' }];
     /* 题型筛选：材料题是一整题，但"它算不算选择题"要看小问。
        3 个选择小问的材料题，选"选择题"也该能筛到。 */
     function typeHit(it, v) {
@@ -17619,6 +17622,31 @@ body.climate-layer-on #tools{z-index:44}
       fPaper.onchange = function () { F.paper = fPaper.value; renderSetup(); };
     }
 
+    /* 主题也改下拉：9 个主题铺成 chip 要占两行，是这屏最高的一块 */
+    function fillThemes() {
+      if (!fTheme) return;
+      var set = {};
+      bank.items.forEach(function (it) {
+        if (F.exam && (it.exam || 'gk') !== F.exam) return;
+        if (F.year && String(it.year || '') !== F.year) return;
+        if (it.paper && F.paper && it.paper !== F.paper) return;
+        if (it.theme) set[it.theme] = 1;
+      });
+      var list = Object.keys(set).sort();
+      fTheme.textContent = '';
+      var o0 = document.createElement('option');
+      o0.value = ''; o0.textContent = '全部主题';
+      fTheme.appendChild(o0);
+      list.forEach(function (th) {
+        var o = document.createElement('option');
+        o.value = th; o.textContent = th;
+        fTheme.appendChild(o);
+      });
+      if (F.theme && set[F.theme]) fTheme.value = F.theme;
+      else F.theme = '';
+      fTheme.onchange = function () { F.theme = fTheme.value; renderSetup(); };
+    }
+
     function countBy(fn) {
       var m = {};
       (bank ? bank.items : []).forEach(function (it) {
@@ -17679,7 +17707,7 @@ body.climate-layer-on #tools{z-index:44}
       bank.items.forEach(function (it) { if (it.band === '高中') sr++; else jr++; });
       var nGk = 0, nZk = 0;
       bank.items.forEach(function (it) { if ((it.exam || 'gk') === 'zk') nZk++; else nGk++; });
-      subEl.textContent = '题库 ' + bank.items.length + ' 题 · 高考 ' + nGk + ' · 中考 ' + nZk;
+      if (subEl) subEl.textContent = '题库 ' + bank.items.length + ' 题 · 高考 ' + nGk + ' · 中考 ' + nZk;
       chipRow(fExam, EXAMS, 'exam', countBy(function (it) { return it.exam || 'gk'; }));
       /* 年份只列当前考试类型下真实存在的年份，选完再看卷别 */
       var yset = {};
@@ -17705,7 +17733,7 @@ body.climate-layer-on #tools{z-index:44}
         b.title = '单击筛选，双击看这一档的全部题目';
         b.addEventListener('dblclick', function (e) { e.preventDefault(); openPick('exam', v); });
       });
-      chipRow(fTheme, themeList(), 'theme', null);
+      fillThemes();
       /* 题型现在四档互斥，直接按 type 计数（以前是三档、还有交叉命中，
          写死了 choice/short/material 三个键，新增的 matchoice 就数不出来）。 */
       var tcnt = {};
@@ -19025,10 +19053,10 @@ body.climate-layer-on #tools{z-index:44}
       setPage('set');
       leftEl.scrollTop = 0;
       if (!bank) {
-        subEl.textContent = '正在载入题库…';
+        if (subEl) subEl.textContent = '正在载入题库…';
         loadBank().then(function () { renderSetup(); })
           .catch(function (e) {
-            subEl.textContent = '题库加载失败（' + e.message + '），刷新页面再试';
+            if (subEl) subEl.textContent = '题库加载失败（' + e.message + '），刷新页面再试';
           });
       }
       renderSetup();                     // 已加载过就立刻重画
