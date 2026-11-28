@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-28-D">
+<meta name="build" content="2026-11-28-E">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -17529,16 +17529,19 @@ body.climate-layer-on #tools{z-index:44}
         var key = (q.year || '') + '|' + (q.paper || '') + '|' + mat;
         var g = byKey[key];
         if (!g) {
-          g = byKey[key] = {
-            type: 'material', cat: q.cat || '真题', band: q.band, grade: q.grade, lv: q.lv,
-            /* exam 必须带过来：漏了的话所有题组都被当成高考，中考的材料题会串到高考档里去 */
-            exam: q.exam, theme: q.theme, tags: q.tags, year: q.year, paper: q.paper,
-            material: mat, figure: q.figure || '', figureAlt: q.figureAlt || '',
+          /* 以第一道小题为模板整体复制，再改掉需要按题组合并的字段。
+             以前是手写一串字段，漏一个就会出问题 —— exam 漏过一次（题组全算高考），
+             prov/city 又漏一次（中考按省筛选时材料题全被滤掉，点「材料问答题」0 题）。 */
+          g = byKey[key] = Object.assign({}, q, {
+            type: 'material',
+            cat: q.cat || '真题',
+            material: mat,
+            figure: q.figure || '', figureAlt: q.figureAlt || '',
             subs: [], score: 0, diff: 0,
             /* 归并前的原始小题 id 全留着：错题本/收藏存的是作答时的 id，
                题组 id 是 'mat-年份-卷-题号'，两边对不上就会「点了没反应」 */
             raw: []
-          };
+          });
           out.push(g);
         }
         if (q.id) g.raw.push(q.id);
