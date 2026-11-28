@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-28-M">
+<meta name="build" content="2026-11-28-N">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -17782,10 +17782,7 @@ body.climate-layer-on #tools{z-index:44}
       var paperRow = $('f-paperrow'), zkRow = $('f-zkrow');
       if (paperRow) paperRow.hidden = isZk;
       if (zkRow) zkRow.hidden = !isZk;
-      /* 两套筛选互不相干：切到中考就把「卷别」清掉，切回高考就把省市清掉，
-         否则会带着上一套的条件筛出空集 */
-      if (isZk) F.paper = '';
-      else { F.prov = ''; F.city = ''; }
+      /* 清理由 normalizeFilters() 统一做（renderSetup 开头、pool() 之前），这里不再重复 */
       if (isZk) { fillProvs(); return; }
 
       if (!ddPaper) ddPaper = makeDD($('dd-paper'), function (v) { F.paper = v; renderSetup(); });
@@ -17851,7 +17848,10 @@ body.climate-layer-on #tools{z-index:44}
       bank.items.forEach(function (it) {
         if (F.exam && (it.exam || 'gk') !== F.exam) return;
         if (F.year && String(it.year || '') !== F.year) return;
-        if (it.paper && F.paper && it.paper !== F.paper) return;
+        if (F.paper && it.paper && it.paper !== F.paper) return;
+        /* 中考选到某个省时，主题下拉只该列这个省考过的主题 */
+        if (F.prov && (it.prov || '') !== F.prov) return;
+        if (F.city && (it.city || '') !== F.city) return;
         if (it.theme) set[it.theme] = 1;
       });
       var opts = [{ v: '', t: '全部主题' }];
@@ -17917,8 +17917,18 @@ body.climate-layer-on #tools{z-index:44}
          只有全区间时才提示一句。 */
       dHint.textContent = (F.dmin <= 0 && F.dmax >= 10) ? '全部难度' : '';
     }
+    /* 两套筛选互不相干：中考用 省/市，高考用 卷别。切考试时必须先清掉另一套的残留，
+       而且**必须在 pool() 之前清** —— 之前这段逻辑藏在 fillPapers() 里，而 renderSetup
+       一进来就先 var list = pool()，于是 count 拿中考的「省=云南 / 市=全省统一」去筛
+       高考题，明明有 300 多道却显示「共 0 题可选」。 */
+    function normalizeFilters() {
+      if (F.exam === 'zk') F.paper = '';
+      else { F.prov = ''; F.city = ''; }
+    }
+
     function renderSetup() {
       if (!bank) return;
+      normalizeFilters();
       var list = pool();
       var jr = 0, sr = 0;
       bank.items.forEach(function (it) { if (it.band === '高中') sr++; else jr++; });
