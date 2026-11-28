@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-28-P">
+<meta name="build" content="2026-11-28-Q">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -1392,9 +1392,9 @@
   .sr-daily:active{background:rgba(0,0,0,.45)}
   .sr-daily-ico{flex:0 0 auto;width:26px;height:26px;border-radius:8px;
     display:flex;align-items:center;justify-content:center;
-    background:rgba(142,216,255,.12);color:rgba(208,238,255,.94);
+    background:rgba(216,178,106,.13);color:rgba(242,216,166,.92);
     transition:none}
-  .sr-daily:hover .sr-daily-ico{background:rgba(142,216,255,.12)}
+  .sr-daily:hover .sr-daily-ico{background:rgba(216,178,106,.13)}
   .sr-daily-ico svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.7;
     stroke-linecap:round;stroke-linejoin:round}
   .sr-daily-name{min-width:0;flex:1 1 auto;font-size:13px;font-weight:500;
@@ -2091,16 +2091,24 @@ body.solar-on #globe-stage{transform:none !important;transition:none !important}
   position:fixed;top:16px;right:16px;bottom:16px;z-index:40;
   width:min(500px, calc(100vw - 32px));
   display:flex;flex-direction:column;
-  /* 午夜蓝白（参考稿 PALETTE 01）：深蓝底 #101D32 系 + 暖白标题 #F9F5EA + 亮蓝强调 #8ED8FF。
-     原来的三段色罩染（#303d67 → #79799a → #fddfdc）偏紫偏粉，和页面其它深蓝对不上；
-     现在换成同一族的深蓝渐变，边框用亮蓝的低透明度描边，保留"有质感但不抢字"的观感。 */
+  /* 三段色 #303d67 → #79799a → #fddfdc 从左到右。
+     直接铺满会有一个绕不开的矛盾：右端 #fddfdc 太亮，白字读不出；
+     左端太暗，黑字也读不出 —— 而正文只有一种颜色。
+     所以改成"深底 + 三段色的半透明罩染"：色相和走向都保留，
+     但整条都被压到同一明度区间（右端合成后约 rgb(107,94,92)，
+     白字对比度 5.6:1），文字终于能读了。
+     边框用同组色全强度渐变（双背景 padding-box/border-box，
+     border-image 会破坏圆角）。
+     （2026-11-28 晚：另一版把这里换成了午夜蓝纯渐变，用户要求改回这版三段色，
+       文字色/强调色仍沿用新的暖白 + 亮蓝，只把底色和边框换回来。） */
   background:
-    linear-gradient(158deg,
-      rgba(24,42,68,.95) 0%,
-      rgba(17,31,53,.96) 46%,
-      rgba(16,29,50,.97) 100%) padding-box,
+    linear-gradient(100deg,
+      rgba(48,61,103,.80) 0%,
+      rgba(84,88,122,.66) 38%,
+      rgba(121,121,154,.56) 66%,
+      rgba(253,223,220,.40) 100%) padding-box,
     linear-gradient(180deg,#0b0f19 0%,#080b12 100%) padding-box,
-    linear-gradient(158deg,rgba(96,150,205,.50) 0%,rgba(48,84,130,.42) 58%,rgba(142,216,255,.46) 100%) border-box;
+    linear-gradient(100deg,#303d67 0%,#79799a 56%,#fddfdc 100%) border-box;
   border:1px solid transparent;
   border-radius:20px;
   box-shadow:0 28px 70px rgba(0,0,0,.62), 0 3px 10px rgba(0,0,0,.42);
@@ -10328,6 +10336,11 @@ body.climate-layer-on #tools{z-index:44}
       setTimeout(function () {
         if (globe.prewarmBorders) globe.prewarmBorders();
       }, 1200);
+
+      /* 行星贴图排在国境线之后：太阳系是个冷门入口，别跟首屏抢链路 */
+      setTimeout(function () {
+        if (typeof warmPlanetTex === 'function') warmPlanetTex();
+      }, 2600);
     }
     globe.warmHeavyLayers = warmHeavyLayers;
 
@@ -11485,16 +11498,48 @@ body.climate-layer-on #tools{z-index:44}
       return base ? [base + rel, rel] : [rel];
     }
 
+    /* 贴图没到位时的兜底色。
+       以前直接 TextureLoader.load()，返回的 Texture 在图片到达前 image 是空的，
+       采样出来是纯黑 —— 用户看到的就是"太阳变成一个黑洞、行星变成一团灰"。
+       弱网 / 缓存被清 / 某个 webp 挂掉时这个状态会一直持续。
+       现在先给一张 1×1 的同色占位，图到了再把 image 换掉重传。 */
+    var PLANET_TINT = {
+      'sun.webp': '#ff9a2e', 'mercury.webp': '#8f8b86', 'venus.webp': '#d9b779',
+      'mars.webp': '#b1553c', 'jupiter.webp': '#d9bd93', 'saturn.webp': '#e2cfa2',
+      'uranus.webp': '#a9dade', 'neptune.webp': '#4d6fd0', 'moon.webp': '#9a9a9a',
+      'rings.webp': '#e8dcc0', 'clouds.webp': '#ffffff'
+    };
     function planetTex(name) {
       if (PLANET_TEX[name]) return PLANET_TEX[name];
-      /* 走 three 自己的 TextureLoader + 同源相对路径。
-         行星贴图总共 0.45MB，不值得为它绕 OBS + CORS 那一圈：
-         跨域图会被标记成污染，上传到 GPU 就是纯黑。 */
-      var tex = new THREE.TextureLoader().load('assets/planets/' + name);
+      var cv = document.createElement('canvas');
+      cv.width = cv.height = 2;
+      var g = cv.getContext('2d');
+      g.fillStyle = PLANET_TINT[name] || '#8a8a8a';
+      g.fillRect(0, 0, 2, 2);
+      var tex = new THREE.Texture(cv);
       tex.colorSpace && (tex.colorSpace = THREE.SRGBColorSpace);
       tex.anisotropy = 4;
+      tex.needsUpdate = true;
       PLANET_TEX[name] = tex;
+      /* 同源相对路径，不经 OBS：跨域图会被标成污染纹理，传上 GPU 就是黑的。 */
+      var im = new Image();
+      im.decoding = 'async';
+      im.onload = function () {
+        tex.image = im;
+        tex.needsUpdate = true;        // 换成真图重传，分辨率回到原图
+      };
+      im.src = 'assets/planets/' + name;
       return tex;
+    }
+
+    /* 行星贴图一共 0.45MB。第一次进太阳系才去建材质的话，
+       这几张图要现解码，进去的头一两秒太阳就是黑球。
+       地球主球稳定后先把它们拉下来（不建场景，只是让缓存里有）。 */
+    function warmPlanetTex() {
+      var names = ['sun.webp', 'mercury.webp', 'venus.webp', 'mars.webp',
+                   'jupiter.webp', 'saturn.webp', 'uranus.webp', 'neptune.webp',
+                   'moon.webp', 'rings.webp', 'clouds.webp'];
+      for (var i = 0; i < names.length; i++) planetTex(names[i]);
     }
 
     function solarTexFile(rel) {
