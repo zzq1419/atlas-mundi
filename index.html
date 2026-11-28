@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-28-O">
+<meta name="build" content="2026-11-28-P">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -39,7 +39,7 @@
     --ink-faint:#5c6784;
     --line:rgba(140,165,220,.16);
     --line-strong:rgba(140,165,220,.32);
-    --gold:#d8b26a;
+    --gold:#8ED8FF;
     --cyan:#6fd6e8;
     --ok:#5fd6a4;
     --bad:#e8798a;
@@ -352,9 +352,9 @@
   #rotate-hint .rh-s{font-size:12.5px;line-height:1.7;color:rgba(196,216,244,.72)}
   #rotate-hint button{
     margin-top:6px;font:inherit;font-size:13.5px;padding:9px 22px;border-radius:999px;
-    color:#f3e2bd;background:rgba(216,178,106,.14);border:1px solid rgba(216,178,106,.38);
+    color:#D8EEFF;background:rgba(142,216,255,.13);border:1px solid rgba(142,216,255,.38);
     cursor:pointer}
-  #rotate-hint button:active{background:rgba(216,178,106,.26)}
+  #rotate-hint button:active{background:rgba(142,216,255,.24)}
   @media (orientation:portrait) and (max-width:600px){ #rotate-hint{display:flex} }
 
   @media (max-width:560px){
@@ -514,9 +514,9 @@
   .dmeta dd{color:var(--ink);font-variant-numeric:tabular-nums}
  /* 命中词高亮：一段里常常只有半句话跟点的词有关，标出来才知道落点。 */
  .hit-word{
-   background:rgba(216,178,106,.30);
+   background:rgba(142,216,255,.28);
    border-radius:2px;
-   box-shadow:0 0 0 2px rgba(216,178,106,.24);
+   box-shadow:0 0 0 2px rgba(142,216,255,.22);
  }
 
   /* 正文提一档字重：中文黑体在深底上 400 偏细 */
@@ -765,10 +765,10 @@
   .tch-seg button{font:inherit;font-size:11.5px;padding:3px 11px;background:transparent;border:0;
     color:var(--ink-dim);cursor:pointer;transition:color .18s ease,background .18s ease}
   .tch-seg button:hover{color:var(--ink)}
-  .tch-seg button.on{background:rgba(216,178,106,.15);color:rgba(240,214,164,.96)}
+  .tch-seg button.on{background:rgba(142,216,255,.14);color:rgba(214,240,255,.96)}
   .tch-hd{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap;margin-bottom:8px}
-  .tch-kind{font-size:10px;letter-spacing:.1em;color:rgba(232,196,128,.82);
-    border:1px solid rgba(216,178,106,.3);border-radius:4px;padding:0 5px;line-height:1.7}
+  .tch-kind{font-size:10px;letter-spacing:.1em;color:rgba(190,224,255,.80);
+    border:1px solid rgba(142,216,255,.28);border-radius:4px;padding:0 5px;line-height:1.7}
   .tch-name{font-size:16px;color:var(--ink)}
   .tch-book{font-size:10.5px;color:var(--ink-faint);margin-left:auto}
   .tch-line{font-size:13.5px;line-height:1.75;color:rgba(226,234,248,.94)}
@@ -779,11 +779,11 @@
   .tch-a:hover{background:rgba(148,182,224,.09)}
   .tch-a b{font-weight:400;font-size:12.5px;color:rgba(206,222,246,.96);flex:0 0 auto}
   .tch-a span{font-size:12px;line-height:1.5;color:var(--ink-dim)}
-  .tch-a i{margin-left:auto;font-style:normal;font-size:12px;color:rgba(232,196,128,.5)}
-  .tch-c{margin-top:13px;padding:8px 11px;border-left:2px solid rgba(232,150,90,.55);
-    background:rgba(232,150,90,.05);border-radius:0 7px 7px 0}
+  .tch-a i{margin-left:auto;font-style:normal;font-size:12px;color:rgba(190,224,255,.5)}
+  .tch-c{margin-top:13px;padding:8px 11px;border-left:2px solid rgba(142,216,255,.42);
+    background:rgba(142,216,255,.05);border-radius:0 7px 7px 0}
   .tch-c b{display:block;font-weight:400;font-size:10.5px;letter-spacing:.08em;
-    color:rgba(240,168,120,.9);margin-bottom:3px}
+    color:rgba(186,226,255,.92);margin-bottom:3px}
   .tch-c p{font-size:12.5px;line-height:1.72;color:rgba(230,218,210,.9);margin:0}
   .tch-nx{display:flex;flex-wrap:wrap;gap:6px;margin-top:7px}
   .tch-nx button{font:inherit;font-size:11.5px;padding:3px 10px;border-radius:999px;
@@ -816,10 +816,10 @@
   }
   #class-exit{display:none;position:fixed;right:18px;top:18px;z-index:80;
     font:inherit;font-size:13px;padding:8px 15px;border-radius:999px;
-    border:1px solid rgba(216,178,106,.42);background:rgba(10,14,22,.92);
-    color:rgba(240,214,164,.96);cursor:pointer}
+    border:1px solid rgba(142,216,255,.38);background:rgba(10,14,22,.92);
+    color:rgba(214,240,255,.96);cursor:pointer}
   body.class-mode #class-exit{display:block}
-  #class-exit:hover{background:rgba(216,178,106,.18)}
+  #class-exit:hover{background:rgba(142,216,255,.16)}
   /* 投影字号：按 1180px 宽重排，正文 19px 相当于教室后排可读 */
   body.class-mode .dhead{padding:26px 34px 18px}
   body.class-mode .dhead h2{font-size:34px}
@@ -1392,9 +1392,9 @@
   .sr-daily:active{background:rgba(0,0,0,.45)}
   .sr-daily-ico{flex:0 0 auto;width:26px;height:26px;border-radius:8px;
     display:flex;align-items:center;justify-content:center;
-    background:rgba(216,178,106,.13);color:rgba(242,216,166,.92);
+    background:rgba(142,216,255,.12);color:rgba(208,238,255,.94);
     transition:none}
-  .sr-daily:hover .sr-daily-ico{background:rgba(216,178,106,.13)}
+  .sr-daily:hover .sr-daily-ico{background:rgba(142,216,255,.12)}
   .sr-daily-ico svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.7;
     stroke-linecap:round;stroke-linejoin:round}
   .sr-daily-name{min-width:0;flex:1 1 auto;font-size:13px;font-weight:500;
@@ -1443,10 +1443,10 @@
   .sr-sug-chips.pop{animation:sugpop .24s cubic-bezier(.22,.61,.36,1)}
   .tch-hook{margin-top:12px;font-size:11px;letter-spacing:.02em;color:rgba(150,172,204,.86)}
   .tch-more{margin-top:14px;display:flex;align-items:center;gap:6px;width:100%;
-    padding:9px 12px;border-radius:8px;border:1px solid rgba(216,178,106,.28);
-    background:rgba(216,178,106,.08);color:rgba(240,214,164,.95);
+    padding:9px 12px;border-radius:8px;border:1px solid rgba(142,216,255,.26);
+    background:rgba(142,216,255,.08);color:rgba(214,240,255,.95);
     font:inherit;font-size:12.5px;cursor:pointer;transition:none}
-  .tch-more:hover{background:rgba(216,178,106,.16)}
+  .tch-more:hover{background:rgba(142,216,255,.15)}
   .tch-more i{margin-left:auto;font-style:normal;opacity:.7}
 
   /* --- 右侧面板里的知识卡 --- */
@@ -1455,26 +1455,26 @@
   .kpath{display:flex;align-items:center;gap:8px;flex-wrap:wrap;
     margin:0 0 14px;padding-bottom:12px;border-bottom:1px solid rgba(140,165,220,.14)}
   .kpath-back{font:inherit;font-size:11.5px;padding:3px 10px;border-radius:999px;
-    border:1px solid rgba(216,178,106,.34);background:rgba(216,178,106,.08);
-    color:rgba(240,214,164,.95);cursor:pointer;transition:background .18s ease}
-  .kpath-back:hover{background:rgba(216,178,106,.18)}
+    border:1px solid rgba(142,216,255,.30);background:rgba(142,216,255,.08);
+    color:rgba(214,240,255,.95);cursor:pointer;transition:background .18s ease}
+  .kpath-back:hover{background:rgba(142,216,255,.16)}
   .kpath-trail{display:flex;align-items:center;gap:5px;flex-wrap:wrap;min-width:0}
   .kpath-ste{font:inherit;font-size:11.5px;padding:2px 4px;background:transparent;border:0;
     color:rgba(166,190,222,.86);cursor:pointer;text-decoration:underline;text-underline-offset:3px}
   .kpath-ste:hover{color:rgba(226,238,252,.98)}
-  .kpath-cur{font-size:11.5px;color:rgba(232,196,128,.92)}
+  .kpath-cur{font-size:11.5px;color:rgba(190,228,255,.92)}
   .kpath-trail i{font-style:normal;font-size:11px;color:rgba(140,160,190,.6)}
   .knote{margin-top:12px;padding:9px 12px;border-radius:8px;font-size:12px;line-height:1.65;
-    color:rgba(226,214,196,.95);background:rgba(216,178,106,.10);
-    border:1px solid rgba(216,178,106,.22)}
+    color:rgba(206,226,246,.95);background:rgba(142,216,255,.09);
+    border:1px solid rgba(142,216,255,.20)}
   .klv{display:flex;align-items:center;gap:8px;margin:0 0 14px}
   .klv b{font-weight:400;font-size:10.5px;letter-spacing:.08em;color:rgba(150,170,200,.72)}
   .klvbar{display:flex;flex-wrap:wrap;gap:7px;align-items:center;margin:0 0 14px}
-  .klvbar .klv-cat{font-size:13px;font-weight:600;color:#f7d79a;letter-spacing:.04em}
+  .klvbar .klv-cat{font-size:13px;font-weight:600;color:#F9F5EA;letter-spacing:.04em}
   .klvbar .klv-chip{font-size:12.5px;line-height:1;padding:7px 11px;border-radius:999px;
     border:1px solid rgba(140,170,210,.30);color:#cfe0f4;background:rgba(140,170,210,.10)}
   .klvbar .klv-chip.klv-jr{border-color:rgba(126,196,161,.45);color:#c2e7cf;background:rgba(96,190,140,.10)}
-  .klvbar .klv-chip.klv-sr{border-color:rgba(216,178,106,.45);color:#f3dfb3;background:rgba(216,178,106,.10)}
+  .klvbar .klv-chip.klv-sr{border-color:rgba(142,216,255,.40);color:#C2E9FF;background:rgba(142,216,255,.09)}
   /* 示意图现在是白底黑字的课本插图，容器也跟着换成"纸"底 ——
      原来那层 rgba(255,255,255,.03) 会在白图外面留一圈深色边，
      看着像图贴错了位置。 */
@@ -1505,24 +1505,24 @@
   .kline{font-size:16.5px;line-height:1.9;font-weight:500;color:rgba(238,244,254,.99);margin:0 0 4px}
   .ksec{margin-top:22px}
   .ksec h4{margin:0 0 8px;font-size:12.5px;font-weight:500;letter-spacing:.08em;
-    color:rgba(232,196,128,.98)}
+    color:#F9F5EA}
   .ksec p{margin:0;font-size:14.5px;line-height:1.95;color:rgba(222,232,246,.95)}
   .ka{display:flex;align-items:baseline;gap:10px;margin-top:6px;padding:9px 12px;border-radius:8px;
     background:rgba(255,255,255,.03);cursor:pointer;transition:background .16s ease,box-shadow .16s ease}
   .ka:hover{background:rgba(148,182,224,.10)}
-  .ka.on{background:rgba(216,178,106,.12);box-shadow:inset 2px 0 0 rgba(216,178,106,.7)}
+  .ka.on{background:rgba(142,216,255,.11);box-shadow:inset 2px 0 0 rgba(142,216,255,.65)}
   .ka b{font-weight:500;font-size:14px;color:rgba(234,242,254,.99);flex:0 0 auto}
   .ka span{font-size:13.5px;line-height:1.62;color:rgba(196,210,232,.94)}
-  .ka i{margin-left:auto;font-style:normal;font-size:12px;color:rgba(232,196,128,.55)}
-  .kc{margin-top:18px;padding:12px 14px;border-left:2px solid rgba(232,150,90,.55);
-    background:rgba(232,150,90,.055);border-radius:0 8px 8px 0}
+  .ka i{margin-left:auto;font-style:normal;font-size:12px;color:rgba(190,224,255,.55)}
+  .kc{margin-top:18px;padding:12px 14px;border-left:2px solid rgba(142,216,255,.42);
+    background:rgba(142,216,255,.05);border-radius:0 8px 8px 0}
   .kc b{display:block;font-weight:500;font-size:11.5px;letter-spacing:.1em;
-    color:rgba(246,178,132,.98);margin-bottom:6px}
+    color:rgba(198,232,255,.96);margin-bottom:6px}
   .kc p{margin:0;font-size:14px;line-height:1.9;color:rgba(238,228,220,.96)}
   .ktb{margin-top:10px;width:100%;border-collapse:collapse;table-layout:fixed;
     font-size:13.5px;line-height:1.7}
   .ktb th{font-weight:500;font-size:13px;text-align:left;padding:8px 6px;
-    color:rgba(232,206,158,.98);border-bottom:1px solid rgba(140,165,220,.2)}
+    color:rgba(202,228,246,.96);border-bottom:1px solid rgba(140,165,220,.2)}
   .ktb td{padding:9px 6px;vertical-align:top;color:rgba(216,228,244,.95);
     border-bottom:1px solid rgba(120,150,190,.10);word-break:break-word}
   .ktb td.k{width:66px;color:rgba(166,186,214,.9);font-size:12.5px;white-space:normal}
@@ -1534,9 +1534,9 @@
   .kexit-h{font-size:11.5px;letter-spacing:.06em;color:rgba(176,200,232,.9);margin-bottom:10px}
   .kexit-row{display:flex;flex-wrap:wrap;gap:7px}
   .kexit-btn{font:inherit;font-size:12.5px;padding:6px 13px;border-radius:999px;
-    border:1px solid rgba(216,178,106,.3);background:rgba(216,178,106,.08);
-    color:rgba(240,214,164,.96);cursor:pointer;transition:background .18s ease}
-  .kexit-btn:hover{background:rgba(216,178,106,.18)}
+    border:1px solid rgba(142,216,255,.28);background:rgba(142,216,255,.08);
+    color:rgba(214,240,255,.96);cursor:pointer;transition:background .18s ease}
+  .kexit-btn:hover{background:rgba(142,216,255,.16)}
   /* ---- 打印：只留知识卡本体，白底黑字，题目不被切断 ---- */
   @media print{
     @page{margin:14mm}
@@ -1578,7 +1578,7 @@
   .kq{margin-top:14px;padding:12px 13px;border-radius:9px;background:rgba(255,255,255,.025);
     border:1px solid rgba(140,165,220,.12)}
   .kq-h{display:flex;align-items:center;gap:8px;margin-bottom:7px}
-  .kq-no{font-size:10.5px;letter-spacing:.08em;color:rgba(216,178,106,.85)}
+  .kq-no{font-size:10.5px;letter-spacing:.08em;color:rgba(142,216,255,.88)}
   .kq-type{font-size:10px;padding:0 5px;border-radius:4px;line-height:1.7;
     color:rgba(160,186,220,.9);border:1px solid rgba(140,165,220,.24)}
   .kq-meta{margin-left:auto;font-size:10.5px;letter-spacing:.06em;color:rgba(150,172,204,.9)}
@@ -1602,9 +1602,10 @@
     color:rgba(176,200,232,.82);margin-bottom:5px}
   .kq-ans p{margin:0;font-size:13.5px;line-height:1.9;color:rgba(218,230,246,.95)}
   .kq-show{margin-top:8px;font:inherit;font-size:12px;padding:6px 12px;border-radius:7px;
-    border:1px dashed rgba(148,182,224,.34);background:transparent;
-    color:rgba(196,214,240,.9);cursor:pointer}
-  .kq-show:hover{border-color:rgba(216,178,106,.5);color:rgba(240,214,164,.95)}
+    /* 虚框太淡就等于没有按钮：午夜蓝底上描边到 .45、字到近白才看得出是可点的 */
+    border:1px dashed rgba(142,216,255,.45);background:rgba(142,216,255,.06);
+    color:rgba(200,234,255,.96);cursor:pointer}
+  .kq-show:hover{border-color:rgba(142,216,255,.45);color:rgba(214,240,255,.95)}
   .kq-exp{display:none;margin-top:10px;padding-top:9px;border-top:1px dashed rgba(140,165,220,.18);
     font-size:12.5px;line-height:1.85;color:rgba(196,212,234,.94)}
   .kq-exp.on{display:block}
@@ -1618,7 +1619,7 @@
   .knx button{font:inherit;font-size:12.5px;padding:6px 13px;border-radius:999px;
     border:1px solid rgba(140,165,220,.22);background:transparent;color:rgba(186,204,230,.92);
     cursor:pointer;transition:border-color .18s ease,color .18s ease}
-  .knx button:hover{border-color:rgba(216,178,106,.5);color:rgba(240,214,164,.95)}
+  .knx button:hover{border-color:rgba(142,216,255,.45);color:rgba(214,240,255,.95)}
   .knx button.pend{color:rgba(140,158,186,.62);border-style:dashed}
   .kcite{margin-top:22px;padding-top:12px;border-top:1px solid rgba(140,165,220,.14);
     font-size:11.5px;line-height:1.72;color:rgba(138,154,182,.92)}
@@ -2079,7 +2080,7 @@ body.solar-on #globe-stage{transform:none !important;transition:none !important}
   font-size:9.5px;letter-spacing:.10em;color:var(--ink-faint);
   font-variant-numeric:tabular-nums;
 }
-.dock-item.active .di-iso{color:rgba(242,217,164,.75)}
+.dock-item.active .di-iso{color:rgba(186,226,255,.72)}
 
 /* --- 右侧档案面板 --- */
 /* 档案面板：一张浮起来的卡片，四边留白、圆角、带偏移的柔和阴影。
@@ -2090,22 +2091,16 @@ body.solar-on #globe-stage{transform:none !important;transition:none !important}
   position:fixed;top:16px;right:16px;bottom:16px;z-index:40;
   width:min(500px, calc(100vw - 32px));
   display:flex;flex-direction:column;
-  /* 三段色 #303d67 → #79799a → #fddfdc 从左到右。
-     直接铺满会有一个绕不开的矛盾：右端 #fddfdc 太亮，白字读不出；
-     左端太暗，黑字也读不出 —— 而正文只有一种颜色。
-     所以改成"深底 + 三段色的半透明罩染"：色相和走向都保留，
-     但整条都被压到同一明度区间（右端合成后约 rgb(107,94,92)，
-     白字对比度 5.6:1），文字终于能读了。
-     边框用同组色全强度渐变（双背景 padding-box/border-box，
-     border-image 会破坏圆角）。 */
+  /* 午夜蓝白（参考稿 PALETTE 01）：深蓝底 #101D32 系 + 暖白标题 #F9F5EA + 亮蓝强调 #8ED8FF。
+     原来的三段色罩染（#303d67 → #79799a → #fddfdc）偏紫偏粉，和页面其它深蓝对不上；
+     现在换成同一族的深蓝渐变，边框用亮蓝的低透明度描边，保留"有质感但不抢字"的观感。 */
   background:
-    linear-gradient(100deg,
-      rgba(48,61,103,.80) 0%,
-      rgba(84,88,122,.66) 38%,
-      rgba(121,121,154,.56) 66%,
-      rgba(253,223,220,.40) 100%) padding-box,
+    linear-gradient(158deg,
+      rgba(24,42,68,.95) 0%,
+      rgba(17,31,53,.96) 46%,
+      rgba(16,29,50,.97) 100%) padding-box,
     linear-gradient(180deg,#0b0f19 0%,#080b12 100%) padding-box,
-    linear-gradient(100deg,#303d67 0%,#79799a 56%,#fddfdc 100%) border-box;
+    linear-gradient(158deg,rgba(96,150,205,.50) 0%,rgba(48,84,130,.42) 58%,rgba(142,216,255,.46) 100%) border-box;
   border:1px solid transparent;
   border-radius:20px;
   box-shadow:0 28px 70px rgba(0,0,0,.62), 0 3px 10px rgba(0,0,0,.42);
@@ -2171,7 +2166,7 @@ body.solar-on #globe-stage{transform:none !important;transition:none !important}
   color:rgba(190,210,236,.96);
 }
 #pcard .pk-v{
-  margin-top:4px;font-size:16.5px;font-weight:600;color:#fff;
+  margin-top:4px;font-size:16.5px;font-weight:600;color:#F9F5EA;
   font-variant-numeric:tabular-nums;line-height:1.3;
 }
 #pcard .pk-v small{font-size:12px;font-weight:400;color:rgba(178,200,228,.9);margin-left:3px}
@@ -2222,7 +2217,7 @@ body.solar-on #globe-stage{transform:none !important;transition:none !important}
 }
 #pcard .pk-tips li::before{
   content:"";position:absolute;left:2px;top:8px;width:5px;height:5px;
-  border-radius:50%;background:rgba(226,199,150,.85);
+  border-radius:50%;background:rgba(142,216,255,.78);
 }
 /* 卡片最下方原来还有一段"怎么退出特写 + 影像来源"的提示语，用户要求去掉：
    退出方式卡上本来就有 × 和"点空白"，来源在每张图的说明里已经写了。
@@ -2241,7 +2236,7 @@ body.solar-on #globe-stage{transform:none !important;transition:none !important}
   margin:0;
   font-family:"PingFang SC","Microsoft YaHei","Noto Sans SC","Source Han Sans SC",
               "Segoe UI",system-ui,sans-serif;
-  font-size:26px;font-weight:700;letter-spacing:.02em;color:#fff;
+  font-size:26px;font-weight:700;letter-spacing:.02em;color:#F9F5EA;
 }
 #d-sub{
   margin-top:7px;font-size:11.5px;letter-spacing:.06em;color:var(--ink-faint);
@@ -2250,7 +2245,7 @@ body.solar-on #globe-stage{transform:none !important;transition:none !important}
 }
 /* 首都常年挂在抬头，跟正文一起滚会滚丢（见 renderDetail 里的注释）。
    用一点暖色把"这是事实、不是编号"区分出来，和命中高亮同一族色。 */
-#d-sub .dsub-cap{color:rgba(226,199,150,.95);letter-spacing:.04em}
+#d-sub .dsub-cap{color:rgba(186,226,255,.92);letter-spacing:.04em}
 .dscroll{
   flex:1 1 auto;overflow-y:auto;overflow-x:hidden;
   overscroll-behavior:contain;
@@ -2316,10 +2311,10 @@ body.solar-on #globe-stage{transform:none !important;transition:none !important}
 ::selection{
   /* 原来是无彩的淡蓝底 + 米白字，在近黑的搜索框里读起来就是"一块白斑"。
      换成和国界金线同源的暖金，文字保持原来的冷白，不跳。 */
-  background:rgba(198,160,88,.32);
+  background:rgba(142,216,255,.26);
   color:#f2f7ff;
 }
-::-moz-selection{background:rgba(198,160,88,.32);color:#f2f7ff}
+::-moz-selection{background:rgba(142,216,255,.26);color:#f2f7ff}
 
 .dscroll::-webkit-scrollbar,
 #q-res::-webkit-scrollbar{width:10px}
@@ -2559,8 +2554,8 @@ body.labels-canvas .mlabel{color:transparent!important;-webkit-text-stroke:0!imp
 }
 #tools-toggle:hover{background:rgba(13,20,31,.86);color:rgba(226,238,252,.94);border-color:rgba(150,182,222,.34)}
 #tools.open #tools-toggle{
-  color:#f7d79a;border-color:rgba(255,206,112,.46);
-  background:linear-gradient(180deg,rgba(255,205,110,.20),rgba(180,130,40,.09));
+  color:#8ED8FF;border-color:rgba(142,216,255,.42);
+  background:linear-gradient(180deg,rgba(142,216,255,.16),rgba(46,92,136,.12));
 }
 
 /* ---- 课堂教具：看图猜国家 ----
@@ -2657,7 +2652,7 @@ body.quiz-on #labels-canvas{display:none!important}
 .tg:last-child{grid-column:1/-1}
 .tg h3{
   margin:0 0 6px;font-size:11px;font-weight:600;
-  letter-spacing:.08em;color:rgba(198,218,242,.92);
+  letter-spacing:.08em;color:#F9F5EA;
 }
 .tg-r{display:flex;gap:6px}
 
@@ -2692,10 +2687,10 @@ body.quiz-on #labels-canvas{display:none!important}
   /* 三件事必须同时发生：图标金 + 内底暖 + 描边金。
      只加描边（.15 的淡金）在深色底上根本看不出来 —— 用户会说"里面和没打开一样"。
      内底对齐 .view-btn.on 的暖黑观感，只是这里是半透明叠在抽屉底上。 */
-  --ico:#f7d79a;
-  background:linear-gradient(180deg,rgba(255,205,110,.20),rgba(180,130,40,.09));
-  border-color:rgba(255,206,112,.46);
-  box-shadow:inset 0 1px 0 rgba(255,236,196,.10);
+  --ico:#8ED8FF;
+  background:linear-gradient(180deg,rgba(142,216,255,.16),rgba(46,92,136,.12));
+  border-color:rgba(142,216,255,.42);
+  box-shadow:inset 0 1px 0 rgba(214,240,255,.10);
 }
 .tool-btn.busy{opacity:.55;pointer-events:none}
 /* 名字做成 hover 浮出的提示框（和之前一样）：按钮里只放图标，
