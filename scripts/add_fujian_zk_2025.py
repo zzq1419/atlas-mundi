@@ -16,6 +16,7 @@ BANK = 'assets/bank/real.json'
 FIG = 'assets/bank/fig'
 SRC = 'E:/workbuddy/_fj/crops'
 YEAR, PAPER, EXAM = '2025', '福建中考', 'zk'
+PROV, CITY = '福建', '全省统一'   # 福建中考是省级统一命题
 
 # ------------------------------------------------------------------ 选择题
 # (题号, 题干, [选项], 答案下标, 解析, 主题, 用哪张图)
@@ -282,6 +283,7 @@ def main():
             'id': 'fjzk2025-%d' % no,
             'type': 'choice', 'lv': 'jr', 'grade': '初三', 'band': '初中',
             'exam': EXAM, 'year': YEAR, 'paper': PAPER, 'no': str(no),
+            'prov': PROV, 'city': CITY,
             'theme': theme, 'cat': '真题',
             'tags': ['中考', '2025', '福建', theme],
             'diff': 4.0, 'score': 2,
@@ -302,6 +304,7 @@ def main():
                 'id': 'fjzk2025-%d-%d' % (no, k),
                 'type': 'material', 'lv': 'jr', 'grade': '初三', 'band': '初中',
                 'exam': EXAM, 'year': YEAR, 'paper': PAPER, 'no': '%d-%d' % (no, k),
+                'prov': PROV, 'city': CITY,
                 'theme': theme, 'cat': '真题',
                 'tags': ['中考', '2025', '福建', theme],
                 'diff': 5.0, 'score': score,
