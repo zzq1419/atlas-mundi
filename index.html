@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="build" content="2026-11-28-C">
+<meta name="build" content="2026-11-28-D">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <!-- OBS 是图片/音频/贴图的唯一源站。提早点亮 DNS 和 TLS：
@@ -1104,6 +1104,8 @@
   .ex-start:disabled{background:#E3E6EA;border-color:#E3E6EA;color:#8A93A1;cursor:default}
   /* 卷别/主题用自定义下拉：原生 select 的展开弹层由浏览器绘制，
      左侧那条缝和边框都不归 CSS 管，换成自己画的才能控制位置和样式。 */
+  /* 省、市两个下拉并排（原来各占一行，把下面的按钮全挤下去了） */
+  .ex-frow{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
   .ex-dd{position:relative;display:inline-block}
   .ex-dd-btn{font:inherit;font-size:13px;height:29px;display:inline-flex;align-items:center;
     gap:9px;padding:0 11px;border-radius:8px;border:1px solid rgba(20,24,31,.16);
@@ -3659,20 +3661,21 @@ body.climate-layer-on #tools{z-index:44}
               </button>
               <div class="ex-dd-list" role="listbox" hidden></div>
             </div></div>
-          <!-- 中考是省市两级命题：先选省，再选市（省级统考的省，"市"里只有"全省统一"） -->
-          <div class="ex-f" id="f-provrow" hidden><span>省份</span>
-            <div class="ex-dd" id="dd-prov">
-              <button class="ex-dd-btn" type="button" aria-haspopup="listbox" aria-expanded="false">
-                <span class="ex-dd-label">全部省份</span><i class="ex-dd-caret"></i>
-              </button>
-              <div class="ex-dd-list" role="listbox" hidden></div>
-            </div></div>
-          <div class="ex-f" id="f-cityrow" hidden><span>城市</span>
-            <div class="ex-dd" id="dd-city">
-              <button class="ex-dd-btn" type="button" aria-haspopup="listbox" aria-expanded="false">
-                <span class="ex-dd-label">全部城市</span><i class="ex-dd-caret"></i>
-              </button>
-              <div class="ex-dd-list" role="listbox" hidden></div>
+          <!-- 中考是省市两级命题：省、市并排一行，不额外占行高 -->
+          <div class="ex-f" id="f-zkrow" hidden><span>省份</span>
+            <div class="ex-frow">
+              <div class="ex-dd" id="dd-prov">
+                <button class="ex-dd-btn" type="button" aria-haspopup="listbox" aria-expanded="false">
+                  <span class="ex-dd-label">全部省份</span><i class="ex-dd-caret"></i>
+                </button>
+                <div class="ex-dd-list" role="listbox" hidden></div>
+              </div>
+              <div class="ex-dd" id="dd-city">
+                <button class="ex-dd-btn" type="button" aria-haspopup="listbox" aria-expanded="false">
+                  <span class="ex-dd-label">全部城市</span><i class="ex-dd-caret"></i>
+                </button>
+                <div class="ex-dd-list" role="listbox" hidden></div>
+              </div>
             </div></div>
           <div class="ex-f"><span>主题</span>
             <div class="ex-dd" id="dd-theme">
@@ -17767,16 +17770,15 @@ body.climate-layer-on #tools{z-index:44}
           opts[n].focus();
         }
       });
-      return { render: render, close: close };
+      return { render: render, close: close, root: root };
     }
 
     /* 卷别下拉：只列当前「考试 + 年份」下真实存在的卷，选完自动回筛选 */
     function fillPapers() {
       var isZk = (F.exam === 'zk');
-      var rows = [$('f-paperrow'), $('f-provrow'), $('f-cityrow')];
-      if (rows[0]) rows[0].hidden = isZk;
-      if (rows[1]) rows[1].hidden = !isZk;
-      if (rows[2]) rows[2].hidden = !isZk;
+      var paperRow = $('f-paperrow'), zkRow = $('f-zkrow');
+      if (paperRow) paperRow.hidden = isZk;
+      if (zkRow) zkRow.hidden = !isZk;
       /* 两套筛选互不相干：切到中考就把「卷别」清掉，切回高考就把省市清掉，
          否则会带着上一套的条件筛出空集 */
       if (isZk) F.paper = '';
@@ -17825,8 +17827,17 @@ body.climate-layer-on #tools{z-index:44}
         if (F.prov && (it.prov || '') !== F.prov) return;
         if (it.city) set[it.city] = 1;
       });
+      var keys = Object.keys(set).sort();
       var opts = [{ v: '', t: '全部城市' }];
-      Object.keys(set).sort().forEach(function (c) { opts.push({ v: c, t: c }); });
+      keys.forEach(function (c) { opts.push({ v: c, t: c }); });
+      /* 这个省如果只有一种卷（比如福建是全省统一命题），城市就没有"选"的意义：
+         直接锁定它，并把下拉收起来，别放一个只有一个选项的空控件。 */
+      if (keys.length === 1) {
+        F.city = keys[0];
+        if (ddCity.root) ddCity.root.style.display = 'none';
+        return;
+      }
+      if (ddCity.root) ddCity.root.style.display = '';
       if (F.city && !set[F.city]) F.city = '';
       ddCity.render(opts, F.city, '全部城市');
     }
@@ -17858,12 +17869,10 @@ body.climate-layer-on #tools{z-index:44}
     function chipRow(box, list, key, counts) {
       box.textContent = '';
       list.forEach(function (o) {
+        /* 不往 chip 里塞计数：数字从 9 变 100，按钮宽度就跳一次，整排跟着挪。
+           想知道有多少题，底部那行「共 N 题可选」已经说了。 */
         var b = el('button', 'ex-chip' + (F[key] === o.v ? ' on' : ''), o.t);
         b.type = 'button';
-        if (counts) {
-          var n = counts[o.v];
-          if (n != null) b.appendChild(el('i', '', n));
-        }
         b.addEventListener('click', function () { F[key] = o.v; renderSetup(); });
         box.appendChild(b);
       });
@@ -19250,68 +19259,7 @@ body.climate-layer-on #tools{z-index:44}
       document.body.appendChild(wipeEl);
       return wipeEl;
     }
-    /* 一记"刷"：纸边从屏幕上划过去的脆响。
-       三版踩出来的规矩：
-       1. 时长必须短。0.4s 以上 + 宽带噪声 = "呼"的一声风，就是上一版被说成噪音的原因；
-          现在固定 0.34s，不跟着 660ms 的转场拉长。
-       2. 光扫带通中心频率，听感还是"嘶"。要叠一条窄带（Q5，跟着往下扫），
-          它带出音高，那一丝"咻"才是刃口切风，而不是电视雪花。
-          这一组参数是用户在试听台里从 A/B/C/D 里挑的 B：低频多留了一点（hp 520），
-          主刃更宽更厚（Q1.3，5.2k→900），像厚纸板擦过，不像 A 那么薄、那么嘶。
-       3. 声像得跟着线走。线从右扫到左，声音也从右飘到左，否则画面在动、声音钉在原地。 */
-    function swipeSound(ms, dir) {
-      try {
-        var C = window.AudioContext || window.webkitAudioContext;
-        if (!C) return;
-        var ac = window.__ac || (window.__ac = new C());
-        if (ac.state === 'suspended') ac.resume();
-        var dur = 0.34;
-        var sr = ac.sampleRate, n = Math.floor(sr * (dur + 0.05));
-        var buf = ac.createBuffer(1, n, sr);
-        var d = buf.getChannelData(0);
-        var prev = 0;
-        for (var i = 0; i < n; i++) {
-          var t = i / sr;
-          var x = Math.random() * 2 - 1;
-          prev += (x - prev) * 0.6;              // 一阶低通，去掉"雪花"最上面那层沙
-          var env = Math.pow(Math.max(0, 1 - t / dur), 2.0);
-          if (t < 0.005) env *= t / 0.005;       // 5ms 起音，防爆音，但薄得几乎听不出渐入
-          d[i] = prev * env;
-        }
-        var src = ac.createBufferSource(); src.buffer = buf;
-        var t0 = ac.currentTime + 0.012;
-        var hp = ac.createBiquadFilter();
-        hp.type = 'highpass'; hp.frequency.value = 520; hp.Q.value = 0.7;
-        /* 主刃：宽一点的带通，负责"刷"的能量，从 5.2k 压到 0.9k */
-        var bp = ac.createBiquadFilter();
-        bp.type = 'bandpass'; bp.Q.value = 1.3;
-        bp.frequency.setValueAtTime(5200, t0);
-        bp.frequency.exponentialRampToValueAtTime(900, t0 + dur * 0.96);
-        /* 副刃：极窄的共振，负责音高，叠在主刃上就是"咻"的那一下 */
-        var wh = ac.createBiquadFilter();
-        wh.type = 'bandpass'; wh.Q.value = 5;
-        wh.frequency.setValueAtTime(6600, t0);
-        wh.frequency.exponentialRampToValueAtTime(1900, t0 + dur * 0.92);
-        var wg = ac.createGain(); wg.gain.value = 0.5;
-        var g = ac.createGain();
-        g.gain.setValueAtTime(0.0001, t0);
-        g.gain.exponentialRampToValueAtTime(0.32, t0 + 0.012);
-        g.gain.exponentialRampToValueAtTime(0.0012, t0 + dur);
-        /* 声像跟线走：进场（右→左）从右飘到左，退场反过来 */
-        var pan = ac.createStereoPanner ? ac.createStereoPanner() : null;
-        if (pan) {
-          var a = (dir === undefined || dir > 0) ? 0.70 : -0.70;
-          pan.pan.setValueAtTime(a, t0);
-          pan.pan.linearRampToValueAtTime(-a, t0 + dur * 0.85);
-        }
-        src.connect(hp);
-        hp.connect(bp); bp.connect(g);
-        hp.connect(wh); wh.connect(wg); wg.connect(g);
-        if (pan) { g.connect(pan); pan.connect(ac.destination); }
-        else g.connect(ac.destination);
-        src.start(t0); src.stop(t0 + dur + 0.04);
-      } catch (e) {}
-    }
+
 
     /* 扫幕：dir>0 进场（白层从右往左揭开），dir<0 退场（从右往左收走）。 */
     var WIPE_MS = 660;
@@ -19337,7 +19285,7 @@ body.climate-layer-on #tools{z-index:44}
       ex.style.clipPath = to;
       ln.style.transform = x1;
       ln.style.opacity = '0';
-      swipeSound(WIPE_MS, dir);
+
       setTimeout(function () { if (my === wipeSeq && done) done(); }, WIPE_MS + 30);
     }
 
